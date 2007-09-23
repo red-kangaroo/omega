@@ -44,7 +44,7 @@ omega: $(OBJ)
 install: omega $(BINDIR) $(LIBDIR)
 	cp omega $(BINDIR)
 	chmod 4711 $(BINDIR)/omega
-	- cp ../omegalib/* $(LIBDIR)
+	- cp lib/* $(LIBDIR)
 	chmod 0644 $(LIBDIR)/help*.txt $(LIBDIR)/license.txt $(LIBDIR)/motd.txt $(LIBDIR)/thanks.txt $(LIBDIR)/update.txt
 	chmod 0600 $(LIBDIR)/abyss.txt $(LIBDIR)/scroll[1234].txt $(LIBDIR)/*.dat
 	chmod 0600 $(LIBDIR)/omega.hi $(LIBDIR)/omega.log $(LIBDIR)/omegahi.bak
@@ -52,7 +52,7 @@ install: omega $(BINDIR) $(LIBDIR)
 install_not_suid: omega $(BINDIR) $(LIBDIR)
 	cp omega $(BINDIR)
 	chmod 0711 $(BINDIR)/omega
-	- cp ../omegalib/* $(LIBDIR)
+	- cp lib/* $(LIBDIR)
 	chmod 0644 $(LIBDIR)/help*.txt $(LIBDIR)/license.txt $(LIBDIR)/motd.txt $(LIBDIR)/thanks.txt $(LIBDIR)/update.txt
 	chmod 0644 $(LIBDIR)/abyss.txt $(LIBDIR)/scroll[1234].txt $(LIBDIR)/*.dat
 	chmod 0666 $(LIBDIR)/omega.hi $(LIBDIR)/omega.log
