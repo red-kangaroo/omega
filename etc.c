@@ -24,7 +24,7 @@ void hint (void)
 	    mprint ("A sense of unease is a good thing to have.");
 	    break;
 	case 5:
-	    mprint ("If you dig too much, you might cause a cave in!.");
+	    mprint ("If you dig too much, you might cause a cave-in!");
 	    break;
 	case 6:
 	    mprint ("Be Lawful: Live and Let Live.");
@@ -288,13 +288,13 @@ void hint (void)
 	    mprint ("Only a master of chaos would kill all the city guards!");
 	    break;
 	case 93:
-	    mprint ("The Order depends on the force of the LawGiver");
+	    mprint ("The Order depends on the force of the LawGiver.");
 	    break;
 	case 94:
-	    mprint ("City Guards are employees of the Order");
+	    mprint ("City Guards are employees of the Order.");
 	    break;
 	case 95:
-	    mprint ("Disenchanted Artifacts can be restored");
+	    mprint ("Disenchanted Artifacts can be restored.");
 	    break;
     }
 }

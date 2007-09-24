@@ -3,7 +3,7 @@
 /* functions with file access in them. Also some direct calls to
    curses functions */
 
-#ifdef MSDOS
+#ifdef MSDOS_SUPPORTED_ANTIQUE
 # include "curses.h"
 #else
 # ifdef AMIGA
@@ -252,6 +252,7 @@ void showscores (void)
     printw ("\n\nHit any key to continue.");
     refresh ();
     wgetch (stdscr);
+    clear_screen ();
 }
 
 /* Writes a new high-score file, with the nominated npc as whatever it is */
@@ -498,7 +499,7 @@ int filecheck (void)
 	if (strcmp (Omegalib, OMEGALIB))
 	    printf ("\nEnvironment variable OMEGALIB badly set\n");
 	else {
-	    printf ("\nOMEGALIB may be badly #defined in odefs.h\n");
+	    printf ("\nOMEGALIB may be badly #defined in defs.h\n");
 #ifndef FIXED_OMEGALIB
 	    printf ("\nYou can set the environment variable OMEGALIB to\n");
 	    printf ("the location of the omegalib directory.\n");
@@ -528,7 +529,9 @@ void displayfile (char *filestr)
     while ((c != EOF) && ((char) d != 'q') && ((char) d != ESCAPE)) {
 	getyx (stdscr, y, x);
 	if (y > ScreenLength) {
+	    standout ();
 	    printw ("\n-More-");
+	    standend ();
 	    refresh ();
 	    d = wgetch (stdscr);
 	    clear ();
@@ -537,7 +540,9 @@ void displayfile (char *filestr)
 	c = fgetc (fd);
     }
     if (((char) d != 'q') && ((char) d != ESCAPE)) {
+	standout ();
 	printw ("\n-Done-");
+	standend ();
 	refresh ();
 	getch ();
     }
@@ -560,7 +565,9 @@ void displaycryptfile (char *filestr)
     while ((c != EOF) && ((char) d != 'q') && ((char) d != ESCAPE)) {
 	getyx (stdscr, y, x);
 	if (y > ScreenLength) {
+	    standout ();
 	    printw ("\n-More-");
+	    standend ();
 	    refresh ();
 	    d = wgetch (stdscr);
 	    clear ();
@@ -570,7 +577,9 @@ void displaycryptfile (char *filestr)
 	c = fgetc (fd);
     }
     if (((char) d != 'q') && ((char) d != ESCAPE)) {
+	standout ();
 	printw ("\n-Done-");
+	standend ();
 	refresh ();
 	getch ();
     }

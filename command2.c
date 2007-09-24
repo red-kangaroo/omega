@@ -3,7 +3,7 @@
 
 /* This file contains toplevel commands called from command1.c */
 
-#ifndef MSDOS
+#ifndef MSDOS_SUPPORTED_ANTIQUE
 #include <unistd.h>
 #include <ctype.h>
 #endif
@@ -190,7 +190,7 @@ void pickup (void)
 	pickup_at (Player.x, Player.y);
 }
 
-#ifndef MSDOS
+#ifndef MSDOS_SUPPORTED_ANTIQUE
 /* floor inventory */
 void floor_inv (void)
 {
@@ -417,10 +417,15 @@ void give (void)
 		obj->used = FALSE;
 		conform_lost_objects (1, Player.possessions[index]);
 		obj->number = 1;
-		givemonster (m, obj);
 		print2 ("Given: ");
 		nprint2 (itemid (obj));
 		morewait ();
+		/* WDT bug fix: I moved the print above the givemonster
+		 * call.  If that turns out looking ugly, I should change it to
+		 * a sprintf or strcat.  At any rate, it was wrong before because
+		 * it was accessing an object which had already been freed as part
+		 * of givemonster. */
+		givemonster (m, obj);
 		calc_melee ();
 	    } else {
 		print3 ("You can't even give away: ");
@@ -566,10 +571,6 @@ void setoptions (void)
 		if (to == 8)	/* COMPRESS_OPTION */
 		    to = 9;
 #endif
-#if !defined(MSDOS) && !defined(AMIGA)
-		if (to == 9)	/* SHOW_COLOUR */
-		    to = 10;
-#endif
 		slot = move_slot (slot, to, NUMOPTIONS + 1);
 		break;
 	    case 'k':
@@ -578,10 +579,6 @@ void setoptions (void)
 	    case KEY_UP:
 #endif
 		to = slot - 1;
-#if !defined(MSDOS) && !defined(AMIGA)
-		if (to == 9)	/* SHOW_COLOUR */
-		    to = 8;
-#endif
 #ifndef COMPRESS_SAVE_FILES
 		if (to == 8)	/* COMPRESS_OPTION */
 		    to = 7;
@@ -653,7 +650,7 @@ void setoptions (void)
 	colour_on ();
     else
 	colour_off ();
-#if !defined(MSDOS) && !defined(AMIGA)
+#if !defined(MSDOS_SUPPORTED_ANTIQUE) && !defined(AMIGA)
     xredraw ();
 #endif
 }

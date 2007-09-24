@@ -177,10 +177,12 @@ void heal (int amount)
 {
     if (amount > -1) {
 	mprint ("You feel better.");
-	Player.hp += random_range (10 * amount) + 1;
+	if (Player.hp < Player.maxhp + amount) {
+	    Player.hp += random_range (10 * amount) + 1;
+	    if (Player.hp > Player.maxhp)
+		Player.hp = Player.maxhp + amount;
+	}
 	Player.status[BLINDED] = 0;
-	if (Player.hp > Player.maxhp)
-	    Player.hp = Player.maxhp + amount;
     } else {
 	mprint ("You feel unwell.");
 	Player.hp -= random_range (10 * abs (amount) + 1);
@@ -200,6 +202,12 @@ void lbolt (int fx, int fy, int tx, int ty, int hit, int dmg)
     bolt (fx, fy, tx, ty, hit, dmg, ELECTRICITY);
 }
 
+/* Added 12/30/98 DG */
+void icebolt (int fx, int fy, int tx, int ty, int hit, int dmg)
+{
+    bolt (fx, fy, tx, ty, hit, dmg, COLD);
+}
+
 void nbolt (int fx, int fy, int tx, int ty, int hit, int dmg)
 {
     bolt (fx, fy, tx, ty, hit, dmg, NORMAL_DAMAGE);
@@ -210,20 +218,25 @@ void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 {
     int xx, yy;
     struct monster *target;
-    short boltchar;
+    Symbol boltchar;
     xx = fx;
     yy = fy;
 
     switch (dtype) {
 	case FLAME:
-	    boltchar = ('*' | COL_LIGHT_RED);
+	    boltchar = ('*' | CLR (LIGHT_RED));
 	    break;
 	case ELECTRICITY:
-	    boltchar = ('^' | COL_LIGHT_BLUE);
+	    boltchar = ('^' | CLR (LIGHT_BLUE));
 	    break;
 	case NORMAL_DAMAGE:
-	    boltchar = ('!' | COL_BROWN);
+	    boltchar = ('!' | CLR (BROWN));
 	    break;
+	case COLD:
+	    boltchar = ('o' | CLR (WHITE));
+	    break;
+	default:
+	    assert (FALSE);	/* this should never happen, right? WDT */
     }
     clearmsg ();
 
@@ -246,6 +259,10 @@ void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 		    mprint ("You were hit by a missile!");
 		    p_damage (random_range (dmg), dtype, "a missile");
 		    break;
+		case COLD:
+		    mprint ("You were hit by an icicle!");
+		    p_damage (random_range (dmg), dtype, "an icicle");
+		    break;
 	    }
 	}
     } else if (NULL != (target = Level->site[xx][yy].creature)) {
@@ -256,6 +273,8 @@ void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 	    } else
 		strcpy (Str1, target->monstring);
 	    switch (dtype) {
+		    /* WDT: these sentances really ought to be livened up.  Especially
+		     * in full verbose mode. */
 		case FLAME:
 		    strcat (Str1, " was blasted by a firebolt!");
 		    break;
@@ -264,6 +283,9 @@ void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 		    break;
 		case NORMAL_DAMAGE:
 		    strcat (Str1, " was hit by a missile!");
+		    break;
+		case COLD:
+		    strcat (Str1, " was hit by an icicle!");
 		    break;
 	    }
 	    mprint (Str1);
@@ -284,6 +306,9 @@ void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 		    break;
 		case NORMAL_DAMAGE:
 		    strcat (Str1, " was missed by a missile!");
+		    break;
+		case COLD:
+		    strcat (Str1, " was missed by a flying icicle!");
 		    break;
 	    }
 	    mprint (Str1);
@@ -334,20 +359,20 @@ void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
 {
     int xx, yy, ex, ey, i;
     struct monster *target;
-    short expchar = ('@' | COL_LIGHT_PURPLE);
+    Symbol expchar = ('@' | CLR (LIGHT_PURPLE));
 
     xx = fx;
     yy = fy;
 
     switch (dtype) {
 	case FLAME:
-	    expchar = ('*' | COL_LIGHT_RED);
+	    expchar = ('*' | CLR (LIGHT_RED));
 	    break;
 	case COLD:
-	    expchar = ('o' | COL_WHITE);
+	    expchar = ('o' | CLR (WHITE));
 	    break;
 	case ELECTRICITY:
-	    expchar = ('^' | COL_LIGHT_BLUE);
+	    expchar = ('^' | CLR (LIGHT_BLUE));
 	    break;
     }
 
@@ -431,7 +456,10 @@ void mondet (int blessing)
     pml ml;
     for (ml = Level->mlist; ml != NULL; ml = ml->next)
 	if (ml->m->hp > 0)
-	    plotmon (blessing > -1 ? ml->m : &(Monsters[random_range (NUMMONSTERS)]));
+	    if (blessing > -1)
+		plotmon (ml->m);
+	    else
+		putspot (random_range (WIDTH), random_range (LENGTH), Monsters[random_range (NUMMONSTERS)].monchar);
     levelrefresh ();
     morewait ();
     show_screen ();
@@ -569,7 +597,7 @@ void wish (int blessing)
 	    Spells[i].known = TRUE;
     } else if (strcmp (wishstr, "Health") == 0) {
 	print2 ("You feel vigorous");
-	Player.hp = Player.maxhp;
+	Player.hp = max (Player.hp, Player.maxhp);
 	Player.status[DISEASED] = 0;
 	Player.status[POISONED] = 0;
     } else if (strcmp (wishstr, "Destruction") == 0)

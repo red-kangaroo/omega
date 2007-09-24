@@ -2,7 +2,7 @@
 /* inv.c */
 /* functions having to do with player item inventory */
 
-#ifdef MSDOS
+#ifdef MSDOS_SUPPORTED_ANTIQUE
 # include "curses.h"
 #else
 # ifdef AMIGA
@@ -14,11 +14,14 @@
 
 #include "glob.h"
 
+void do_inventory_control (void);
+
 /* drops money, heh heh */
 void drop_money (void)
 {
     pob money;
 
+    /* WDT HACK!  Let me guess -- this is yet another memory leak, right? */
     money = detach_money ();
     if (money != NULL) {
 	if (Current_Environment == E_CITY) {
@@ -92,6 +95,65 @@ void pickup_at (int x, int y)
 	temp->next = NULL;
 	free ((char *) temp);
     }
+}
+
+/* WDT -- convert from a char (keypress) to an item index in
+ * player inventory */
+/* Item identifiers, in this case the letters of the alphabet minus
+ * any letters already used for commands.  Yes, there are more here
+ * than could be needed, but I don't want to short myself for later.
+ */
+signed char inventory_keymap[] = "-abcfghimnoqruvwyz";
+int key_to_index (int key)
+{
+    int i;
+    assert (MAXITEMS > 0);	/* must have room for an item, or this loop will
+				 * die! */
+
+    for (i = 0; i < MAXITEMS; i++) {
+	if (key == inventory_keymap[i])
+	    return (signed char) i;
+    }
+    return O_UP_IN_AIR;
+}
+
+signed char index_to_key (signed int index)
+{
+    if (index < MAXITEMS)
+	return inventory_keymap[index];
+    else
+	return '-';
+}
+
+/* criteria for being able to put some item in some slot */
+/* WDT -- why on earth does the 'slottable' function print stuff???? */
+int aux_slottable (pob o, int slot)
+{
+    int ok = TRUE;
+    if (o == NULL)
+	ok = FALSE;
+    else if (slot == O_ARMOR) {
+	if (o->objchar != ARMOR) {
+	    ok = FALSE;
+	}
+    } else if (slot == O_SHIELD) {
+	if (o->objchar != SHIELD) {
+	    ok = FALSE;
+	}
+    } else if (slot == O_BOOTS) {
+	if (o->objchar != BOOTS) {
+	    ok = FALSE;
+	}
+    } else if (slot == O_CLOAK) {
+	if (o->objchar != CLOAK) {
+	    ok = FALSE;
+	}
+    } else if (slot >= O_RING1) {
+	if (o->objchar != RING) {
+	    ok = FALSE;
+	}
+    }
+    return (ok);
 }
 
 /* put all of o on objlist at x,y on Level->depth */
@@ -282,7 +344,7 @@ void give_money (struct monster *m)
 void givemonster (struct monster *m, struct object *o)
 {
     /* special case -- give gem to LawBringer */
-    if ((m->id == ML10 + 2) && (o->id == ARTIFACTID + 21)) {
+    if ((m->id == LAWBRINGER) && (o->id == ARTIFACTID + 21)) {
 	clearmsg ();
 	print1 ("The LawBringer accepts the gem reverently.");
 	print2 ("He raises it above his head, where it bursts into lambent flame!");
@@ -300,6 +362,8 @@ void givemonster (struct monster *m, struct object *o)
 	Player.pow = Player.maxpow = Player.pow * 2;
 	gain_experience (2000);
 	setgamestatus (GAVE_STARGEM);
+	/* WDT HACK!!!  Where else would this ever get freed?? */
+	free (o);
     } else {
 	if (m->uniqueness == COMMON) {
 	    strcpy (Str3, "The ");
@@ -426,10 +490,10 @@ listed in the possibilities.
    if itype is any other object type (eg SCROLL, POTION, etc.), only
 that type of item is acceptable or is listed */
 
-int getitem (int itype)
+int getitem (Symbol itype)
 {
     char invstr[64];
-    char index;
+    char key;
     int i, k = 0, ok = FALSE, drewmenu = FALSE, found = FALSE;
 
     found = ((itype == NULL_ITEM) || ((itype == CASH) && (Player.cash > 0)));
@@ -438,7 +502,7 @@ int getitem (int itype)
 	if (Player.possessions[i] != NULL)
 	    if ((itype == NULL_ITEM) || (itype == CASH) || (Player.possessions[i]->objchar == itype) || ((itype == FOOD) && (Player.possessions[i]->objchar == CORPSE))) {
 		found = TRUE;
-		invstr[k++] = 'a' + i - 1;
+		invstr[k++] = index_to_key (i);
 		invstr[k] = 0;
 	    }
     if ((itype == CASH) && found) {
@@ -453,35 +517,35 @@ int getitem (int itype)
 	nprint2 (invstr);
 	nprint2 (",?] ");
 	while (!ok) {
-	    index = (char) mcigetc ();
-	    if (index == '?') {
+	    key = (char) mcigetc ();
+	    if (key == '?') {
 		drewmenu = TRUE;
 		for (i = 1; i < MAXITEMS; i++)
 		    if (Player.possessions[i] != NULL)
 			if ((itype == NULL_ITEM) || (itype == CASH) || (Player.possessions[i]->objchar == itype) || ((itype == FOOD) && (Player.possessions[i]->objchar == CORPSE)))
 			    display_inventory_slot (i, FALSE);
-	    } else if (index == ESCAPE)
+	    } else if (key == ESCAPE)
 		ok = TRUE;
-	    else if (index == (CASH & 0xff)) {
+	    else if (key == (CASH & 0xff)) {
 		if (itype == CASH)
 		    ok = TRUE;
 		else {
 		    print3 ("You cannot select cash now.");
 		    ok = FALSE;
 		}
-	    } else if (badobject (index) || (!strmem (index, invstr)))
+	    } else if (!strmem (key, invstr) || key_to_index (key) == (signed char) -1)
 		print3 ("Nope! Try again [? for inventory, ESCAPE to quit]:");
 	    else
 		ok = TRUE;
 	}
 	if (drewmenu)
 	    xredraw ();
-	if (index == ESCAPE)
+	if (key == ESCAPE)
 	    return (ABORT);
-	else if (index == (CASH & 0xff))
+	else if (key == (CASH & 0xff))
 	    return (CASHVALUE);
 	else
-	    return (index + 1 - 'a');
+	    return key_to_index (key);
     }
 }
 
@@ -496,7 +560,7 @@ int badobject (int slotchar)
 	return (Player.possessions[slot] == NULL);
 }
 
-#ifndef MSDOS
+#ifndef MSDOS_SUPPORTED_ANTIQUE
 /* this takes the numerical index directly for the same effect as badobject*/
 int baditem (int slotnum)
 {
@@ -520,12 +584,22 @@ void gain_item (struct object *o)
     } else if (optionp (PACKADD)) {
 	if (!get_to_pack (o)) {
 	    Player.possessions[O_UP_IN_AIR] = o;
-	    top_inventory_control ();
+	    do_inventory_control ();
 	}
     } else {
 	Player.possessions[O_UP_IN_AIR] = o;
-	top_inventory_control ();
+	do_inventory_control ();
     }
+}
+
+/* inserts the item at the start of the pack array */
+void push_pack (pob o)
+{
+    int i;
+    for (i = Player.packptr; i > 0; i--)
+	Player.pack[i] = Player.pack[i - 1];
+    Player.pack[0] = o;
+    Player.packptr++;
 }
 
 /* Adds item to pack list */
@@ -535,7 +609,7 @@ void add_to_pack (pob o)
 	print3 ("Your pack is full. The item drops to the ground.");
 	drop_at (Player.x, Player.y, o);
     } else {
-	Player.pack[Player.packptr++] = o;
+	push_pack (o);
 	print3 ("Putting item in pack.");
     }
 }
@@ -548,15 +622,160 @@ int get_to_pack (pob o)
 	morewait ();
 	return (FALSE);
     } else {
-	Player.pack[Player.packptr++] = o;
+	push_pack (o);
 	print3 ("Putting item in pack.");
 	return (TRUE);
     }
 }
 
+int pack_item_cost (int index)
+{
+    int cost;
+    if (index > 20) {
+	cost = 17;
+    } else if (index > 15) {
+	cost = 7;
+    } else
+	cost = 2;
+    return cost;
+}
+
+/* WDT -- 'response' must be an index into the pack. */
+int use_pack_item (int response, int slot)
+{
+    pob item;
+    int i;
+    i = pack_item_cost (response);
+    if (i > 10) {
+	print1 ("You begin to rummage through your pack.");
+	morewait ();
+    }
+    if (i > 5) {
+	print1 ("You search your pack for the item.");
+	morewait ();
+    }
+    print1 ("You take the item from your pack.");
+    morewait ();
+    Command_Duration += i;
+    item = Player.possessions[slot] = Player.pack[response];
+    for (i = response; i < Player.packptr - 1; i++)
+	Player.pack[i] = Player.pack[i + 1];
+    Player.pack[--Player.packptr] = NULL;
+
+    if ((slot == O_READY_HAND || slot == O_WEAPON_HAND) && twohandedp (item->id)) {
+	if (Player.possessions[O_READY_HAND] == NULL)
+	    Player.possessions[O_READY_HAND] = item;
+	if (Player.possessions[O_WEAPON_HAND] == NULL)
+	    Player.possessions[O_WEAPON_HAND] = item;
+    }
+    if (item_useable (item, slot)) {
+	item->used = TRUE;
+	item_use (item);
+	morewait ();
+	if (item->number > 1)
+	    pack_extra_items (item);
+    }
+}
+
+/* WDT HACK!  This ought to be in scr.c, along with its companion.  However,
+ * right now it's only used in the function directly below. */
+int aux_display_pack (int start_item, int slot)
+{
+    int i = start_item, items;
+    char *depth_string;
+    if (Player.packptr < 1)
+	print3 ("Pack is empty.");
+    else if (Player.packptr <= start_item)
+	print3 ("You see the leather at the bottom of the pack.");
+    else {
+	menuclear ();
+	items = 0;
+	for (i = start_item; i < Player.packptr && items < ScreenLength - 5; i++) {
+	    if (aux_slottable (Player.pack[i], slot)) {
+		if (pack_item_cost (i) > 10)
+		    depth_string = "**";
+		else if (pack_item_cost (i) > 5)
+		    depth_string = "* ";
+		else
+		    depth_string = "  ";
+		sprintf (Str1, "  %c: %s %s\n", i + 'a', depth_string, itemid (Player.pack[i]));
+		if (items == 0)
+		    menuprint ("Items in Pack:\n");
+		menuprint (Str1);
+		items++;
+	    }
+	}
+	if (items == 0)
+	    menuprint ("You see nothing useful for that slot in the pack.");
+	else {
+	    menuprint ("\n*: Takes some time to reach; **: buried very deeply.");
+	}
+	showmenu ();
+    }
+    return i;
+}
+
 /* takes something from pack, puts to slot, 
 or to 'up-in-air', one of which at least must be empty */
-int take_from_pack (int slot, int display)
+int aux_take_from_pack (int slot)
+{
+    char response, pack_item, last_item;
+    int i, quit = FALSE, ok = TRUE;
+    if (Player.possessions[slot] != NULL)
+	slot = O_UP_IN_AIR;
+    if (Player.possessions[slot] != NULL)
+	print3 ("slot is not empty!");
+    else if (Player.packptr < 1)
+	print3 ("Pack is empty!");
+    else {
+	pack_item = 0;
+	do {
+	    ok = TRUE;
+	    last_item = aux_display_pack (pack_item, slot);
+	    if (last_item == Player.packptr && pack_item == 0)
+		print1 ("Enter pack slot letter or ESCAPE to quit.");
+	    else if (last_item == Player.packptr)
+		print1 ("Enter pack slot letter, - to go back, or ESCAPE to quit.");
+	    else if (pack_item == 0)
+		print1 ("Enter pack slot letter, + to see more, or ESCAPE to quit.");
+	    else
+		print1 ("Enter pack slot letter, + or - to see more, or ESCAPE to quit.");
+	    response = mcigetc ();
+	    if (response == '?') {
+		/* WDT HACK -- display some help instead. */
+		print1 ("Help not implemented (sorry).");
+		morewait ();
+		ok = FALSE;
+	    } else if (response == ESCAPE)
+		quit = TRUE;
+	    else if (response == '+') {
+		if (last_item < Player.packptr)
+		    pack_item = last_item;
+		ok = FALSE;
+	    } else if (response == '-') {
+		/* WDT HACK: this _should_ make us page up.  Sadly,
+		 * I have no way of calculating how much I'll be paging up.
+		 * This is fixable, but I have no idea how much work... */
+		pack_item = 0;
+		ok = FALSE;
+	    } else {
+		ok = ((response >= 'a') && (response < 'a' + Player.packptr));
+		if (ok)
+		    ok = slottable (Player.pack[response - 'a'], slot);
+	    }
+	} while (!ok);
+	if (!quit) {
+	    use_pack_item (response - 'a', slot);
+	}
+    }
+    if (optionp (TOPINV))
+	display_possessions ();
+    return slot;
+}
+
+/* takes something from pack, puts to slot, 
+or to 'up-in-air', one of which at least must be empty */
+int aux_top_take_from_pack (int slot, int display)
 {
     char response;
     int i, quit = FALSE, ok = TRUE, displayed = FALSE;
@@ -571,7 +790,7 @@ int take_from_pack (int slot, int display)
 	do {
 	    ok = TRUE;
 	    print1 ("Enter pack slot letter, or ? to show pack, or ESCAPE to quit.");
-	    response = mgetc ();
+	    response = mcigetc ();
 	    if (response == '?') {
 		display_pack ();
 		displayed = TRUE;
@@ -579,44 +798,13 @@ int take_from_pack (int slot, int display)
 	    } else if (response == ESCAPE)
 		quit = TRUE;
 	    else {
-		ok = ((response >= 'A') && (response < 'A' + Player.packptr));
+		ok = ((response >= 'a') && (response < 'a' + Player.packptr));
 		if (ok)
-		    ok = slottable (Player.pack[response - 'A'], slot);
+		    ok = slottable (Player.pack[response - 'a'], slot);
 	    }
 	} while (!ok);
-	if (!quit) {
-	    if (response - 'A' > 10) {
-		print1 ("You begin to rummage through your pack.");
-		morewait ();
-		Command_Duration += 10;
-	    }
-	    if (response - 'A' > 5) {
-		print1 ("You search your pack for the item.");
-		Command_Duration += 5;
-		morewait ();
-	    }
-	    print1 ("You take the item from your pack.");
-	    morewait ();
-	    Command_Duration += 2;
-	    item = Player.possessions[slot] = Player.pack[response - 'A'];
-	    for (i = response - 'A'; i < Player.packptr - 1; i++)
-		Player.pack[i] = Player.pack[i + 1];
-	    Player.pack[--Player.packptr] = NULL;
-
-	    if ((slot == O_READY_HAND || slot == O_WEAPON_HAND) && twohandedp (item->id)) {
-		if (Player.possessions[O_READY_HAND] == NULL)
-		    Player.possessions[O_READY_HAND] = item;
-		if (Player.possessions[O_WEAPON_HAND] == NULL)
-		    Player.possessions[O_WEAPON_HAND] = item;
-	    }
-	    if (item_useable (item, slot)) {
-		item->used = TRUE;
-		item_use (item);
-		morewait ();
-		if (item->number > 1)
-		    pack_extra_items (item);
-	    }
-	}
+	if (!quit)
+	    use_pack_item (response - 'a', slot);
     }
     if (displayed) {
 	if (display)
@@ -627,7 +815,15 @@ int take_from_pack (int slot, int display)
     return slot;
 }
 
-#ifndef MSDOS
+int take_from_pack (int slot, int display)
+{
+    if (optionp (TOPINV))
+	aux_top_take_from_pack (slot, display);
+    else
+	aux_take_from_pack (slot);
+}
+
+#ifndef MSDOS_SUPPORTED_ANTIQUE
 /* General interface to inventory */
 void item_inventory (int topline)
 {
@@ -638,6 +834,17 @@ void item_inventory (int topline)
 	top_inventory_control ();
 }
 #endif
+
+void do_inventory_control (void)
+{
+    if (optionp (TOPINV))
+	top_inventory_control ();
+    else {
+	menuclear ();
+	display_possessions ();
+	inventory_control ();
+    }
+}
 
 /* inventory_control assumes a few setup things have been done,
    like displaying the slots, loading the O_UP_IN_AIR item, etc.
@@ -650,7 +857,7 @@ void inventory_control (void)
     int slot = 0, done = FALSE;
     int response;
     char letter;
-#ifdef MSDOS
+#ifdef MSDOS_SUPPORTED_ANTIQUE
     int simple = 0;
 #endif
     clearmsg3 ();
@@ -726,6 +933,7 @@ void inventory_control (void)
 		show_inventory_slot (slot, FALSE);
 		Command_Duration += 2;
 		break;
+	    case '\n':
 	    case 'x':
 		switch_to_slot (slot);
 		show_inventory_slot (O_UP_IN_AIR, FALSE);
@@ -735,30 +943,32 @@ void inventory_control (void)
 		break;
 	    case 'j':
 	    case '>':
-#if defined(KEY_DOWN) && defined(MSDOS)
+	    case '2':
+#if defined(KEY_DOWN)
 	    case KEY_DOWN:
-		simple = 1;
 #endif
 		slot = move_slot (slot, slot + 1, MAXITEMS);
 		break;
 	    case 'k':
 	    case '<':
-#if defined(KEY_UP) && defined(MSDOS)
+	    case '8':
+#if defined(KEY_UP)
 	    case KEY_UP:
-		simple = 1;
 #endif
 		slot = move_slot (slot, slot - 1, MAXITEMS);
 		break;
 #ifdef KEY_HOME
 	    case KEY_HOME:
+#endif
+	    case '-':
 		slot = move_slot (slot, 0, MAXITEMS);
 		break;
-#endif
 #ifdef KEY_LL
 	    case KEY_LL:
+#endif
+	    case '+':
 		slot = move_slot (slot, MAXITEMS - 1, MAXITEMS);
 		break;
-#endif
 	    case '?':
 		menuclear ();
 		menuprint ("d:\tDrop up-in-air or current item\n");
@@ -787,15 +997,22 @@ void inventory_control (void)
 		}
 		done = TRUE;
 		break;
+	    default:
+		if (key_to_index (response) > 0) {
+		    slot = move_slot (slot, key_to_index (response), MAXITEMS);
+		    if (Player.possessions[slot] == NULL && Player.possessions[O_UP_IN_AIR] == NULL) {
+			show_inventory_slot (take_from_pack (slot, TRUE), FALSE);
+			Command_Duration += 5;
+		    } else {
+			switch_to_slot (slot);
+			show_inventory_slot (slot, FALSE);
+			slot = O_UP_IN_AIR;
+			show_inventory_slot (slot, FALSE);
+			Command_Duration += 2;
+		    }
+		}
 	}
-#ifndef MSDOS
 	calc_melee ();
-#else
-	if (!simple)
-	    calc_melee ();
-	else
-	    simple = 0;
-#endif
     } while (!done);
     xredraw ();
 }
@@ -876,11 +1093,15 @@ void top_inventory_control (void)
 		break;
 	    case 'e':
 		slot = get_inventory_slot ();
+		if (slot == O_UP_IN_AIR)
+		    break;
 		switch_to_slot (slot);
 		Command_Duration += 2;
 		break;
 	    case 'x':
 		slot = get_inventory_slot ();
+		if (slot == O_UP_IN_AIR)
+		    break;
 		switch_to_slot (slot);
 		Command_Duration += 2;
 		done = (Player.possessions[O_UP_IN_AIR] == NULL);
@@ -925,17 +1146,20 @@ void top_inventory_control (void)
 	xredraw ();
 }
 
+/* Let the user select a slot. */
 int get_inventory_slot (void)
 {
-    int ok;
-    char response;
+    signed char response;
     do {
 	clearmsg1 ();
-	print1 ("Which inventory slot [a..o,*='up-in-air' slot]?");
-	response = (char) mcigetc ();
-	ok = ((response == '*') || ((response >= 'a') && (response < 'a' + MAXITEMS - 1)));
-    } while (!ok);
-    return ((response == '*') ? 0 : ((int) (response + 1 - 'a')));
+	print1 ("Which inventory slot ['-'='up-in-air' slot]?");
+	response = (signed char) mcigetc ();
+	if (response == ESCAPE || response == '-')
+	    return O_UP_IN_AIR;
+	else
+	    response = key_to_index (response);
+    } while (response != O_UP_IN_AIR);
+    return response;
 }
 
 /* returns some number between 0 and o->number */
@@ -1189,6 +1413,8 @@ int slottable (pob o, int slot)
     return (ok);
 }
 
+/* ->;WDT HACK: this is bad factoring.  I want to use this, but it's
+ * printing SILLY stuff out. */
 /* whether or not an item o can be used in a slot. Assumes o can in
    fact be placed in the slot. */
 int item_useable (pob o, int slot)
@@ -1311,7 +1537,7 @@ void pack_extra_items (pob item)
     if (Player.packptr < MAXPACK) {
 	print3 ("Putting extra items back in pack.");
 	morewait ();
-	Player.pack[Player.packptr++] = extra;
+	push_pack (extra);
     } else if (Player.possessions[O_UP_IN_AIR] == NULL) {
 	print3 ("Extra copies of item are 'up in the air'");
 	Player.possessions[O_UP_IN_AIR] = extra;

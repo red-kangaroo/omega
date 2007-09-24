@@ -53,7 +53,7 @@ void p_process (void)
 		xredraw ();
 		setgamestatus (SKIP_MONSTERS);
 		break;		/* ^l */
-#ifndef MSDOS
+#ifndef MSDOS_SUPPORTED_ANTIQUE
 	    case 16:
 		bufferprint ();
 		setgamestatus (SKIP_MONSTERS);
@@ -102,12 +102,7 @@ void p_process (void)
 		Command_Duration = Player.speed * 10 / 5;
 		break;
 	    case 'i':
-		if (optionp (TOPINV))
-		    top_inventory_control ();
-		else {
-		    display_possessions ();
-		    inventory_control ();
-		}
+		do_inventory_control ();
 		break;
 	    case 'm':
 		magic ();
@@ -185,7 +180,7 @@ void p_process (void)
 		break;
 	    case 'O':
 		setoptions ();
-#if defined(AMIGA) || defined(MSDOS)
+#if defined(AMIGA) || defined(MSDOS_SUPPORTED_ANTIQUE)
 		show_screen ();
 		xredraw ();
 #endif
@@ -209,7 +204,7 @@ void p_process (void)
 	    case 'V':
 		version ();
 		break;
-#ifdef MSDOS
+#ifdef MSDOS_SUPPORTED_ANTIQUE
 	    case 'X':
 		check_memory ();
 		break;
@@ -375,7 +370,7 @@ void p_country_process (void)
 		xredraw ();
 		no_op = TRUE;
 		break;		/* ^l */
-#ifndef MSDOS
+#ifndef MSDOS_SUPPORTED_ANTIQUE
 	    case 16:
 		bufferprint ();
 		no_op = TRUE;
@@ -405,13 +400,7 @@ void p_country_process (void)
 		eat ();
 		break;
 	    case 'i':
-		if (optionp (TOPINV))
-		    top_inventory_control ();
-		else {
-		    menuclear ();
-		    display_possessions ();
-		    inventory_control ();
-		}
+		do_inventory_control ();
 		break;
 	    case 's':
 		countrysearch ();
@@ -452,7 +441,7 @@ void p_country_process (void)
 	    case 'V':
 		version ();
 		break;
-#ifdef MSDOS
+#ifdef MSDOS_SUPPORTED_ANTIQUE
 	    case 'X':
 		check_memory ();
 		break;

@@ -72,6 +72,16 @@ void knowledge (int blessing)
 	    menuprint ("Heroic\n");
 	if (Player.status[LEVITATING])
 	    menuprint ("Levitating\n");
+	if (Player.status[TRUESIGHT])
+	    menuprint ("Sharp\n");
+	if (Player.status[SHADOWFORM])
+	    menuprint ("Shadowy\n");
+	if (Player.status[ILLUMINATION])
+	    menuprint ("Glowing\n");
+	if (Player.status[DEFLECTION])
+	    menuprint ("Buffered\n");
+	if (Player.status[RETURNING])
+	    menuprint ("Returning\n");
 	showmenu ();
 	morewait ();
 	menuclear ();

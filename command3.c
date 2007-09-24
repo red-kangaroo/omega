@@ -4,7 +4,7 @@
 /* This file contains some more top level command functions
    called from command1.c */
 
-#ifndef MSDOS
+#ifndef MSDOS_SUPPORTED_ANTIQUE
 #include <pwd.h>
 #include <unistd.h>
 #endif
@@ -20,6 +20,16 @@ void examine (void)
 
     clearmsg ();
 
+    /* WDT HACK: I'm not sure I buy that one shouldn't be able to examine
+     * when one is blind.  However, the 'right' way to do it is certainly
+     * too difficult (I would expect to be able to examine only the items
+     * I actually recall).  So, for now I'll use David Given's compromise.
+     * 12/30/98
+     */
+    if (Player.status[BLINDED] > 0) {
+	mprint ("You're blind - you can't examine things.");
+	return;
+    }
     setgamestatus (SKIP_MONSTERS);
     mprint ("Examine --");
     setspot (&x, &y);
@@ -517,7 +527,7 @@ void charid (void)
 void wizard (void)
 {
     char *lname;
-#ifndef MSDOS
+#ifndef MSDOS_SUPPORTED_ANTIQUE
     struct passwd *dastuff;
 #endif
 
@@ -529,7 +539,7 @@ void wizard (void)
 	mprint ("Really try to enter wizard mode? [yn] ");
 	if (ynq () == 'y') {
 	    lname = getlogin ();
-#ifndef MSDOS
+#ifndef MSDOS_SUPPORTED_ANTIQUE
 	    if (!lname || strlen (lname) == 0) {
 		dastuff = getpwuid (getuid ());
 		lname = dastuff->pw_name;
@@ -766,8 +776,7 @@ void tacoptions (void)
 		done = TRUE;
 		break;
 	}
-	if (actionsleft < 1)
-	    morewait ();
+	/*    if (actionsleft < 1) morewait(); */
     } while (!done);
     xredraw ();
     Player.meleestr[place] = 0;
@@ -796,7 +805,7 @@ void pickpocket (void)
 	    setgamestatus (SKIP_MONSTERS);
 	} else {
 	    m = Level->site[Player.x + dx][Player.y + dy].creature;
-	    if (m->id == ML0 + 3) {
+	    if (m->id == GUARD) {
 		mprint ("Trying to steal from a guardsman, eh?");
 		mprint ("Not a clever idea.");
 		if (Player.cash > 0) {

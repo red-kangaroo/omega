@@ -3,7 +3,7 @@
 
 /* Random utility functions called from all over */
 
-#ifndef MSDOS
+#ifndef MSDOS_SUPPORTED_ANTIQUE
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/wait.h>
@@ -22,8 +22,8 @@ int inbounds (int x, int y)
 /* RANDFUNCTION is defined in odefs.h */
 int random_range (int k)
 {
-    /*return( k==0 ? 0 : (int) RANDFUNCTION % k ) ; */
-    return (k == 0 ? 0 : (int) ((RANDFUNCTION % 10000) * k) / 10000);
+    /*return( k==0 ? 0 : (int) RANDFUNCTION() % k ) ; */
+    return (k == 0 ? 0 : (int) ((RANDFUNCTION () % 10000) * k) / 10000);
 }
 
 /* modify absolute y coord relative to which part of level we are on */
@@ -127,7 +127,7 @@ int view_unblocked (int x, int y)
 	return (TRUE);
 }
 
-#ifndef MSDOS
+#ifndef MSDOS_SUPPORTED_ANTIQUE
 /* 8 moves in Dirs */
 void initdirs (void)
 {
@@ -391,7 +391,7 @@ int view_los_p (int x1, int y1, int x2, int y2)
     return ((x1 == x2) && (y1 == y2));
 }
 
-#ifndef MSDOS
+#ifndef MSDOS_SUPPORTED_ANTIQUE
 /* returns the command direction from the index into Dirs */
 char inversedir (int dirindex)
 {
@@ -564,24 +564,49 @@ char *month (void)
     }
 }
 
-/* finds floor space on level with buildaux not equal to baux, 
+/* WDT: code for the following two functions contributed by Sheldon 
+ * Simms. */
+/* finds floor space on level with buildaux not equal to baux,
 sets x,y there. There must *be* floor space somewhere on level.... */
+int spaceok (int i, int j, int baux)
+{
+    return ((Level->site[i][j].locchar == FLOOR) && (Level->site[i][j].creature == NULL) && (!loc_statusp (i, j, SECRET)) && (Level->site[i][j].buildaux != baux));
+}
 
 void findspace (int *x, int *y, int baux)
 {
-    int i, j, k, l, done = FALSE;
-    i = k = random_range (WIDTH);
-    j = l = random_range (LENGTH);
+    int i, j, tog = TRUE, done = FALSE;
+
     do {
-	i++;
-	if (i >= WIDTH) {
-	    i = 0;
-	    j++;
-	    if (j > LENGTH)
-		j = 0;
-	    done = ((i == k) && (j == l));
+	i = random_range (WIDTH);
+	j = random_range (LENGTH);
+	if (spaceok (i, j, baux)) {
+	    done = TRUE;
+	} else {
+	    if (tog) {
+		tog = !tog;
+		while (1) {
+		    i++;
+		    if (i >= WIDTH)
+			break;
+		    else if (spaceok (i, j, baux)) {
+			done = TRUE;
+			break;
+		    }
+		}
+	    } else {
+		tog = !tog;
+		while (1) {
+		    j++;
+		    if (j >= LENGTH)
+			break;
+		    else if (spaceok (i, j, baux)) {
+			done = TRUE;
+			break;
+		    }
+		}
+	    }
 	}
-	done = done || ((Level->site[i][j].locchar == FLOOR) && (Level->site[i][j].creature == NULL) && (Level->site[i][j].buildaux != baux));
     } while (!done);
     *x = i;
     *y = j;
@@ -756,7 +781,7 @@ char *fstr;
 }
 #endif
 
-#ifdef MSDOS
+#ifdef MSDOS_SUPPORTED_ANTIQUE
 /* ****Moved here from another file**** */
 /* returns a "level of difficulty" based on current environment
    and depth in dungeon. Is somewhat arbitrary. value between 1 and 10.
@@ -826,19 +851,21 @@ int user_uid;
 
 void init_perms (void)
 {
-#if defined(BSD) || defined(SYSV)
+#if (defined(BSD) || defined(SYSV)) && !defined(__DJGPP__)
     user_uid = getuid ();
     game_uid = geteuid ();
 #endif
 }
 
+/*
 #ifdef BSD
-void setreuid (int, int);
+void setreuid(int, int);
 #endif
+*/
 
 void change_to_user_perms (void)
 {
-#if (defined( BSD ) || defined( SYSV )) && !defined(__EMX__)
+#if (defined( BSD ) || defined( SYSV )) && !defined(__EMX__) && !defined(__DJGPP__)
 #ifdef BSD
     setreuid (game_uid, user_uid);
 #else				/* SYSV */
@@ -849,7 +876,7 @@ void change_to_user_perms (void)
 
 void change_to_game_perms (void)
 {
-#if (defined( BSD ) || defined( SYSV )) && !defined(__EMX__)
+#if (defined( BSD ) || defined( SYSV )) && !defined(__EMX__) && !defined(__DJGPP__)
 #ifdef BSD
     setreuid (user_uid, game_uid);
 #else				/* SYSV */

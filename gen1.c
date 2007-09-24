@@ -35,7 +35,7 @@ void clear_level (struct level *dungeon_level)
 	dungeon_level->mlist = NULL;
 	dungeon_level->next = NULL;
 	dungeon_level->last_visited = time ((long *) NULL);
-	for (i = 0; i < MAXWIDTH; i++)
+	for (i = 0; i < MAXWIDTH; i++) {
 	    for (j = 0; j < MAXLENGTH; j++) {
 		dungeon_level->site[i][j].locchar = WALL;
 		dungeon_level->site[i][j].showchar = SPACE;
@@ -47,6 +47,7 @@ void clear_level (struct level *dungeon_level)
 		dungeon_level->site[i][j].lstatus = 0;
 		dungeon_level->site[i][j].roomnumber = RS_WALLSPACE;
 	    }
+	}
     }
 }
 
@@ -123,7 +124,7 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
 	install_specials ();
 	make_stairs (fromlevel);
 	make_stairs (fromlevel);
-	initrand (-2, 0);
+	initrand (E_RESTORE, 0);
 	populate_level (Current_Environment);
 	stock_level ();
     }
@@ -140,9 +141,7 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
 #ifndef SAVE_LEVELS
 /* tries to find the level of depth levelnum in dungeon; if can't find
    it returns NULL */
-plv findlevel (dungeon, levelnum)
-struct level *dungeon;
-char levelnum;
+plv findlevel (struct level* dungeon, char levelnum)
 {
     if (dungeon == NULL)
 	return (NULL);
@@ -161,10 +160,7 @@ char levelnum;
 /* keep going in one orthogonal direction or another until we hit our */
 /* destination */
 
-void straggle_corridor (fx, fy, tx, ty, loc, rsi)
-int fx, fy, tx, ty;
-short loc;
-char rsi;
+void straggle_corridor (int fx, int fy, int tx, int ty, Symbol loc, char rsi)
 {
     int dx, dy;
     while ((fx != tx) || (fy != ty)) {
@@ -177,8 +173,7 @@ char rsi;
     }
 }
 
-void makedoor (x, y)
-int x, y;
+void makedoor (int x, int y)
 {
     if (random_range (20) <= Level->depth / 10) {
 	Level->site[x][y].locchar = FLOOR;
@@ -200,15 +195,13 @@ int x, y;
 	lset (x + 1, y, STOPS);
 	lset (x - 1, y, STOPS);
 	lset (x, y - 1, STOPS);
+	lset (x, y, STOPS);
     }
     Level->site[x][y].p_locf = L_NO_OP;
     /* prevents water corridors from being instant death in sewers */
 }
 
-void corridor_crawl (fx, fy, sx, sy, n, loc, rsi)
-int *fx, *fy, sx, sy, n;
-short loc;
-char rsi;
+void corridor_crawl (int* fx, int* fy, int sx, int sy, int n, Symbol loc, char rsi)
 {
     int i;
     for (i = 0; i < n; i++) {
@@ -228,8 +221,7 @@ char rsi;
     }
 }
 
-char *roomname (index)
-int index;
+char *roomname (int index)
 {
     switch (index) {
 	case RS_ZORCH:
@@ -439,12 +431,10 @@ int index;
 
 /* puts the player on the first set of stairs from the apt level */
 /* if can't find them, just drops player anywhere.... */
-void find_stairs (fromlevel, tolevel)
-char fromlevel;
-char tolevel;
+void find_stairs (char fromlevel, char tolevel)
 {
     int i, j, found = FALSE;
-    short sitechar;
+    Symbol sitechar;
     if (fromlevel > tolevel)
 	sitechar = STAIRS_DOWN;
     else
@@ -466,7 +456,7 @@ char tolevel;
     }
 }
 
-void install_traps ()
+void install_traps (void)
 {
     int i, j;
     for (i = 0; i < WIDTH; i++)
@@ -477,10 +467,7 @@ void install_traps ()
 
 /* x, y, is top left corner, l is length of side, rsi is room string index */
 /* baux is so all rooms will have a key field. */
-void build_square_room (x, y, l, rsi, baux)
-int x, y, l;
-char rsi;
-int baux;
+void build_square_room (int x, int y, int l, char rsi, int baux)
 {
     int i, j;
 
@@ -496,15 +483,12 @@ int baux;
 	}
 }
 
-void build_room (x, y, l, rsi, baux)
-int x, y, l;
-char rsi;
-int baux;
+void build_room (int x, int y, int l, char rsi, int baux)
 {
     build_square_room (x, y, l, rsi, baux);
 }
 
-void cavern_level ()
+void cavern_level (void)
 {
     int i, fx, fy, tx, ty, t, l, e;
     char rsi;
@@ -537,7 +521,7 @@ void cavern_level ()
 	    findspace (&tx, &ty, -1);
 	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
 	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (ML3 + 5));	/* goblin king */
+	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GOBLIN_KING));	/* goblin king */
 	    Level->mlist->m->x = tx;
 	    Level->mlist->m->y = ty;
 	}
@@ -546,18 +530,18 @@ void cavern_level ()
 	    findspace (&tx, &ty, -1);
 	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
 	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (ML10 + 4));	/* The dark emp */
+	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	/* The dark emp */
 	    Level->mlist->m->x = tx;
 	    Level->mlist->m->y = ty;
 	}
     }
 }
 
-void sewer_level ()
+void sewer_level (void)
 {
     int i, tx, ty, t, l, e;
     char rsi;
-    short lchar;
+    Symbol lchar;
 
     Level->numrooms = random_range (3) + 3;
     rsi = RS_DRAINED_SEWER;
@@ -585,16 +569,14 @@ void sewer_level ()
 	    findspace (&tx, &ty, -1);
 	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
 	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (ML7 + 5));	/* The Great Wyrm */
+	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GREAT_WYRM));	/* The Great Wyrm */
 	    Level->mlist->m->x = tx;
 	    Level->mlist->m->y = ty;
 	}
     }
 }
 
-void sewer_corridor (x, y, dx, dy, locchar)
-int x, y, dx, dy;
-short locchar;
+void sewer_corridor (int x, int y, int dx, int dy, Symbol locchar)
 {
     int continuing = TRUE;
     makedoor (x, y);
@@ -618,12 +600,12 @@ short locchar;
 	makedoor (x, y);
 }
 
-void install_specials ()
+void install_specials (void)
 {
     int i, j, x, y;
 
-    for (x = 0; x < WIDTH; x++)
-	for (y = 0; y < LENGTH; y++)
+    for (x = 0; x < WIDTH; x++) {
+	for (y = 0; y < LENGTH; y++) {
 	    if ((Level->site[x][y].locchar == FLOOR) && (Level->site[x][y].p_locf == L_NO_OP) && (random_range (300) < difficulty ())) {
 		i = random_range (100);
 		if (i < 10) {
@@ -683,4 +665,7 @@ void install_specials ()
 		    }
 		}
 	    }
+	}
+    }
 }
+

@@ -4,10 +4,13 @@
 
 #include "glob.h"
 
+/*               Revised function                   */
+/* WDT: code contributed by David J. Robertson */
 /* consider one monster's action */
 void m_pulse (struct monster *m)
 {
     int range = distance (m->x, m->y, Player.x, Player.y);
+    int STRIKE = FALSE;
     pol prev;
 
     if (Time % 10 == 0)
@@ -27,24 +30,23 @@ void m_pulse (struct monster *m)
 		m_status_reset (m, WANDERING);
 	} else {		/* not wandering */
 
-	    if (m_statusp (m, HOSTILE)) {
+	    if (m_statusp (m, HOSTILE))
 		if ((range > 2) && (range < m->sense) && (random_range (2) == 1))
-		    if (los_p (m->x, m->y, Player.x, Player.y) && (Player.status[INVISIBLE] == 0))
+		    if (los_p (m->x, m->y, Player.x, Player.y) && (Player.status[INVISIBLE] == 0)) {
+			STRIKE = TRUE;
 			monster_strike (m);
-	    }
-	    if ((m_statusp (m, HOSTILE) || m_statusp (m, NEEDY))
-		&& (range > 1)
-		&& m_statusp (m, MOBILE)) {
-		monster_move (m);
+		    }
 
-	    }
-	    if (m_statusp (m, HOSTILE) && (range == 1)) {
+	    if ((m_statusp (m, HOSTILE) || m_statusp (m, NEEDY))
+		&& (range > 1) && m_statusp (m, MOBILE) && (!STRIKE || (random_range (2) == 1)))
+		monster_move (m);
+	    else if (m_statusp (m, HOSTILE) && (range == 1)) {
 		resetgamestatus (FAST_MOVE);
 		tacmonster (m);
 	    }
 	}
 	/* if monster is greedy, picks up treasure it finds */
-	if (m_statusp (m, GREEDY))
+	if (m_statusp (m, GREEDY) && (m->hp > 0))
 	    while (Level->site[m->x][m->y].things != NULL) {
 		m_pickup (m, Level->site[m->x][m->y].things->thing);
 		prev = Level->site[m->x][m->y].things;
@@ -52,7 +54,7 @@ void m_pulse (struct monster *m)
 		free ((char *) prev);
 	    }
 	/* prevents monsters from casting spells from other side of dungeon */
-	if (range < max (5, m->level))
+	if ((range < max (5, m->level)) && (m->hp > 0) && (random_range (2) == 1))
 	    monster_special (m);
     }
 }
@@ -132,7 +134,7 @@ void m_death (struct monster *m)
 	mprint (Str1);
     }
     m_dropstuff (m);
-    if (m->id == ML10 + 0) {	/* Death */
+    if (m->id == DEATH) {	/* Death */
 	mprint ("Death lies sprawled out on the ground......");
 	mprint ("Death laughs ironically and gets back to its feet.");
 	mprint ("It gestures and another scythe appears in its hands.");
@@ -180,7 +182,7 @@ void m_death (struct monster *m)
 	}
 	plotspot (m->x, m->y, FALSE);
 	switch (m->id) {
-	    case ML0 + 8:	/* hiscore npc */
+	    case HISCORE_NPC:
 		switch (m->aux2) {
 		    case 0:
 			mprint ("You hear a faroff dirge. You feel a sense of triumph.");
@@ -261,7 +263,7 @@ void m_death (struct monster *m)
 			    /* promote one of the city guards to be justiciar */
 			    ml = City->mlist;
 			    while ((!found) && (ml != NULL)) {
-				found = ((ml->m->id == ML0 + 3) && (ml->m->hp > 0));
+				found = ((ml->m->id == GUARD) && (ml->m->hp > 0));
 				if (!found)
 				    ml = ml->next;
 			    }
@@ -299,35 +301,35 @@ void m_death (struct monster *m)
 		}
 		save_hiscore_npc (m->aux2);
 		break;
-	    case ML0 + 3:	/* guard */
+	    case GUARD:	/* guard */
 		Player.alignment -= 10;
 		if ((Current_Environment == E_CITY) || (Current_Environment == E_VILLAGE))
 		    alert_guards ();
 		break;
-	    case ML3 + 5:
+	    case GOBLIN_KING:
 		if (!gamestatusp (ATTACKED_ORACLE)) {
 		    mprint ("You seem to hear a woman's voice from far off:");
 		    mprint ("'Well done! Come to me now....'");
 		}
 		setgamestatus (COMPLETED_CAVES);
 		break;		/* gob king */
-	    case ML7 + 5:
+	    case GREAT_WYRM:
 		if (!gamestatusp (ATTACKED_ORACLE)) {
 		    mprint ("A female voice sounds from just behind your ear:");
 		    mprint ("'Well fought! I have some new advice for you....'");
 		}
 		setgamestatus (COMPLETED_SEWERS);
 		break;		/*grt worm */
-	    case ML10 + 1:
+	    case EATER:
 		setgamestatus (KILLED_EATER);
 		break;
-	    case ML10 + 2:
+	    case LAWBRINGER:
 		setgamestatus (KILLED_LAWBRINGER);
 		break;
-	    case ML10 + 3:
+	    case DRAGON_LORD:
 		setgamestatus (KILLED_DRAGONLORD);
 		break;
-	    case ML10 + 4:
+	    case DEMON_EMP:
 		setgamestatus (COMPLETED_VOLCANO);
 		if (!gamestatusp (ATTACKED_ORACLE)) {
 		    mprint ("You feel a soft touch on your shoulder...");
@@ -336,7 +338,7 @@ void m_death (struct monster *m)
 		    mprint ("The note vanishes in a burst of blue fire!");
 		}
 		break;
-	    case ML10 + 9:
+	    case ELEM_MASTER:
 		if (!gamestatusp (ATTACKED_ORACLE)) {
 		    mprint ("Words appear before you, traced in blue flame!");
 		    mprint ("'Return to the Prime Plane via the Circle of Sorcerors....'");
@@ -1202,7 +1204,7 @@ void m_altar (struct monster *m)
 	reaction = 0;
     else if (m->id == HISCORE_NPC && m->aux2 == altar)
 	reaction = 1;		/* high priest of same deity */
-    else if ((m->id == ML6 + 11 || m->id == ML8 + 11 || m->id == ML9 + 6) && m->aux1 == altar)
+    else if ((m->id == ANGEL || m->id == HIGH_ANGEL || m->id == ARCHANGEL) && m->aux1 == altar)
 	reaction = 1;		/* angel of same deity */
     else if (altar == Player.patron)
 	reaction = -1;		/* friendly deity will zap hostile monster */
@@ -1281,7 +1283,7 @@ void strengthen_death (struct monster *m)
 {
     pol ol = ((pol) checkmalloc (sizeof (oltype)));
     pob scythe = ((pob) checkmalloc (sizeof (objtype)));
-#ifdef MSDOS
+#ifdef MSDOS_SUPPORTED_ANTIQUE
     unsigned tmp;
 #endif
     m->xpv += min (10000, m->xpv + 1000);
@@ -1290,7 +1292,7 @@ void strengthen_death (struct monster *m)
     m->ac += min (1000, m->ac + 10);
     m->speed = max (m->speed - 1, 1);
     m->movef = M_MOVE_SMART;
-#ifndef MSDOS
+#ifndef MSDOS_SUPPORTED_ANTIQUE
     m->hp = min (100000, 100 + m->dmg * 10);
 #else
     /* In order not to have to make the hp's into longs or unsigned,

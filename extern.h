@@ -323,15 +323,15 @@ void build_square_room ARGS((int,int,int,char,int));
 void cavern_level ARGS((void));
 void change_level ARGS((int,int,int));
 void clear_level ARGS((struct level *));
-void corridor_crawl ARGS((int *,int *,int,int,int,short,char));
+void corridor_crawl ARGS((int *,int *,int,int,int,Symbol,char));
 void find_stairs ARGS((char,char));
 void free_dungeon ARGS((void));
 void install_specials ARGS((void));
 void install_traps ARGS((void));
 void makedoor ARGS((int,int));
-void sewer_corridor ARGS((int,int,int,int,short));
+void sewer_corridor ARGS((int,int,int,int,Symbol));
 void sewer_level ARGS((void));
-void straggle_corridor ARGS((int,int,int,int,short,char));
+void straggle_corridor ARGS((int,int,int,int,Symbol,char));
 
 /* gen2.c functions */
 
@@ -806,34 +806,36 @@ void make_hp ARGS((pob));
 
 /* save.c functions */
 
-int restore_game ARGS((char *));
-int save_game ARGS((int,char *));
-pob restore_item ARGS((FILE *));
-pol restore_itemlist ARGS((FILE *));
-void restore_country ARGS((FILE *));
-void restore_level ARGS((FILE *));
-void restore_monsters ARGS((FILE *,plv));
-void restore_player ARGS((FILE *));
-int save_country ARGS((FILE *));
-int save_item ARGS((FILE *,pob));
-int save_itemlist ARGS((FILE *,pol));
-int save_level ARGS((FILE *,plv));
-int save_monsters ARGS((FILE *,pml));
-int save_player ARGS((FILE *));
-void signalsave ARGS((void));
+int save_game(int compress, char *savestr);
+void signalsave(void);
+int save_player(FILE *fd);
+int save_level(FILE *fd, plv level);
+int save_monsters(FILE *fd, pml ml);
+int save_item(FILE *fd, pob o);
+int save_itemlist(FILE *fd, pol ol);
+int save_country(FILE *fd);
+int ok_outdated(int version);
+int restore_game(char *savestr);
+void restore_player(FILE *fd, int version);
+pob restore_item(FILE *fd, int version);
+pol restore_itemlist(FILE *fd, int version);
+void restore_level(FILE *fd, int version);
+void restore_hiscore_npc(pmt npc, int npcid);
+void restore_monsters(FILE *fd, plv level, int version);
+void restore_country(FILE *fd, int version);
 
 /* scr.c functions */
 
 int mcigetc ARGS((void));
 long parsenum ARGS((void));
 char *msgscanstring ARGS((void));
-short getspot ARGS((int,int,int));
+Symbol getspot ARGS((int,int,int));
 char lgetc ARGS((void));
 char menugetc ARGS((void));
 char mgetc ARGS((void));
-char ynq ARGS((void));
-char ynq1 ARGS((void));
-char ynq2 ARGS((void));
+int ynq ARGS((void));
+int ynq1 ARGS((void));
+int ynq2 ARGS((void));
 int getnumber ARGS((int));
 int litroom ARGS((int,int));
 int move_slot ARGS((int,int,int));

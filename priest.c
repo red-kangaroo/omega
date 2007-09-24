@@ -229,7 +229,7 @@ int increase_priest_rank (int deity)
 	switch (deity) {
 	    default:
 		print2 ("Some nameless god blesses you....");
-		Player.hp = Player.maxhp;
+		Player.hp = max (Player.hp, Player.maxhp);
 		morewait ();
 		print2 ("The altar crumbles to dust and blows away.");
 		Level->site[Player.x][Player.y].locchar = FLOOR;
@@ -334,6 +334,8 @@ int increase_priest_rank (int deity)
 		print2 ("Your deity raises you to the post of Senior Priest.");
 		hp_req_print ();
 		Player.rank[PRIESTHOOD] = SPRIEST;
+		morewait ();
+		learnclericalspells (deity, SPRIEST);
 	    } else
 		return 0;
 	} else if (Player.rank[PRIESTHOOD] == ACOLYTE) {

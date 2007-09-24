@@ -8,7 +8,7 @@ LIBDIR = /home/sdossey/omega/lib/
 # it will fail if none of them are defined.  If you do uncomment
 # one, make sure you comment out the other definition of CFLAGS lower down
 
-CFLAGS = -DBSD -ggdb
+CFLAGS = -DBSD -g
 #CFLAGS = -DSYSV -O
 # I also had to define -cckr (K&R style C) for system V
 #CFLAGS = -DMSDOS -O
@@ -30,8 +30,7 @@ CC = gcc
 # machine uses termcap (most BSD machines) or terminfo (System-V)
 #LIBS = -lcurses -ltermcap
 #LIBS = -lcurses -ltermlib
-# Linux links in term?? automatically.
-LIBS = -lncurses
+LIBS = -lcurso
 
 #################### that's it for changing the Makefile ####################
 
@@ -73,7 +72,7 @@ $(OBJ): clrgen.h defs.h extern.h glob.h
 
 clrgen.h clrgen.c: genclr.c minit.h defs.h
 	$(MAKE) genclr
-	$(CPP) -DOMEGA_CLRGEN *.[ch] | ./genclr clrgen.c clrgen.h
+	$(CPP) -DOMEGA_CLRGEN *.[ch] | genclr clrgen.c clrgen.h
 
 genclr: genclr.o
 	$(CC) $(LDFLAGS) genclr.o -o genclr

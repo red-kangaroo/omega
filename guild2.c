@@ -212,6 +212,9 @@ void l_thieves_guild (void)
 				    item_use (Player.possessions[i]);
 				}
 				Player.cash += number * 2 * item_value (Player.possessions[i]) / 3;
+				/* Fenced artifacts could turn up anywhere, really... */
+				if (Objects[Player.possessions[i]->id].uniqueness > UNIQUE_UNMADE)
+				    Objects[Player.possessions[i]->id].uniqueness = UNIQUE_UNMADE;
 				dispose_lost_objects (number, Player.possessions[i]);
 				dataprint ();
 			    } else
@@ -231,6 +234,9 @@ void l_thieves_guild (void)
 				    Player.cash += 2 * number * item_value (Player.pack[i]) / 3;
 				    Player.pack[i]->number -= number;
 				    if (Player.pack[i]->number < 1) {
+					/* Fenced an artifact?  You just might see it again. */
+					if (Objects[Player.pack[i]->id].uniqueness > UNIQUE_UNMADE)
+					    Objects[Player.pack[i]->id].uniqueness = UNIQUE_UNMADE;
 					free ((char *) Player.pack[i]);
 					Player.pack[i] = NULL;
 				    }
@@ -257,7 +263,7 @@ void l_college (void)
 	print2 ("The Registration desk is closed at night....");
     else {
 	while (!done) {
-	    if ((Player.rank[COLLEGE] == MAGE) && (Player.level > Archmagelevel) && find_and_remove_item (CORPSEID, ML10 + 1)) {
+	    if ((Player.rank[COLLEGE] == MAGE) && (Player.level > Archmagelevel) && find_and_remove_item (CORPSEID, EATER)) {
 		print1 ("You brought back the heart of the Eater of Magic!");
 		morewait ();
 		print1 ("The Heart is sent to the labs for analysis.");
@@ -434,7 +440,7 @@ void l_sorcerors (void)
 	dataprint ();
     } else
 	while (!done) {
-	    if ((Player.rank[CIRCLE] == HIGHSORCEROR) && (Player.level > Primelevel) && find_and_remove_item (CORPSEID, ML10 + 2)) {
+	    if ((Player.rank[CIRCLE] == HIGHSORCEROR) && (Player.level > Primelevel) && find_and_remove_item (CORPSEID, LAWBRINGER)) {
 		print2 ("You obtained the Crown of the Lawgiver!");
 		morewait ();
 		print1 ("The Crown is ritually sacrificed to the Lords of Chaos.");
@@ -520,6 +526,7 @@ void l_sorcerors (void)
 		    bless (-1);
 		    print3 ("Die, false sorceror!");
 		    p_damage (25, UNSTOPPABLE, "a sorceror's curse");
+		    done = TRUE;
 		} else if (Player.rank[CIRCLE] == PRIME)
 		    print2 ("You are at the pinnacle of mastery in the Circle.");
 		else if (Player.rank[CIRCLE] == HIGHSORCEROR) {
@@ -596,6 +603,7 @@ void l_sorcerors (void)
 void l_order (void)
 {
     pob newitem;
+    pml ml;
     print1 ("The Headquarters of the Order of Paladins.");
     morewait ();
     if ((Player.rank[ORDER] == PALADIN) && (Player.level > Justiciarlevel) && gamestatusp (GAVE_STARGEM) && Player.alignment > 300) {
@@ -604,6 +612,13 @@ void l_order (void)
 	print1 ("The previous Justiciar steps down in your favor.");
 	print2 ("You are now the Justiciar of Rampart and the Order!");
 	strcpy (Justiciar, Player.name);
+	for (ml = Level->mlist; ml && (ml->m->id != HISCORE_NPC || ml->m->aux2 != 15); ml = ml->next)
+	    /* just scan for current Justicar */ ;
+	if (ml) {
+	    Level->site[ml->m->x][ml->m->y].creature = NULL;
+	    erase_monster (ml->m);
+	    ml->m->hp = -1;	/* signals "death" -- no credit to player, though */
+	}
 	Justiciarlevel = Player.level;
 	morewait ();
 	Justiciarbehavior = fixnpc (4);

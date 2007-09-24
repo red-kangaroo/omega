@@ -285,7 +285,7 @@ void room_level (void)
 	    findspace (&tx, &ty, -1);
 	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
 	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (ML7 + 5));	/* The Great Wyrm */
+	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GREAT_WYRM));	/* The Great Wyrm */
 	    Level->mlist->m->x = tx;
 	    Level->mlist->m->y = ty;
 	}
@@ -300,7 +300,7 @@ void room_level (void)
 	    findspace (&tx, &ty, -1);
 	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
 	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (ML10 + 4));	/* The demon emp */
+	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	/* The demon emp */
 	    Level->mlist->m->x = tx;
 	    Level->mlist->m->y = ty;
 	}
@@ -391,19 +391,19 @@ void maze_level (void)
 		    }
 	switch (Level->depth) {
 	    case 1:
-		mid = ML10 + 5;
+		mid = LORD_EARTH;
 		break;		/* Elemental Lord of Earth */
 	    case 2:
-		mid = ML10 + 6;
+		mid = LORD_AIR;
 		break;		/* Elemental Lord of Air */
 	    case 3:
-		mid = ML10 + 7;
+		mid = LORD_WATER;
 		break;		/* Elemental Lord of Water */
 	    case 4:
-		mid = ML10 + 8;
+		mid = LORD_FIRE;
 		break;		/* Elemental Lord of Fire */
 	    case 5:
-		mid = ML10 + 9;
+		mid = ELEM_MASTER;
 		break;		/* Elemental Master */
 	}
 	if (Level->depth == 5) {
@@ -424,7 +424,7 @@ void maze_level (void)
 	    findspace (&tx, &ty, -1);
 	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
 	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (ML10 + 4));	/* The demon emp */
+	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	/* The demon emp */
 	    Level->mlist->m->x = tx;
 	    Level->mlist->m->y = ty;
 	}
