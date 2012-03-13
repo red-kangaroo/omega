@@ -107,16 +107,15 @@ void quaff (void)
 
 void activate (void)
 {
-    int index;
-    char response;
-
     clearmsg ();
 
     print1 ("Activate -- item [i] or artifact [a] or quit [ESCAPE]?");
+    char response;
     do
 	response = (char) mcigetc ();
     while ((response != 'i') && (response != 'a') && (response != ESCAPE));
     if (response != ESCAPE) {
+	int index = ABORT;
 	if (response == 'i')
 	    index = getitem (THING);
 	else if (response == 'a')
@@ -567,10 +566,8 @@ void setoptions (void)
 	    case KEY_DOWN:
 #endif
 		to = slot + 1;
-#ifndef COMPRESS_SAVE_FILES
 		if (to == 8)	/* COMPRESS_OPTION */
 		    to = 9;
-#endif
 		slot = move_slot (slot, to, NUMOPTIONS + 1);
 		break;
 	    case 'k':
@@ -579,10 +576,8 @@ void setoptions (void)
 	    case KEY_UP:
 #endif
 		to = slot - 1;
-#ifndef COMPRESS_SAVE_FILES
 		if (to == 8)	/* COMPRESS_OPTION */
 		    to = 7;
-#endif
 		if (to > 0)
 		    slot = move_slot (slot, to, NUMOPTIONS + 1);
 		break;
@@ -928,31 +923,13 @@ void save (int compress, int force)
 	    print1 ("No save file entered - save aborted.");
 	    ok = FALSE;
 	}
-#ifdef MSDOS
-	for (pos = 0; fname[pos] && isalnum (fname[pos]); pos++);
-#else
 	for (pos = 0; fname[pos] && isprint (fname[pos]) && !isspace (fname[pos]); pos++);
-#endif
 	if (fname[pos]) {
 	    sprintf (Str1, "Illegal character '%c' in filename - Save aborted.", fname[pos]);
 	    print1 (Str1);
 	    ok = FALSE;
 	}
-#ifdef MSDOS
-	if (strlen (fname) > 7) {
-	    print1 ("Save name longer than 7 characters - Save aborted.");
-	    ok = FALSE;
-	}
-#else
-# ifdef SYSV
-	if (strlen (fname) > 14 - EXT_LENGTH - 1) {
-	    sprintf (Str1, "Save name longer than %d characters - Save aborted.", 14 - EXT_LENGTH - 1);
-	    print1 (Str1);
-	    ok = FALSE;
-	}
-# endif
-#endif
-	if (ok)
+	if (ok) {
 	    if (save_game (compress, fname)) {
 		print3 ("Bye!");
 		sleep (2);
@@ -960,6 +937,7 @@ void save (int compress, int force)
 		exit (0);
 	    } else
 		print1 ("Save Aborted.");
+	}
     }
     if (force) {
 	morewait ();

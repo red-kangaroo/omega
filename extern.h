@@ -211,6 +211,7 @@ void nbolt ARGS((int,int,int,int,int,int));
 void objdet ARGS((int));
 void snowball ARGS((int,int,int,int,int));
 void wish ARGS((int));
+void icebolt (int fx, int fy, int tx, int ty, int hit, int dmg);
 
 /* effect2.c functions */
 
@@ -377,6 +378,7 @@ char *itemid ARGS((pob));
 int baditem ARGS((int));
 int badobject ARGS((int));
 int cursed ARGS((pob));
+void do_inventory_control (void);
 int find_and_remove_item ARGS((int,int));
 int find_item ARGS((pob *,int,int));
 int get_inventory_slot ARGS((void));
@@ -386,7 +388,6 @@ int getitem ARGS((int));
 int item_useable ARGS((pob,int));
 int objequal ARGS((struct object *,struct object *));
 int slottable ARGS((pob,int));
-int take_from_pack ARGS((int,int));
 pob detach_money ARGS((void));
 pob split_item ARGS((int,pob));
 void add_to_pack ARGS((pob));
@@ -403,6 +404,7 @@ void give_money ARGS((struct monster *));
 void givemonster ARGS((struct monster *, struct object *));
 void inventory_control ARGS((void));
 void item_inventory ARGS((int));
+signed char index_to_key (signed int index);
 void lose_all_items ARGS((void));
 void merge_item ARGS((int));
 void p_drop_at ARGS((int,int,int,pob));
@@ -917,6 +919,7 @@ void spreadroomlight ARGS((int,int,int));
 void timeprint ARGS((void));
 void title ARGS((void));
 void xredraw ARGS((void));
+void omega_title (void);
 
 /* site1.c functions */
 

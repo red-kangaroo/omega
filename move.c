@@ -3,6 +3,7 @@
 /* general functions for player moving */
 
 #include "glob.h"
+#include <unistd.h>
 
 /* various miscellaneous location functions */
 void l_water (void)

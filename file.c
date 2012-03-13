@@ -141,7 +141,7 @@ void showmotd (void)
 void lock_score_file (void)
 {
 #ifndef MSDOS
-    int lock, attempts, thispid, lastpid = 0;
+    int lock, attempts = 0, thispid, lastpid = 0;
     FILE *lockfile;
 
     strcpy (Str1, Omegalib);
@@ -522,13 +522,11 @@ void displayfile (char *filestr)
 {
     FILE *fd = checkfopen (filestr, "r");
     int c, d = ' ';
-    int x, y;
     clear ();
     refresh ();
     c = fgetc (fd);
     while ((c != EOF) && ((char) d != 'q') && ((char) d != ESCAPE)) {
-	getyx (stdscr, y, x);
-	if (y > ScreenLength) {
+	if (getcury(stdscr) > ScreenLength) {
 	    standout ();
 	    printw ("\n-More-");
 	    standend ();
@@ -556,15 +554,13 @@ void displaycryptfile (char *filestr)
 {
     FILE *fd = checkfopen (filestr, "rb");
     int c, d = ' ';
-    int x, y;
     char key = 100;
 
     clear ();
     refresh ();
     c = fgetc (fd);
     while ((c != EOF) && ((char) d != 'q') && ((char) d != ESCAPE)) {
-	getyx (stdscr, y, x);
-	if (y > ScreenLength) {
+	if (getcury(stdscr) > ScreenLength) {
 	    standout ();
 	    printw ("\n-More-");
 	    standend ();

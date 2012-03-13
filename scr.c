@@ -14,6 +14,7 @@
 # endif
 # include <sys/types.h>
 #endif
+#include <unistd.h>
 
 #if defined(MSDOS_SUPPORTED_ANTIQUE) || defined(AMIGA)
 # define CHARATTR(c)	((c) >> 8)
@@ -223,10 +224,8 @@ int ynq2 (void)
 /* puts up a morewait to allow reading if anything in top two lines */
 void checkclear (void)
 {
-    int x1, y, x2;
-    getyx (Msg1w, x1, y);
-    getyx (Msg2w, x2, y);
-    if ((x1 != 0) || (x2 != 0)) {
+    int y1 = getcury (Msg1w), y2 = getcury (Msg2w);
+    if ((y1 != 0) || (y2 != 0)) {
 	morewait ();
 	wclear (Msg1w);
 	wclear (Msg2w);
@@ -339,9 +338,8 @@ void nprint3 (char *s)
 it should morewait and clear window */
 void mprint (char *s)
 {
-    int x, y;
     if (!gamestatusp (SUPPRESS_PRINTING)) {
-	getyx (Msgw, y, x);
+	int x = getcurx (Msgw);
 	if (x + strlen (s) >= WIDTH) {
 	    buffercycle (s);
 	    if (Msgw == Msg1w) {
@@ -853,9 +851,7 @@ void menuclear (void)
 
 void menuspellprint (int i)
 {
-    int x, y;
-    getyx (Menuw, y, x);
-    if (y >= ScreenLength - 2) {
+    if (getcury(Menuw) >= ScreenLength - 2) {
 	wrefresh (Menuw);
 	morewait ();
 	wclear (Menuw);
@@ -867,9 +863,7 @@ void menuspellprint (int i)
 
 void menuprint (char *s)
 {
-    int x, y;
-    getyx (Menuw, y, x);
-    if (y >= ScreenLength - 2) {
+    if (getcury(Menuw) >= ScreenLength - 2) {
 	wrefresh (Menuw);
 	morewait ();
 	wclear (Menuw);
@@ -1179,9 +1173,7 @@ void mlongprint (long n)
 
 void menunumprint (int n)
 {
-    int x, y;
-    getyx (Menuw, y, x);
-    if (y >= ScreenLength - 2) {
+    if (getcury(Menuw) >= ScreenLength - 2) {
 	wrefresh (Menuw);
 	morewait ();
 	wclear (Menuw);
@@ -1192,9 +1184,7 @@ void menunumprint (int n)
 
 void menulongprint (long n)
 {
-    int x, y;
-    getyx (Menuw, y, x);
-    if (y >= ScreenLength - 2) {
+    if (getcury(Menuw) >= ScreenLength - 2) {
 	wrefresh (Menuw);
 	morewait ();
 	wclear (Menuw);
@@ -1206,7 +1196,6 @@ void menulongprint (long n)
 void dobackspace (void)
 {
     int x, y;
-
     getyx (Msgw, y, x);
     if (x > 0) {
 	waddch (Msgw, ' ');
@@ -1219,7 +1208,6 @@ void dobackspace (void)
 
 void showflags (void)
 {
-
     phaseprint ();
     wclear (Flagw);
     if (Player.food < 0)
@@ -1532,10 +1520,6 @@ void display_option_slot (int slot)
 	    wprintw (Showline[slot], optionp (PACKADD) ? "(now T) " : "(now F) ");
 	    break;
 	case 8:
-#ifdef COMPRESS_SAVE_FILES
-	    wprintw (Showline[slot], "-- Option COMPRESS [TF]: ");
-	    wprintw (Showline[slot], optionp (COMPRESS_OPTION) ? "(now T) " : "(now F) ");
-#endif
 	    break;
 	case 9:
 	    wprintw (Showline[slot], "-- Option COLOUR [TF]: ");
@@ -1589,28 +1573,18 @@ void deathprint (void)
 
 void clear_if_necessary (void)
 {
-    int x, y;
-    getyx (Msg1w, y, x);
-
-    if (x != 0) {
+    if (getcurx(Msg1w) != 0) {
 	wclear (Msg1w);
 	wrefresh (Msg1w);
     }
-
-    getyx (Msg2w, y, x);
-
-    if (x != 0) {
+    if (getcurx(Msg2w) != 0) {
 	wclear (Msg2w);
 	wrefresh (Msg2w);
     }
-
-    getyx (Msg3w, y, x);
-
-    if (x != 0) {
+    if (getcurx(Msg3w) != 0) {
 	wclear (Msg3w);
 	wrefresh (Msg3w);
     }
-
 }
 
 int bufferpos = 0;

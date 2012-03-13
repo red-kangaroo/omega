@@ -27,7 +27,7 @@ void i_knowledge (pob o)
 void i_jane_t (pob o)
 {
     int volume = random_range (6);
-    int i, j, k;
+    int j = 0, k = 0;
     char v;
 
     Objects[o->id].known = 1;
@@ -66,7 +66,7 @@ void i_jane_t (pob o)
     }
     menuclear ();
     menuprint ("You could probably now recognise:\n");
-    for (i = j; i < k; i++) {
+    for (int i = j; i < k; i++) {
 	Objects[i].known = 1;
 	v = Objects[i].truename[0];
 	if ((v >= 'A' && v <= 'Z') || volume == 3)

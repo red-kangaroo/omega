@@ -229,14 +229,14 @@ void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 	case ELECTRICITY:
 	    boltchar = ('^' | CLR (LIGHT_BLUE));
 	    break;
+	default:
+	    assert (FALSE);	/* this should never happen, right? WDT */
 	case NORMAL_DAMAGE:
 	    boltchar = ('!' | CLR (BROWN));
 	    break;
 	case COLD:
 	    boltchar = ('o' | CLR (WHITE));
 	    break;
-	default:
-	    assert (FALSE);	/* this should never happen, right? WDT */
     }
     clearmsg ();
 
@@ -454,12 +454,14 @@ void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
 void mondet (int blessing)
 {
     pml ml;
-    for (ml = Level->mlist; ml != NULL; ml = ml->next)
-	if (ml->m->hp > 0)
+    for (ml = Level->mlist; ml != NULL; ml = ml->next) {
+	if (ml->m->hp > 0) {
 	    if (blessing > -1)
 		plotmon (ml->m);
 	    else
 		putspot (random_range (WIDTH), random_range (LENGTH), Monsters[random_range (NUMMONSTERS)].monchar);
+	}
+    }
     levelrefresh ();
     morewait ();
     show_screen ();

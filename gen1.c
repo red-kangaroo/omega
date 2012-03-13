@@ -3,6 +3,7 @@
 /* level generator functions */
 
 #include "glob.h"
+#include <time.h>
 
 /* Deallocate current dungeon */
 void free_dungeon (void)

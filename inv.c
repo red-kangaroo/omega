@@ -14,7 +14,7 @@
 
 #include "glob.h"
 
-void do_inventory_control (void);
+static int take_from_pack (int slot, int display);
 
 /* drops money, heh heh */
 void drop_money (void)
@@ -68,28 +68,27 @@ long get_money (long limit)
 void pickup_at (int x, int y)
 {
     int quit = FALSE;
-    char response;
     pol ol = Level->site[x][y].things;
-    pol temp;
 
     resetgamestatus (FAST_MOVE);
 
     Level->site[x][y].things = NULL;
 
     while (ol != NULL) {
+	char response = 'q';
 	if (!quit) {
 	    clearmsg1 ();
 	    print1 ("Pick up: ");
 	    nprint1 (itemid (ol->thing));
 	    nprint1 (" [ynq]: ");
-	    response = ynq1 ();
+	    response = ynq1();
 	    quit = (response == 'q');
 	}
 	if (response == 'y')
 	    gain_item (ol->thing);
 	else
 	    drop_at (x, y, ol->thing);
-	temp = ol;
+	pol temp = ol;
 	ol = ol->next;
 	temp->thing = NULL;
 	temp->next = NULL;
@@ -181,7 +180,7 @@ void drop_at (int x, int y, pob o)
 void p_drop_at (int x, int y, int n, pob o)
 {
     pol tmp;
-    if (Current_Environment != E_COUNTRYSIDE)
+    if (Current_Environment != E_COUNTRYSIDE) {
 	if ((Level->site[x][y].locchar != VOID_CHAR) && (Level->site[x][y].locchar != ABYSS)) {
 	    tmp = ((pol) checkmalloc (sizeof (oltype)));
 	    tmp->thing = ((pob) checkmalloc (sizeof (objtype)));
@@ -195,6 +194,7 @@ void p_drop_at (int x, int y, int n, pob o)
 	    Level->site[x][y].things = tmp;
 	} else if (Level->site[x][y].p_locf == L_VOID_STATION)
 	    setgamestatus (PREPARED_VOID);
+    }
 }
 
 /* returns a string for identified items */
@@ -641,7 +641,7 @@ int pack_item_cost (int index)
 }
 
 /* WDT -- 'response' must be an index into the pack. */
-int use_pack_item (int response, int slot)
+static void use_pack_item (int response, int slot)
 {
     pob item;
     int i;
@@ -720,7 +720,7 @@ or to 'up-in-air', one of which at least must be empty */
 int aux_take_from_pack (int slot)
 {
     char response, pack_item, last_item;
-    int i, quit = FALSE, ok = TRUE;
+    int quit = FALSE, ok = TRUE;
     if (Player.possessions[slot] != NULL)
 	slot = O_UP_IN_AIR;
     if (Player.possessions[slot] != NULL)
@@ -778,8 +778,7 @@ or to 'up-in-air', one of which at least must be empty */
 int aux_top_take_from_pack (int slot, int display)
 {
     char response;
-    int i, quit = FALSE, ok = TRUE, displayed = FALSE;
-    pob item;
+    int quit = FALSE, ok = TRUE, displayed = FALSE;
     if (Player.possessions[slot] != NULL)
 	slot = O_UP_IN_AIR;
     if (Player.possessions[slot] != NULL)
@@ -815,12 +814,12 @@ int aux_top_take_from_pack (int slot, int display)
     return slot;
 }
 
-int take_from_pack (int slot, int display)
+static int take_from_pack (int slot, int display)
 {
     if (optionp (TOPINV))
-	aux_top_take_from_pack (slot, display);
+	return (aux_top_take_from_pack (slot, display));
     else
-	aux_take_from_pack (slot);
+	return (aux_take_from_pack (slot));
 }
 
 #ifndef MSDOS_SUPPORTED_ANTIQUE

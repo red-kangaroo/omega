@@ -51,8 +51,6 @@ void m_sp_explode (struct monster *m)
 
 void m_sp_demon (struct monster *m)
 {
-    int mid;
-
     if (random_range (2)) {
 	if ((m->id != INCUBUS) &&	/*succubi don't give fear */
 	    los_p (m->x, m->y, Player.x, Player.y) && (random_range (30) > Player.level + 10) && (Player.status[AFRAID] == 0)) {
@@ -67,10 +65,8 @@ void m_sp_demon (struct monster *m)
     if ((m->hp < (m->level * 5)) && (m->hp > 1)) {
 	mprint ("The demon uses its waning lifeforce to summon help!");
 	m->hp = 1;
+	int mid = NIGHT_GAUNT;
 	switch (m->level) {
-	    case 3:
-		mid = NIGHT_GAUNT;
-		break;
 	    case 4:
 	    case 5:
 		mid = L_FDEMON;
@@ -268,7 +264,6 @@ void m_sp_demonlover (struct monster *m)
 
 void m_sp_eater (struct monster *m)
 {
-    int i;
     if (Player.rank[COLLEGE])
 	m_status_set (m, HOSTILE);
     if (m_statusp (m, HOSTILE))

@@ -22,12 +22,6 @@ redraw the screen excessively. */
 
 #define EXCESSIVE_REDRAW
 
-/* The following definition is recommended. Remove it only if you have
-huge amounts of disk space and are annoyed at waiting a few more seconds
-on save and restore. */
-
-#define COMPRESS_SAVE_FILES
-
 /* If your system has gzip, I recommend using it instead of compress */
 /* (try just typing 'gzip' at the shell prompt) */
 
@@ -84,19 +78,6 @@ on save and restore. */
 #endif
 #if defined(MSDOS_SUPPORTED_ANTIQUE)
 #define SAVE_LEVELS
-#endif
-#ifdef COMPRESS_SAVE_FILES
-# ifdef USE_GZIP
-# define COMPRESSOR "gzip"
-# define UNCOMPRESSOR "gunzip"
-# define COMPRESS_EXT "gz"
-# define EXT_LENGTH 2
-# else
-# define COMPRESSOR "compress"
-# define UNCOMPRESSOR "uncompress"
-# define COMPRESS_EXT "Z"
-# define EXT_LENGTH 1
-# endif
 #endif
 #define VACANT 0
 #define ABORT -1

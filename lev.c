@@ -85,7 +85,7 @@ the astral and the volcano just stay hard... */
 void populate_level (int monstertype)
 {
     pml head, tml;
-    int i, j, k, monsterid, nummonsters = (random_range (difficulty () / 3) + 1) * 3 + 8;
+    int i, j, k, monsterid = RANDOM, nummonsters = (random_range (difficulty () / 3) + 1) * 3 + 8;
 
     if (monstertype == E_CASTLE)
 	nummonsters += 10;

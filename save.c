@@ -32,7 +32,6 @@ int save_game (int compress, char *savestr)
 #endif
     int i, writeok = TRUE;
     plv current, save;
-    char temp[200];
 
 #ifndef MSDOS_SUPPORTED_ANTIQUE
     if (access (savestr, R_OK) == 0)
@@ -104,26 +103,6 @@ int save_game (int compress, char *savestr)
 	    print1 ("Game Saved.");
 	else
 	    print1 ("Something didn't work... save aborted.");
-#ifdef COMPRESS_SAVE_FILES
-	if (writeok && compress) {
-	    print2 ("Compressing Save File....");
-# if defined(MSDOS) || defined(AMIGA)
-	    do_compression (0, savestr);
-	    strcpy (temp, savestr);
-	    strcat (temp, "Z");
-	    rename (temp, savestr);
-# else
-	    strcpy (temp, COMPRESSOR);
-	    strcat (temp, " ");
-	    strcat (temp, savestr);
-	    system (temp);
-	    sprintf (temp, "%s.%s", savestr, COMPRESS_EXT);
-	    unlink (savestr);
-	    link (temp, savestr);
-	    unlink (temp);	/* renames, but sys-V doesn't have rename()... */
-# endif
-	}
-#endif
 	morewait ();
 	clearmsg ();
     }
@@ -137,12 +116,7 @@ void signalsave (void)
 {
     change_to_user_perms ();
     save_game (FALSE, "Omega.Sav");
-#ifdef COMPRESS_SAVE_FILES
-    print1 ("Signal - Saving uncompressed file 'Omega.Sav'.");
-    print2 ("You can compress it yourself, if you like.");
-#else
     print1 ("Signal - Saving file 'Omega.Sav'.");
-#endif
     morewait ();
     endgraf ();
     exit (0);
@@ -448,9 +422,6 @@ int ok_outdated (int version)
 int restore_game (char *savestr)
 {
     int i, version;
-    char temp[200];
-    FILE *fd;
-
 #ifndef MSDOS_SUPPORTED_ANTIQUE
     if (access (savestr, F_OK | R_OK | W_OK) == -1) {	/* access uses real uid */
 	print1 ("Unable to access save file: ");
@@ -460,41 +431,8 @@ int restore_game (char *savestr)
     }
 #endif
     change_to_user_perms ();
-#ifdef COMPRESS_SAVE_FILES
-    fd = fopen (savestr, "rb");
-    if (fd == NULL) {
-	print1 ("Error restoring game -- aborted.");
-	print2 ("File name was: ");
-	nprint2 (savestr);
-	morewait ();
-	change_to_game_perms ();
-	return (FALSE);
-    }
-    fread ((char *) &version, sizeof (int), 1, fd);
-    fclose (fd);
-    if (VERSION != version && !ok_outdated (version)) {
-	print1 ("Uncompressing Save File....");
-#if defined(MSDOS) || defined(AMIGA)
-	strcpy (temp, savestr);
-	strcat (temp, "Z");
-	rename (savestr, temp);
-	do_compression (1, savestr);
-#else
-	sprintf (temp, "%s.%s", savestr, COMPRESS_EXT);
-	unlink (temp);
-	link (savestr, temp);
-	unlink (savestr);	/* renames, but sys-V doesn't have rename()... */
-	strcpy (temp, UNCOMPRESSOR);
-	strcat (temp, " ");
-	strcat (temp, savestr);
-	system (temp);
-#endif
-	print2 ("Save file uncompressed.");
-	morewait ();
-    }
-#endif
 
-    fd = fopen (savestr, "rb");
+    FILE* fd = fopen (savestr, "rb");
 
     if (fd == NULL) {
 	print1 ("Error restoring game -- aborted.");
@@ -857,15 +795,12 @@ void restore_level (FILE* fd, int version)
 
 void restore_hiscore_npc (pmt npc, int npcid)
 {
-    pob ob;
-    int level, behavior;
+    int level = Hilevel, behavior = Hibehavior;
     long status;
 
     switch (npcid) {
 	case 0:
 	    strcpy (Str2, Hiscorer);
-	    level = Hilevel;
-	    behavior = Hibehavior;
 	    break;
 	case 1:
 	case 2:

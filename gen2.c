@@ -342,8 +342,8 @@ void room_corridor (int fx, int fy, int tx, int ty, int baux)
 
 void maze_level (void)
 {
-    int i, j, tx, ty, mid;
-    char rsi;
+    int i, j, tx, ty;
+    char rsi = RS_VOLCANO;
     if (Current_Environment == E_ASTRAL)
 	switch (Level->depth) {
 	    case 1:
@@ -361,8 +361,7 @@ void maze_level (void)
 	    case 5:
 		rsi = RS_HIGHASTRAL;
 		break;
-    } else
-	rsi = RS_VOLCANO;
+    }
     maze_corridor (random_range (WIDTH - 1) + 1, random_range (LENGTH - 1) + 1, random_range (WIDTH - 1) + 1, random_range (LENGTH - 1) + 1, rsi, 0);
     if (Current_Dungeon == E_ASTRAL) {
 	for (i = 0; i < WIDTH; i++)
@@ -389,6 +388,7 @@ void maze_level (void)
 			    Level->site[i][j].p_locf = L_ABYSS;
 			    break;
 		    }
+	int mid = ELEM_MASTER;
 	switch (Level->depth) {
 	    case 1:
 		mid = LORD_EARTH;
@@ -402,9 +402,6 @@ void maze_level (void)
 	    case 4:
 		mid = LORD_FIRE;
 		break;		/* Elemental Lord of Fire */
-	    case 5:
-		mid = ELEM_MASTER;
-		break;		/* Elemental Master */
 	}
 	if (Level->depth == 5) {
 	    findspace (&tx, &ty, -1);

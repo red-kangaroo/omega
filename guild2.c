@@ -180,7 +180,7 @@ void l_thieves_guild (void)
 		    print1 ("The fee will be: ");
 		    mnumprint (max (count * fee, fee));
 		    nprint1 ("Au. Pay it? [yn] ");
-		    if (ynq1 () == 'y')
+		    if (ynq1 () == 'y') {
 			if (Player.cash < max (count * fee, fee))
 			    print2 ("Try again when you have the cash.");
 			else {
@@ -188,6 +188,7 @@ void l_thieves_guild (void)
 			    dataprint ();
 			    identify (1);
 			}
+		    }
 		}
 	    } else if (action == 'd') {
 		if (Player.rank[THIEVES] == 0)
@@ -527,9 +528,9 @@ void l_sorcerors (void)
 		    print3 ("Die, false sorceror!");
 		    p_damage (25, UNSTOPPABLE, "a sorceror's curse");
 		    done = TRUE;
-		} else if (Player.rank[CIRCLE] == PRIME)
+		} else if (Player.rank[CIRCLE] == PRIME) {
 		    print2 ("You are at the pinnacle of mastery in the Circle.");
-		else if (Player.rank[CIRCLE] == HIGHSORCEROR) {
+		} else if (Player.rank[CIRCLE] == HIGHSORCEROR) {
 		    if (Player.level <= Primelevel)
 			print2 ("You are not experienced enough to advance.");
 		    else

@@ -65,7 +65,7 @@ int main (int argc, char **argv)
 char include[] = "#include";
 #define include_size (sizeof(include) - 1)
 
-do_scan (sourcefp, destfp)
+void do_scan (sourcefp, destfp)
 FILE *sourcefp, *destfp;
 {
     int max_strings;
@@ -110,7 +110,7 @@ FILE *sourcefp, *destfp;
     }
 }
 
-do_output (sourcefp, destfp)
+void do_output (sourcefp, destfp)
 FILE *sourcefp, *destfp;
 {
     char buf[1024];
@@ -125,6 +125,6 @@ FILE *sourcefp, *destfp;
 
     putc ('\n', destfp);
 
-    while (i = fread (buf, 1, sizeof (buf), sourcefp))
+    while ((i = fread (buf, 1, sizeof (buf), sourcefp)))
 	fwrite (buf, i, 1, destfp);
 }

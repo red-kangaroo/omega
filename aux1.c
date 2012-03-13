@@ -366,7 +366,6 @@ void fight_monster (struct monster *m)
 /* Attempt to break an object o */
 int damage_item (pob o)
 {
-    int i;
     /* special case -- break star gem */
     if (o->id == ARTIFACTID + 21) {
 	print1 ("The Star Gem shatters into a million glistening shards....");
