@@ -3,22 +3,12 @@
 /* functions with file access in them. Also some direct calls to
    curses functions */
 
-#ifdef MSDOS_SUPPORTED_ANTIQUE
-# include "curses.h"
-#else
-# ifdef AMIGA
-#  include <curses210.h>
-# else
-#  include <curses.h>
-# endif
-# include <sys/types.h>
-# include <unistd.h>
-# include <sys/file.h>
-# include <fcntl.h>
-# include <errno.h>
-#endif
-
 #include "glob.h"
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/file.h>
+#include <fcntl.h>
+#include <errno.h>
 
 FILE *checkfopen (filestring, optionstring)
 char *filestring, *optionstring;
@@ -140,7 +130,6 @@ void showmotd (void)
 
 void lock_score_file (void)
 {
-#ifndef MSDOS
     int lock, attempts = 0, thispid, lastpid = 0;
     FILE *lockfile;
 
@@ -168,16 +157,13 @@ void lock_score_file (void)
     sprintf (Str1, "%d", getpid ());
     write (lock, Str1, strlen (Str1));
     close (lock);
-#endif
 }
 
 void unlock_score_file (void)
 {
-#ifndef MSDOS
     strcpy (Str1, Omegalib);
     strcat (Str1, "omega.hi.lock");
     unlink (Str1);
-#endif
 }
 
 void showscores (void)
@@ -270,11 +256,7 @@ void save_hiscore_npc (int npc)
     strcat (Str1, "omega.hi");
     infile = checkfopen (Str1, "rb");
     strcpy (Str2, Omegalib);
-#ifdef MSDOS
-    strcat (Str2, "omegahi.new");	/* stupid 8.3 msdos filename limit */
-#else
     strcat (Str2, "omega.hi.new");
-#endif
     outfile = checkfopen (Str2, "wb");
     for (i = 0; i < 16; i++) {
 	if (npc == i) {
@@ -334,12 +316,7 @@ void save_hiscore_npc (int npc)
     fclose (infile);
     fclose (outfile);
     unlink (Str1);
-#if defined(MSDOS) || defined(AMIGA)
     rename (Str2, Str1);
-#else
-    link (Str2, Str1);
-    unlink (Str2);		/* renames, but sys-V doesn't have rename()... */
-#endif
     unlock_score_file ();
 }
 
@@ -400,7 +377,6 @@ void extendlog (char *descrip, int lifestatus)
     }
 }
 
-#ifndef MSDOS
 /* reads a string from a file. If it is a line with more than 80 char's,
    then remainder of line to \n is consumed */
 void filescanstring (fd, fstr)
@@ -419,23 +395,7 @@ char *fstr;
 	    byte = fgetc (fd);
     fstr[i] = 0;
 }
-#endif
 
-#ifdef MSDOS
-int test_file_access (char *file_name, int mode)
-{
-    FILE *fd;
-
-    if (mode == 'r')
-	fd = fopen (file_name, "r");
-    else
-	fd = fopen (file_name, "r+");
-    if (!fd)
-	return 0;
-    fclose (fd);
-    return 1;
-}
-#else
 int test_file_access (char *file_name, int mode)
 {
     int fd;
@@ -449,7 +409,6 @@ int test_file_access (char *file_name, int mode)
     close (fd);
     return 1;
 }
-#endif
 
 char *required_file_list[] = {
     "city.dat", "country.dat", "dlair.dat", "misle.dat", "court.dat",
@@ -498,13 +457,8 @@ int filecheck (void)
 	printf ("\nFurther execution is impossible. Sorry.");
 	if (strcmp (Omegalib, OMEGALIB))
 	    printf ("\nEnvironment variable OMEGALIB badly set\n");
-	else {
+	else
 	    printf ("\nOMEGALIB may be badly #defined in defs.h\n");
-#ifndef FIXED_OMEGALIB
-	    printf ("\nYou can set the environment variable OMEGALIB to\n");
-	    printf ("the location of the omegalib directory.\n");
-#endif
-	}
 	return (0);
     } else if (badbutpossible) {
 	printf ("\nFurther execution may cause anomalous behavior.");

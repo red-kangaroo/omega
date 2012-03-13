@@ -127,17 +127,10 @@ void load_dlair (int empty, int populate)
 	empty = TRUE;
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
-#ifndef SAVE_LEVELS
 	free_level (TempLevel);
-#endif
 	TempLevel = NULL;
     }
-#ifndef SAVE_LEVELS
     Level = ((plv) checkmalloc (sizeof (levtype)));
-#else
-    msdos_changelevel (TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
     clear_level (Level);
     Level->environment = E_DLAIR;
     strcpy (Str3, Omegalib);
@@ -252,17 +245,10 @@ void load_speak (int empty, int populate)
 
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
-#ifndef SAVE_LEVELS
 	free_level (TempLevel);
-#endif
 	TempLevel = NULL;
     }
-#ifndef SAVE_LEVELS
     Level = ((plv) checkmalloc (sizeof (levtype)));
-#else
-    msdos_changelevel (TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
     clear_level (Level);
     Level->environment = E_STARPEAK;
     strcpy (Str3, Omegalib);
@@ -377,17 +363,10 @@ void load_misle (int empty, int populate)
 
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
-#ifndef SAVE_LEVELS
 	free_level (TempLevel);
-#endif
 	TempLevel = NULL;
     }
-#ifndef SAVE_LEVELS
     Level = ((plv) checkmalloc (sizeof (levtype)));
-#else
-    msdos_changelevel (TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
     clear_level (Level);
     Level->environment = E_MAGIC_ISLE;
     strcpy (Str3, Omegalib);
@@ -466,17 +445,10 @@ void load_temple (int deity, int populate)
     /*  initrand(Current_Environment, deity); */
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
-#ifndef SAVE_LEVELS
 	free_level (TempLevel);
-#endif
 	TempLevel = NULL;
     }
-#ifndef SAVE_LEVELS
     Level = ((plv) checkmalloc (sizeof (levtype)));
-#else
-    msdos_changelevel (TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
     clear_level (Level);
     Level->environment = E_TEMPLE;
     strcpy (Str3, Omegalib);

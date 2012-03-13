@@ -25,43 +25,6 @@ char **string_list;
 
 #define REALLOC_INCR 500
 
-#if 0
-int main (int argc, char **argv)
-{
-    FILE *sourcefp, *destfp;
-
-    if (argc != 2) {
-	printf ("Usage: %s <cfile>\n", argv[0]);
-	exit (1);
-    }
-
-    if ((sourcefp = fopen (argv[1], "r")) == NULL || (destfp = fopen (TMPFILE, "w")) == NULL) {
-	perror ("Can't open a file (pass1)");
-	exit (1);
-    }
-
-    printf ("Scanning %s...", argv[1]);
-    fflush (stdout);
-    do_scan (sourcefp, destfp);
-    printf ("Done\n");
-
-    fclose (sourcefp);
-    fclose (destfp);
-
-    if ((sourcefp = fopen (TMPFILE, "r")) == NULL || (destfp = fopen (argv[1], "w")) == NULL) {
-	perror ("Can't open a file (pass2)");
-	exit (1);
-    }
-
-    printf ("Writing new %s...", argv[1]);
-    fflush (stdout);
-    do_output (sourcefp, destfp);
-    printf ("Done\n");
-    remove (TMPFILE);
-    exit (0);
-}
-#endif
-
 char include[] = "#include";
 #define include_size (sizeof(include) - 1)
 

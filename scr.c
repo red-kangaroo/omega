@@ -4,30 +4,10 @@
 /* plus a few file i/o stuff */
 /* also some in file.c */
 
-#ifdef MSDOS_SUPPORTED_ANTIQUE
-# include "curses.h"
-#else
-# ifdef AMIGA
-#  include <curses210.h>
-# else
-#  include <curses.h>
-# endif
-# include <sys/types.h>
-#endif
+#include "glob.h"
 #include <unistd.h>
 
-#if defined(MSDOS_SUPPORTED_ANTIQUE) || defined(AMIGA)
-# define CHARATTR(c)	((c) >> 8)
-#else
-# define CHARATTR(c)	((c) & ~0xff)
-#endif
-
-#include "glob.h"
-
-#ifdef EXCESSIVE_REDRAW
-#undef wclear
-#define wclear werase
-#endif
+#define CHARATTR(c)	((c) & ~0xff)
 
 /* note these variables are not exported to other files */
 
@@ -113,14 +93,7 @@ char mgetc (void)
 /* case insensitive mgetc -- sends uppercase to lowercase */
 int mcigetc (void)
 {
-    int c;
-
-#ifdef MSDOS_SUPPORTED_ANTIQUE
-#ifndef DJGPP
-    keypad (Msgw, TRUE);
-#endif
-#endif
-    c = wgetch (Msgw);
+    int c = wgetch (Msgw);
     if ((c >= (int) 'A') && (c <= (int) 'Z'))
 	return (c + (int) ('a' - 'A'));
     else
@@ -384,26 +357,12 @@ void initgraf (void)
 {
     int i;
     initscr ();
-#ifndef MSDOS_SUPPORTED_ANTIQUE
     start_color ();
-# ifndef AMIGA
     clrgen_init ();
-# endif
-#endif
     if (LINES < 24 || COLS < 80) {
 	printf ("Minimum Screen Size: 24 Lines by 80 Columns.");
 	exit (0);
     }
-#ifdef AMIGA
-    init_color (1, 800, 800, 800);	/* white */
-    init_color (2, 644, 164, 164);	/* brown */
-    init_color (3, 800, 800, 0);	/* yellow */
-    init_color (4, 200, 200, 200);	/* grey */
-    init_color (5, 0, 1000, 0);	/* green */
-    init_color (6, 0, 0, 1000);	/* blue */
-    init_color (7, 1000, 0, 0);	/* red */
-    LINES -= 2;			/* ugly, but neccessary with this curses package... */
-#endif
     ScreenLength = LINES - 6;
     Msg1w = newwin (1, 80, 0, 0);
     scrollok (Msg1w, 0);	/* DJGPP curses defaults to scrollable new windows */
@@ -973,12 +932,11 @@ int getnumber (int range)
 
     if (range == 1)
 	return (1);
-    else
+    else {
 	while (!done) {
 	    clearmsg ();
 	    wprintw (Msg1w, "How many? Change with < or >, ESCAPE to select:");
 	    mnumprint (value);
-#ifndef MSDOS
 	    do
 		atom = mcigetc ();
 	    while ((atom != '<') && (atom != '>') && (atom != ESCAPE));
@@ -988,41 +946,8 @@ int getnumber (int range)
 		value--;
 	    else if (atom == ESCAPE)
 		done = TRUE;
-#else
-	    atom = mcigetc ();
-	    switch (atom) {
-		case '>':
-		case 'k':
-#ifdef KEY_UP
-		case KEY_UP:
-#endif
-		    if (value < range)
-			value++;
-		    break;
-		case '<':
-		case 'j':
-#ifdef KEY_DOWN
-		case KEY_DOWN:
-#endif
-		    if (value > 1)
-			value--;
-		    break;
-#ifdef KEY_HOME
-		case KEY_HOME:
-#endif
-		    value = 1;
-		    break;
-#ifdef KEY_LL
-		case KEY_LL:
-#endif
-		    value = range;
-		    break;
-		case ESCAPE:
-		    done = TRUE;
-		    break;
-	    }
-#endif
 	}
+    }
     return (value);
 }
 
@@ -1613,11 +1538,7 @@ void bufferprint (void)
 {
     int i = bufferpos - 1, c, finished = 0;
     clearmsg ();
-#ifndef MSDOS_SUPPORTED_ANTIQUE
     wprintw (Msg1w, "^p for previous message, ^n for next, anything else to quit.");
-#else
-    wprintw (Msg1w, "^o for last message, ^n for next, anything else to quit.");
-#endif
     wrefresh (Msg1w);
     do {
 	if (i >= STRING_BUFFER_SIZE)
@@ -1628,11 +1549,7 @@ void bufferprint (void)
 	wprintw (Msg2w, Stringbuffer[i]);
 	wrefresh (Msg2w);
 	c = mgetc ();
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 	if (c == 16)		/* ^p */
-#else
-	if (c == 15)		/* ^o */
-#endif
 	    i--;
 	else if (c == 14)	/* ^n */
 	    i++;

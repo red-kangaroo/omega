@@ -10,31 +10,6 @@ definitions in the following section. */
 
 /*--------------------------USER DEFINITIONS--------------------------*/
 
-/* Implementor should uncomment the following if his system uses
-string.h instead of strings.h (try man string) */
-
-#define STRING
-
-/* Implementor should uncomment the following if random and srandom 
-   are not available  (try man random) */
-
-/* #define NORANDOM */
-
-/* Implementor should uncomment the following if omega appears to
-redraw the screen excessively. */
-
-#define EXCESSIVE_REDRAW
-
-/* If your system has gzip, I recommend using it instead of compress */
-/* (try just typing 'gzip' at the shell prompt) */
-
-#define USE_GZIP
-
-/* If your system doesn't have the usleep call, uncomment this line */
-/* (try man usleep) */
-
-/* #define NO_USLEEP */
-
 /* OMEGALIB is where all the data files reside. 
    Note the final / is necessary.
    msdos note: \ is the C string escape character, so you need \\ in the
@@ -43,16 +18,6 @@ redraw the screen excessively. */
    or something like "c:\\games\\omega\\omegalib\\" for msdos */
 
 #define OMEGALIB "./lib/"
-
-/* Comment the following line out if you want users to be able to override */
-/* the OMEGALIB define, above, by setting the environment variable OMEGALIB */
-/* (I recommend leaving this line uncommented, unless you're compiling */
-/* for someone else and don't know where they'll be putting the omegalib */
-/* directory, as is the case with compiling executables for home computers. */
-/* It would be downright insecure to comment this line out in a multi-user */
-/* environment, especially if you're going to run omega setuid.) */
-
-/*#define FIXED_OMEGALIB*/
 
 /* set WIZARD to maintainers's username */
 
@@ -70,18 +35,6 @@ redraw the screen excessively. */
 #define VERSIONSTRING "omega version 0.90"
 
 #define SYSV 1
-#ifndef AMIGA
-#ifndef MSDOS
-#ifndef BSD
-#ifndef SYSV
-#error One of these should be set - edit the makefile appropriately
-#endif
-#endif
-#endif
-#endif
-#if defined(MSDOS_SUPPORTED_ANTIQUE)
-#define SAVE_LEVELS
-#endif
 #define VACANT 0
 #define ABORT -1
 #define CASHVALUE -2
@@ -432,85 +385,14 @@ redraw the screen excessively. */
 #define RS_CAVERN 3
 #define RS_CORRIDOR 2
 #define RS_WALLSPACE 1
-#if defined(MSDOS_SUPPORTED_ANTIQUE) || defined(AMIGA)
-#define CLR(fg)		COL_##fg
-#define CLRS(fg,bg)	COL_##fg|COL_BG_##bg
-#endif
-#ifdef MSDOS_SUPPORTED_ANTIQUE
-#define COL_BLACK 0x0000
-#define COL_BLUE 0x0100
-#define COL_GREEN 0x0200
-#define COL_CYAN 0x0300
-#define COL_RED 0x0400
-#define COL_PURPLE 0x0500
-#define COL_BROWN 0x0600
-#define COL_WHITE 0x0700
-#define COL_GREY 0x0800
-#define COL_LIGHT_BLUE 0x0900
-#define COL_LIGHT_GREEN 0x0a00
-#define COL_LIGHT_CYAN 0x0b00
-#define COL_LIGHT_RED 0x0c00
-#define COL_LIGHT_PURPLE 0x0d00
-#define COL_YELLOW 0x0e00
-#define COL_BRIGHT_WHITE 0x0f00
-#define COL_BG_BLACK 0x0000
-#define COL_BG_BLUE 0x1000
-#define COL_BG_GREEN 0x2000
-#define COL_BG_CYAN 0x3000
-#define COL_BG_RED 0x4000
-#define COL_BG_PURPLE 0x5000
-#define COL_BG_BROWN 0x6000
-#define COL_BG_WHITE 0x7000
-#define COL_FG_BLINK 0x8000
-#else
-#ifdef AMIGA
-#include <curses210.h>
-/* unfortunately, this curses package only implements 8 colours... */
-#define COL_WHITE 0x0100
-#define COL_BLACK COL_WHITE
-    /* this assumes that all things with black fg have white bg */
-#define COL_BROWN 0x0200
-#define COL_YELLOW 0x0300
-#define COL_GREY 0x0400
-#define COL_GREEN 0x0500
-#define COL_BLUE 0x0600
-#define COL_RED 0x0700
-#define COL_CYAN 0x0500		/* = green */
-#define COL_PURPLE 0x0700	/* = red */
-#define COL_LIGHT_BLUE 0x0600	/* = blue */
-#define COL_LIGHT_GREEN 0x0500	/* = green */
-#define COL_LIGHT_CYAN 0x0500	/* = green */
-#define COL_LIGHT_RED 0x0700	/* = red */
-#define COL_LIGHT_PURPLE 0x0100	/* = white */
-#define COL_BRIGHT_WHITE 0x0100	/* = white */
-#define COL_BG_BLACK 0x0000
-#define COL_BG_WHITE (A_REVERSE<<8)
-#define COL_BG_GREEN (A_REVERSE<<8)
-#define COL_BG_CYAN (A_REVERSE<<8)
-#define COL_BG_RED (A_REVERSE<<8)
-#define COL_BG_PURPLE (A_REVERSE<<8)
-#define COL_BG_BROWN (A_REVERSE<<8)
-#define COL_BG_BLUE (A_REVERSE<<8)
-#define COL_FG_BLINK 0x0000	/* not implemented :( */
-/* WDT: thank goodness for that lack of implementation. */
-#else
+
 #include <curses.h>
+
 #define COL_FG_BLINK A_BLINK
-#ifdef COLOR_PAIR
-# ifdef OMEGA_CLRGEN
-#  define CLR(fg)	OMEGA_CLRGEN1 fg
-#  define CLRS(fg, bg)	OMEGA_CLRGEN2 fg bg
-# else
-#  include "clrgen.h"
-#  define CLR(fg)	CLR_##fg##_BLACK
-#  define CLRS(fg, bg)	CLR_##fg##_##bg
-# endif
-#else
-#define CLR(fg)		0
-#define CLRS(fg,bg)	0
-#endif
-#endif
-#endif
+#include "clrgen.h"
+#define CLR(fg)		CLR_##fg##_BLACK
+#define CLRS(fg, bg)	CLR_##fg##_##bg
+
 /* objects, locations, and terrain; characters to draw */
 #define NULL_ITEM '\0'
 #define SPACE (' ' | CLR(WHITE))
@@ -1222,11 +1104,7 @@ for example. */
 #define O_RING3 14
 #define O_RING4 15
 /* typedefs needed by structs */
-#if defined(MSDOS_SUPPORTED_ANTIQUE) || defined(AMIGA)
-typedef short Symbol;
-#else
 typedef int Symbol;
-#endif
 
 /* structure definitions */
 
@@ -1327,12 +1205,7 @@ struct location {
 struct level {
     char depth;			/* which level is this */
     struct level *next;		/* pointer to next level in dungeon */
-#ifndef SAVE_LEVELS
     struct location site[MAXWIDTH][MAXLENGTH];	/* dungeon data */
-#else
-    /* Over 64K worth of data! */
-    struct location *site[MAXWIDTH];	/* dungeon data */
-#endif
     char generated;		/* has the level been made (visited) yet? */
     char numrooms;		/* number of rooms on level */
     char tunnelled;		/* amount of tunnelling done on this level */
@@ -1368,11 +1241,6 @@ typedef oltype *pol;
 /* The assert macro (for ANSI/ISO C).  Hopefully this will always work! */
 #include <assert.h>
 
-#ifdef MSDOS
-#include <time.h>
-#define getlogin() "pcuser"
-#endif
-
 #undef sign
 #undef max
 #undef min
@@ -1382,16 +1250,6 @@ typedef oltype *pol;
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define abs(n) (((n) < 0) ? (-(n)) : (n))
-
-#ifdef NORANDOM
-#define RANDFUNCTION rand
-#define SRANDFUNCTION srand
-#endif
-
-#ifndef NORANDOM
-#define RANDFUNCTION random
-#define SRANDFUNCTION srandom
-#endif
 
 /* WDT: This should be harmless under ANSI C, and will stop
  * some errors under bizarre platforms. */
@@ -1423,21 +1281,6 @@ typedef oltype *pol;
 /* systemV for some reason uses string.h instead of strings.h */
 /* Also, random and srandom are unlikely to be found on system V... */
 
-#ifdef STRING
 #include <string.h>
-#endif
-
-#ifndef STRING
-#include <strings.h>
-#endif
-
 #include <stdio.h>
-
-#ifndef TRUE
-#define TRUE 1
-#define FALSE 0
-#endif
-
-#ifdef SAVE_LEVELS
-plv msdos_changelevel ();
-#endif
+#include <stdbool.h>

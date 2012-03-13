@@ -1,20 +1,13 @@
 /* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
 /* save.c */
 
-#ifndef MSDOS_SUPPORTED_ANTIQUE
+#include "glob.h"
 #include <unistd.h>
 #include <stdlib.h>
-#endif
-
-#include "glob.h"
 
 /*Various functions for doing game saves and restores */
 /*The game remembers various player information, the city level,
 the country level, and the last or current dungeon level */
-
-#if defined(MSDOS_SUPPORTED_ANTIQUE) || defined(AMIGA)
-void do_compression (int, char *);
-#endif
 
 /**************** SAVE FUNCTIONS */
 
@@ -27,13 +20,9 @@ int save_game (char *savestr)
 {
     FILE *fd;
     int slashpos;
-#ifdef SAVE_LEVELS
-    int tmpdepth;
-#endif
     int i, writeok = TRUE;
     plv current, levelToSave;
 
-#ifndef MSDOS_SUPPORTED_ANTIQUE
     if (access (savestr, R_OK) == 0)
 	if (access (savestr, W_OK) == 0) {
 	    mprint (" Overwrite old file?");
@@ -52,7 +41,6 @@ int save_game (char *savestr)
 	    savestr[slashpos] = '/';
 	}
     }
-#endif
     change_to_user_perms ();
     if (writeok) {
 	fd = fopen (savestr, "wb");
@@ -75,10 +63,6 @@ int save_game (char *savestr)
 
 	writeok &= save_player (fd);
 	writeok &= save_country (fd);
-#ifdef SAVE_LEVELS
-	tmpdepth = Level->depth;
-	City = msdos_changelevel (Level, E_CITY, 0);
-#endif
 	writeok &= save_level (fd, City);
 
 	if (Current_Environment == E_CITY || Current_Environment == E_COUNTRYSIDE)
@@ -90,9 +74,6 @@ int save_game (char *savestr)
 	for (i = 0, current = levelToSave; current; current = current->next, i++);
 	if (!fwrite ((char *) &i, sizeof (int), 1, fd))
 	    writeok = FALSE;
-#ifdef SAVE_LEVELS
-	Level = msdos_changelevel (NULL, Current_Environment, tmpdepth);
-#endif
 	for (current = levelToSave; current; current = current->next)
 	    if (current != Level)
 		writeok &= save_level (fd, current);
@@ -422,14 +403,12 @@ int ok_outdated (int ver)
 int restore_game (char *savestr)
 {
     int i, ver;
-#ifndef MSDOS_SUPPORTED_ANTIQUE
     if (access (savestr, F_OK | R_OK | W_OK) == -1) {	/* access uses real uid */
 	print1 ("Unable to access save file: ");
 	nprint1 (savestr);
 	morewait ();
 	return FALSE;
     }
-#endif
     change_to_user_perms ();
 
     FILE* fd = fopen (savestr, "rb");
@@ -463,9 +442,6 @@ int restore_game (char *savestr)
 	restore_level (fd, ver);	/* the city level */
 	fread ((char *) &i, sizeof (int), 1, fd);
 	for (; i > 0; i--) {
-#ifdef SAVE_LEVELS
-	    msdos_changelevel (Level, 0, -1);
-#endif
 	    restore_level (fd, ver);
 	    if (Level->environment == Current_Dungeon) {
 		Level->next = Dungeon;

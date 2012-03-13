@@ -14,9 +14,7 @@ void load_village (int villagenum, int populate)
 
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
-#ifndef SAVE_LEVELS
 	free_level (TempLevel);
-#endif
 	TempLevel = NULL;
     }
 
@@ -24,12 +22,7 @@ void load_village (int villagenum, int populate)
 
     assign_village_function (0, 0, TRUE);
 
-#ifndef SAVE_LEVELS
     Level = ((plv) checkmalloc (sizeof (levtype)));
-#else
-    msdos_changelevel (TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
     clear_level (Level);
     Level->environment = E_VILLAGE;
     strcpy (Str3, Omegalib);

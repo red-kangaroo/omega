@@ -53,17 +53,10 @@ void p_process (void)
 		xredraw ();
 		setgamestatus (SKIP_MONSTERS);
 		break;		/* ^l */
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 	    case 16:
 		bufferprint ();
 		setgamestatus (SKIP_MONSTERS);
 		break;		/* ^p */
-#else
-	    case 15:
-		bufferprint ();
-		setgamestatus (SKIP_MONSTERS);
-		break;		/* ^o */
-#endif
 	    case 18:
 		redraw ();
 		setgamestatus (SKIP_MONSTERS);
@@ -180,10 +173,6 @@ void p_process (void)
 		break;
 	    case 'O':
 		setoptions ();
-#if defined(AMIGA) || defined(MSDOS_SUPPORTED_ANTIQUE)
-		show_screen ();
-		xredraw ();
-#endif
 		break;
 	    case 'P':
 		show_license ();
@@ -204,11 +193,6 @@ void p_process (void)
 	    case 'V':
 		version ();
 		break;
-#ifdef MSDOS_SUPPORTED_ANTIQUE
-	    case 'X':
-		check_memory ();
-		break;
-#endif
 	    case 'Z':
 		bash_item ();
 		Command_Duration = Player.speed * 10 / 5;
@@ -370,17 +354,10 @@ void p_country_process (void)
 		xredraw ();
 		no_op = TRUE;
 		break;		/* ^l */
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 	    case 16:
 		bufferprint ();
 		no_op = TRUE;
 		break;		/* ^p */
-#else
-	    case 15:
-		bufferprint ();
-		no_op = TRUE;
-		break;		/* ^o */
-#endif
 	    case 18:
 		redraw ();
 		no_op = TRUE;
@@ -441,11 +418,6 @@ void p_country_process (void)
 	    case 'V':
 		version ();
 		break;
-#ifdef MSDOS_SUPPORTED_ANTIQUE
-	    case 'X':
-		check_memory ();
-		break;
-#endif
 	    case '>':
 		enter_site (Country[Player.x][Player.y].base_terrain_type);
 		break;

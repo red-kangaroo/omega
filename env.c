@@ -16,17 +16,10 @@ void load_arena (void)
 
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
-#ifndef SAVE_LEVELS
 	free_level (TempLevel);
-#endif
 	TempLevel = NULL;
     }
-#ifndef SAVE_LEVELS
     Level = ((plv) checkmalloc (sizeof (levtype)));
-#else
-    msdos_changelevel (TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
     clear_level (Level);
     Level->environment = E_ARENA;
     strcpy (Str3, Omegalib);
@@ -86,17 +79,10 @@ void load_circle (int populate)
 
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
-#ifndef SAVE_LEVELS
 	free_level (TempLevel);
-#endif
 	TempLevel = NULL;
     }
-#ifndef SAVE_LEVELS
     Level = ((plv) checkmalloc (sizeof (levtype)));
-#else
-    msdos_changelevel (TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
     clear_level (Level);
     Level->environment = E_CIRCLE;
     strcpy (Str3, Omegalib);
@@ -231,17 +217,10 @@ void load_court (int populate)
 
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
-#ifndef SAVE_LEVELS
 	free_level (TempLevel);
-#endif
 	TempLevel = NULL;
     }
-#ifndef SAVE_LEVELS
     Level = ((plv) checkmalloc (sizeof (levtype)));
-#else
-    msdos_changelevel (TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
     clear_level (Level);
     Level->environment = E_COURT;
     strcpy (Str3, Omegalib);

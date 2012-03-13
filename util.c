@@ -3,14 +3,11 @@
 
 /* Random utility functions called from all over */
 
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
-#endif
-
 #include "glob.h"
 
 /* x and y on level? */
@@ -19,11 +16,9 @@ int inbounds (int x, int y)
     return ((x >= 0) && (y >= 0) && (x < WIDTH) && (y < LENGTH));
 }
 
-/* RANDFUNCTION is defined in odefs.h */
 int random_range (int k)
 {
-    /*return( k==0 ? 0 : (int) RANDFUNCTION() % k ) ; */
-    return (k == 0 ? 0 : (int) ((RANDFUNCTION () % 10000) * k) / 10000);
+    return (k == 0 ? 0 : rand() % (unsigned)k);
 }
 
 /* modify absolute y coord relative to which part of level we are on */
@@ -127,7 +122,6 @@ int view_unblocked (int x, int y)
 	return (TRUE);
 }
 
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 /* 8 moves in Dirs */
 void initdirs (void)
 {
@@ -150,7 +144,6 @@ void initdirs (void)
     Dirs[1][7] = -1;
     Dirs[1][8] = 0;
 }
-#endif
 
 /* do_los moves pyx along a lineofsight from x1 to x2 */
 /* x1 and x2 are pointers because as a side effect they are changed */
@@ -391,7 +384,6 @@ int view_los_p (int x1, int y1, int x2, int y2)
     return ((x1 == x2) && (y1 == y2));
 }
 
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 /* returns the command direction from the index into Dirs */
 char inversedir (int dirindex)
 {
@@ -416,7 +408,6 @@ char inversedir (int dirindex)
 	    return ('\0');
     }
 }
-#endif
 
 long calc_points (void)
 {
@@ -715,9 +706,7 @@ void free_level (plv level)
 		free_objlist (level->site[i][j].things);
 		level->site[i][j].things = NULL;
 	    }
-#ifndef SAVE_LEVELS
     free (level);
-#endif
 }
 
 /* malloc function that checks its return value - if NULL, tries to free */
@@ -759,84 +748,6 @@ char *salloc (char *str)
     return (s);
 }
 
-#ifdef MSDOS
-/* ****Moved here from another file**** */
-/* reads a string from a file. If it is a line with more than 80 char's,
-   then remainder of line to \n is consumed */
-void filescanstring (fd, fstr)
-FILE *fd;
-char *fstr;
-{
-    int i = -1;
-    int byte = 'x';
-    while ((i < 80) && (byte != '\n') && (byte != EOF)) {
-	i++;
-	byte = fgetc (fd);
-	fstr[i] = byte;
-    }
-    if (byte != '\n')
-	while ((byte != '\n') && (byte != EOF))
-	    byte = fgetc (fd);
-    fstr[i] = 0;
-}
-#endif
-
-#ifdef MSDOS_SUPPORTED_ANTIQUE
-/* ****Moved here from another file**** */
-/* returns a "level of difficulty" based on current environment
-   and depth in dungeon. Is somewhat arbitrary. value between 1 and 10.
-   May not actually represent real difficulty, but instead level
-   of items, monsters encountered.    */
-int difficulty (void)
-{
-    int depth = 1;
-    if (Level != NULL)
-	depth = Level->depth;
-    switch (Current_Environment) {
-	case E_COUNTRYSIDE:
-	    return (7);
-	case E_CITY:
-	    return (3);
-	case E_VILLAGE:
-	    return (1);
-	case E_TACTICAL_MAP:
-	    return (7);
-	case E_SEWERS:
-	    return (depth / 6) + 3;
-	case E_CASTLE:
-	    return (depth / 4) + 4;
-	case E_CAVES:
-	    return (depth / 3) + 1;
-	case E_VOLCANO:
-	    return (depth / 4) + 5;
-	case E_ASTRAL:
-	    return (8);
-	case E_ARENA:
-	    return (5);
-	case E_HOVEL:
-	    return (3);
-	case E_MANSION:
-	    return (7);
-	case E_HOUSE:
-	    return (5);
-	case E_DLAIR:
-	    return (9);
-	case E_ABYSS:
-	    return (10);
-	case E_STARPEAK:
-	    return (9);
-	case E_CIRCLE:
-	    return (8);
-	case E_MAGIC_ISLE:
-	    return (8);
-	case E_TEMPLE:
-	    return (8);
-	default:
-	    return (3);
-    }
-}
-#endif
-
 char cryptkey (char *fname)
 {
     int pos, key = 0;
@@ -851,49 +762,16 @@ int user_uid;
 
 void init_perms (void)
 {
-#if (defined(BSD) || defined(SYSV)) && !defined(__DJGPP__)
     user_uid = getuid ();
     game_uid = geteuid ();
-#endif
 }
-
-/*
-#ifdef BSD
-void setreuid(int, int);
-#endif
-*/
 
 void change_to_user_perms (void)
 {
-#if (defined( BSD ) || defined( SYSV )) && !defined(__EMX__) && !defined(__DJGPP__)
-#ifdef BSD
-    setreuid (game_uid, user_uid);
-#else				/* SYSV */
     seteuid (user_uid);
-#endif				/* BSD */
-#endif				/* BSD || SYSV */
 }
 
 void change_to_game_perms (void)
 {
-#if (defined( BSD ) || defined( SYSV )) && !defined(__EMX__) && !defined(__DJGPP__)
-#ifdef BSD
-    setreuid (user_uid, game_uid);
-#else				/* SYSV */
     seteuid (game_uid);
-#endif				/* BSD */
-#endif				/* BSD || SYSV */
 }
-
-#ifdef NO_USLEEP
-void usleep (int usecs)
-{
-    fd_set null;
-    struct timeval timeout;
-
-    FD_ZERO (&null);
-    timeout.tv_usec = usecs;
-    timeout.tv_sec = 0;
-    select (0, &null, &null, &null, &timeout);
-}
-#endif

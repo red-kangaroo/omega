@@ -42,17 +42,10 @@ void make_country_screen (int terrain)
     int i, j;
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
-#ifndef SAVE_LEVELS
 	free_level (TempLevel);
-#endif
 	TempLevel = NULL;
     }
-#ifndef SAVE_LEVELS
     Level = ((plv) checkmalloc (sizeof (levtype)));
-#else
-    msdos_changelevel (TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
     clear_level (Level);
     Level->environment = E_TACTICAL_MAP;
     Level->generated = TRUE;

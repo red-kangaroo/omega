@@ -16,17 +16,10 @@ void load_house (int kind, int populate)
     TempLevel = Level;
     initrand (Current_Environment, Player.x + Player.y + hour () * 10);
     if (ok_to_free (TempLevel)) {
-#ifndef SAVE_LEVELS
 	free_level (TempLevel);
-#endif
 	TempLevel = NULL;
     }
-#ifndef SAVE_LEVELS
     Level = ((plv) checkmalloc (sizeof (levtype)));
-#else
-    msdos_changelevel (TempLevel, 0, -1);
-    Level = &TheLevel;
-#endif
     clear_level (Level);
     strcpy (Str3, Omegalib);
     switch (kind) {

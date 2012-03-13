@@ -8,20 +8,11 @@
 /* Deallocate current dungeon */
 void free_dungeon (void)
 {
-#ifndef SAVE_LEVELS
-    plv tlv;
-
     while (Dungeon != NULL) {
-	tlv = Dungeon;
+	plv tlv = Dungeon;
 	Dungeon = Dungeon->next;
 	free_level (tlv);
     }
-#else
-    if (Dungeon != NULL) {
-	sprintf (Str2, "om%d*.lev", Dungeon->environment);
-	kill_levels (Str2);
-    }
-#endif
 }
 
 /* erase the level w/o deallocating it*/
@@ -63,17 +54,10 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
     struct level *thislevel = NULL;
     Player.sx = -1;
     Player.sy = -1;		/* sanctuary effect dispelled */
-#ifndef SAVE_LEVELS
     thislevel = findlevel (Dungeon, tolevel);
     deepest[Current_Environment] = max (deepest[Current_Environment], tolevel);
     if (thislevel == NULL) {
 	thislevel = ((plv) checkmalloc (sizeof (levtype)));
-#else
-    thislevel = msdos_changelevel (Level, Current_Environment, tolevel);
-    deepest[Current_Environment] = max (deepest[Current_Environment], tolevel);
-    if (thislevel == NULL) {
-	thislevel = &TheLevel;
-#endif
 	clear_level (thislevel);
 	Level = thislevel;
 	Level->next = Dungeon;
@@ -139,7 +123,6 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
     roomcheck ();
 }
 
-#ifndef SAVE_LEVELS
 /* tries to find the level of depth levelnum in dungeon; if can't find
    it returns NULL */
 plv findlevel (struct level* dungeon, char levelnum)
@@ -156,7 +139,6 @@ plv findlevel (struct level* dungeon, char levelnum)
 	    return (NULL);
     }
 }
-#endif
 
 /* keep going in one orthogonal direction or another until we hit our */
 /* destination */

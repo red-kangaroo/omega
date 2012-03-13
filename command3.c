@@ -4,11 +4,8 @@
 /* This file contains some more top level command functions
    called from command1.c */
 
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 #include <pwd.h>
 #include <unistd.h>
-#endif
-
 #include "glob.h"
 #include "date.h"
 
@@ -198,20 +195,11 @@ void help (void)
     menuprint ("k: Options Settings\n");
     menuprint ("l: Dungeon/City/Other Command List\n");
     menuprint ("m: Countryside Command List\n");
-#if !defined(MSDOS) && !defined(AMIGA)
     menuprint ("n: Everything\n");
-#endif
     menuprint ("ESCAPE: Forget the whole thing.");
     showmenu ();
     do
 	c = (char) mcigetc ();
-#if defined(MSDOS) || defined(AMIGA)
-    while ((c < 'a' || c > 'm') && c != ESCAPE);
-    if (c != ESCAPE) {
-	sprintf (filestr, "%shelp%d.txt", Omegalib, c + 1 - 'a');
-	displayfile (filestr);
-    }
-#else
     while ((c < 'a' || c > 'n') && c != ESCAPE);
     if (c == 'n') {
 	print1 ("Trying to copy all help files to ./omega.doc ");
@@ -243,7 +231,6 @@ void help (void)
 	else if (c == 'c')
 	    copyfile (filestr);
     }
-#endif
     xredraw ();
 }
 
@@ -346,9 +333,6 @@ void quit (void)
 	    display_quit ();
 	else
 	    display_bigwin ();
-#ifdef SAVE_LEVELS
-	kill_all_levels ();
-#endif
 	endgraf ();
 	exit (0);
     } else
@@ -527,9 +511,7 @@ void charid (void)
 void wizard (void)
 {
     char *lname;
-#ifndef MSDOS_SUPPORTED_ANTIQUE
     struct passwd *dastuff;
-#endif
 
     setgamestatus (SKIP_MONSTERS);
     if (gamestatusp (CHEATED))
@@ -539,12 +521,10 @@ void wizard (void)
 	mprint ("Really try to enter wizard mode? [yn] ");
 	if (ynq () == 'y') {
 	    lname = getlogin ();
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 	    if (!lname || strlen (lname) == 0) {
 		dastuff = getpwuid (getuid ());
 		lname = dastuff->pw_name;
 	    }
-#endif
 	    if (strcmp (lname, WIZARD) == 0) {
 		setgamestatus (CHEATED);
 		mprint ("Wizard mode set.");

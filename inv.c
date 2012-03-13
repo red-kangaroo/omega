@@ -2,16 +2,7 @@
 /* inv.c */
 /* functions having to do with player item inventory */
 
-#ifdef MSDOS_SUPPORTED_ANTIQUE
-# include "curses.h"
-#else
-# ifdef AMIGA
-#  include <curses210.h>
-# else
-#  include <curses.h>
-# endif
-#endif
-
+#include <curses.h>
 #include "glob.h"
 
 static int take_from_pack (int slot, int display);
@@ -557,7 +548,6 @@ int badobject (int slotchar)
 	return (Player.possessions[slot] == NULL);
 }
 
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 /* this takes the numerical index directly for the same effect as badobject*/
 int baditem (int slotnum)
 {
@@ -566,7 +556,6 @@ int baditem (int slotnum)
     else
 	return (Player.possessions[slotnum] == NULL);
 }
-#endif
 
 /* formerly add_item_to_pack */
 void gain_item (struct object *o)
@@ -812,7 +801,6 @@ static int take_from_pack (int slot, int display)
 	return (aux_take_from_pack (slot));
 }
 
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 /* General interface to inventory */
 void item_inventory (int topline)
 {
@@ -822,7 +810,6 @@ void item_inventory (int topline)
     } else
 	top_inventory_control ();
 }
-#endif
 
 void do_inventory_control (void)
 {
@@ -846,9 +833,6 @@ void inventory_control (void)
     int slot = 0, done = FALSE;
     int response;
     char letter;
-#ifdef MSDOS_SUPPORTED_ANTIQUE
-    int simple = 0;
-#endif
     clearmsg3 ();
     checkclear ();
     print1 ("Action [d,e,l,p,s,t,x,>,<,?,ESCAPE]:");
@@ -933,28 +917,20 @@ void inventory_control (void)
 	    case 'j':
 	    case '>':
 	    case '2':
-#if defined(KEY_DOWN)
 	    case KEY_DOWN:
-#endif
 		slot = move_slot (slot, slot + 1, MAXITEMS);
 		break;
 	    case 'k':
 	    case '<':
 	    case '8':
-#if defined(KEY_UP)
 	    case KEY_UP:
-#endif
 		slot = move_slot (slot, slot - 1, MAXITEMS);
 		break;
-#ifdef KEY_HOME
 	    case KEY_HOME:
-#endif
 	    case '-':
 		slot = move_slot (slot, 0, MAXITEMS);
 		break;
-#ifdef KEY_LL
 	    case KEY_LL:
-#endif
 	    case '+':
 		slot = move_slot (slot, MAXITEMS - 1, MAXITEMS);
 		break;

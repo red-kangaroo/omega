@@ -12,13 +12,6 @@ void signalexit (void);
 
 /* abyss.c functions */
 
-#ifdef MSDOS
-void check_memory (void);
-void kill_all_levels (void);
-void kill_levels (char *);
-void msdos_init (void);
-plv msdos_changelevel (plv,int,int);
-#endif
 void load_abyss (void);
 
 /* aux1.c functions */
@@ -281,10 +274,8 @@ void learnclericalspells (int,int);
 
 /* file.c functions */
 
-#ifndef MSDOS
 void lock_score_file (void);
 void unlock_score_file (void);
-#endif
 FILE *checkfopen (char *,char *);
 int filecheck (void);
 int test_file_access (char *, int);
@@ -1068,9 +1059,6 @@ void do_los (int,int *,int *,int,int);
 void do_object_los (int,int *,int *,int,int);
 void findspace (int *,int *,int);
 void initdirs (void);
-#ifdef NO_USLEEP
-void usleep (int);
-#endif
 
 /* village.c functions */
 

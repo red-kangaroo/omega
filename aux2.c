@@ -1006,10 +1006,6 @@ void change_environment (int new_environment)
 	    }
 	    if (City == NULL)
 		load_city (TRUE);
-#ifdef SAVE_LEVELS
-	    else
-		msdos_changelevel (Level, new_environment, 0);
-#endif
 	    Level = City;
 	    ScreenOffset = Player.y - (ScreenLength / 2);
 	    show_screen ();
@@ -1058,15 +1054,8 @@ void change_environment (int new_environment)
 		load_village (Villagenum, TRUE);
 	    else if (TempLevel->environment != E_VILLAGE)
 		load_village (Villagenum, TRUE);
-#ifndef SAVE_LEVELS
 	    else
 		Level = TempLevel;
-#else
-	    else {
-		msdos_changelevel (Level, new_environment, 0);
-		Level = TempLevel;
-	    }
-#endif
 	    if (emerging) {
 		print1 ("You emerge onto the street.");
 		emerging = FALSE;
@@ -1089,9 +1078,6 @@ void change_environment (int new_environment)
 	    }
 	    MaxDungeonLevels = CAVELEVELS;
 	    if (Current_Dungeon != E_CAVES) {
-#ifdef SAVE_LEVELS
-		msdos_changelevel (Level, 0, -1);
-#endif
 		free_dungeon ();
 		Dungeon = NULL;
 		Level = NULL;
@@ -1112,9 +1098,6 @@ void change_environment (int new_environment)
 	    }
 	    MaxDungeonLevels = VOLCANOLEVELS;
 	    if (Current_Dungeon != E_VOLCANO) {
-#ifdef SAVE_LEVELS
-		msdos_changelevel (Level, 0, -1);
-#endif
 		free_dungeon ();
 		Dungeon = NULL;
 		Level = NULL;
@@ -1133,9 +1116,6 @@ void change_environment (int new_environment)
 	    }
 	    MaxDungeonLevels = ASTRALLEVELS;
 	    if (Current_Dungeon != E_ASTRAL) {
-#ifdef SAVE_LEVELS
-		msdos_changelevel (Level, 0, -1);
-#endif
 		free_dungeon ();
 		Dungeon = NULL;
 		Level = NULL;
@@ -1155,9 +1135,6 @@ void change_environment (int new_environment)
 	    }
 	    MaxDungeonLevels = CASTLELEVELS;
 	    if (Current_Dungeon != E_CASTLE) {
-#ifdef SAVE_LEVELS
-		msdos_changelevel (Level, 0, -1);
-#endif
 		free_dungeon ();
 		Dungeon = NULL;
 		Level = NULL;
@@ -1175,9 +1152,6 @@ void change_environment (int new_environment)
 	    }
 	    MaxDungeonLevels = SEWERLEVELS;
 	    if (Current_Dungeon != E_SEWERS) {
-#ifdef SAVE_LEVELS
-		msdos_changelevel (Level, 0, -1);
-#endif
 		free_dungeon ();
 		Dungeon = NULL;
 		Level = NULL;

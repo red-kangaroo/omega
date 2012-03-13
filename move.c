@@ -339,7 +339,7 @@ void l_tactical_exit (void)
 	if (ynq1 () != 'y')
 	    return;
     }
-    /* Free up monsters and items, and the level, if not SAVE_LEVELS */
+    /* Free up monsters and items, and the level */
     free_level (Level);
     Level = NULL;
     if ((Current_Environment == E_TEMPLE) || (Current_Environment == E_TACTICAL_MAP))
@@ -435,9 +435,7 @@ void l_raise_portcullis (void)
 void l_arena_exit (void)
 {
     resetgamestatus (ARENA_MODE);
-#ifndef MSDOS_SUPPORTED_ANTIQUE
     free_level (Level);
-#endif
     Level = NULL;
     change_environment (E_CITY);
 }
@@ -450,9 +448,7 @@ void l_house_exit (void)
 	if (ynq1 () != 'y')
 	    return;
     }
-#ifndef MSDOS_SUPPORTED_ANTIQUE
     free_level (Level);
-#endif
     Level = NULL;
     change_environment (Last_Environment);
 }

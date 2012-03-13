@@ -582,7 +582,6 @@ void l_brothel (void)
     }
 }
 
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 /* if signp is true, always print message, otherwise do so only sometimes */
 void sign_print (int x, int y, int signp)
 {
@@ -735,7 +734,6 @@ void sign_print (int x, int y, int signp)
 	    break;
     }
 }
-#endif
 
 void l_countryside (void)
 {

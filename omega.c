@@ -3,7 +3,6 @@
 /* this file includes main() and some top-level functions */
 /* omega.c */
 
-#if !defined(MSDOS_SUPPORTED_ANTIQUE)
 #include <signal.h>
 #include <fcntl.h>
 #include <time.h>
@@ -11,7 +10,6 @@
 #include <stdlib.h>
 /* Note: in order to avoid a memory bug I've been told about, I'm
    explicitly initializing every global to something. */
-#endif
 
 #include "glob.h"
 
@@ -19,26 +17,13 @@
 
 char *Omegalib;			/* contains the path to the library files */
 
-#ifdef DEBUG
-FILE *DG_debug_log;		/* debug log file pointer */
-int DG_debug_flag = 0;		/* debug flag -- set by -d commandline option */
-#endif
-
 /* Objects and Monsters are allocated and initialized in init.c */
 
 /* one of each spell */
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 struct spell Spells[NUMSPELLS + 1];
-#else
-struct spell Spells[NUMSPELLS + 1] = { 0 };
-#endif
 
 /* locations of city sites [0] - found, [1] - x, [2] - y */
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 int CitySiteList[NUMCITYSITES][3];
-#else
-int CitySiteList[NUMCITYSITES][3] = { 0 };
-#endif
 
 /* Currently defined in caps since it is now a variable, was a constant */
 int LENGTH = MAXLENGTH;
@@ -46,19 +31,8 @@ int WIDTH = MAXWIDTH;
 
 long GameStatus = 0L;		/* Game Status bit vector */
 int ScreenLength = 0;		/* How large is level window */
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 struct player Player;		/* the player */
-#else
-struct player Player = { 0 };	/* the player */
-#endif
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 struct terrain Country[MAXWIDTH][MAXLENGTH];	/* The countryside */
-#else
-struct terrain Country[MAXWIDTH][MAXLENGTH] = { 0 };	/* The countryside */
-#endif
-#ifdef SAVE_LEVELS
-struct level TheLevel;
-#endif
 struct level *City = NULL;	/* The city of Rampart */
 struct level *TempLevel = NULL;	/* Place holder */
 struct level *Level = NULL;	/* Pointer to current Level */
@@ -69,12 +43,7 @@ int MaxDungeonLevels = 0;	/* Deepest level allowed in dungeon */
 int Current_Dungeon = -1;	/* What is Dungeon now */
 int Current_Environment = E_CITY;	/* Which environment are we in */
 int Last_Environment = E_COUNTRYSIDE;	/* Which environment were we in */
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 int Dirs[2][9];			/* 9 xy directions */
-#else
-int Dirs[2][9] =		/* 9 xy directions */
-{ {1, 1, -1, -1, 1, -1, 0, 0, 0}, {1, -1, 1, -1, 0, 0, 1, -1, 0} };
-#endif
 char Cmd = 's';			/* last player command */
 int Command_Duration = 0;	/* how long does current command take */
 struct monster *Arena_Monster = NULL;	/* Opponent in arena */
@@ -118,25 +87,13 @@ int LastTownLocX = 0;		/* previous position in village or city */
 int LastTownLocY = 0;		/* previous position in village or city */
 int LastCountryLocX = 0;	/* previous position in countryside */
 int LastCountryLocY = 0;	/* previous position in countryside */
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 char Password[64];		/* autoteller password */
-#else
-char Password[64] = { 0 };	/* autoteller password */
-#endif
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 char Str1[STRING_LEN], Str2[STRING_LEN], Str3[STRING_LEN], Str4[STRING_LEN];
-#else
-char Str1[STRING_LEN] = { 0 }, Str2[STRING_LEN] = {
-0}, Str3[STRING_LEN] = {
-0}, Str4[STRING_LEN] = {
-0};
-#endif
    /* Some string space, random uses */
 
 pol Condoitems = NULL;		/* Items in condo */
 
 /* high score names, levels, behavior */
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 int Shadowlordbehavior, Archmagebehavior, Primebehavior, Commandantbehavior;
 int Championbehavior, Priestbehavior[7], Hibehavior, Dukebehavior;
 int Chaoslordbehavior, Lawlordbehavior, Justiciarbehavior;
@@ -144,29 +101,7 @@ char Shadowlord[80], Archmage[80], Prime[80], Commandant[80], Duke[80];
 char Champion[80], Priest[7][80], Hiscorer[80], Hidescrip[80];
 char Chaoslord[80], Lawlord[80], Justiciar[80];
 int Shadowlordlevel, Archmagelevel, Primelevel, Commandantlevel, Dukelevel;
-#else
-int Shadowlordbehavior = 0, Archmagebehavior = 0, Primebehavior = 0, Commandantbehavior = 0;
-int Championbehavior = 0, Priestbehavior[7] = { 0 }, Hibehavior = 0, Dukebehavior = 0;
-int Chaoslordbehavior = 0, Lawlordbehavior = 0, Justiciarbehavior = 0;
-char Shadowlord[80] = { 0 }, Archmage[80] = {
-0}, Prime[80] = {
-0}, Commandant[80] = {
-0}, Duke[80] = {
-0};
-char Champion[80] = { 0 }, Priest[7][80] = {
-0}, Hiscorer[80] = {
-0}, Hidescrip[80] = {
-0};
-char Chaoslord[80] = { 0 }, Lawlord[80] = {
-0}, Justiciar[80] = {
-0};
-int Shadowlordlevel = 0, Archmagelevel = 0, Primelevel = 0, Commandantlevel = 0, Dukelevel = 0;
-#endif
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 int Championlevel, Priestlevel[7], Hilevel, Justiciarlevel;
-#else
-int Championlevel = 0, Priestlevel[7] = { 0 }, Hilevel = 0, Justiciarlevel = 0;
-#endif
 long Hiscore = 0L;
 int Chaoslordlevel = 0, Lawlordlevel = 0, Chaos = 0, Law = 0;
 
@@ -188,7 +123,6 @@ int deepest[E_MAX + 1];
 int level_seed[E_MAX + 1];	/* random number seed that generated level */
 
 /* This may be implementation dependent */
-/* SRANDFUNCTION is defined in odefs.h */
 /* environment is the environment about to be generated, or -1 for the first */
 /* time, or -2 if we want to restore the random number point */
 void initrand (int environment, int level)
@@ -197,7 +131,7 @@ void initrand (int environment, int level)
     int seed;
 
     if (environment >= 0)
-	store = RANDFUNCTION ();
+	store = rand();
     /* Pseudo Random Seed */
     if (environment == E_RANDOM)
 	seed = (int) time ((long *) NULL);
@@ -205,21 +139,13 @@ void initrand (int environment, int level)
 	seed = store;
     else
 	seed = level_seed[environment] + 1000 * level;
-    SRANDFUNCTION (seed);
+    srand (seed);
 }
 
 int game_restore (int argc, char *argv[])
 {
     char savestr[80];
     int ok;
-#ifdef DEBUG
-    if (argc == 3) {
-	if ((argv[2][0] == '-') && (argv[2][1] == 'g')) {
-	    DG_debug_flag++;
-	    argc--;
-	}
-    }
-#endif
     if (argc == 2) {
 	strcpy (savestr, argv[1]);
 	ok = restore_game (savestr);
@@ -243,48 +169,20 @@ int main (int argc, char *argv[])
 
     /* always catch ^c and hang-up signals */
 
-#ifdef SIGINT
     signal (SIGINT, (void *) quit);
-#endif
-#ifdef SIGHUP
     signal (SIGHUP, (void *) signalsave);
-#endif
-
-#ifndef MSDOS
     if (CATCH_SIGNALS) {
 	signal (SIGQUIT, (void *) signalexit);
 	signal (SIGILL, (void *) signalexit);
-#ifdef DEBUG
-	if (DG_debug_flag) {
-#endif
-	    signal (SIGTRAP, (void *) signalexit);
-	    signal (SIGFPE, (void *) signalexit);
-	    signal (SIGSEGV, (void *) signalexit);
-#ifdef DEBUG
-	}
-#endif
-#ifdef SIGIOT
+	signal (SIGTRAP, (void *) signalexit);
+	signal (SIGFPE, (void *) signalexit);
+	signal (SIGSEGV, (void *) signalexit);
 	signal (SIGIOT, (void *) signalexit);
-#endif
-#ifdef SIGABRT
 	signal (SIGABRT, (void *) signalexit);
-#endif
-#ifdef SIGEMT
-	signal (SIGEMT, (void *) signalexit);
-#endif
-#ifdef SIGBUS
 	signal (SIGBUS, (void *) signalexit);
-#endif
-#ifdef SIGSYS
 	signal (SIGSYS, (void *) signalexit);
-#endif
     }
-#endif
-
-#ifndef FIXED_OMEGALIB
-    if (!(Omegalib = getenv ("OMEGALIB")))
-#endif
-	Omegalib = OMEGALIB;
+    Omegalib = OMEGALIB;
 
     /* if filecheck is 0, some necessary data files are missing */
     if (filecheck () == 0)
@@ -293,26 +191,12 @@ int main (int argc, char *argv[])
     /* all kinds of initialization */
     init_perms ();
     initgraf ();
-#ifndef MSDOS_SUPPORTED_ANTIQUE
     initdirs ();
-#endif
     initrand (E_RANDOM, 0);
     initspells ();
 
-#ifdef DEBUG
-    /* initialize debug log file */
-    DG_debug_log = fopen ("/tmp/omega_dbg_log", "a");
-    assert (DG_debug_log);	/* WDT :) */
-    setvbuf (DG_debug_log, NULL, _IOLBF, 0);
-    fprintf (DG_debug_log, "##############  new game started ##############\n");
-#endif
-
     for (count = 0; count < STRING_BUFFER_SIZE; count++)
 	strcpy (Stringbuffer[count], "<nothing>");
-
-#ifdef SAVE_LEVELS
-    msdos_init ();
-#endif
 
     omega_title ();
     showscores ();
@@ -358,7 +242,6 @@ int main (int argc, char *argv[])
     }
 }
 
-#ifndef MSDOS
 void signalexit (void)
 {
     int reply;
@@ -376,7 +259,6 @@ void signalexit (void)
     endgraf ();
     exit (0);
 }
-#endif
 
 /* Start up game with new dungeons; start with player in city */
 void init_world (void)
@@ -385,7 +267,7 @@ void init_world (void)
 
     City = Level = TempLevel = Dungeon = NULL;
     for (env = 0; env <= E_MAX; env++)
-	level_seed[env] = RANDFUNCTION ();
+	level_seed[env] = rand();
     load_country ();
     for (i = 0; i < NUMCITYSITES; i++)
 	CitySiteList[i][0] = FALSE;

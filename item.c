@@ -74,12 +74,6 @@ void make_corpse (pob new, struct monster *m)
     new->known = 2;
     new->objstr = m->corpsestr;
     new->truename = new->cursestr = new->objstr;
-/* DG I_CANNIBAL not implemented... fall through to code in I_CORPSE */
-#if 0				/* WDT HACK, of course -- we need to implement I_CANNIBAL. */
-    if ((m->monchar & 0xff) == '@')
-	new->usef = I_CANNIBAL;
-    else
-#endif
     if (m_statusp (m, EDIBLE)) {
 	new->usef = I_FOOD;
 	new->aux = 6;
@@ -119,24 +113,9 @@ void make_corpse (pob new, struct monster *m)
 	    case RAKSHASA:
 		new->usef = I_TRUESIGHT;
 		break;
-/* DG fall through to code in I_CORPSE and special case there */
-#if 0				/* WDT HACK? */
-	    case BEHEMOTH:
-		new->usef = I_HEAL;
-		break;
-	    case UNICORN:
-		new->usef = I_NEUTRALIZE_POISON;
-		break;
-#endif
 	    case COMA:		/*coma beast */
 		new->usef = I_ALERT;
 		break;
-/* DG I_INEDIBLE not implemented... fall through to code in I_CORPSE */
-#if 0				/* WDT HACK: yawn. */
-	    default:
-		new->usef = I_INEDIBLE;
-		break;
-#endif
 	}
 }
 
@@ -1066,11 +1045,5 @@ void item_use (struct object *o)
 	case I_PERM_DEFLECT:
 	    i_perm_deflect (o);
 	    break;
-#ifdef DEBUG			/* WDT: good idea, DG.  I'll be using this often, I predict! */
-	    /* looking for objects without, or with unimplemented, functions */
-	default:
-	    fprintf (DG_debug_log, "tried to use a %s with o->usef %d\n", itemid (o), o->usef);
-	    break;
-#endif
     }
 }

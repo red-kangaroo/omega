@@ -3,11 +3,8 @@
 
 /* This file contains toplevel commands called from command1.c */
 
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 #include <unistd.h>
 #include <ctype.h>
-#endif
-
 #include "glob.h"
 
 /* no op a turn.... */
@@ -189,7 +186,6 @@ void pickup (void)
 	pickup_at (Player.x, Player.y);
 }
 
-#ifndef MSDOS_SUPPORTED_ANTIQUE
 /* floor inventory */
 void floor_inv (void)
 {
@@ -209,7 +205,6 @@ void floor_inv (void)
     morewait ();
     xredraw ();
 }
-#endif
 
 void drop (void)
 {
@@ -562,9 +557,7 @@ void setoptions (void)
 	switch (response) {
 	    case 'j':
 	    case '>':
-#ifdef KEY_DOWN
 	    case KEY_DOWN:
-#endif
 		to = slot + 1;
 		if (to == 8)	/* COMPRESS_OPTION */
 		    to = 9;
@@ -572,25 +565,19 @@ void setoptions (void)
 		break;
 	    case 'k':
 	    case '<':
-#ifdef KEY_UP
 	    case KEY_UP:
-#endif
 		to = slot - 1;
 		if (to == 8)	/* COMPRESS_OPTION */
 		    to = 7;
 		if (to > 0)
 		    slot = move_slot (slot, to, NUMOPTIONS + 1);
 		break;
-#ifdef KEY_HOME
 	    case KEY_HOME:
 		slot = move_slot (slot, 1, NUMOPTIONS + 1);
 		break;
-#endif
-#ifdef KEY_LL
 	    case KEY_LL:
 		slot = move_slot (slot, NUMOPTIONS, NUMOPTIONS + 1);
 		break;
-#endif
 	    case 't':
 		if (slot <= NUMTFOPTIONS)
 		    optionset (pow2 (slot - 1));
@@ -645,9 +632,7 @@ void setoptions (void)
 	colour_on ();
     else
 	colour_off ();
-#if !defined(MSDOS_SUPPORTED_ANTIQUE) && !defined(AMIGA)
     xredraw ();
-#endif
 }
 
 /* name an item */
