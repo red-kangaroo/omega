@@ -1,7 +1,3 @@
-/* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* mmove.c */
-/* monster move functions */
-
 #include "glob.h"
 
 /* like m_normal_move, but can open doors */

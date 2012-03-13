@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* trap.c */
-/* trap movement functions */
-
 #include "glob.h"
 
 /* various traps */

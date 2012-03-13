@@ -1,7 +1,3 @@
-/* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* mstrike.c */
-/* monster strike functions */
-
 #include "glob.h"
 
 void m_firebolt (struct monster *m)

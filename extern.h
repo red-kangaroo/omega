@@ -1,8 +1,3 @@
-/* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* extern.h -- function declarations */
-
-/* omega.c functions */
-
 int main (int,char *[]);
 int game_restore (int,char *[]);
 void init_world (void);

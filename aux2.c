@@ -1,10 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* aux2.c */
-/* some functions called by ocom.c, also see aux1.c and aux3.c*/
-/* This is a real grab bag file. It contains functions used by
-   aux1.c and omega.c, as well as elsewhere. It is mainly here so aux1.c
-   and aux3.c are not huge */
-
 #include "glob.h"
 
 /* Player stats like str, agi, etc give modifications to various abilities

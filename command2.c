@@ -1,8 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* command2.c */
-
-/* This file contains toplevel commands called from command1.c */
-
 #include <unistd.h>
 #include <ctype.h>
 #include "glob.h"

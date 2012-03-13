@@ -1,11 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* guild1.c */
-/* L_ functions  */
-
-/* These functions implement the various guilds. */
-/* They are all l_ functions since they are basically activated*/
-/* at some site or other. */
-
 #include "glob.h"
 
 void l_merc_guild (void)

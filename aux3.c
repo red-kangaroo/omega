@@ -1,10 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* aux3.c */
-/* some functions called by com.c, also see aux1.c, aux2.c */
-/* This is a real grab bag file. It contains functions used by
-   aux1.c and omega.c, as well as elsewhere. It is mainly here so aux1.c
-   and aux2.c are not huge */
-
 #include "glob.h"
 
 /* check every ten minutes */

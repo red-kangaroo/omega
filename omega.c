@@ -1,17 +1,9 @@
-/* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-
-/* this file includes main() and some top-level functions */
-/* omega.c */
-
+#include "glob.h"
 #include <signal.h>
 #include <fcntl.h>
 #include <time.h>
 #include <unistd.h>
 #include <stdlib.h>
-/* Note: in order to avoid a memory bug I've been told about, I'm
-   explicitly initializing every global to something. */
-
-#include "glob.h"
 
 /* most globals originate in omega.c */
 

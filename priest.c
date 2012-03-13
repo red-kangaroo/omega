@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* priest.c */
-/* functions for clerics. */
-
 #include "glob.h"
 
 /* prayer occurs at altars, hence name of function */

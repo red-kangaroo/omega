@@ -1,14 +1,4 @@
-/* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-
-/* this file contains extern declarations of global variables used
-   throughout the program */
-/* it includes the other header files, so every program module 
-(except o.c) can just include this file. */
-
-/* glob.h */
-
 #include "defs.h"
-
 #include "extern.h"
 
 /* This string holds the path to the library files */

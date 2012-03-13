@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* char.c */
-/* Player generation */
-
 #include "glob.h"
 #include <sys/types.h>
 #include <unistd.h>

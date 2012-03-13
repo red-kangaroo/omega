@@ -1,7 +1,3 @@
-/* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* env.c */
-/* some load_* routines for special environments */
-
 #include "glob.h"
 
 /* loads the arena level into Level*/

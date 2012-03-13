@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* aux1.c */
-/* auxiliary functions for those in com.c, also see aux2.c and aux3.c */
-
 #include "glob.h"
 
 /* check to see if too much tunneling has been done in this level */

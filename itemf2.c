@@ -1,8 +1,3 @@
-/* omega copyright (C) 1987,1988,1989 by Laurence Raphael Brothers */
-/* itemf2.c */
-
-/* mostly ring, armor, and weapon functions */
-
 #include "glob.h"
 
 /* ring functions */

@@ -1,8 +1,3 @@
-/* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* time.c */
-
-/* this file deals with the passage of time in omega */
-
 #include "glob.h"
 
 /* This function coordinates monsters and player actions, as well as

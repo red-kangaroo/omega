@@ -1,7 +1,3 @@
-/* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* mon.c */
-/* various functions to do with monsters */
-
 #include "glob.h"
 
 /*               Revised function                   */

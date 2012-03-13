@@ -1,7 +1,3 @@
-/* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* mspec.c */
-/* monster special functions */
-
 #include "glob.h"
 
 void m_sp_mp (struct monster *m)

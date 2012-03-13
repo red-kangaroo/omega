@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* abyss.c */
-/* some functions to make the abyss level and run the final challenge */
-
 #include "glob.h"
 
 /* loads the abyss level into Level*/

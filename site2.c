@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* site2.c */
-/* 2nd half of site functions and aux functions to them */
-
 #include "glob.h"
 
 void l_condo (void)

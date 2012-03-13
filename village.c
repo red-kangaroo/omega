@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* village.c */
-/* some functions to make the village levels */
-
 #include "glob.h"
 
 /* loads the village level into Level*/

@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* inv.c */
-/* functions having to do with player item inventory */
-
 #include <curses.h>
 #include "glob.h"
 

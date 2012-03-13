@@ -1,6 +1,3 @@
-/* omega copyright (C) 1987,1988,1989 by Laurence Raphael Brothers */
-/* item.c */
-
 #include "glob.h"
 
 /* make a random new object, returning pointer */

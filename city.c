@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* city.c */
-/* some functions to make the city level */
-
 #include "glob.h"
 
 /* loads the city level */

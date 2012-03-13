@@ -1,8 +1,3 @@
-/* omega copyright (C) 1987,1988,1989 by Laurence Raphael Brothers */
-/* itemf3.c */
-
-/* mostly artifact and stick functions */
-
 #include "glob.h"
 
 /* amulet of the planes */

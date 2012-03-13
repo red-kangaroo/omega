@@ -1,10 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* command1.c */
-
-/* This file has the two toplevel command scanners, p_process,
-which works everywhere but the countryside, and p_couyntry_process,
-which works.... */
-
 #include "glob.h"
 
 /* deal with a new player command in dungeon or city mode*/

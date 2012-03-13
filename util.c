@@ -1,14 +1,9 @@
-/* copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* utils.c */
-
-/* Random utility functions called from all over */
-
+#include "glob.h"
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "glob.h"
 
 /* x and y on level? */
 int inbounds (int x, int y)

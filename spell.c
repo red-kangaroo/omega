@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* spell.c */
-/* functions having to do with spellcasting */
-
 #include "glob.h"
 
 void s_wish (void)

@@ -1,7 +1,3 @@
-/* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* mmelee */
-/* various functions to do with monster melee */
-
 #include "glob.h"
 
 void m_hit (struct monster *m, int dtype)

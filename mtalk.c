@@ -1,7 +1,3 @@
-/* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* mtalk.c */
-/* monster talk functions */
-
 #include "glob.h"
 
 /* The druid's altar is in the northern forest */

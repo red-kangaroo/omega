@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* house.c */
-/* some functions to make the house levels */
-
 #include "glob.h"
 
 /* loads the house level into Level*/

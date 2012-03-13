@@ -1,7 +1,3 @@
-/* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* gen1.c */
-/* level generator functions */
-
 #include "glob.h"
 #include <time.h>
 

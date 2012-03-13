@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* movef.c */
-/* the movefunctions switch functions, for player and monster*/
-
 #include "glob.h"
 
 void p_movefunction (int movef)

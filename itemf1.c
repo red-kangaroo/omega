@@ -1,8 +1,3 @@
-/* omega copyright (C) 1987,1988,1989 by Laurence Raphael Brothers */
-/* itemf1.c */
-
-/* various item functions: potions,scrolls,boots,cloaks,things,food */
-
 #include "glob.h"
 
 /* general item functions */

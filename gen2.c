@@ -1,7 +1,3 @@
-/* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* gen2.c */
-/* level generator functions */
-
 #include "glob.h"
 
 /* For each level, there should be one stairway going up and one down. 

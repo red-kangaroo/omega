@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* move.c */
-/* general functions for player moving */
-
 #include "glob.h"
 #include <unistd.h>
 

@@ -1,8 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* country.c */
-/* load_country(), and all load_ functions for places which are */
-/* accessible from the country and don't have their own files */
-
 #include "glob.h"
 
 /* loads the countryside level from the data file */

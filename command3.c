@@ -1,13 +1,6 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* command3.c */
-
-/* This file contains some more top level command functions
-   called from command1.c */
-
 #include <pwd.h>
 #include <unistd.h>
 #include "glob.h"
-#include "date.h"
 
 /* look at some spot */
 void examine (void)
@@ -238,9 +231,6 @@ void version (void)
 {
     setgamestatus (SKIP_MONSTERS);
     print3 (VERSIONSTRING);
-    nprint3 (":");
-    nprint3 (" Last Edited: ");
-    nprint3 (LAST_OMEGA_EDIT_DATE);
 }
 
 void fire (void)

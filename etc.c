@@ -1,7 +1,3 @@
-/* omega copyright (C) by Laurence Raphael Brothers, 1987,1988,1989 */
-/* etc.c */
-/* grab bag of random functions used in random places */
-
 #include "glob.h"
 
 /* there are various ways for the player to receive one of these hints */
