@@ -315,7 +315,7 @@ void calc_melee (void)
 	Player.defense += Player.possessions[O_ARMOR]->plus - Player.possessions[O_ARMOR]->aux;
     }
 
-    if (strlen (Player.meleestr) > 2 * maneuvers ())
+    if (strlen (Player.meleestr) > 2U * maneuvers())
 	default_maneuvers ();
     comwinprint ();
     showflags ();

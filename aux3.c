@@ -902,9 +902,9 @@ int parsecitysite (void)
 		continue;
 	    f = first;
 	    l = last;
-	    while (f < NUMCITYSITES && (!CitySiteList[sitenums[f] - CITYSITEBASE][0] || strlen (sitenames[f]) < pos || sitenames[f][pos] < byte))
+	    while (f < NUMCITYSITES && (!CitySiteList[sitenums[f] - CITYSITEBASE][0] || (int)strlen (sitenames[f]) < pos || sitenames[f][pos] < byte))
 		f++;
-	    while (l >= 0 && (!CitySiteList[sitenums[l] - CITYSITEBASE][0] || strlen (sitenames[l]) < pos || sitenames[l][pos] > byte))
+	    while (l >= 0 && (!CitySiteList[sitenums[l] - CITYSITEBASE][0] || (int)strlen (sitenames[l]) < pos || sitenames[l][pos] > byte))
 		l--;
 	    if (l < f)
 		continue;

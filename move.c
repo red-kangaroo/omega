@@ -216,7 +216,6 @@ void l_lift (void)
 {
     char response;
     int levelnum;
-    int distance;
     int too_far = 0;
 
     Level->site[Player.x][Player.y].locchar = FLOOR;
@@ -239,16 +238,16 @@ void l_lift (void)
 	    levelnum = 6;
 	}
 	if (response == 'u' && Level->depth - levelnum < 1) {
-	    distance = levelnum - Level->depth;
+	    int lDepth = levelnum - Level->depth;
 	    change_environment (E_COUNTRYSIDE);	/* "you return to the countryside." */
-	    if (distance > 0) {
+	    if (lDepth > 0) {
 		nprint1 ("..");
 		print2 ("...and keep going up!  You hang in mid air...");
 		morewait ();
 		print3 ("\"What goes up...\"");
 		morewait ();
 		print3 ("Yaaaaaaaah........");
-		p_damage (distance * 10, NORMAL_DAMAGE, "a fall from a great height");
+		p_damage (lDepth * 10, NORMAL_DAMAGE, "a fall from a great height");
 	    }
 	    return;
 	} else if (response == 'd' && Level->depth + levelnum > MaxDungeonLevels) {

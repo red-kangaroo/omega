@@ -174,17 +174,16 @@ void i_perm_breathing (pob o)
 
 /* weapons functions */
 
-void weapon_acidwhip (int dmgmod, pob o, struct monster *m)
+void weapon_acidwhip (int dmgmod, pob o UNUSED, struct monster *m)
 {
     if ((random_range (2) == 1) && (!m_immunityp (m, NORMAL_DAMAGE))) {
 	mprint ("You entangle the monster!");
 	m_status_reset (m, MOBILE);
     }
     p_hit (m, Player.dmg + dmgmod, ACID);
-
 }
 
-void weapon_scythe (int dmgmod, pob o, struct monster *m)
+void weapon_scythe (int dmgmod UNUSED, pob o UNUSED, struct monster *m)
 {
     mprint ("Slice!");
     m_death (m);
@@ -235,7 +234,7 @@ void weapon_demonblade (int dmgmod, pob o, struct monster *m)
     }
 }
 
-void weapon_lightsabre (int dmgmod, pob o, struct monster *m)
+void weapon_lightsabre (int dmgmod UNUSED, pob o, struct monster *m)
 {
     if (!o->known) {
 	mprint ("Fumbling with the cylinder, you press the wrong stud....");
@@ -254,7 +253,7 @@ void weapon_lightsabre (int dmgmod, pob o, struct monster *m)
     }
 }
 
-void weapon_tangle (int dmgmod, pob o, struct monster *m)
+void weapon_tangle (int dmgmod, pob o UNUSED, struct monster *m)
 {
     if ((random_range (2) == 1) && (!m_immunityp (m, NORMAL_DAMAGE))) {
 	mprint ("You entangle the monster!");
@@ -283,7 +282,7 @@ void weapon_bolt (int dmgmod, pob o, struct monster *m)
 	p_hit (m, o->plus + o->dmg, NORMAL_DAMAGE);
 }
 
-void weapon_mace_disrupt (int dmgmod, pob o, struct monster *m)
+void weapon_mace_disrupt (int dmgmod, pob o UNUSED, struct monster *m)
 {
     if (m->meleef == M_MELEE_SPIRIT) {
 	mprint ("The monster crumbles away to dust!");
@@ -292,7 +291,7 @@ void weapon_mace_disrupt (int dmgmod, pob o, struct monster *m)
 	p_hit (m, Player.dmg + dmgmod, UNSTOPPABLE);
 }
 
-void weapon_normal_hit (int dmgmod, pob o, struct monster *m)
+void weapon_normal_hit (int dmgmod, pob o UNUSED, struct monster *m)
 {
     p_hit (m, Player.dmg + dmgmod, NORMAL_DAMAGE);
 }
@@ -332,7 +331,7 @@ void i_lightsabre (pob o)
 	mprint ("You feel out of touch with the Force.");
 }
 
-void i_mace_disrupt (pob o)
+void i_mace_disrupt (pob o UNUSED)
 {
     mprint ("That's a damned heavy mace!");
 }

@@ -219,7 +219,7 @@ void m_talk_guard (struct monster *m)
 	print1 ("Move it right along, stranger!");
 }
 
-void m_talk_mp (struct monster *m)
+void m_talk_mp (struct monster *m UNUSED)
 {
     mprint ("The mendicant priest asks you to spare some treasure for the needy");
 }
@@ -236,7 +236,7 @@ void m_talk_titter (struct monster *m)
     mprint (Str2);
 }
 
-void m_talk_ninja (struct monster *m)
+void m_talk_ninja (struct monster *m UNUSED)
 {
     mprint ("The black-garbed figure says apologetically:");
     mprint ("'Situree simasita, wakarimasen.'");
@@ -409,12 +409,12 @@ void m_talk_robot (struct monster *m)
     mprint (Str2);
 }
 
-void m_talk_slithy (struct monster *m)
+void m_talk_slithy (struct monster *m UNUSED)
 {
     mprint ("It can't talk -- it's too slithy!");
 }
 
-void m_talk_mimsy (struct monster *m)
+void m_talk_mimsy (struct monster *m UNUSED)
 {
     mprint ("It can't talk -- it's too mimsy!");
 }
@@ -605,12 +605,12 @@ void m_talk_horse (struct monster *m)
     }
 }
 
-void m_talk_hyena (struct monster *m)
+void m_talk_hyena (struct monster *m UNUSED)
 {
     mprint ("The hyena only laughs at you...");
 }
 
-void m_talk_parrot (struct monster *m)
+void m_talk_parrot (struct monster *m UNUSED)
 {
     mprint ("Polly wanna cracker?");
 }

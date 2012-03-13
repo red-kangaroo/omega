@@ -9,10 +9,10 @@ void load_arena (void)
 {
     int i, j;
     char site;
-    pob box = ((pob) checkmalloc (sizeof (objtype)));
     FILE *fd;
 
-    *box = Objects[THINGID + 0];
+    pob openerBox = (pob) checkmalloc (sizeof (objtype));
+    *openerBox = Objects[THINGID + 0];
 
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
@@ -64,7 +64,7 @@ void load_arena (void)
     Arena_Monster->x = 60;
     Arena_Monster->y = 7;
     Arena_Monster->sense = 50;
-    m_pickup (Arena_Monster, box);
+    m_pickup (Arena_Monster, openerBox);
     m_status_set (Arena_Monster, AWAKE);
     Level->mlist = (pml) checkmalloc (sizeof (mltype));
     Level->mlist->m = Arena_Monster;

@@ -864,9 +864,9 @@ int spellparse (void)
 		continue;
 	    f = first;
 	    l = last;
-	    while (f < NUMSPELLS && (!Spells[spell_ids[f]].known || strlen (spell_names[f]) < pos || spell_names[f][pos] < byte))
+	    while (f < NUMSPELLS && (!Spells[spell_ids[f]].known || (int) strlen (spell_names[f]) < pos || spell_names[f][pos] < byte))
 		f++;
-	    while (l >= 0 && (!Spells[spell_ids[l]].known || strlen (spell_names[l]) < pos || spell_names[l][pos] > byte))
+	    while (l >= 0 && (!Spells[spell_ids[l]].known || (int) strlen (spell_names[l]) < pos || spell_names[l][pos] > byte))
 		l--;
 	    if (l < f)
 		continue;

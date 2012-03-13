@@ -100,14 +100,15 @@ void m_damage (struct monster *m, int dmg, int dtype)
     m_status_set (m, HOSTILE);
     if (m_immunityp (m, dtype)) {
 	if (los_p (Player.x, Player.y, m->x, m->y)) {
+	    char buf[80];
 	    if (m->uniqueness != COMMON)
-		strcpy (Str1, m->monstring);
+		strcpy (buf, m->monstring);
 	    else {
-		strcpy (Str1, "The ");
-		strcat (Str1, m->monstring);
+		strcpy (buf, "The ");
+		strcat (buf, m->monstring);
 	    }
-	    strcat (Str1, " ignores the attack!");
-	    mprint (Str1);
+	    strcat (buf, " ignores the attack!");
+	    mprint (buf);
 	}
     } else if ((m->hp -= dmg) < 1)
 	m_death (m);
@@ -124,14 +125,15 @@ void m_death (struct monster *m)
     if (los_p (Player.x, Player.y, m->x, m->y)) {
 	gain_experience (m->xpv);
 	calc_melee ();
+	char buf[80];
 	if (m->uniqueness != COMMON)
-	    strcpy (Str1, m->monstring);
+	    strcpy (buf, m->monstring);
 	else {
-	    strcpy (Str1, "The ");
-	    strcat (Str1, m->monstring);
+	    strcpy (buf, "The ");
+	    strcat (buf, m->monstring);
 	}
-	strcat (Str1, " is dead! ");
-	mprint (Str1);
+	strcat (buf, " is dead! ");
+	mprint (buf);
     }
     m_dropstuff (m);
     if (m->id == DEATH) {	/* Death */
@@ -759,9 +761,10 @@ void make_hiscore_npc (pmt npc, int npcid)
 	m_pickup (npc, ob);
     }
     npc->monstring = salloc (Str2);
-    strcpy (Str1, "The body of ");
-    strcat (Str1, Str2);
-    npc->corpsestr = salloc (Str1);
+    char buf[80];
+    strcpy (buf, "The body of ");
+    strcat (buf, Str2);
+    npc->corpsestr = salloc (buf);
 }
 
 /* sets npc behavior given level and behavior code */
@@ -949,16 +952,16 @@ void m_trap_door (struct monster *m)
 
 void m_trap_abyss (struct monster *m)
 {
-    char Str1[80];
+    char buf[80];
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	if (m->uniqueness != COMMON)
-	    strcpy (Str1, m->monstring);
+	    strcpy (buf, m->monstring);
 	else {
-	    strcpy (Str1, "The ");
-	    strcat (Str1, m->monstring);
+	    strcpy (buf, "The ");
+	    strcat (buf, m->monstring);
 	}
-	strcat (Str1, " fell into the infinite abyss!");
-	mprint (Str1);
+	strcat (buf, " fell into the infinite abyss!");
+	mprint (buf);
 	Level->site[m->x][m->y].locchar = ABYSS;
 	lset (m->x, m->y, CHANGED);
 	Level->site[m->x][m->y].p_locf = L_ABYSS;
@@ -971,18 +974,18 @@ void m_trap_abyss (struct monster *m)
 
 void m_trap_snare (struct monster *m)
 {
-    char Str1[80];
+    char buf[80];
     Level->site[m->x][m->y].locchar = TRAP;
     lset (m->x, m->y, CHANGED);
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	if (m->uniqueness != COMMON)
-	    strcpy (Str1, m->monstring);
+	    strcpy (buf, m->monstring);
 	else {
-	    strcpy (Str1, "The ");
-	    strcat (Str1, m->monstring);
+	    strcpy (buf, "The ");
+	    strcat (buf, m->monstring);
 	}
-	strcat (Str1, " was caught in a snare!");
-	mprint (Str1);
+	strcat (buf, " was caught in a snare!");
+	mprint (buf);
     }
     if (!m_statusp (m, INTANGIBLE))
 	m_status_reset (m, MOBILE);
@@ -990,86 +993,86 @@ void m_trap_snare (struct monster *m)
 
 void m_trap_blade (struct monster *m)
 {
-    char Str1[80];
+    char buf[80];
     Level->site[m->x][m->y].locchar = TRAP;
     lset (m->x, m->y, CHANGED);
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	if (m->uniqueness != COMMON)
-	    strcpy (Str1, m->monstring);
+	    strcpy (buf, m->monstring);
 	else {
-	    strcpy (Str1, "The ");
-	    strcat (Str1, m->monstring);
+	    strcpy (buf, "The ");
+	    strcat (buf, m->monstring);
 	}
-	strcat (Str1, " was hit by a blade trap!");
-	mprint (Str1);
+	strcat (buf, " was hit by a blade trap!");
+	mprint (buf);
     }
     m_damage (m, (difficulty () + 1) * 7 - Player.defense, NORMAL_DAMAGE);
 }
 
 void m_trap_fire (struct monster *m)
 {
-    char Str1[80];
+    char buf[80];
     Level->site[m->x][m->y].locchar = TRAP;
     lset (m->x, m->y, CHANGED);
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	if (m->uniqueness != COMMON)
-	    strcpy (Str1, m->monstring);
+	    strcpy (buf, m->monstring);
 	else {
-	    strcpy (Str1, "The ");
-	    strcat (Str1, m->monstring);
+	    strcpy (buf, "The ");
+	    strcat (buf, m->monstring);
 	}
-	strcat (Str1, " was hit by a fire trap!");
-	mprint (Str1);
+	strcat (buf, " was hit by a fire trap!");
+	mprint (buf);
     }
     m_damage (m, (difficulty () + 1) * 5, FLAME);
 }
 
 void m_fire (struct monster *m)
 {
-    char Str1[80];
+    char buf[80];
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	if (m->uniqueness != COMMON)
-	    strcpy (Str1, m->monstring);
+	    strcpy (buf, m->monstring);
 	else {
-	    strcpy (Str1, "The ");
-	    strcat (Str1, m->monstring);
+	    strcpy (buf, "The ");
+	    strcat (buf, m->monstring);
 	}
-	strcat (Str1, " was blasted by fire!");
-	mprint (Str1);
+	strcat (buf, " was blasted by fire!");
+	mprint (buf);
     }
     m_damage (m, random_range (100), FLAME);
 }
 
 void m_trap_teleport (struct monster *m)
 {
-    char Str1[80];
+    char buf[80];
     Level->site[m->x][m->y].locchar = TRAP;
     lset (m->x, m->y, CHANGED);
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	if (m->uniqueness != COMMON)
-	    strcpy (Str1, m->monstring);
+	    strcpy (buf, m->monstring);
 	else {
-	    strcpy (Str1, "The ");
-	    strcat (Str1, m->monstring);
+	    strcpy (buf, "The ");
+	    strcat (buf, m->monstring);
 	}
-	strcat (Str1, " walked into a teleport trap!");
-	mprint (Str1);
+	strcat (buf, " walked into a teleport trap!");
+	mprint (buf);
     }
     m_teleport (m);
 }
 
 void m_trap_disintegrate (struct monster *m)
 {
-    char Str1[80];
+    char buf[80];
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	if (m->uniqueness != COMMON)
-	    strcpy (Str1, m->monstring);
+	    strcpy (buf, m->monstring);
 	else {
-	    strcpy (Str1, "The ");
-	    strcat (Str1, m->monstring);
+	    strcpy (buf, "The ");
+	    strcat (buf, m->monstring);
 	}
-	strcat (Str1, " walked into a disintegration trap!");
-	mprint (Str1);
+	strcat (buf, " walked into a disintegration trap!");
+	mprint (buf);
 	Level->site[m->x][m->y].locchar = TRAP;
 	lset (m->x, m->y, CHANGED);
     }
@@ -1078,16 +1081,16 @@ void m_trap_disintegrate (struct monster *m)
 
 void m_trap_sleepgas (struct monster *m)
 {
-    char Str1[80];
+    char buf[80];
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	if (m->uniqueness != COMMON)
-	    strcpy (Str1, m->monstring);
+	    strcpy (buf, m->monstring);
 	else {
-	    strcpy (Str1, "The ");
-	    strcat (Str1, m->monstring);
+	    strcpy (buf, "The ");
+	    strcat (buf, m->monstring);
 	}
-	strcat (Str1, " walked into a sleepgas trap!");
-	mprint (Str1);
+	strcat (buf, " walked into a sleepgas trap!");
+	mprint (buf);
 	Level->site[m->x][m->y].locchar = TRAP;
 	lset (m->x, m->y, CHANGED);
     }
@@ -1097,16 +1100,16 @@ void m_trap_sleepgas (struct monster *m)
 
 void m_trap_acid (struct monster *m)
 {
-    char Str1[80];
+    char buf[80];
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	if (m->uniqueness != COMMON)
-	    strcpy (Str1, m->monstring);
+	    strcpy (buf, m->monstring);
 	else {
-	    strcpy (Str1, "The ");
-	    strcat (Str1, m->monstring);
+	    strcpy (buf, "The ");
+	    strcat (buf, m->monstring);
 	}
-	strcat (Str1, " walked into an acid bath trap!");
-	mprint (Str1);
+	strcat (buf, " walked into an acid bath trap!");
+	mprint (buf);
 	Level->site[m->x][m->y].locchar = TRAP;
 	lset (m->x, m->y, CHANGED);
     }
@@ -1115,16 +1118,16 @@ void m_trap_acid (struct monster *m)
 
 void m_trap_manadrain (struct monster *m)
 {
-    char Str1[80];
+    char buf[80];
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	if (m->uniqueness != COMMON)
-	    strcpy (Str1, m->monstring);
+	    strcpy (buf, m->monstring);
 	else {
-	    strcpy (Str1, "The ");
-	    strcat (Str1, m->monstring);
+	    strcpy (buf, "The ");
+	    strcat (buf, m->monstring);
 	}
-	strcat (Str1, " walked into a manadrain trap!");
-	mprint (Str1);
+	strcat (buf, " walked into a manadrain trap!");
+	mprint (buf);
 	Level->site[m->x][m->y].locchar = TRAP;
 	lset (m->x, m->y, CHANGED);
     }
@@ -1134,17 +1137,17 @@ void m_trap_manadrain (struct monster *m)
 
 void m_water (struct monster *m)
 {
-    char Str1[80];
+    char buf[80];
     if ((!m_statusp (m, INTANGIBLE)) && (!m_statusp (m, SWIMMING)) && (!m_statusp (m, ONLYSWIM))) {
 	if (los_p (m->x, m->y, Player.x, Player.y)) {
 	    if (m->uniqueness != COMMON)
-		strcpy (Str1, m->monstring);
+		strcpy (buf, m->monstring);
 	    else {
-		strcpy (Str1, "The ");
-		strcat (Str1, m->monstring);
+		strcpy (buf, "The ");
+		strcat (buf, m->monstring);
 	    }
-	    strcat (Str1, " drowned!");
-	    mprint (Str1);
+	    strcat (buf, " drowned!");
+	    mprint (buf);
 	}
 	m_death (m);
     }
@@ -1152,33 +1155,33 @@ void m_water (struct monster *m)
 
 void m_abyss (struct monster *m)
 {
-    char Str1[80];
+    char buf[80];
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	if (m->uniqueness != COMMON)
-	    strcpy (Str1, m->monstring);
+	    strcpy (buf, m->monstring);
 	else {
-	    strcpy (Str1, "The ");
-	    strcat (Str1, m->monstring);
+	    strcpy (buf, "The ");
+	    strcat (buf, m->monstring);
 	}
-	strcat (Str1, " fell into the infinite abyss!");
-	mprint (Str1);
+	strcat (buf, " fell into the infinite abyss!");
+	mprint (buf);
     }
     m_vanish (m);
 }
 
 void m_lava (struct monster *m)
 {
-    char Str1[80];
+    char buf[80];
     if ((!m_immunityp (m, FLAME)) || ((!m_statusp (m, SWIMMING)) && (!m_statusp (m, ONLYSWIM)))) {
 	if (los_p (m->x, m->y, Player.x, Player.y)) {
 	    if (m->uniqueness != COMMON)
-		strcpy (Str1, m->monstring);
+		strcpy (buf, m->monstring);
 	    else {
-		strcpy (Str1, "The ");
-		strcat (Str1, m->monstring);
+		strcpy (buf, "The ");
+		strcat (buf, m->monstring);
 	    }
-	    strcat (Str1, " died in a pool of lava!");
-	    mprint (Str1);
+	    strcat (buf, " died in a pool of lava!");
+	    mprint (buf);
 	}
 	m_death (m);
     }
@@ -1191,14 +1194,15 @@ void m_altar (struct monster *m)
     int altar = Level->site[m->x][m->y].aux;
 
     if (visible) {
+	char buf[80];
 	if (m->uniqueness != COMMON)
-	    strcpy (Str1, m->monstring);
+	    strcpy (buf, m->monstring);
 	else {
-	    strcpy (Str1, "The ");
-	    strcat (Str1, m->monstring);
+	    strcpy (buf, "The ");
+	    strcat (buf, m->monstring);
 	}
-	strcat (Str1, " walks next to an altar...");
-	mprint (Str1);
+	strcat (buf, " walks next to an altar...");
+	mprint (buf);
     }
     if (!m_statusp (m, HOSTILE))
 	reaction = 0;
@@ -1306,6 +1310,6 @@ void strengthen_death (struct monster *m)
     m->possessions = ol;
 }
 
-void m_no_op (struct monster *m)
+void m_no_op (struct monster *m UNUSED)
 {
 }

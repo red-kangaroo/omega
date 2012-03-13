@@ -340,7 +340,7 @@ void mprint (char *s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
 	int x = getcurx (Msgw);
-	if (x + strlen (s) >= WIDTH) {
+	if (x + (int)strlen (s) >= WIDTH) {
 	    buffercycle (s);
 	    if (Msgw == Msg1w) {
 		wclear (Msg2w);

@@ -6,7 +6,7 @@
 #include "glob.h"
 
 /* amulet of the planes */
-void i_planes (pob o)
+void i_planes (pob o UNUSED)
 {
     if (Player.mana < 1)
 	print1 ("The amulet spits some multicolored sparks.");
@@ -20,7 +20,7 @@ void i_planes (pob o)
 }
 
 /* the sceptre of high magic */
-void i_sceptre (pob o)
+void i_sceptre (pob o UNUSED)
 {
     if (HiMagicUse == Date)
 	print1 ("The Sceptre makes a sort of dull 'thut' noise.");
@@ -314,7 +314,7 @@ void i_helm (pob o)
     }
 }
 
-void i_death (pob o)
+void i_death (pob o UNUSED)
 {
     clearmsg ();
     print1 ("Bad move...");
@@ -481,7 +481,7 @@ void i_orbmastery (pob o)
     }
 }
 
-void i_orbdead (pob o)
+void i_orbdead (pob o UNUSED)
 {
     int i;
     print1 ("The burnt-out orb drains all your energy!");

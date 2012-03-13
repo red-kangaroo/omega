@@ -258,30 +258,30 @@ void version (void)
 
 void fire (void)
 {
-    int index, x1, y1, x2, y2;
+    int ii, x1, y1, x2, y2;
     pob obj;
     struct monster *m;
 
     clearmsg ();
 
     print1 ("Fire/Throw --");
-    index = getitem (NULL_ITEM);
-    if (index == ABORT)
+    ii = getitem (NULL_ITEM);
+    if (ii == ABORT)
 	setgamestatus (SKIP_MONSTERS);
-    else if (index == CASHVALUE)
+    else if (ii == CASHVALUE)
 	print3 ("Can't fire money at something!");
-    else if (cursed (Player.possessions[index]) && Player.possessions[index]->used)
+    else if (cursed (Player.possessions[ii]) && Player.possessions[ii]->used)
 	print3 ("You can't seem to get rid of it!");
     /* load a crossbow */
-    else if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPONID + 27) && (Player.possessions[O_WEAPON_HAND]->aux != LOADED) && (Player.possessions[index]->id == WEAPONID + 29)) {
+    else if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPONID + 27) && (Player.possessions[O_WEAPON_HAND]->aux != LOADED) && (Player.possessions[ii]->id == WEAPONID + 29)) {
 	mprint ("You crank back the crossbow and load a bolt.");
 	Player.possessions[O_WEAPON_HAND]->aux = LOADED;
     } else {
-	if (Player.possessions[index]->used) {
-	    Player.possessions[index]->used = FALSE;
-	    item_use (Player.possessions[index]);
+	if (Player.possessions[ii]->used) {
+	    Player.possessions[ii]->used = FALSE;
+	    item_use (Player.possessions[ii]);
 	}
-	obj = Player.possessions[index];
+	obj = Player.possessions[ii];
 	x1 = x2 = Player.x;
 	y1 = y2 = Player.y;
 	setspot (&x2, &y2);
@@ -785,20 +785,20 @@ void tacoptions (void)
 /* Do the Artful Dodger trick */
 void pickpocket (void)
 {
-    int dx, dy, index = 0;
+    int dx, dy, ii = 0;
     struct monster *m;
 
     clearmsg ();
 
     mprint ("Pickpocketing --");
 
-    index = getdir ();
+    ii = getdir ();
 
-    if (index == ABORT)
+    if (ii == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
-	dx = Dirs[0][index];
-	dy = Dirs[1][index];
+	dx = Dirs[0][ii];
+	dy = Dirs[1][ii];
 
 	if ((!inbounds (Player.x + dx, Player.y + dy)) || (Level->site[Player.x + dx][Player.y + dy].creature == NULL)) {
 	    print3 ("There's nothing there to steal from!!!");

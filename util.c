@@ -619,7 +619,7 @@ int strprefix (char *prefix, char *s)
     if (strlen (prefix) > strlen (s))
 	return (FALSE);
     else {
-	while (matched && (i < strlen (prefix))) {
+	while (matched && (i < (int)strlen (prefix))) {
 	    matched = (prefix[i] == s[i]);
 	    i++;
 	}
@@ -650,7 +650,7 @@ int confirmation (void)
 int strmem (int c, char *s)
 {
     int i, found = FALSE;
-    for (i = 0; ((i < strlen (s)) && (!found)); i++)
+    for (i = 0; ((i < (int)strlen (s)) && (!found)); i++)
 	found = (s[i] == c);
     return (found);
 }

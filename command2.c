@@ -53,7 +53,7 @@ void rest (void)
 /* read a scroll, book, tome, etc. */
 void peruse (void)
 {
-    int index;
+    int iidx;
     struct object *obj;
 
     clearmsg ();
@@ -64,11 +64,11 @@ void peruse (void)
 	print3 ("You are too afraid to stop to read a scroll!");
     else {
 	print1 ("Read -- ");
-	index = getitem (SCROLL);
-	if (index == ABORT)
+	iidx = getitem (SCROLL);
+	if (iidx == ABORT)
 	    setgamestatus (SKIP_MONSTERS);
 	else {
-	    obj = Player.possessions[index];
+	    obj = Player.possessions[iidx];
 	    if (obj->objchar != SCROLL) {
 		print3 ("There's nothing written on ");
 		nprint3 (itemid (obj));
@@ -84,15 +84,15 @@ void peruse (void)
 
 void quaff (void)
 {
-    int index;
+    int iidx;
     struct object *obj;
     clearmsg ();
     print1 ("Quaff --");
-    index = getitem (POTION);
-    if (index == ABORT)
+    iidx = getitem (POTION);
+    if (iidx == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
-	obj = Player.possessions[index];
+	obj = Player.possessions[iidx];
 	if (obj->objchar != POTION) {
 	    print3 ("You can't drink ");
 	    nprint3 (itemid (obj));
@@ -115,16 +115,16 @@ void activate (void)
 	response = (char) mcigetc ();
     while ((response != 'i') && (response != 'a') && (response != ESCAPE));
     if (response != ESCAPE) {
-	int index = ABORT;
+	int iidx = ABORT;
 	if (response == 'i')
-	    index = getitem (THING);
+	    iidx = getitem (THING);
 	else if (response == 'a')
-	    index = getitem (ARTIFACT);
-	if (index != ABORT) {
+	    iidx = getitem (ARTIFACT);
+	if (iidx != ABORT) {
 	    clearmsg ();
 	    print1 ("You activate it.... ");
 	    morewait ();
-	    item_use (Player.possessions[index]);
+	    item_use (Player.possessions[iidx]);
 	} else
 	    setgamestatus (SKIP_MONSTERS);
     } else
@@ -133,17 +133,17 @@ void activate (void)
 
 void eat (void)
 {
-    int index;
+    int iidx;
     struct object *obj;
 
     clearmsg ();
 
     print1 ("Eat --");
-    index = getitem (FOOD);
-    if (index == ABORT)
+    iidx = getitem (FOOD);
+    if (iidx == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
-	obj = Player.possessions[index];
+	obj = Player.possessions[iidx];
 	if ((obj->objchar != FOOD) && (obj->objchar != CORPSE)) {
 	    print3 ("You can't eat ");
 	    nprint3 (itemid (obj));
@@ -213,29 +213,29 @@ void floor_inv (void)
 
 void drop (void)
 {
-    int index, n;
+    int iidx, n;
 
     clearmsg ();
 
     print1 ("Drop --");
-    index = getitem (CASH);
-    if (index == ABORT)
+    iidx = getitem (CASH);
+    if (iidx == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
-	if (index == CASHVALUE)
+	if (iidx == CASHVALUE)
 	    drop_money ();
-	else if ((!Player.possessions[index]->used) || (!cursed (Player.possessions[index]))) {
-	    if (Player.possessions[index]->number == 1) {
-		p_drop_at (Player.x, Player.y, 1, Player.possessions[index]);
-		conform_lost_objects (1, Player.possessions[index]);
+	else if ((!Player.possessions[iidx]->used) || (!cursed (Player.possessions[iidx]))) {
+	    if (Player.possessions[iidx]->number == 1) {
+		p_drop_at (Player.x, Player.y, 1, Player.possessions[iidx]);
+		conform_lost_objects (1, Player.possessions[iidx]);
 	    } else {
-		n = getnumber (Player.possessions[index]->number);
-		p_drop_at (Player.x, Player.y, n, Player.possessions[index]);
-		conform_lost_objects (n, Player.possessions[index]);
+		n = getnumber (Player.possessions[iidx]->number);
+		p_drop_at (Player.x, Player.y, n, Player.possessions[iidx]);
+		conform_lost_objects (n, Player.possessions[iidx]);
 	    }
 	} else {
 	    print3 ("You can't seem to get rid of: ");
-	    nprint3 (itemid (Player.possessions[index]));
+	    nprint3 (itemid (Player.possessions[iidx]));
 	}
     }
     calc_melee ();
@@ -244,20 +244,20 @@ void drop (void)
 /* talk to the animals -- learn their languages.... */
 void talk (void)
 {
-    int dx, dy, index = 0;
+    int dx, dy, iidx = 0;
     char response;
     struct monster *m;
 
     clearmsg ();
 
     print1 ("Talk --");
-    index = getdir ();
+    iidx = getdir ();
 
-    if (index == ABORT)
+    if (iidx == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
-	dx = Dirs[0][index];
-	dy = Dirs[1][index];
+	dx = Dirs[0][iidx];
+	dy = Dirs[1][iidx];
 
 	if ((!inbounds (Player.x + dx, Player.y + dy)) || (Level->site[Player.x + dx][Player.y + dy].creature == NULL)) {
 	    print3 ("There's nothing there to talk to!!!");
@@ -299,19 +299,19 @@ void talk (void)
 /* try to deactivate a trap */
 void disarm (void)
 {
-    int x, y, index = 0;
+    int x, y, iidx = 0;
     pob o;
 
     clearmsg ();
     print1 ("Disarm -- ");
 
-    index = getdir ();
+    iidx = getdir ();
 
-    if (index == ABORT)
+    if (iidx == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
-	x = Dirs[0][index] + Player.x;
-	y = Dirs[1][index] + Player.y;
+	x = Dirs[0][iidx] + Player.x;
+	y = Dirs[1][iidx] + Player.y;
 
 	if (!inbounds (x, y))
 	    print3 ("Whoa, off the map...");
@@ -382,7 +382,7 @@ void disarm (void)
 /* is it more blessed to give, or receive? */
 void give (void)
 {
-    int index;
+    int iidx;
     int dx, dy, dindex = 0;
     struct monster *m;
     pob obj;
@@ -405,16 +405,16 @@ void give (void)
 	    m = Level->site[Player.x + dx][Player.y + dy].creature;
 	    clearmsg ();
 	    print1 ("Give what? ");
-	    index = getitem (CASH);
-	    if (index == ABORT)
+	    iidx = getitem (CASH);
+	    if (iidx == ABORT)
 		setgamestatus (SKIP_MONSTERS);
-	    else if (index == CASHVALUE)
+	    else if (iidx == CASHVALUE)
 		give_money (m);
-	    else if (!cursed (Player.possessions[index])) {
+	    else if (!cursed (Player.possessions[iidx])) {
 		obj = ((pob) checkmalloc (sizeof (objtype)));
-		*obj = *(Player.possessions[index]);
+		*obj = *(Player.possessions[iidx]);
 		obj->used = FALSE;
-		conform_lost_objects (1, Player.possessions[index]);
+		conform_lost_objects (1, Player.possessions[iidx]);
 		obj->number = 1;
 		print2 ("Given: ");
 		nprint2 (itemid (obj));
@@ -428,7 +428,7 @@ void give (void)
 		calc_melee ();
 	    } else {
 		print3 ("You can't even give away: ");
-		nprint3 (itemid (Player.possessions[index]));
+		nprint3 (itemid (Player.possessions[iidx]));
 	    }
 	}
     }
@@ -437,7 +437,7 @@ void give (void)
 /* zap a wand, of course */
 void zapwand (void)
 {
-    int index;
+    int iidx;
     struct object *obj;
 
     clearmsg ();
@@ -446,11 +446,11 @@ void zapwand (void)
 	print3 ("You are so terror-stricken you can't hold a wand straight!");
     else {
 	print1 ("Zap --");
-	index = getitem (STICK);
-	if (index == ABORT)
+	iidx = getitem (STICK);
+	if (iidx == ABORT)
 	    setgamestatus (SKIP_MONSTERS);
 	else {
-	    obj = Player.possessions[index];
+	    obj = Player.possessions[iidx];
 	    if (obj->objchar != STICK) {
 		print3 ("You can't zap: ");
 		nprint3 (itemid (obj));
@@ -467,29 +467,29 @@ void zapwand (void)
 /* cast a spell */
 void magic (void)
 {
-    int index, drain;
+    int iidx, pwrdrain;
     clearmsg ();
     if (Player.status[AFRAID] > 0)
 	print3 ("You are too afraid to concentrate on a spell!");
     else {
-	index = getspell ();
+	iidx = getspell ();
 	xredraw ();
-	if (index == ABORT)
+	if (iidx == ABORT)
 	    setgamestatus (SKIP_MONSTERS);
 	else {
-	    drain = Spells[index].powerdrain;
+	    pwrdrain = Spells[iidx].powerdrain;
 	    if (Lunarity == 1)
-		drain = drain / 2;
+		pwrdrain = pwrdrain / 2;
 	    else if (Lunarity == -1)
-		drain = drain * 2;
-	    if (drain > Player.mana)
-		if (Lunarity == -1 && Player.mana >= drain / 2)
+		pwrdrain = pwrdrain * 2;
+	    if (pwrdrain > Player.mana)
+		if (Lunarity == -1 && Player.mana >= pwrdrain / 2)
 		    print3 ("The contrary moon has made that spell too draining! ");
 		else
 		    print3 ("You lack the power for that spell! ");
 	    else {
-		Player.mana -= drain;
-		cast_spell (index);
+		Player.mana -= pwrdrain;
+		cast_spell (iidx);
 	    }
 	}
     }
@@ -653,17 +653,17 @@ void setoptions (void)
 /* name an item */
 void callitem (void)
 {
-    int index;
+    int iidx;
     pob obj;
 
     clearmsg ();
     setgamestatus (SKIP_MONSTERS);
     print1 ("Call --");
-    index = getitem (NULL_ITEM);
-    if (index == CASHVALUE)
+    iidx = getitem (NULL_ITEM);
+    if (iidx == CASHVALUE)
 	print3 ("Can't rename cash!");
-    else if (index != ABORT) {
-	obj = Player.possessions[index];
+    else if (iidx != ABORT) {
+	obj = Player.possessions[iidx];
 	if (obj->known)
 	    print3 ("That item is already identified!");
 	else {
@@ -930,7 +930,7 @@ void save (int compress, int force)
 	    ok = FALSE;
 	}
 	if (ok) {
-	    if (save_game (compress, fname)) {
+	    if (save_game (fname)) {
 		print3 ("Bye!");
 		sleep (2);
 		endgraf ();

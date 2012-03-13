@@ -21,8 +21,8 @@ BINDIR		:= @bindir@
 
 ################ Compiler options ####################################
 
-WARNOPTS	:= -Wall #-Wextra -Woverloaded-virtual -Wpointer-arith\
-		-Wshadow -Wredundant-decls -Wcast-qual @SYSWARNS@
+WARNOPTS	:= -Wall -Wextra -Wpointer-arith\
+		-Wshadow -Wredundant-decls -Wcast-qual @SYSWARNS@ #-Woverloaded-virtual 
 CXXFLAGS	:= ${WARNOPTS} -std=gnu99 @CUSTOMINCDIR@
 LDFLAGS		:= @CUSTOMLIBDIR@
 LIBS		:= -lncurses

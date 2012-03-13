@@ -222,9 +222,9 @@ void corridor_crawl (int* fx, int* fy, int sx, int sy, int n, Symbol loc, char r
     }
 }
 
-char *roomname (int index)
+char *roomname (int ri)
 {
-    switch (index) {
+    switch (ri) {
 	case RS_ZORCH:
 	    strcpy (Str4, "A place zorched by powerful magic.");
 	    break;

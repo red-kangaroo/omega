@@ -20,10 +20,9 @@ void m_hit (struct monster *m, int dtype)
 /* execute monster attacks versus player */
 void tacmonster (struct monster *m)
 {
-    int i = 0;
     drawvision (Player.x, Player.y);
     transcribe_monster_actions (m);
-    while ((i < strlen (m->meleestr)) && (m->hp > 0)) {
+    for (unsigned i = 0; (i < strlen (m->meleestr)) && (m->hp > 0); i += 2) {
 	if (m->uniqueness == COMMON) {
 	    strcpy (Str4, "The ");
 	    strcat (Str4, m->monstring);
@@ -42,7 +41,6 @@ void tacmonster (struct monster *m)
 		mprint (Str4);
 	    monster_melee (m, m->meleestr[i + 1], m->level);
 	}
-	i += 2;
     }
 }
 
@@ -204,8 +202,8 @@ void monster_melee (struct monster *m, int hitloc, int bonus)
 /* checks to see if player hits with hitmod vs. monster m at location hitloc */
 int monster_hit (struct monster *m, int hitloc, int bonus)
 {
-    int i = 0, blocks = FALSE, goodblocks = 0, hit, riposte = FALSE;
-    while (i < strlen (Player.meleestr)) {
+    int blocks = FALSE, goodblocks = 0, hit, riposte = FALSE;
+    for (unsigned i = 0; i < strlen (Player.meleestr); i += 2) {
 	if ((Player.meleestr[i] == 'B') || (Player.meleestr[i] == 'R')) {
 	    blocks = TRUE;
 	    if (hitloc == Player.meleestr[i + 1]) {
@@ -214,7 +212,6 @@ int monster_hit (struct monster *m, int hitloc, int bonus)
 		    riposte = TRUE;
 	    }
 	}
-	i += 2;
     }
     if (!blocks)
 	goodblocks = -1;
@@ -241,19 +238,17 @@ int monster_hit (struct monster *m, int hitloc, int bonus)
 
 void transcribe_monster_actions (struct monster *m)
 {
-    int i;
     char attack_loc, block_loc;
     static char mmstr[80];
 
     int p_blocks[3];
     int p_attacks[3];
 
-    for (i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
 	p_blocks[i] = p_attacks[i] = 0;
 
     /* Find which area player blocks and attacks least in */
-    i = 0;
-    while (i < strlen (Player.meleestr)) {
+    for (unsigned i = 0; i < strlen (Player.meleestr); i += 2) {
 	if ((Player.meleestr[i] == 'B') || (Player.meleestr[i] == 'R')) {
 	    if (Player.meleestr[i + 1] == 'H')
 		p_blocks[0]++;
@@ -269,7 +264,6 @@ void transcribe_monster_actions (struct monster *m)
 	    if (Player.meleestr[i + 1] == 'L')
 		p_attacks[2]++;
 	}
-	i += 2;
     }
 
     if ((p_blocks[2] <= p_blocks[1]) && (p_blocks[2] <= p_blocks[0]))
@@ -291,12 +285,11 @@ void transcribe_monster_actions (struct monster *m)
 	strcpy (m->meleestr, Monsters[m->id].meleestr);
     else {
 	strcpy (m->meleestr, "");
-	for (i = 0; i < m->level; i += 2)
+	for (int i = 0; i < m->level; i += 2)
 	    strcat (m->meleestr, "L?R?");
     }
 
-    i = 0;
-    while (i < strlen (m->meleestr)) {
+    for (unsigned i = 0; i < strlen (m->meleestr); i += 2) {
 	if ((m->meleestr[i] == 'A') || (m->meleestr[i] == 'L')) {
 	    if (m->meleestr[i + 1] == '?') {
 		if (m->level + random_range (30) > Player.level + random_range (20))
@@ -314,7 +307,6 @@ void transcribe_monster_actions (struct monster *m)
 	    } else if (m->meleestr[i + 1] == 'X')
 		m->meleestr[i + 1] = random_loc ();
 	}
-	i += 2;
     }
 }
 

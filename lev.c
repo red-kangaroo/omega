@@ -610,14 +610,14 @@ void make_site_treasure (int i, int j, int itemlevel)
 }
 
 /* make a specific new object at site i,j on level*/
-void make_specific_treasure (int i, int j, int itemid)
+void make_specific_treasure (int i, int j, int iid)
 {
     pol tmp;
-    if (Objects[itemid].uniqueness == UNIQUE_TAKEN)
+    if (Objects[iid].uniqueness == UNIQUE_TAKEN)
 	return;
     tmp = ((pol) checkmalloc (sizeof (oltype)));
     tmp->thing = ((pob) checkmalloc (sizeof (objtype)));
-    *(tmp->thing) = Objects[itemid];
+    *(tmp->thing) = Objects[iid];
     tmp->next = Level->site[i][j].things;
     Level->site[i][j].things = tmp;
 }

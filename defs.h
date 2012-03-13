@@ -1,3 +1,6 @@
+#pragma once
+#include "config.h"
+
 /* omega copyright (c) 1987,1988,1989 by Laurence Raphael Brothers */
 /* This file is the header file for all omega modules */
 /* defs.h */

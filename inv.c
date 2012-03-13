@@ -67,22 +67,22 @@ long get_money (long limit)
    may drop things back onto the now null ground */
 void pickup_at (int x, int y)
 {
-    int quit = FALSE;
     pol ol = Level->site[x][y].things;
 
     resetgamestatus (FAST_MOVE);
 
     Level->site[x][y].things = NULL;
 
+    int quitting = FALSE;
     while (ol != NULL) {
 	char response = 'q';
-	if (!quit) {
+	if (!quitting) {
 	    clearmsg1 ();
 	    print1 ("Pick up: ");
 	    nprint1 (itemid (ol->thing));
 	    nprint1 (" [ynq]: ");
 	    response = ynq1();
-	    quit = (response == 'q');
+	    quitting = (response == 'q');
 	}
 	if (response == 'y')
 	    gain_item (ol->thing);
@@ -116,12 +116,9 @@ int key_to_index (int key)
     return O_UP_IN_AIR;
 }
 
-signed char index_to_key (signed int index)
+signed char index_to_key (int i)
 {
-    if (index < MAXITEMS)
-	return inventory_keymap[index];
-    else
-	return '-';
+    return (i < MAXITEMS ? inventory_keymap[i] : '-');
 }
 
 /* criteria for being able to put some item in some slot */
@@ -628,16 +625,9 @@ int get_to_pack (pob o)
     }
 }
 
-int pack_item_cost (int index)
+int pack_item_cost (int ii)
 {
-    int cost;
-    if (index > 20) {
-	cost = 17;
-    } else if (index > 15) {
-	cost = 7;
-    } else
-	cost = 2;
-    return cost;
+    return (ii > 20 ? 17 : (ii > 15 ? 7 : 2));
 }
 
 /* WDT -- 'response' must be an index into the pack. */
@@ -720,7 +710,6 @@ or to 'up-in-air', one of which at least must be empty */
 int aux_take_from_pack (int slot)
 {
     char response, pack_item, last_item;
-    int quit = FALSE, ok = TRUE;
     if (Player.possessions[slot] != NULL)
 	slot = O_UP_IN_AIR;
     if (Player.possessions[slot] != NULL)
@@ -729,6 +718,7 @@ int aux_take_from_pack (int slot)
 	print3 ("Pack is empty!");
     else {
 	pack_item = 0;
+	int quitting = FALSE, ok = TRUE;
 	do {
 	    ok = TRUE;
 	    last_item = aux_display_pack (pack_item, slot);
@@ -747,7 +737,7 @@ int aux_take_from_pack (int slot)
 		morewait ();
 		ok = FALSE;
 	    } else if (response == ESCAPE)
-		quit = TRUE;
+		quitting = TRUE;
 	    else if (response == '+') {
 		if (last_item < Player.packptr)
 		    pack_item = last_item;
@@ -764,7 +754,7 @@ int aux_take_from_pack (int slot)
 		    ok = slottable (Player.pack[response - 'a'], slot);
 	    }
 	} while (!ok);
-	if (!quit) {
+	if (!quitting) {
 	    use_pack_item (response - 'a', slot);
 	}
     }
@@ -778,7 +768,7 @@ or to 'up-in-air', one of which at least must be empty */
 int aux_top_take_from_pack (int slot, int display)
 {
     char response;
-    int quit = FALSE, ok = TRUE, displayed = FALSE;
+    int quitting = FALSE, ok = TRUE, displayed = FALSE;
     if (Player.possessions[slot] != NULL)
 	slot = O_UP_IN_AIR;
     if (Player.possessions[slot] != NULL)
@@ -795,14 +785,14 @@ int aux_top_take_from_pack (int slot, int display)
 		displayed = TRUE;
 		ok = FALSE;
 	    } else if (response == ESCAPE)
-		quit = TRUE;
+		quitting = TRUE;
 	    else {
 		ok = ((response >= 'a') && (response < 'a' + Player.packptr));
 		if (ok)
 		    ok = slottable (Player.pack[response - 'a'], slot);
 	    }
 	} while (!ok);
-	if (!quit)
+	if (!quitting)
 	    use_pack_item (response - 'a', slot);
     }
     if (displayed) {

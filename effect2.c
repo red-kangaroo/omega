@@ -334,7 +334,7 @@ void knowledge (int blessing)
 }
 
 /* Recreates the current level */
-void flux (int blessing)
+void flux (int blessing UNUSED)
 {
     mprint ("The universe warps around you!");
     if (Current_Environment == E_CITY) {
@@ -538,7 +538,7 @@ void breathe (int blessing)
     }
 }
 
-void i_chaos (pob o)
+void i_chaos (pob o UNUSED)
 {
     if (Player.alignment < 0) {
 	Player.alignment -= random_range (20);
@@ -550,7 +550,7 @@ void i_chaos (pob o)
     }
 }
 
-void i_law (pob o)
+void i_law (pob o UNUSED)
 {
     if (Player.alignment > 0) {
 	Player.alignment += random_range (20);

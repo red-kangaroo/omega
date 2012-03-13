@@ -675,9 +675,7 @@ char *actionlocstr (int dir)
 /* execute player combat actions versus monster m */
 void tacplayer (struct monster *m)
 {
-    int i = 0;
-
-    while (i < strlen (Player.meleestr)) {
+    for (unsigned i = 0; i < strlen (Player.meleestr); i += 2) {
 	if (m->hp > 0) {
 	    switch (Player.meleestr[i]) {
 		case 't':
@@ -725,14 +723,13 @@ void tacplayer (struct monster *m)
 		    break;
 	    }
 	}
-	i += 2;
     }
 }
 
 /* checks to see if player hits with hitmod vs. monster m at location hitloc */
 int player_hit (int hitmod, int hitloc, struct monster *m)
 {
-    int i = 0, blocks = FALSE, goodblocks = 0, hit;
+    int blocks = FALSE, goodblocks = 0, hit;
     if (m->hp < 1) {
 	mprint ("Unfortunately, your opponent is already dead!");
 	return (FALSE);
@@ -742,13 +739,12 @@ int player_hit (int hitmod, int hitloc, struct monster *m)
 
 	transcribe_monster_actions (m);
 
-	while (i < strlen (m->meleestr)) {
+	for (unsigned i = 0; i < strlen (m->meleestr); i += 2) {
 	    if ((m->meleestr[i] == 'B') || (m->meleestr[i] == 'R')) {
 		blocks = TRUE;
 		if (hitloc == m->meleestr[i + 1])
 		    goodblocks++;
 	    }
-	    i += 2;
 	}
 
 	if (!blocks)

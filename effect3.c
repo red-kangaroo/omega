@@ -479,7 +479,7 @@ void p_poison (int toxicity)
 
 void apport (int blessing)
 {
-    int i, index, x = Player.x, y = Player.y;
+    int i, idx, x = Player.x, y = Player.y;
     if (blessing > -1) {
 	mprint ("Apport from:");
 	setspot (&x, &y);
@@ -491,10 +491,10 @@ void apport (int blessing)
     } else {
 	mprint ("You have a sense of loss.");
 	for (i = 0; i < abs (blessing); i++) {
-	    index = random_item ();
-	    if (index != ABORT) {
-		drop_at (x, y, Player.possessions[index]);
-		dispose_lost_objects (Player.possessions[index]->number, Player.possessions[index]);
+	    idx = random_item ();
+	    if (idx != ABORT) {
+		drop_at (x, y, Player.possessions[idx]);
+		dispose_lost_objects (Player.possessions[idx]->number, Player.possessions[idx]);
 	    }
 	}
     }

@@ -583,7 +583,7 @@ void load_temple (int deity, int populate)
     /*  initrand(-2, 0); */
 }
 
-void random_temple_site (int i, int j, int deity, int populate)
+void random_temple_site (int i, int j, int deity UNUSED, int populate)
 {
     switch (random_range (12)) {
 	case 0:

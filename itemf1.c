@@ -7,11 +7,11 @@
 
 /* general item functions */
 
-void i_no_op (pob o)
+void i_no_op (pob o UNUSED)
 {
 }
 
-void i_nothing (pob o)
+void i_nothing (pob o UNUSED)
 {
 }
 
@@ -352,7 +352,7 @@ void i_perm_negimmune (pob o)
 
 /* food functions */
 
-void i_food (pob o)
+void i_food (pob o UNUSED)
 {
     switch (random_range (5)) {
 	case 0:
@@ -382,19 +382,19 @@ void i_stim (pob o)
     calc_melee ();
 }
 
-void i_pow (pob o)
+void i_pow (pob o UNUSED)
 {
     mprint ("You feel a surge of mystic power!");
     Player.mana = 2 * calcmana ();
 }
 
-void i_poison_food (pob o)
+void i_poison_food (pob o UNUSED)
 {
     mprint ("This food was contaminated with cyanide!");
     p_poison (random_range (20) + 5);
 }
 
-void i_pepper_food (pob o)
+void i_pepper_food (pob o UNUSED)
 {
     mprint ("You innocently start to chew the szechuan pepper.....");
     morewait ();
@@ -413,7 +413,7 @@ void i_pepper_food (pob o)
     Player.immunity[SLEEP]++;
 }
 
-void i_lembas (pob o)
+void i_lembas (pob o UNUSED)
 {
     heal (10);
     cleanse (0);

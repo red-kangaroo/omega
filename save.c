@@ -23,7 +23,7 @@ void do_compression (int, char *);
    The player, the city level, and the current dungeon level are saved.
 */
 
-int save_game (int compress, char *savestr)
+int save_game (char *savestr)
 {
     FILE *fd;
     int slashpos;
@@ -31,7 +31,7 @@ int save_game (int compress, char *savestr)
     int tmpdepth;
 #endif
     int i, writeok = TRUE;
-    plv current, save;
+    plv current, levelToSave;
 
 #ifndef MSDOS_SUPPORTED_ANTIQUE
     if (access (savestr, R_OK) == 0)
@@ -82,21 +82,21 @@ int save_game (int compress, char *savestr)
 	writeok &= save_level (fd, City);
 
 	if (Current_Environment == E_CITY || Current_Environment == E_COUNTRYSIDE)
-	    save = Dungeon;
+	    levelToSave = Dungeon;
 	else if (Current_Environment == Current_Dungeon)
-	    save = Dungeon;
+	    levelToSave = Dungeon;
 	else
-	    save = Level;
-	for (i = 0, current = save; current; current = current->next, i++);
+	    levelToSave = Level;
+	for (i = 0, current = levelToSave; current; current = current->next, i++);
 	if (!fwrite ((char *) &i, sizeof (int), 1, fd))
 	    writeok = FALSE;
 #ifdef SAVE_LEVELS
 	Level = msdos_changelevel (NULL, Current_Environment, tmpdepth);
 #endif
-	for (current = save; current; current = current->next)
+	for (current = levelToSave; current; current = current->next)
 	    if (current != Level)
 		writeok &= save_level (fd, current);
-	if (save)
+	if (levelToSave)
 	    writeok &= save_level (fd, Level);	/* put current level last */
 	fclose (fd);
 	if (writeok)
@@ -115,8 +115,8 @@ int save_game (int compress, char *savestr)
 void signalsave (void)
 {
     change_to_user_perms ();
-    save_game (FALSE, "Omega.Sav");
-    print1 ("Signal - Saving file 'Omega.Sav'.");
+    save_game ("omega.sav");
+    print1 ("Signal - Saving file 'omega.sav'.");
     morewait ();
     endgraf ();
     exit (0);
@@ -222,7 +222,7 @@ int save_player (FILE* fd)
 /* Save whatever is pointed to by level */
 int save_level (FILE* fd, plv level)
 {
-    int i, j, run;
+    unsigned i, j, run;
     unsigned long int mask;
     int ok = 1;
 
@@ -390,15 +390,15 @@ int save_country (FILE* fd)
 		mask |= (1UL << (sizeof (long int) * 8 - 1));
 	    run--;
 	}
-    if (run < 8 * sizeof (long int))
+    if (run < (int)(8 * sizeof(long int)))
 	ok &= (fwrite ((char *) &mask, sizeof (long int), 1, fd) > 0);
     return ok;
 }
 
 /* returns TRUE if the given version can be restored by this version */
-int ok_outdated (int version)
+int ok_outdated (int ver)
 {
-    switch (version) {
+    switch (ver) {
 	case 80:
 	    print1 ("Converting version 0.80 savefile to current.");
 	    morewait ();
@@ -421,7 +421,7 @@ int ok_outdated (int version)
 
 int restore_game (char *savestr)
 {
-    int i, version;
+    int i, ver;
 #ifndef MSDOS_SUPPORTED_ANTIQUE
     if (access (savestr, F_OK | R_OK | W_OK) == -1) {	/* access uses real uid */
 	print1 ("Unable to access save file: ");
@@ -444,29 +444,29 @@ int restore_game (char *savestr)
     } else {
 	print1 ("Restoring...");
 
-	fread ((char *) &version, sizeof (int), 1, fd);
+	fread ((char *) &ver, sizeof (int), 1, fd);
 
-	if (VERSION != version && !ok_outdated (version)) {
+	if (VERSION != ver && !ok_outdated (ver)) {
 	    change_to_game_perms ();
 	    fclose (fd);
 	    clearmsg ();
 	    mprint (" Sorry, I can't restore an outdated save file!");
 	    mprint (" savefile is version ");
-	    mnumprint (version / 100);
+	    mnumprint (ver / 100);
 	    nprint2 (".");
-	    mnumprint (version % 100);
+	    mnumprint (ver % 100);
 	    morewait ();
 	    return (FALSE);
 	}
-	restore_player (fd, version);
-	restore_country (fd, version);
-	restore_level (fd, version);	/* the city level */
+	restore_player (fd, ver);
+	restore_country (fd, ver);
+	restore_level (fd, ver);	/* the city level */
 	fread ((char *) &i, sizeof (int), 1, fd);
 	for (; i > 0; i--) {
 #ifdef SAVE_LEVELS
 	    msdos_changelevel (Level, 0, -1);
 #endif
-	    restore_level (fd, version);
+	    restore_level (fd, ver);
 	    if (Level->environment == Current_Dungeon) {
 		Level->next = Dungeon;
 		Dungeon = Level;
@@ -506,7 +506,7 @@ int restore_game (char *savestr)
     }
 }
 
-void restore_player (FILE* fd, int version)
+void restore_player (FILE* fd, int ver)
 {
     int i;
     fread ((char *) &Player, sizeof (Player), 1, fd);
@@ -595,26 +595,26 @@ void restore_player (FILE* fd, int version)
     inititem (FALSE);
 
     for (i = 0; i < MAXITEMS; i++)
-	Player.possessions[i] = restore_item (fd, version);
+	Player.possessions[i] = restore_item (fd, ver);
 
     if (!Player.possessions[O_READY_HAND] && Player.possessions[O_WEAPON_HAND] && twohandedp (Player.possessions[O_WEAPON_HAND]->id))
 	Player.possessions[O_READY_HAND] = Player.possessions[O_WEAPON_HAND];
 
     for (i = 0; i < MAXPACK; i++)
-	Player.pack[i] = restore_item (fd, version);
+	Player.pack[i] = restore_item (fd, ver);
     for (i = 0; i < PAWNITEMS; i++)
-	Pawnitems[i] = restore_item (fd, version);
-    Condoitems = restore_itemlist (fd, version);
+	Pawnitems[i] = restore_item (fd, ver);
+    Condoitems = restore_itemlist (fd, ver);
     for (i = 0; i < TOTALITEMS; i++) {
 	fread ((char *) &(Objects[i].known), sizeof (Objects[i].known), 1, fd);
-	if (version != 80)
+	if (ver != 80)
 	    fread ((char *) &(Objects[i].uniqueness), sizeof (Objects[i].uniqueness), 1, fd);
     }
 }
 
 /* Restore an item, the first byte tells us if it's NULL, and what strings */
 /* have been saved as different from the typical */
-pob restore_item (FILE* fd, int version)
+pob restore_item (FILE* fd, int ver UNUSED)
 {
     char tempstr[80];
     unsigned char type;
@@ -643,14 +643,14 @@ pob restore_item (FILE* fd, int version)
     return obj;
 }
 
-pol restore_itemlist (FILE* fd, int version)
+pol restore_itemlist (FILE* fd, int ver)
 {
     pol ol = NULL, cur = NULL, new = NULL;
     int i, numitems, firsttime = TRUE;
     fread ((char *) &numitems, sizeof (int), 1, fd);
     for (i = 0; i < numitems; i++) {
 	new = ((pol) checkmalloc (sizeof (oltype)));
-	new->thing = restore_item (fd, version);
+	new->thing = restore_item (fd, ver);
 	new->next = NULL;
 	if (firsttime == TRUE) {
 	    ol = cur = new;
@@ -663,7 +663,7 @@ pol restore_itemlist (FILE* fd, int version)
     return (ol);
 }
 
-void restore_level (FILE* fd, int version)
+void restore_level (FILE* fd, int ver)
 {
     int i, j, run;
     unsigned long int mask;
@@ -783,11 +783,11 @@ void restore_level (FILE* fd, int version)
 	    mask >>= 1;
 	    run--;
 	}
-    restore_monsters (fd, Level, version);
+    restore_monsters (fd, Level, ver);
     fread ((char *) &i, sizeof (int), 1, fd);
     fread ((char *) &j, sizeof (int), 1, fd);
     while (j < MAXLENGTH && i < MAXWIDTH) {
-	Level->site[i][j].things = restore_itemlist (fd, version);
+	Level->site[i][j].things = restore_itemlist (fd, ver);
 	fread ((char *) &i, sizeof (int), 1, fd);
 	fread ((char *) &j, sizeof (int), 1, fd);
     }
@@ -869,7 +869,7 @@ void restore_hiscore_npc (pmt npc, int npcid)
     }
 }
 
-void restore_monsters (FILE* fd, plv level, int version)
+void restore_monsters (FILE* fd, plv level, int ver)
 {
     pml ml = NULL;
     int i, nummonsters;
@@ -887,7 +887,7 @@ void restore_monsters (FILE* fd, plv level, int version)
 	ml->next = NULL;
 	fread ((char *) ml->m, sizeof (montype), 1, fd);
 	if (ml->m->id == HISCORE_NPC)
-	    if (version == 80) {
+	    if (ver == 80) {
 		temp_x = ml->m->x;
 		temp_y = ml->m->y;
 		make_hiscore_npc (ml->m, ml->m->aux2);
@@ -908,21 +908,21 @@ void restore_monsters (FILE* fd, plv level, int version)
 	    } else
 		ml->m->corpsestr = Monsters[ml->m->id].corpsestr;
 	    /* WDT: As suggested by Sheldon Simms, I'm moving this line... */
-	    if (version <= 80)
-		ml->m->possessions = restore_itemlist (fd, version);
+	    if (ver <= 80)
+		ml->m->possessions = restore_itemlist (fd, ver);
 	    ml->m->meleestr = Monsters[ml->m->id].meleestr;
 	}
 	/* WDT: ...to here, so that all creatures will have their stuff
 	 * restored to them.  Savefile versioning added by David Given. */
-	if (version > 80)
-	    ml->m->possessions = restore_itemlist (fd, version);
+	if (ver > 80)
+	    ml->m->possessions = restore_itemlist (fd, ver);
 	level->site[ml->m->x][ml->m->y].creature = ml->m;
 	ml->next = level->mlist;
 	level->mlist = ml;
     }
 }
 
-void restore_country (FILE* fd, int version)
+void restore_country (FILE* fd, int ver UNUSED)
 {
     int i, j;
     int run;
