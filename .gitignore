@@ -1,4 +1,7 @@
-omega
 *.o
-clrgen.*
-genclr
+config.status
+Config.mk
+config.h
+omega
+tools/crypt
+tools/decrypt

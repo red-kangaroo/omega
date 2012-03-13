@@ -14,7 +14,9 @@ to be far arrays. You don't need to run this for the unix version. */
 Thus it can be broken. */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <malloc.h>
+#include <string.h>
 
 #define TMPFILE "fixtmp.c"
 
@@ -23,6 +25,7 @@ char **string_list;
 
 #define REALLOC_INCR 500
 
+#if 0
 int main (int argc, char **argv)
 {
     FILE *sourcefp, *destfp;
@@ -57,6 +60,7 @@ int main (int argc, char **argv)
     remove (TMPFILE);
     exit (0);
 }
+#endif
 
 char include[] = "#include";
 #define include_size (sizeof(include) - 1)

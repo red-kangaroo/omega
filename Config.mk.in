@@ -1,0 +1,35 @@
+################ Build options #######################################
+
+NAME		:= @PKG_NAME@
+MAJOR		:= @PKG_MAJOR@
+MINOR		:= @PKG_MINOR@
+
+#DEBUG		:= 1
+
+################ Programs ############################################
+
+CXX		:= @CXX@
+INSTALL		:= @INSTALL@
+
+INSTALLEXE	:= ${INSTALL} -D -p -m 755 -s
+INSTALLDATA	:= ${INSTALL} -D -p -m 644
+
+################ Destination #########################################
+
+prefix		:= @prefix@
+BINDIR		:= @bindir@
+
+################ Compiler options ####################################
+
+WARNOPTS	:= #-Wall -Wextra -Woverloaded-virtual -Wpointer-arith\
+		-Wshadow -Wredundant-decls -Wcast-qual @SYSWARNS@
+CXXFLAGS	:= ${WARNOPTS} @CUSTOMINCDIR@
+LDFLAGS		:= @CUSTOMLIBDIR@
+LIBS		:= -lncurses
+ifdef DEBUG
+    CXXFLAGS	+= -O0 -g
+else
+    CXXFLAGS	+= -Os -g0 -DNDEBUG=1
+    LDFLAGS	+= -s
+endif
+O		:= .o/

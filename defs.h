@@ -72,11 +72,12 @@ on save and restore. */
 #define VERSION 90
 #define VERSIONSTRING "omega version 0.90"
 
+#define SYSV 1
 #ifndef AMIGA
 #ifndef MSDOS
 #ifndef BSD
 #ifndef SYSV
-ERROR ! -One of these should be set - edit the makefile appropriately
+#error One of these should be set - edit the makefile appropriately
 #endif
 #endif
 #endif
