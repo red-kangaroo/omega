@@ -16,11 +16,6 @@
 
 #define WIZARD "wtanksle"
 
-/* If CATCH_SIGNALS is set to 1, will not dump core, nicer for players. */
-/* dbx still intercepts the signals first, so it's ok for debugging */
-
-#define CATCH_SIGNALS 1
-
 /*---------------------------SYSTEM DEFINITIONS---------------------------*/
 
 /* Don't change anything from here on (unless you know what you're doing) */

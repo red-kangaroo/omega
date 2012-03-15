@@ -114,6 +114,8 @@ int boot_ids[30];
 int deepest[E_MAX + 1];
 int level_seed[E_MAX + 1];	/* random number seed that generated level */
 
+static void signalexit (int sig);
+
 /* This may be implementation dependent */
 /* environment is the environment about to be generated, or -1 for the first */
 /* time, or -2 if we want to restore the random number point */
@@ -126,7 +128,7 @@ void initrand (int environment, int level)
 	store = rand();
     /* Pseudo Random Seed */
     if (environment == E_RANDOM)
-	seed = (int) time ((long *) NULL);
+	seed = (int) time (NULL);
     else if (environment == E_RESTORE)
 	seed = store;
     else
@@ -161,19 +163,17 @@ int main (int argc, char *argv[])
 
     /* always catch ^c and hang-up signals */
 
-    signal (SIGINT, (void *) quit);
-    signal (SIGHUP, (void *) signalsave);
-    if (CATCH_SIGNALS) {
-	signal (SIGQUIT, (void *) signalexit);
-	signal (SIGILL, (void *) signalexit);
-	signal (SIGTRAP, (void *) signalexit);
-	signal (SIGFPE, (void *) signalexit);
-	signal (SIGSEGV, (void *) signalexit);
-	signal (SIGIOT, (void *) signalexit);
-	signal (SIGABRT, (void *) signalexit);
-	signal (SIGBUS, (void *) signalexit);
-	signal (SIGSYS, (void *) signalexit);
-    }
+    signal (SIGINT, (__sighandler_t) quit);
+    signal (SIGHUP, signalsave);
+    signal (SIGQUIT, signalexit);
+    signal (SIGILL, signalexit);
+    signal (SIGTRAP, signalexit);
+    signal (SIGFPE, signalexit);
+    signal (SIGSEGV, signalexit);
+    signal (SIGABRT, signalexit);
+    signal (SIGBUS, signalexit);
+    signal (SIGSYS, signalexit);
+
     Omegalib = OMEGALIB;
 
     /* if filecheck is 0, some necessary data files are missing */
@@ -234,7 +234,7 @@ int main (int argc, char *argv[])
     }
 }
 
-void signalexit (void)
+static void signalexit (int sig UNUSED)
 {
     int reply;
     clearmsg ();
@@ -246,7 +246,7 @@ void signalexit (void)
     if (reply == 'y')
 	save (FALSE, TRUE);	/* don't compress, force save */
     else if (reply == EOF)
-	signalsave ();
+	signalsave (0);
     mprint ("Bye!");
     endgraf ();
     exit (0);

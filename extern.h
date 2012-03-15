@@ -3,7 +3,6 @@ int game_restore (int,char *[]);
 void init_world (void);
 void inititem (int);
 void initrand (int, int);
-void signalexit (void);
 
 /* abyss.c functions */
 
@@ -788,7 +787,7 @@ void make_hp (pob);
 /* save.c functions */
 
 int save_game(char *savestr);
-void signalsave(void);
+void signalsave(int sig);
 int save_player(FILE *fd);
 int save_level(FILE *fd, plv level);
 int save_monsters(FILE *fd, pml ml);

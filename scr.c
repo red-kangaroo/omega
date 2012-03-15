@@ -1331,7 +1331,7 @@ void display_inventory_slot (int slotnum, int topline)
     wclear (W);
     switch (slotnum) {
 	case O_UP_IN_AIR:
-	    wprintw (W, "-- Object 'up in air':", usechar);
+	    wprintw (W, "-- Object 'up in air':");
 	    break;
 	case O_READY_HAND:
 	    wprintw (W, "-- %c%c ready hand: ", idchar, usechar);
