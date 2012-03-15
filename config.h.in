@@ -9,3 +9,6 @@
 #define @PKG_UNAME@_VERSTRING	"@PKG_VERSTR@"
 // Define to the address where bug reports for this package should be sent.
 #define @PKG_UNAME@_BUGREPORT	"@PKG_BUGREPORT@"
+
+#define PRINTFARGS(fmt,args)	__attribute__((__format__(__printf__,fmt,args)))
+#define UNUSED			__attribute__((unused))
