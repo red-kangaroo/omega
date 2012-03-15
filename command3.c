@@ -1,4 +1,3 @@
-#include <pwd.h>
 #include <unistd.h>
 #include "glob.h"
 
@@ -198,7 +197,6 @@ void help (void)
 	print1 ("Trying to copy all help files to ./omega.doc ");
 	nprint1 ("Confirm [yn]");
 	if (ynq1 () == 'y') {
-	    change_to_user_perms ();
 	    out = checkfopen ("omega.doc", "w");
 	    print2 ("Copying");
 	    for (n = 1; n <= 13; n++) {
@@ -210,7 +208,6 @@ void help (void)
 		fclose (in);
 	    }
 	    fclose (out);
-	    change_to_game_perms ();
 	    nprint2 (" Done.");
 	}
     } else if (c != ESCAPE) {
@@ -316,7 +313,6 @@ void fire (void)
 void quit (void)
 {
     clearmsg ();
-    change_to_game_perms ();
     mprint ("Quit: Are you sure? [yn] ");
     if (ynq () == 'y') {
 	if (Player.rank[ADEPT] == 0)
@@ -500,9 +496,6 @@ void charid (void)
 
 void wizard (void)
 {
-    char *lname;
-    struct passwd *dastuff;
-
     setgamestatus (SKIP_MONSTERS);
     if (gamestatusp (CHEATED))
 	mprint ("You're already in wizard mode!");
@@ -510,27 +503,8 @@ void wizard (void)
 	clearmsg ();
 	mprint ("Really try to enter wizard mode? [yn] ");
 	if (ynq () == 'y') {
-	    lname = getlogin ();
-	    if (!lname || strlen (lname) == 0) {
-		dastuff = getpwuid (getuid ());
-		lname = dastuff->pw_name;
-	    }
-	    if (strcmp (lname, WIZARD) == 0) {
-		setgamestatus (CHEATED);
-		mprint ("Wizard mode set.");
-	    } else {
-		mprint ("There is a shrieking sound, as of reality being distorted.");
-		strcpy (Str1, WIZARD);
-		strcat (Str1, ", the Wizard of Omega appears before you....");
-		if (Str1[0] >= 'a' && Str1[0] <= 'z')
-		    Str1[0] += 'A' - 'a';	/* capitalise 1st letter */
-		mprint (Str1);
-		mprint ("'Do not meddle in the affairs of Wizards --");
-		if (random_range (2))
-		    mprint ("it makes them soggy and hard to light.'");
-		else
-		    mprint ("for they are subtle, and swift to anger!'");
-	    }
+	    setgamestatus (CHEATED);
+	    mprint ("Wizard mode set.");
 	}
     }
 }

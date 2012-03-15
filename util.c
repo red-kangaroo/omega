@@ -751,22 +751,3 @@ char cryptkey (char *fname)
 	key += 3 * (fname[pos] - ' ');
     return (key & 0xff);
 }
-
-int game_uid;
-int user_uid;
-
-void init_perms (void)
-{
-    user_uid = getuid ();
-    game_uid = geteuid ();
-}
-
-void change_to_user_perms (void)
-{
-    seteuid (user_uid);
-}
-
-void change_to_game_perms (void)
-{
-    seteuid (game_uid);
-}

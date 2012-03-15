@@ -1,22 +1,13 @@
 #include "glob.h"
 #include <sys/types.h>
 #include <unistd.h>
-#include <pwd.h>
 
 /* set player to begin with */
 void initplayer (void)
 {
-    int i;
-    int oldchar = FALSE;
-    FILE *fd;
-    char *lname;
-    struct passwd *dastuff;
-
-    lname = getlogin ();
-    if (!lname || strlen (lname) == 0) {
-	dastuff = getpwuid (getuid ());
-	lname = dastuff->pw_name;
-    }
+    const char* lname = getlogin();
+    if (!lname || !*lname)
+	lname = "player";
     strcpy (Player.name, lname);
     if (Player.name[0] >= 'a' && Player.name[0] <= 'z')
 	Player.name[0] += 'A' - 'a';	/* capitalise 1st letter */
@@ -25,23 +16,25 @@ void initplayer (void)
     Player.packptr = 0;
     Behavior = -1;
     Player.options = 0;
-    for (i = 0; i < MAXITEMS; i++)
+    for (int i = 0; i < MAXITEMS; i++)
 	Player.possessions[i] = NULL;
-    for (i = 0; i < MAXPACK; i++)
+    for (int i = 0; i < MAXPACK; i++)
 	Player.pack[i] = NULL;
-    for (i = 0; i < NUMIMMUNITIES; i++)
+    for (int i = 0; i < NUMIMMUNITIES; i++)
 	Player.immunity[i] = 0;
-    for (i = 0; i < NUMSTATI; i++)
+    for (int i = 0; i < NUMSTATI; i++)
 	Player.status[i] = 0;
-    for (i = 0; i < NUMRANKS; i++) {
+    for (int i = 0; i < NUMRANKS; i++) {
 	Player.rank[i] = 0;
 	Player.guildxp[i] = 0;
     }
     Player.patron = 0;
     Player.alignment = 0;
     Player.cash = 250;
-    change_to_user_perms ();
+    FILE* fd;
+    int oldchar = FALSE;
     if ((fd = omegarc_check ()) != NULL) {
+	int i;
 	fread ((char *) &i, sizeof (int), 1, fd);
 	if (i != VERSION) {
 	    print1 ("Out of date .omegarc! Make another!");
@@ -57,7 +50,6 @@ void initplayer (void)
 	}
 	fclose (fd);
     }
-    change_to_game_perms ();
     if (!oldchar) {
 	optionset (RUNSTOP);
 	optionset (CONFIRM);
@@ -111,7 +103,6 @@ void save_omegarc ()
 {
     int i = VERSION;
     FILE *fd;
-    change_to_user_perms ();
     sprintf (Str1, "%s/.omegarc", getenv ("HOME"));
     fd = fopen (Str1, "w");
     if (fd == NULL)
@@ -125,7 +116,6 @@ void save_omegarc ()
 	fwrite ((char *) &Verbosity, sizeof (char), 1, fd);
 	fclose (fd);
     }
-    change_to_game_perms ();
 }
 
 long calcmana ()

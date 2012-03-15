@@ -16,7 +16,6 @@ char *filestring, *optionstring;
     FILE *fd;
     char response;
 
-    change_to_game_perms ();
     fd = fopen (filestring, optionstring);
     clearmsg ();
     while (fd == NULL) {
@@ -366,7 +365,6 @@ void extendlog (char *descrip, int lifestatus)
     int npcbehavior;
 
     if ((Player.level > 0) && (!gamestatusp (CHEATED))) {
-	change_to_game_perms ();
 	npcbehavior = fixnpc (lifestatus);
 	checkhigh (descrip, npcbehavior);
 	strcpy (Str1, Omegalib);
@@ -553,12 +551,10 @@ void copyfile (char *srcstr)
 	return;
     }
     in = checkfopen (srcstr, "rb");
-    change_to_user_perms ();
     out = fopen (deststr, "wb");
     if (!out) {
 	sprintf (buffer, "Unable to write to file %s - Aborting.", deststr);
 	print2 (buffer);
-	change_to_game_perms ();
 	morewait ();
 	fclose (in);
 	return;
@@ -568,6 +564,5 @@ void copyfile (char *srcstr)
 	fputs (buffer, out);
     fclose (in);
     fclose (out);
-    change_to_game_perms ();
     print3 ("Done.");
 }

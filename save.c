@@ -38,7 +38,6 @@ int save_game (char *savestr)
 	    savestr[slashpos] = '/';
 	}
     }
-    change_to_user_perms ();
     if (writeok) {
 	fd = fopen (savestr, "wb");
 	if (fd == NULL) {
@@ -84,7 +83,6 @@ int save_game (char *savestr)
 	morewait ();
 	clearmsg ();
     }
-    change_to_game_perms ();
     return (writeok);
 }
 
@@ -92,7 +90,6 @@ int save_game (char *savestr)
 /* no longer tries to compress, which hangs */
 void signalsave (int sig UNUSED)
 {
-    change_to_user_perms ();
     save_game ("omega.sav");
     print1 ("Signal - Saving file 'omega.sav'.");
     morewait ();
@@ -406,7 +403,6 @@ int restore_game (char *savestr)
 	morewait ();
 	return FALSE;
     }
-    change_to_user_perms ();
 
     FILE* fd = fopen (savestr, "rb");
 
@@ -415,7 +411,6 @@ int restore_game (char *savestr)
 	print2 ("File name was: ");
 	nprint2 (savestr);
 	morewait ();
-	change_to_game_perms ();
 	return (FALSE);
     } else {
 	print1 ("Restoring...");
@@ -423,7 +418,6 @@ int restore_game (char *savestr)
 	fread ((char *) &ver, sizeof (int), 1, fd);
 
 	if (VERSION != ver && !ok_outdated (ver)) {
-	    change_to_game_perms ();
 	    fclose (fd);
 	    clearmsg ();
 	    mprint (" Sorry, I can't restore an outdated save file!");
@@ -474,7 +468,6 @@ int restore_game (char *savestr)
 	print3 ("Restoration complete.");
 	ScreenOffset = -1000;	/* to force a redraw */
 	setgamestatus (SKIP_MONSTERS);
-	change_to_game_perms ();
 	return (TRUE);
     }
 }
