@@ -23,9 +23,9 @@ BINDIR		:= @bindir@
 
 WARNOPTS	:= -Wall -Wextra -Wpointer-arith\
 		-Wshadow -Wredundant-decls -Wcast-qual @SYSWARNS@ #-Woverloaded-virtual 
-CXXFLAGS	:= ${WARNOPTS} -std=gnu99 @CUSTOMINCDIR@
+CXXFLAGS	:= ${WARNOPTS} @CUSTOMINCDIR@
 LDFLAGS		:= @CUSTOMLIBDIR@
-LIBS		:= -lncurses
+LIBS		:=
 ifdef DEBUG
     CXXFLAGS	+= -O0 -g
 else
