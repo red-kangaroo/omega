@@ -753,8 +753,7 @@ void roomcheck (void)
 }
 
 /* ask for mercy */
-void surrender (m)
-struct monster *m;
+void surrender (struct monster *m)
 {
     int i;
     long bestitem, bestvalue;
@@ -837,8 +836,7 @@ struct monster *m;
 }
 
 /* threaten a monster */
-void threaten (m)
-struct monster *m;
+void threaten (struct monster *m)
 {
     char response;
     switch (random_range (4)) {
@@ -897,8 +895,7 @@ struct monster *m;
 }
 
 /* name of the player's experience level */
-char *levelname (level)
-int level;
+char* levelname (int level)
 {
     switch (level) {
 	case 0:

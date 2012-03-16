@@ -80,7 +80,7 @@ FILE *omegarc_check ()
     return (fd);
 }
 
-void initstats ()
+void initstats (void)
 {
     char response;
     print1 ("Do you want to run a character [c] or play yourself [p]?");
@@ -99,7 +99,7 @@ void initstats ()
     xredraw ();
 }
 
-void save_omegarc ()
+void save_omegarc (void)
 {
     int i = VERSION;
     FILE *fd;
@@ -118,7 +118,7 @@ void save_omegarc ()
     }
 }
 
-long calcmana ()
+long calcmana (void)
 {
     return (Player.pow * (long) (Player.level + 1));
 }
@@ -132,8 +132,7 @@ long calcmana ()
 
 status : 1 = dead, 2 = saved, 3 = retired, 4 = still playing
 */
-int fixnpc (status)
-int status;
+int fixnpc (int status)
 {
     int npcbehavior = 0;
     char response;
@@ -191,8 +190,7 @@ int status;
 }
 
 /* estimates on a 0..9 scale how good a player is at something */
-int competence_check (attack)
-int attack;
+int competence_check (int attack)
 {
     int ability = 0;
     switch (attack) {
@@ -227,7 +225,7 @@ int attack;
     return (ability);
 }
 
-void user_character_stats ()
+void user_character_stats (void)
 {
     int num, iqpts = 0, numints = 0, ok, agipts = 0, dexpts = 0, powpts = 0, conpts = 0;
     print1 ("OK, now try to answer the following questions honestly:");
@@ -503,7 +501,7 @@ void user_character_stats ()
     while ((Player.preference != 'm') && (Player.preference != 'f') && (Player.preference != 'y') && (Player.preference != 'n'));	/* :-) */
 }
 
-void omegan_character_stats ()
+void omegan_character_stats (void)
 {
     int share1, share2, i = 0;
     print1 ("To reroll hit ESCAPE; hit any other key to accept these stats.");
