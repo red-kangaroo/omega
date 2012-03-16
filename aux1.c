@@ -483,6 +483,7 @@ void setspot (int *x, int *y)
 {
     char c = ' ';
     mprint ("Targeting.... ? for help");
+    curs_set (1);
     omshowcursor (*x, *y);
     while ((c != '.') && (c != ESCAPE)) {
 	c = lgetc ();
@@ -528,6 +529,7 @@ void setspot (int *x, int *y)
     }
     if (c == ESCAPE)
 	*x = *y = ABORT;
+    curs_set (0);
     screencheck (Player.y);
 }
 

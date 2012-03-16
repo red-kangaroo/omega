@@ -359,6 +359,7 @@ void initgraf (void)
     initscr ();
     start_color ();
     clrgen_init ();
+    curs_set (0);
     if (LINES < 24 || COLS < 80) {
 	printf ("Minimum Screen Size: 24 Lines by 80 Columns.");
 	exit (0);
@@ -878,6 +879,7 @@ char *msgscanstring (void)
     int i = 0;
 
     instring[0] = 0;
+    curs_set (1);
     byte = mgetc ();
     while (byte != '\n') {
 	if ((byte == 8) || (byte == 127)) {	/* ^h or delete */
@@ -895,6 +897,7 @@ char *msgscanstring (void)
 	}
 	byte = mgetc ();
     }
+    curs_set (0);
     return (instring);
 }
 
@@ -960,6 +963,7 @@ long parsenum (void)
     long num = 0;
     char byte = ' ';
 
+    curs_set (1);
     while ((byte != ESCAPE) && (byte != '\n')) {
 	byte = mgetc ();
 	if ((byte == BACKSPACE) || (byte == DELETE)) {
@@ -979,6 +983,7 @@ long parsenum (void)
 	    wrefresh (Msgw);
 	}
     }
+    curs_set (0);
     waddch (Msgw, ' ');
     if (byte == ESCAPE)
 	return (ABORT);
