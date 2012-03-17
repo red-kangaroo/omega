@@ -5,6 +5,13 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+//----------------------------------------------------------------------
+
+static int game_restore(int argc, char *argv[]);
+static void init_world(void);
+
+//----------------------------------------------------------------------
+
 /* most globals originate in omega.c */
 
 char *Omegalib;			/* contains the path to the library files */
@@ -136,7 +143,7 @@ void initrand (int environment, int level)
     srand (seed);
 }
 
-int game_restore (int argc, char *argv[])
+static int game_restore (int argc, char *argv[])
 {
     char savestr[80];
     int ok;
@@ -250,7 +257,7 @@ static void signalexit (int sig UNUSED)
 }
 
 /* Start up game with new dungeons; start with player in city */
-void init_world (void)
+static void init_world (void)
 {
     int env, i;
 

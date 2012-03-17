@@ -5,6 +5,13 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+//----------------------------------------------------------------------
+
+static void free_mons_and_objs(pml mlist);
+static int spaceok(int i, int j, int baux);
+
+//----------------------------------------------------------------------
+
 /* x and y on level? */
 int inbounds (int x, int y)
 {
@@ -379,31 +386,6 @@ int view_los_p (int x1, int y1, int x2, int y2)
     return ((x1 == x2) && (y1 == y2));
 }
 
-/* returns the command direction from the index into Dirs */
-char inversedir (int dirindex)
-{
-    switch (dirindex) {
-	case 0:
-	    return ('n');
-	case 1:
-	    return ('u');
-	case 2:
-	    return ('b');
-	case 3:
-	    return ('y');
-	case 4:
-	    return ('l');
-	case 5:
-	    return ('h');
-	case 6:
-	    return ('j');
-	case 7:
-	    return ('k');
-	default:
-	    return ('\0');
-    }
-}
-
 long calc_points (void)
 {
     int i;
@@ -554,7 +536,7 @@ char *month (void)
  * Simms. */
 /* finds floor space on level with buildaux not equal to baux,
 sets x,y there. There must *be* floor space somewhere on level.... */
-int spaceok (int i, int j, int baux)
+static int spaceok (int i, int j, int baux)
 {
     return ((Level->site[i][j].locchar == FLOOR) && (Level->site[i][j].creature == NULL) && (!loc_statusp (i, j, SECRET)) && (Level->site[i][j].buildaux != baux));
 }
@@ -596,21 +578,6 @@ void findspace (int *x, int *y, int baux)
     } while (!done);
     *x = i;
     *y = j;
-}
-
-/* is prefix a prefix of s? */
-int strprefix (char *prefix, char *s)
-{
-    int i = 0, matched = TRUE;
-    if (strlen (prefix) > strlen (s))
-	return (FALSE);
-    else {
-	while (matched && (i < (int)strlen (prefix))) {
-	    matched = (prefix[i] == s[i]);
-	    i++;
-	}
-	return (matched);
-    }
 }
 
 int confirmation (void)
@@ -677,7 +644,7 @@ void free_objlist (pol pobjlist)
     }
 }
 
-void free_mons_and_objs (pml mlist)
+static void free_mons_and_objs (pml mlist)
 {
     pml tmp;
 

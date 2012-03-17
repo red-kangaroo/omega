@@ -1,5 +1,12 @@
 #include "glob.h"
 
+//----------------------------------------------------------------------
+
+static void random_temple_site(int i, int j, int deity, int populate);
+static void make_high_priest(int i, int j, int deity);
+
+//----------------------------------------------------------------------
+
 /* loads the countryside level from the data file */
 void load_country (void)
 {
@@ -550,7 +557,7 @@ void load_temple (int deity, int populate)
     /*  initrand(-2, 0); */
 }
 
-void random_temple_site (int i, int j, int deity UNUSED, int populate)
+static void random_temple_site (int i, int j, int deity UNUSED, int populate)
 {
     switch (random_range (12)) {
 	case 0:
@@ -579,7 +586,7 @@ void random_temple_site (int i, int j, int deity UNUSED, int populate)
     }
 }
 
-void make_high_priest (int i, int j, int deity)
+static void make_high_priest (int i, int j, int deity)
 {
     pml ml = ((pml) checkmalloc (sizeof (mltype)));
     pmt m = ((pmt) checkmalloc (sizeof (montype)));

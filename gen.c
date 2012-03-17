@@ -1,6 +1,29 @@
 #include "glob.h"
 #include <time.h>
 
+//----------------------------------------------------------------------
+
+static void build_room(int x, int y, int l, char rsi, int baux);
+static void build_square_room(int x, int y, int l, char rsi, int baux);
+static void corridor_crawl(int *fx, int *fy, int sx, int sy, int n, Symbol loc, char rsi);
+static void find_stairs(char fromlevel, char tolevel);
+static plv findlevel(struct level *dungeon, char levelnum);
+static void make_forest(void);
+static void make_general_map(char *terrain);
+static void make_jungle(void);
+static void make_mountains(void);
+static void make_plains(void);
+static void make_river(void);
+static void make_road(void);
+static void make_swamp(void);
+static void makedoor(int x, int y);
+static void maze_corridor(int fx, int fy, int tx, int ty, int rsi, int num);
+static void room_corridor(int fx, int fy, int tx, int ty, int baux);
+static void sewer_corridor(int x, int y, int dx, int dy, Symbol locchar);
+static void straggle_corridor(int fx, int fy, int tx, int ty, Symbol loc, char rsi);
+
+//----------------------------------------------------------------------
+
 /* Deallocate current dungeon */
 void free_dungeon (void)
 {
@@ -121,7 +144,7 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
 
 /* tries to find the level of depth levelnum in dungeon; if can't find
    it returns NULL */
-plv findlevel (struct level* dungeon, char levelnum)
+static plv findlevel (struct level* dungeon, char levelnum)
 {
     if (dungeon == NULL)
 	return (NULL);
@@ -139,7 +162,7 @@ plv findlevel (struct level* dungeon, char levelnum)
 /* keep going in one orthogonal direction or another until we hit our */
 /* destination */
 
-void straggle_corridor (int fx, int fy, int tx, int ty, Symbol loc, char rsi)
+static void straggle_corridor (int fx, int fy, int tx, int ty, Symbol loc, char rsi)
 {
     int dx, dy;
     while ((fx != tx) || (fy != ty)) {
@@ -152,7 +175,7 @@ void straggle_corridor (int fx, int fy, int tx, int ty, Symbol loc, char rsi)
     }
 }
 
-void makedoor (int x, int y)
+static void makedoor (int x, int y)
 {
     if (random_range (20) <= Level->depth / 10) {
 	Level->site[x][y].locchar = FLOOR;
@@ -180,7 +203,7 @@ void makedoor (int x, int y)
     /* prevents water corridors from being instant death in sewers */
 }
 
-void corridor_crawl (int* fx, int* fy, int sx, int sy, int n, Symbol loc, char rsi)
+static void corridor_crawl (int* fx, int* fy, int sx, int sy, int n, Symbol loc, char rsi)
 {
     int i;
     for (i = 0; i < n; i++) {
@@ -410,7 +433,7 @@ char *roomname (int ri)
 
 /* puts the player on the first set of stairs from the apt level */
 /* if can't find them, just drops player anywhere.... */
-void find_stairs (char fromlevel, char tolevel)
+static void find_stairs (char fromlevel, char tolevel)
 {
     int i, j, found = FALSE;
     Symbol sitechar;
@@ -446,7 +469,7 @@ void install_traps (void)
 
 /* x, y, is top left corner, l is length of side, rsi is room string index */
 /* baux is so all rooms will have a key field. */
-void build_square_room (int x, int y, int l, char rsi, int baux)
+static void build_square_room (int x, int y, int l, char rsi, int baux)
 {
     int i, j;
 
@@ -462,7 +485,7 @@ void build_square_room (int x, int y, int l, char rsi, int baux)
 	}
 }
 
-void build_room (int x, int y, int l, char rsi, int baux)
+static void build_room (int x, int y, int l, char rsi, int baux)
 {
     build_square_room (x, y, l, rsi, baux);
 }
@@ -555,7 +578,7 @@ void sewer_level (void)
     }
 }
 
-void sewer_corridor (int x, int y, int dx, int dy, Symbol locchar)
+static void sewer_corridor (int x, int y, int dx, int dy, Symbol locchar)
 {
     int continuing = TRUE;
     makedoor (x, y);
@@ -727,7 +750,7 @@ void make_country_screen (int terrain)
     }
 }
 
-void make_general_map (char *terrain)
+static void make_general_map (char *terrain)
 {
     int i, j;
     int size = strlen (terrain);
@@ -766,12 +789,12 @@ void make_general_map (char *terrain)
 	}
 }
 
-void make_plains (void)
+static void make_plains (void)
 {
     make_general_map (".");
 }
 
-void make_road (void)
+static void make_road (void)
 {
     int x, y;
     make_general_map ("\"\"~4....");
@@ -783,18 +806,18 @@ void make_road (void)
 	}
 }
 
-void make_forest (void)
+static void make_forest (void)
 {
     make_general_map ("\".");
     straggle_corridor (0, random_range (LENGTH), WIDTH, random_range (LENGTH), WATER, RS_COUNTRYSIDE);
 }
 
-void make_jungle (void)
+static void make_jungle (void)
 {
     make_general_map ("\"\".");
 }
 
-void make_river (void)
+static void make_river (void)
 {
     int i, y, y1;
     make_general_map ("\".......");
@@ -814,7 +837,7 @@ void make_river (void)
     }
 }
 
-void make_mountains (void)
+static void make_mountains (void)
 {
     int i, x, y, x1, y1;
     make_general_map ("4...");
@@ -832,7 +855,7 @@ void make_mountains (void)
     }
 }
 
-void make_swamp (void)
+static void make_swamp (void)
 {
     make_general_map ("~~\".");
 }
@@ -946,7 +969,7 @@ void room_level (void)
 
 /* goes from f to t unless it hits a site which is not a wall and doesn't
    have buildaux field == baux */
-void room_corridor (int fx, int fy, int tx, int ty, int baux)
+static void room_corridor (int fx, int fy, int tx, int ty, int baux)
 {
     int dx, dy, continuing = TRUE;
 
@@ -1066,7 +1089,7 @@ void maze_level (void)
 }
 
 /* keep drawing corridors recursively for 2^5 endpoints */
-void maze_corridor (int fx, int fy, int tx, int ty, int rsi, int num)
+static void maze_corridor (int fx, int fy, int tx, int ty, int rsi, int num)
 {
     if (num < 6) {
 	straggle_corridor (fx, fy, tx, ty, FLOOR, rsi);

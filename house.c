@@ -1,5 +1,12 @@
 #include "glob.h"
 
+//----------------------------------------------------------------------
+
+static void make_house_npc(int i, int j);
+static void make_mansion_npc(int i, int j);
+
+//----------------------------------------------------------------------
+
 /* loads the house level into Level*/
 void load_house (int kind, int populate)
 {
@@ -176,7 +183,7 @@ void load_house (int kind, int populate)
 }
 
 /* makes a log npc for houses and hovels */
-void make_house_npc (int i, int j)
+static void make_house_npc (int i, int j)
 {
     pml ml = ((pml) checkmalloc (sizeof (mltype)));
     pob ob;
@@ -207,7 +214,7 @@ void make_house_npc (int i, int j)
 }
 
 /* makes a hiscore npc for mansions */
-void make_mansion_npc (int i, int j)
+static void make_mansion_npc (int i, int j)
 {
     pml ml = ((pml) checkmalloc (sizeof (mltype)));
     ml->m = ((pmt) checkmalloc (sizeof (montype)));

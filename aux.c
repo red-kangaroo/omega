@@ -1,5 +1,24 @@
 #include "glob.h"
 
+//----------------------------------------------------------------------
+
+static void player_miss(struct monster *m, int dtype);
+static void p_fumble(int dtype);
+static void drop_weapon(void);
+static void break_weapon(void);
+static void movecursor(int *x, int *y, int dx, int dy);
+static void gain_level(void);
+static long expval(int plevel);
+static void tacplayer(struct monster *m);
+static int player_hit(int hitmod, int hitloc, struct monster *m);
+static void indoors_random_event(void);
+static void outdoors_random_event(void);
+static void showknownsites(int first, int last);
+static void destroy_order(void);
+static void default_maneuvers(void);
+
+//----------------------------------------------------------------------
+
 /* check to see if too much tunneling has been done in this level */
 void tunnelcheck (void)
 {
@@ -1048,7 +1067,7 @@ void p_hit (struct monster *m, int dmg, int dtype)
 }
 
 /* and effects of missing */
-void player_miss (struct monster *m, int dtype)
+static void player_miss (struct monster *m, int dtype)
 {
     if (random_range (30) == 1)	/* fumble 1 in 30 */
 	p_fumble (dtype);
@@ -1082,7 +1101,7 @@ void player_miss (struct monster *m, int dtype)
 }
 
 /* oh nooooo, a fumble.... */
-void p_fumble (int dtype)
+static void p_fumble (int dtype)
 {
     mprint ("Ooops! You fumbled....");
     switch (random_range (10)) {
@@ -1107,7 +1126,7 @@ void p_fumble (int dtype)
 }
 
 /* try to drop a weapon (from fumbling) */
-void drop_weapon (void)
+static void drop_weapon (void)
 {
     if (Player.possessions[O_WEAPON_HAND] != NULL) {
 	strcpy (Str1, "You dropped your ");
@@ -1121,7 +1140,7 @@ void drop_weapon (void)
 }
 
 /* try to break a weapon (from fumbling) */
-void break_weapon (void)
+static void break_weapon (void)
 {
     if (Player.possessions[O_WEAPON_HAND] != NULL) {
 	strcpy (Str1, "Your ");
@@ -1147,7 +1166,7 @@ void p_win (void)
 
 /* handle a h,j,k,l, etc., to change x and y by dx and dy */
 /* for targeting in dungeon */
-void movecursor (int *x, int *y, int dx, int dy)
+static void movecursor (int *x, int *y, int dx, int dy)
 {
     if (inbounds (*x + dx, *y + dy)) {
 	*x += dx;
@@ -1408,7 +1427,7 @@ void tenminute_status_check (void)
 }
 
 /* Increase in level at appropriate experience gain */
-void gain_level (void)
+static void gain_level (void)
 {
     int gained = FALSE;
     int hp_gain;
@@ -1443,7 +1462,7 @@ void gain_level (void)
 }
 
 /* experience requirements */
-long expval (int plevel)
+static long expval (int plevel)
 {
     switch (plevel) {
 	case 0:
@@ -1646,7 +1665,7 @@ char *actionlocstr (int dir)
 }
 
 /* execute player combat actions versus monster m */
-void tacplayer (struct monster *m)
+static void tacplayer (struct monster *m)
 {
     for (unsigned i = 0; i < strlen (Player.meleestr); i += 2) {
 	if (m->hp > 0) {
@@ -1700,7 +1719,7 @@ void tacplayer (struct monster *m)
 }
 
 /* checks to see if player hits with hitmod vs. monster m at location hitloc */
-int player_hit (int hitmod, int hitloc, struct monster *m)
+static int player_hit (int hitmod, int hitloc, struct monster *m)
 {
     int blocks = FALSE, goodblocks = 0, hit;
     if (m->hp < 1) {
@@ -2225,7 +2244,7 @@ void hourly_check (void)
 	indoors_random_event ();
 }
 
-void indoors_random_event (void)
+static void indoors_random_event (void)
 {
     pml ml;
     pol ol;
@@ -2314,7 +2333,7 @@ void indoors_random_event (void)
     showflags ();
 }
 
-void outdoors_random_event (void)
+static void outdoors_random_event (void)
 {
     int num, i, j;
     pob ob;
@@ -3012,7 +3031,7 @@ static int sitenums[] = {	/* the order matches sitenames[] */
     L_ORDER, L_PAWN_SHOP, L_SORCERORS, L_TAVERN, L_TEMPLE, L_THIEVES_GUILD
 };
 
-void showknownsites (int first, int last)
+static void showknownsites (int first, int last)
 {
     int i, printed = FALSE;
 
@@ -3370,7 +3389,7 @@ void alert_guards (void)
 }
 
 /* can only occur when player is in city, so OK to use Level */
-void destroy_order (void)
+static void destroy_order (void)
 {
     int i, j;
     setgamestatus (DESTROYED_ORDER);
@@ -3416,7 +3435,7 @@ int maneuvers (void)
 }
 
 /* for when haste runs out, etc. */
-void default_maneuvers (void)
+static void default_maneuvers (void)
 {
     int i;
     morewait ();

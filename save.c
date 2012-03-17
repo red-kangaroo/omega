@@ -2,6 +2,25 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+//----------------------------------------------------------------------
+
+static int ok_outdated(int ver);
+static void restore_country(FILE *fd, int ver);
+static void restore_hiscore_npc(pmt npc, int npcid);
+static pob restore_item(FILE *fd, int ver);
+static pol restore_itemlist(FILE *fd, int ver);
+static void restore_level(FILE *fd, int ver);
+static void restore_monsters(FILE *fd, plv level, int ver);
+static void restore_player(FILE *fd, int ver);
+static int save_country(FILE *fd);
+static int save_item(FILE *fd, pob o);
+static int save_itemlist(FILE *fd, pol ol);
+static int save_level(FILE *fd, plv level);
+static int save_monsters(FILE *fd, pml ml);
+static int save_player(FILE *fd);
+
+//----------------------------------------------------------------------
+
 /*Various functions for doing game saves and restores */
 /*The game remembers various player information, the city level,
 the country level, and the last or current dungeon level */
@@ -99,7 +118,7 @@ void signalsave (int sig UNUSED)
 
 /* also saves some globals like Level->depth... */
 
-int save_player (FILE* fd)
+static int save_player (FILE* fd)
 {
     int i;
     int ok = 1;
@@ -195,7 +214,7 @@ int save_player (FILE* fd)
 }
 
 /* Save whatever is pointed to by level */
-int save_level (FILE* fd, plv level)
+static int save_level (FILE* fd, plv level)
 {
     unsigned i, j, run;
     unsigned long int mask;
@@ -248,7 +267,7 @@ int save_level (FILE* fd, plv level)
     return ok;
 }
 
-int save_monsters (FILE* fd, pml ml)
+static int save_monsters (FILE* fd, pml ml)
 {
     pml tml;
     int nummonsters = 0;
@@ -292,7 +311,7 @@ int save_monsters (FILE* fd, pml ml)
 
 /* Save o unless it's null, then save a special flag byte instead */
 /* Use other values of flag byte to indicate what strings are saved */
-int save_item (FILE* fd, pob o)
+static int save_item (FILE* fd, pob o)
 {
     int ok = 1;
     unsigned char type;
@@ -320,7 +339,7 @@ int save_item (FILE* fd, pob o)
     return ok;
 }
 
-int save_itemlist (FILE* fd, pol ol)
+static int save_itemlist (FILE* fd, pol ol)
 {
     int numitems = 0;
     pol tol;
@@ -334,7 +353,7 @@ int save_itemlist (FILE* fd, pol ol)
     return ok;
 }
 
-int save_country (FILE* fd)
+static int save_country (FILE* fd)
 {
     int i, j;
     int ok = 1;
@@ -371,7 +390,7 @@ int save_country (FILE* fd)
 }
 
 /* returns TRUE if the given version can be restored by this version */
-int ok_outdated (int ver)
+static int ok_outdated (int ver)
 {
     switch (ver) {
 	case 80:
@@ -472,7 +491,7 @@ int restore_game (char *savestr)
     }
 }
 
-void restore_player (FILE* fd, int ver)
+static void restore_player (FILE* fd, int ver)
 {
     int i;
     fread ((char *) &Player, sizeof (Player), 1, fd);
@@ -580,7 +599,7 @@ void restore_player (FILE* fd, int ver)
 
 /* Restore an item, the first byte tells us if it's NULL, and what strings */
 /* have been saved as different from the typical */
-pob restore_item (FILE* fd, int ver UNUSED)
+static pob restore_item (FILE* fd, int ver UNUSED)
 {
     char tempstr[80];
     unsigned char type;
@@ -609,7 +628,7 @@ pob restore_item (FILE* fd, int ver UNUSED)
     return obj;
 }
 
-pol restore_itemlist (FILE* fd, int ver)
+static pol restore_itemlist (FILE* fd, int ver)
 {
     pol ol = NULL, cur = NULL, new = NULL;
     int i, numitems, firsttime = TRUE;
@@ -629,7 +648,7 @@ pol restore_itemlist (FILE* fd, int ver)
     return (ol);
 }
 
-void restore_level (FILE* fd, int ver)
+static void restore_level (FILE* fd, int ver)
 {
     int i, j, run;
     unsigned long int mask;
@@ -759,7 +778,7 @@ void restore_level (FILE* fd, int ver)
     }
 }
 
-void restore_hiscore_npc (pmt npc, int npcid)
+static void restore_hiscore_npc (pmt npc, int npcid)
 {
     int level = Hilevel, behavior = Hibehavior;
     long status;
@@ -835,7 +854,7 @@ void restore_hiscore_npc (pmt npc, int npcid)
     }
 }
 
-void restore_monsters (FILE* fd, plv level, int ver)
+static void restore_monsters (FILE* fd, plv level, int ver)
 {
     pml ml = NULL;
     int i, nummonsters;
@@ -888,7 +907,7 @@ void restore_monsters (FILE* fd, plv level, int ver)
     }
 }
 
-void restore_country (FILE* fd, int ver UNUSED)
+static void restore_country (FILE* fd, int ver UNUSED)
 {
     int i, j;
     int run;

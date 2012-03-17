@@ -1,8 +1,106 @@
 #include "glob.h"
 
-/*               Revised function                   */
-/* WDT: code contributed by David J. Robertson */
-/* consider one monster's action */
+//----------------------------------------------------------------------
+
+static void m_aggravate(struct monster *m);
+static void m_blind_strike(struct monster *m);
+static void m_confused_move(struct monster *m);
+static void m_fireball(struct monster *m);
+static void m_firebolt(struct monster *m);
+static void m_flutter_move(struct monster *m);
+static void m_follow_move(struct monster *m);
+static void m_hit(struct monster *m, int dtype);
+static void m_huge_sounds(struct monster *m);
+static void m_illusion(struct monster *m);
+static void m_lball(struct monster *m);
+static void m_move_animal(struct monster *m);
+static void m_move_leash(struct monster *m);
+static void m_nbolt(struct monster *m);
+static void m_normal_move(struct monster *m);
+static void m_random_move(struct monster *m);
+static void m_scaredy_move(struct monster *m);
+static void m_simple_move(struct monster *m);
+static void m_smart_move(struct monster *m);
+static void m_snowball(struct monster *m);
+static void m_sp_acid_cloud(struct monster *m);
+static void m_sp_angel(struct monster *m);
+static void m_sp_av(struct monster *m);
+static void m_sp_blackout(struct monster *m);
+static void m_sp_bogthing(struct monster *m);
+static void m_sp_court(struct monster *m);
+static void m_sp_demon(struct monster *m);
+static void m_sp_demonlover(struct monster *m);
+static void m_sp_dragonlord(struct monster *m);
+static void m_sp_eater(struct monster *m);
+static void m_sp_escape(struct monster *m);
+static void m_sp_explode(struct monster *m);
+static void m_sp_ghost(struct monster *m);
+static void m_sp_lair(struct monster *m);
+static void m_sp_lw(struct monster *m);
+static void m_sp_mb(struct monster *m);
+static void m_sp_merchant(struct monster *m);
+static void m_sp_mirror(struct monster *m);
+static void m_sp_mp(struct monster *m);
+static void m_sp_ng(struct monster *m);
+static void m_sp_poison_cloud(struct monster *m);
+static void m_sp_prime(struct monster *m);
+static void m_sp_raise(struct monster *m);
+static void m_sp_seductor(struct monster *m);
+static void m_sp_servant(struct monster *m);
+static void m_sp_spell(struct monster *m);
+static void m_sp_surprise(struct monster *m);
+static void m_sp_swarm(struct monster *m);
+static void m_sp_were(struct monster *m);
+static void m_sp_whistleblower(struct monster *m);
+static void m_spirit_move(struct monster *m);
+static void m_strike_sonic(struct monster *m);
+static void m_summon(struct monster *m);
+static void m_talk_animal(struct monster *m);
+static void m_talk_archmage(struct monster *m);
+static void m_talk_assassin(struct monster *m);
+static void m_talk_beg(struct monster *m);
+static void m_talk_burble(struct monster *m);
+static void m_talk_demonlover(struct monster *m);
+static void m_talk_druid(struct monster *m);
+static void m_talk_ef(struct monster *m);
+static void m_talk_evil(struct monster *m);
+static void m_talk_gf(struct monster *m);
+static void m_talk_greedy(struct monster *m);
+static void m_talk_guard(struct monster *m);
+static void m_talk_hint(struct monster *m);
+static void m_talk_horse(struct monster *m);
+static void m_talk_hungry(struct monster *m);
+static void m_talk_hyena(struct monster *m);
+static void m_talk_im(struct monster *m);
+static void m_talk_man(struct monster *m);
+static void m_talk_merchant(struct monster *m);
+static void m_talk_mimsy(struct monster *m);
+static void m_talk_mp(struct monster *m);
+static void m_talk_ninja(struct monster *m);
+static void m_talk_parrot(struct monster *m);
+static void m_talk_prime(struct monster *m);
+static void m_talk_robot(struct monster *m);
+static void m_talk_scream(struct monster *m);
+static void m_talk_seductor(struct monster *m);
+static void m_talk_servant(struct monster *m);
+static void m_talk_silent(struct monster *m);
+static void m_talk_slithy(struct monster *m);
+static void m_talk_stupid(struct monster *m);
+static void m_talk_thief(struct monster *m);
+static void m_talk_titter(struct monster *m);
+static void m_thief_f(struct monster *m);
+static void monster_action(struct monster *m, int action);
+static int monster_hit(struct monster *m, int hitloc, int bonus);
+static void monster_melee(struct monster *m, int hitloc, int bonus);
+static void monster_move(struct monster *m);
+static void monster_special(struct monster *m);
+static void monster_strike(struct monster *m);
+static void movemonster(struct monster *m, int newx, int newy);
+static void strengthen_death(struct monster *m);
+static void tacmonster(struct monster *m);
+
+//----------------------------------------------------------------------
+
 void m_pulse (struct monster *m)
 {
     int range = distance (m->x, m->y, Player.x, Player.y);
@@ -56,19 +154,19 @@ void m_pulse (struct monster *m)
 }
 
 /* like m_normal_move, but can open doors */
-void m_smart_move (struct monster *m)
+static void m_smart_move (struct monster *m)
 {
     m_simple_move (m);
 }
 
 /* not very smart, but not altogether stupid movement */
-void m_normal_move (struct monster *m)
+static void m_normal_move (struct monster *m)
 {
     m_simple_move (m);
 }
 
 /* used by both m_normal_move and m_smart_move */
-void m_simple_move (struct monster *m)
+static void m_simple_move (struct monster *m)
 {
     int dx = sign (Player.x - m->x);
     int dy = sign (Player.y - m->y);
@@ -119,7 +217,7 @@ void m_simple_move (struct monster *m)
     }
 }
 
-void m_move_animal (struct monster *m)
+static void m_move_animal (struct monster *m)
 {
     if (m_statusp (m, HOSTILE))
 	m_normal_move (m);
@@ -128,7 +226,7 @@ void m_move_animal (struct monster *m)
 }
 
 /* same as simple move except run in opposite direction */
-void m_scaredy_move (struct monster *m)
+static void m_scaredy_move (struct monster *m)
 {
     int dx = -sign (Player.x - m->x);
     int dy = -sign (Player.y - m->y);
@@ -163,7 +261,7 @@ void m_scaredy_move (struct monster *m)
 
 /* for spirits (and earth creatures) who can ignore blockages because
    either they are noncorporeal or they can move through stone */
-void m_spirit_move (struct monster *m)
+static void m_spirit_move (struct monster *m)
 {
     int dx = sign (Player.x - m->x);
     int dy = sign (Player.y - m->y);
@@ -180,7 +278,7 @@ void m_spirit_move (struct monster *m)
 }
 
 /* fluttery dumb movement */
-void m_flutter_move (struct monster *m)
+static void m_flutter_move (struct monster *m)
 {
     int trange, range = distance (m->x, m->y, Player.x, Player.y);
     int i, tx, ty, nx = m->x, ny = m->y;
@@ -208,7 +306,7 @@ void m_flutter_move (struct monster *m)
     }
 }
 
-void m_follow_move (struct monster *m)
+static void m_follow_move (struct monster *m)
 {
     if (!m_statusp (m, HOSTILE))
 	m_normal_move (m);
@@ -217,7 +315,7 @@ void m_follow_move (struct monster *m)
 }
 
 /* allows monsters to fall into pools, revealed traps, etc */
-void m_confused_move (struct monster *m)
+static void m_confused_move (struct monster *m)
 {
     int i, nx, ny, done = FALSE;
     erase_monster (m);
@@ -231,7 +329,7 @@ void m_confused_move (struct monster *m)
     }
 }
 
-void m_random_move (struct monster *m)
+static void m_random_move (struct monster *m)
 {
     int i, nx, ny, done = FALSE;
     erase_monster (m);
@@ -272,7 +370,7 @@ void m_teleport (struct monster *m)
     }
 }
 
-void m_move_leash (struct monster *m)
+static void m_move_leash (struct monster *m)
 {
     m_simple_move (m);
     if (m->aux1 == 0) {
@@ -305,7 +403,7 @@ void m_move_leash (struct monster *m)
 }
 
 /* actually make a move */
-void movemonster (struct monster *m, int newx, int newy)
+static void movemonster (struct monster *m, int newx, int newy)
 {
     if (Level->site[newx][newy].creature != NULL)
 	return;
@@ -318,7 +416,7 @@ void movemonster (struct monster *m, int newx, int newy)
 }
 
 /* The druid's altar is in the northern forest */
-void m_talk_druid (struct monster *m)
+static void m_talk_druid (struct monster *m)
 {
     int i;
     pml curr;
@@ -398,7 +496,7 @@ void m_talk_druid (struct monster *m)
     }
 }
 
-void m_talk_silent (struct monster *m)
+static void m_talk_silent (struct monster *m)
 {
 
     int reply = random_range (4);
@@ -425,7 +523,7 @@ void m_talk_silent (struct monster *m)
     mprint (Str2);
 }
 
-void m_talk_stupid (struct monster *m)
+static void m_talk_stupid (struct monster *m)
 {
 
     int reply = random_range (4);
@@ -451,7 +549,7 @@ void m_talk_stupid (struct monster *m)
     mprint (Str2);
 }
 
-void m_talk_greedy (struct monster *m)
+static void m_talk_greedy (struct monster *m)
 {
 
     int reply = random_range (4);
@@ -477,7 +575,7 @@ void m_talk_greedy (struct monster *m)
     mprint (Str2);
 }
 
-void m_talk_hungry (struct monster *m)
+static void m_talk_hungry (struct monster *m)
 {
 
     int reply = random_range (4);
@@ -503,7 +601,7 @@ void m_talk_hungry (struct monster *m)
     mprint (Str2);
 }
 
-void m_talk_guard (struct monster *m)
+static void m_talk_guard (struct monster *m)
 {
     if (m_statusp (m, HOSTILE)) {
 	print1 ("'Surrender in the name of the Law!'");
@@ -532,12 +630,12 @@ void m_talk_guard (struct monster *m)
 	print1 ("Move it right along, stranger!");
 }
 
-void m_talk_mp (struct monster *m UNUSED)
+static void m_talk_mp (struct monster *m UNUSED)
 {
     mprint ("The mendicant priest asks you to spare some treasure for the needy");
 }
 
-void m_talk_titter (struct monster *m)
+static void m_talk_titter (struct monster *m)
 {
 
     if (m->uniqueness == COMMON) {
@@ -549,13 +647,13 @@ void m_talk_titter (struct monster *m)
     mprint (Str2);
 }
 
-void m_talk_ninja (struct monster *m UNUSED)
+static void m_talk_ninja (struct monster *m UNUSED)
 {
     mprint ("The black-garbed figure says apologetically:");
     mprint ("'Situree simasita, wakarimasen.'");
 }
 
-void m_talk_thief (struct monster *m)
+static void m_talk_thief (struct monster *m)
 {
     if (Player.rank[THIEVES]) {
 	if (m->level == 2)
@@ -572,14 +670,14 @@ void m_talk_thief (struct monster *m)
 
 }
 
-void m_talk_assassin (struct monster *m)
+static void m_talk_assassin (struct monster *m)
 {
     m->monstring = "master assassin";
     print1 ("The ominous figure does not reply, but hands you an embossed card:");
     print2 ("'Guild of Assassins Ops are forbidden to converse with targets.'");
 }
 
-void m_talk_im (struct monster *m)
+static void m_talk_im (struct monster *m)
 {
     if (strcmp (m->monstring, "itinerant merchant") != 0) {
 	m->monstring = "itinerant merchant";
@@ -616,7 +714,7 @@ void m_talk_im (struct monster *m)
     }
 }
 
-void m_talk_man (struct monster *m)
+static void m_talk_man (struct monster *m)
 {
 
     if (m->uniqueness == COMMON) {
@@ -644,7 +742,7 @@ void m_talk_man (struct monster *m)
     mprint (Str2);
 }
 
-void m_talk_evil (struct monster *m)
+static void m_talk_evil (struct monster *m)
 {
 
     if (m->uniqueness == COMMON) {
@@ -698,7 +796,7 @@ void m_talk_evil (struct monster *m)
     mprint (Str2);
 }
 
-void m_talk_robot (struct monster *m)
+static void m_talk_robot (struct monster *m)
 {
     if (m->uniqueness == COMMON) {
 	strcpy (Str2, "The ");
@@ -722,17 +820,17 @@ void m_talk_robot (struct monster *m)
     mprint (Str2);
 }
 
-void m_talk_slithy (struct monster *m UNUSED)
+static void m_talk_slithy (struct monster *m UNUSED)
 {
     mprint ("It can't talk -- it's too slithy!");
 }
 
-void m_talk_mimsy (struct monster *m UNUSED)
+static void m_talk_mimsy (struct monster *m UNUSED)
 {
     mprint ("It can't talk -- it's too mimsy!");
 }
 
-void m_talk_burble (struct monster *m)
+static void m_talk_burble (struct monster *m)
 {
 
     if (m->uniqueness == COMMON) {
@@ -744,7 +842,7 @@ void m_talk_burble (struct monster *m)
     mprint (Str2);
 }
 
-void m_talk_beg (struct monster *m)
+static void m_talk_beg (struct monster *m)
 {
     if (m->uniqueness == COMMON) {
 	strcpy (Str2, "The ");
@@ -755,7 +853,7 @@ void m_talk_beg (struct monster *m)
     mprint (Str2);
 }
 
-void m_talk_hint (struct monster *m)
+static void m_talk_hint (struct monster *m)
 {
     if (m->uniqueness == COMMON) {
 	strcpy (Str2, "The ");
@@ -773,7 +871,7 @@ void m_talk_hint (struct monster *m)
     }
 }
 
-void m_talk_gf (struct monster *m)
+static void m_talk_gf (struct monster *m)
 {
     mprint ("The good fairy glints: Would you like a wish?");
     if (ynq () == 'y') {
@@ -799,7 +897,7 @@ void m_talk_gf (struct monster *m)
     m_vanish (m);
 }
 
-void m_talk_ef (struct monster *m)
+static void m_talk_ef (struct monster *m)
 {
     mprint ("The evil fairy roils: Eat my pixie dust!");
     mprint ("She waves her black-glowing wand, which screams thinly....");
@@ -815,7 +913,7 @@ void m_talk_ef (struct monster *m)
     summon (-1, -1);
 }
 
-void m_talk_seductor (struct monster *m)
+static void m_talk_seductor (struct monster *m)
 {
     if (m->uniqueness == COMMON) {
 	strcpy (Str2, "The ");
@@ -843,7 +941,7 @@ void m_talk_seductor (struct monster *m)
     m_vanish (m);
 }
 
-void m_talk_demonlover (struct monster *m)
+static void m_talk_demonlover (struct monster *m)
 {
     if (m->uniqueness == COMMON) {
 	strcpy (Str2, "The ");
@@ -895,7 +993,7 @@ void m_talk_demonlover (struct monster *m)
     mprint ("You now notice the fangs, claws, batwings...");
 }
 
-void m_talk_horse (struct monster *m)
+static void m_talk_horse (struct monster *m)
 {
     if (m_statusp (m, HOSTILE))
 	mprint ("The horse neighs angrily at you.");
@@ -918,17 +1016,17 @@ void m_talk_horse (struct monster *m)
     }
 }
 
-void m_talk_hyena (struct monster *m UNUSED)
+static void m_talk_hyena (struct monster *m UNUSED)
 {
     mprint ("The hyena only laughs at you...");
 }
 
-void m_talk_parrot (struct monster *m UNUSED)
+static void m_talk_parrot (struct monster *m UNUSED)
 {
     mprint ("Polly wanna cracker?");
 }
 
-void m_talk_servant (struct monster *m)
+static void m_talk_servant (struct monster *m)
 {
     int target, x = Player.x, y = Player.y;
     if (m->id == SERV_LAW) {
@@ -964,7 +1062,7 @@ void m_talk_servant (struct monster *m)
 	mprint ("The servant shrugs and turns away.");
 }
 
-void m_talk_animal (struct monster *m)
+static void m_talk_animal (struct monster *m)
 {
     if (m->uniqueness == COMMON) {
 	strcpy (Str2, "The ");
@@ -978,7 +1076,7 @@ void m_talk_animal (struct monster *m)
     mprint ("It giggles softly to itself and takes back the paper.");
 }
 
-void m_talk_scream (struct monster *m)
+static void m_talk_scream (struct monster *m)
 {
     mprint ("A thinly echoing scream reaches your ears....");
     morewait ();
@@ -989,7 +1087,7 @@ void m_talk_scream (struct monster *m)
     m->talkf = M_TALK_EVIL;
 }
 
-void m_talk_archmage (struct monster *m)
+static void m_talk_archmage (struct monster *m)
 {
     if (m_statusp (m, HOSTILE)) {
 	mprint ("The Archmage ignores your attempt at conversation");
@@ -1011,7 +1109,7 @@ void m_talk_archmage (struct monster *m)
     }
 }
 
-void m_talk_merchant (struct monster *m)
+static void m_talk_merchant (struct monster *m)
 {
     if (!m_statusp (m, HOSTILE)) {
 	if (Current_Environment == E_VILLAGE) {
@@ -1041,7 +1139,7 @@ void m_talk_merchant (struct monster *m)
     }
 }
 
-void m_talk_prime (struct monster *m)
+static void m_talk_prime (struct monster *m)
 {
     if (!m_statusp (m, HOSTILE)) {
 	if (Current_Environment == E_CIRCLE) {
@@ -1089,32 +1187,350 @@ void m_dropstuff (struct monster *m)
     }
 }
 
-void m_firebolt (struct monster *m)
+static void m_hit (struct monster *m, int dtype)
+{
+    if (m->uniqueness == COMMON) {
+	strcpy (Str3, "a ");
+	strcat (Str3, m->monstring);
+    } else
+	strcpy (Str3, m->monstring);
+    if ((Player.status[DISPLACED] > 0) && (random_range (2) == 1))
+	mprint ("The attack was displaced!");
+    else
+	p_damage (random_range (m->dmg), dtype, Str3);
+}
+
+/* execute monster attacks versus player */
+static void tacmonster (struct monster *m)
+{
+    drawvision (Player.x, Player.y);
+    transcribe_monster_actions (m);
+    for (unsigned i = 0; (i < strlen (m->meleestr)) && (m->hp > 0); i += 2) {
+	if (m->uniqueness == COMMON) {
+	    strcpy (Str4, "The ");
+	    strcat (Str4, m->monstring);
+	} else
+	    strcpy (Str4, m->monstring);
+	if (m->meleestr[i] == 'A') {
+	    strcat (Str4, " attacks ");
+	    strcat (Str4, actionlocstr (m->meleestr[i + 1]));
+	    if (Verbosity == VERBOSE)
+		mprint (Str4);
+	    monster_melee (m, m->meleestr[i + 1], 0);
+	} else if (m->meleestr[i] == 'L') {
+	    strcat (Str4, " lunges ");
+	    strcat (Str4, actionlocstr (m->meleestr[i + 1]));
+	    if (Verbosity == VERBOSE)
+		mprint (Str4);
+	    monster_melee (m, m->meleestr[i + 1], m->level);
+	}
+    }
+}
+
+static void monster_melee (struct monster *m, int hitloc, int bonus)
+{
+    if (player_on_sanctuary ())
+	print1 ("The aegis of your deity protects you!");
+    else {
+	/* It's lawful to wait to be attacked */
+	if (m->attacked == 0)
+	    Player.alignment++;
+	m->attacked++;
+	if (m->uniqueness == COMMON) {
+	    strcpy (Str2, "The ");
+	    strcat (Str2, m->monstring);
+	} else
+	    strcpy (Str2, m->monstring);
+	if (monster_hit (m, hitloc, bonus))
+	    switch (m->meleef) {
+		case M_NO_OP:
+		    strcat (Str2, " touches you.");
+		    mprint (Str2);
+		    break;
+		case M_MELEE_NORMAL:
+		    strcat (Str2, " hits you.");
+		    mprint (Str2);
+		    m_hit (m, NORMAL_DAMAGE);
+		    break;
+		case M_MELEE_NG:
+		    strcat (Str2, " hits you.");
+		    mprint (Str2);
+		    m_hit (m, NORMAL_DAMAGE);
+		    if (random_range (5) == 3)
+			m_sp_ng (m);
+		    break;
+		case M_MELEE_FIRE:
+		    strcat (Str2, " blasts you with fire.");
+		    mprint (Str2);
+		    m_hit (m, FLAME);
+		    break;
+		case M_MELEE_DRAGON:
+		    strcat (Str2, " hits you and blasts you with fire.");
+		    mprint (Str2);
+		    m_hit (m, NORMAL_DAMAGE);
+		    m_hit (m, FLAME);
+		    break;
+		case M_MELEE_ELEC:
+		    strcat (Str2, " lashes you with electricity.");
+		    mprint (Str2);
+		    m_hit (m, ELECTRICITY);
+		    break;
+		case M_MELEE_COLD:
+		    strcat (Str2, " freezes you with cold.");
+		    mprint (Str2);
+		    m_hit (m, ELECTRICITY);
+		    break;
+		case M_MELEE_POISON:
+		    strcat (Str2, " hits you.");
+		    mprint (Str2);
+		    m_hit (m, NORMAL_DAMAGE);
+		    if (random_range (10) < m->level) {
+			mprint ("You've been poisoned!");
+			p_poison (m->dmg);
+		    }
+		    break;
+		case M_MELEE_GRAPPLE:
+		    strcat (Str2, " grabs you.");
+		    mprint (Str2);
+		    m_hit (m, NORMAL_DAMAGE);
+		    Player.status[IMMOBILE]++;
+		    break;
+		case M_MELEE_SPIRIT:
+		    strcat (Str2, " touches you.");
+		    mprint (Str2);
+		    m_hit (m, NORMAL_DAMAGE);
+		    drain_life (m->level);
+		    break;
+		case M_MELEE_DISEASE:
+		    strcat (Str2, " hits you.");
+		    mprint (Str2);
+		    m_hit (m, NORMAL_DAMAGE);
+		    if (random_range (10) < m->level) {
+			mprint ("You've been infected!");
+			disease (m->level);
+		    }
+		    break;
+		case M_MELEE_SLEEP:
+		    strcat (Str2, " hit you.");
+		    mprint (Str2);
+		    m_hit (m, NORMAL_DAMAGE);
+		    if (random_range (10) < m->level) {
+			mprint ("You feel drowsy");
+			sleep_player (m->level);
+		    }
+		    break;
+	} else {
+	    if (random_range (10))
+		strcat (Str2, " missed you.");
+	    else {
+		if (Verbosity == TERSE) {
+		    switch (random_range (10)) {
+			case 0:
+			    strcat (Str2, " blundered severely.");
+			    m_damage (m, m->dmg, UNSTOPPABLE);
+			    break;
+			case 1:
+			    strcat (Str2, " tripped while attacking.");
+			    m_dropstuff (m);
+			    break;
+			case 2:
+			    strcat (Str2, " seems seriously confused.");
+			    m->speed = min (30, m->speed * 2);
+			    break;
+			default:
+			    strcat (Str2, " missed you.");
+		    }
+		}
+		switch (random_range (10)) {
+		    case 0:
+			strcat (Str2, " flailed stupidly at you.");
+			break;
+		    case 1:
+			strcat (Str2, " made you laugh.");
+			break;
+		    case 2:
+			strcat (Str2, " blundered severely.");
+			m_damage (m, m->dmg, UNSTOPPABLE);
+			break;
+		    case 3:
+			strcat (Str2, " tripped while attacking.");
+			m_dropstuff (m);
+			break;
+		    case 4:
+			strcat (Str2, " seems seriously confused.");
+			m->speed = min (30, m->speed * 2);
+			break;
+		    case 5:
+			strcat (Str2, " is seriously ashamed.");
+			break;
+		    case 6:
+			strcat (Str2, " made a boo-boo.");
+			break;
+		    case 7:
+			strcat (Str2, " blundered.");
+			break;
+		    case 8:
+			strcat (Str2, " cries out in anger and frustration.");
+			break;
+		    case 9:
+			strcat (Str2, " curses your ancestry.");
+			break;
+		}
+	    }
+	    mprint (Str2);
+	}
+    }
+}
+
+/* checks to see if player hits with hitmod vs. monster m at location hitloc */
+static int monster_hit (struct monster *m, int hitloc, int bonus)
+{
+    int blocks = FALSE, goodblocks = 0, hit, riposte = FALSE;
+    for (unsigned i = 0; i < strlen (Player.meleestr); i += 2) {
+	if ((Player.meleestr[i] == 'B') || (Player.meleestr[i] == 'R')) {
+	    blocks = TRUE;
+	    if (hitloc == Player.meleestr[i + 1]) {
+		goodblocks++;
+		if (Player.meleestr[i] == 'R')
+		    riposte = TRUE;
+	    }
+	}
+    }
+    if (!blocks)
+	goodblocks = -1;
+    hit = hitp (m->hit + bonus, Player.defense + goodblocks * 10);
+    if ((!hit) && (goodblocks > 0)) {
+	if (Verbosity == VERBOSE)
+	    mprint ("You blocked it!");
+	if (riposte) {
+	    if (Verbosity != TERSE)
+		mprint ("You got a riposte!");
+	    if (hitp (Player.hit, m->ac)) {
+		mprint ("You hit!");
+		weapon_use (0, Player.possessions[O_WEAPON_HAND], m);
+	    } else
+		mprint ("You missed.");
+	}
+    }
+    return (hit);
+}
+
+/* decide monster actions in tactical combat mode */
+/* if monster is skilled, it can try see the player's attacks coming and
+   try to block appropriately. */
+
+void transcribe_monster_actions (struct monster *m)
+{
+    char attack_loc, block_loc;
+    static char mmstr[80];
+
+    int p_blocks[3];
+    int p_attacks[3];
+
+    for (int i = 0; i < 3; i++)
+	p_blocks[i] = p_attacks[i] = 0;
+
+    /* Find which area player blocks and attacks least in */
+    for (unsigned i = 0; i < strlen (Player.meleestr); i += 2) {
+	if ((Player.meleestr[i] == 'B') || (Player.meleestr[i] == 'R')) {
+	    if (Player.meleestr[i + 1] == 'H')
+		p_blocks[0]++;
+	    if (Player.meleestr[i + 1] == 'C')
+		p_blocks[1]++;
+	    if (Player.meleestr[i + 1] == 'L')
+		p_blocks[2]++;
+	} else if ((Player.meleestr[i] == 'A') || (Player.meleestr[i] == 'L')) {
+	    if (Player.meleestr[i + 1] == 'H')
+		p_attacks[0]++;
+	    if (Player.meleestr[i + 1] == 'C')
+		p_attacks[1]++;
+	    if (Player.meleestr[i + 1] == 'L')
+		p_attacks[2]++;
+	}
+    }
+
+    if ((p_blocks[2] <= p_blocks[1]) && (p_blocks[2] <= p_blocks[0]))
+	attack_loc = 'L';
+    else if ((p_blocks[1] <= p_blocks[2]) && (p_blocks[1] <= p_blocks[0]))
+	attack_loc = 'C';	/* DG 12/31/98 */
+    else
+	attack_loc = 'H';
+    if ((p_attacks[2] <= p_attacks[1]) && (p_attacks[2] <= p_attacks[0]))
+	block_loc = 'L';
+    else if ((p_attacks[1] <= p_attacks[2]) && (p_attacks[1] <= p_attacks[0]))
+	block_loc = 'C';
+    else
+	block_loc = 'H';
+
+    m->meleestr = mmstr;
+
+    if (m->id != NPC)
+	strcpy (m->meleestr, Monsters[m->id].meleestr);
+    else {
+	strcpy (m->meleestr, "");
+	for (int i = 0; i < m->level; i += 2)
+	    strcat (m->meleestr, "L?R?");
+    }
+
+    for (unsigned i = 0; i < strlen (m->meleestr); i += 2) {
+	if ((m->meleestr[i] == 'A') || (m->meleestr[i] == 'L')) {
+	    if (m->meleestr[i + 1] == '?') {
+		if (m->level + random_range (30) > Player.level + random_range (20))
+		    m->meleestr[i + 1] = attack_loc;
+		else
+		    m->meleestr[i + 1] = random_loc ();
+	    } else if (m->meleestr[i + 1] == 'X')
+		m->meleestr[i + 1] = random_loc ();
+	} else if ((m->meleestr[i] == 'B') || (m->meleestr[i] == 'R')) {
+	    if (m->meleestr[i + 1] == '?') {
+		if (m->level + random_range (30) > Player.level + random_range (20))
+		    m->meleestr[i + 1] = block_loc;
+		else
+		    m->meleestr[i + 1] = random_loc ();
+	    } else if (m->meleestr[i + 1] == 'X')
+		m->meleestr[i + 1] = random_loc ();
+	}
+    }
+}
+
+char random_loc (void)
+{
+    switch (random_range (3)) {
+	case 0:
+	    return ('H');
+	case 1:
+	    return ('C');
+	default:
+	    return ('L');
+    }
+}
+
+static void m_firebolt (struct monster *m)
 {
     fbolt (m->x, m->y, Player.x, Player.y, m->hit, m->dmg);
 }
 
-void m_nbolt (struct monster *m)
+static void m_nbolt (struct monster *m)
 {
     nbolt (m->x, m->y, Player.x, Player.y, m->hit, m->dmg);
 }
 
-void m_lball (struct monster *m)
+static void m_lball (struct monster *m)
 {
     lball (m->x, m->y, Player.x, Player.y, m->dmg);
 }
 
-void m_fireball (struct monster *m)
+static void m_fireball (struct monster *m)
 {
     fball (m->x, m->y, Player.x, Player.y, m->dmg);
 }
 
-void m_snowball (struct monster *m)
+static void m_snowball (struct monster *m)
 {
     snowball (m->x, m->y, Player.x, Player.y, m->dmg);
 }
 
-void m_blind_strike (struct monster *m)
+static void m_blind_strike (struct monster *m)
 {
 
     pml ml;
@@ -1136,7 +1552,7 @@ void m_blind_strike (struct monster *m)
     }
 }
 
-void m_strike_sonic (struct monster *m)
+static void m_strike_sonic (struct monster *m)
 {
     if (m->uniqueness == COMMON) {
 	strcpy (Str2, "The ");
@@ -1149,7 +1565,7 @@ void m_strike_sonic (struct monster *m)
 }
 
 
-void m_sp_mp (struct monster *m)
+static void m_sp_mp (struct monster *m)
 {
     if (m->attacked && (random_range (3) == 1)) {
 	mprint ("You feel cursed!");
@@ -1165,7 +1581,7 @@ void m_sp_mp (struct monster *m)
     }
 }
 
-void m_sp_ng (struct monster *m)
+static void m_sp_ng (struct monster *m)
 {
     if (distance (m->x, m->y, Player.x, Player.y) < 2)
 	if ((random_range (5) == 1) || (Player.status[VULNERABLE] > 0)) {
@@ -1177,7 +1593,7 @@ void m_sp_ng (struct monster *m)
 	}
 }
 
-void m_sp_poison_cloud (struct monster *m)
+static void m_sp_poison_cloud (struct monster *m)
 {
     if (distance (m->x, m->y, Player.x, Player.y) < 3) {
 	mprint ("A cloud of poison gas surrounds you!");
@@ -1188,13 +1604,13 @@ void m_sp_poison_cloud (struct monster *m)
     }
 }
 
-void m_sp_explode (struct monster *m)
+static void m_sp_explode (struct monster *m)
 {
     if ((distance (Player.x, Player.y, m->x, m->y) < 2) && (m->hp > 0) && (m->hp < Monsters[m->id].hp))
 	fball (m->x, m->y, m->x, m->y, m->hp);
 }
 
-void m_sp_demon (struct monster *m)
+static void m_sp_demon (struct monster *m)
 {
     if (random_range (2)) {
 	if ((m->id != INCUBUS) &&	/*succubi don't give fear */
@@ -1234,19 +1650,19 @@ void m_sp_demon (struct monster *m)
     }
 }
 
-void m_sp_acid_cloud (struct monster *m)
+static void m_sp_acid_cloud (struct monster *m)
 {
     if (m_statusp (m, HOSTILE) && (distance (m->x, m->y, Player.x, Player.y) < 3))
 	acid_cloud ();
 }
 
-void m_sp_escape (struct monster *m)
+static void m_sp_escape (struct monster *m)
 {
     if (m_statusp (m, HOSTILE))
 	m_vanish (m);
 }
 
-void m_sp_ghost (struct monster *m)
+static void m_sp_ghost (struct monster *m)
 {
     if (m_statusp (m, HOSTILE)) {
 	mprint ("The ghost moans horribly....");
@@ -1260,7 +1676,7 @@ void m_sp_ghost (struct monster *m)
 }
 
 /* random spell cast by monster */
-void m_sp_spell (struct monster *m)
+static void m_sp_spell (struct monster *m)
 {
     char action[80];
     if (m_statusp (m, HOSTILE) && los_p (Player.x, Player.y, m->x, m->y)) {
@@ -1343,7 +1759,7 @@ void m_sp_spell (struct monster *m)
 
 /* monsters with this have some way to hide, camouflage, etc until they 
    attack */
-void m_sp_surprise (struct monster *m)
+static void m_sp_surprise (struct monster *m)
 {
     if (m->attacked) {
 	if (m_statusp (m, HOSTILE) && (!Player.status[TRUESIGHT]) && m_statusp (m, M_INVISIBLE)) {
@@ -1374,7 +1790,7 @@ void m_sp_surprise (struct monster *m)
     }
 }
 
-void m_sp_whistleblower (struct monster *m)
+static void m_sp_whistleblower (struct monster *m)
 {
     if (m_statusp (m, HOSTILE)) {
 	alert_guards ();
@@ -1382,7 +1798,7 @@ void m_sp_whistleblower (struct monster *m)
     }
 }
 
-void m_sp_seductor (struct monster *m)
+static void m_sp_seductor (struct monster *m)
 {
     if (m_statusp (m, HOSTILE)) {
 	if (m->uniqueness == COMMON) {
@@ -1401,13 +1817,13 @@ void m_sp_seductor (struct monster *m)
 
 }
 
-void m_sp_demonlover (struct monster *m)
+static void m_sp_demonlover (struct monster *m)
 {
     if (distance (Player.x, Player.y, m->x, m->y) < 2)
 	m_talk_demonlover (m);
 }
 
-void m_sp_eater (struct monster *m)
+static void m_sp_eater (struct monster *m)
 {
     if (Player.rank[COLLEGE])
 	m_status_set (m, HOSTILE);
@@ -1430,7 +1846,7 @@ void m_sp_eater (struct monster *m)
     }
 }
 
-void m_sp_dragonlord (struct monster *m)
+static void m_sp_dragonlord (struct monster *m)
 {
     if (m_statusp (m, HOSTILE)) {
 	if (distance (m->x, m->y, Player.x, Player.y) < 2) {
@@ -1471,7 +1887,7 @@ void m_sp_dragonlord (struct monster *m)
 	mprint ("You are extremely impressed at the sight of the Dragonlord.");
 }
 
-void m_sp_blackout (struct monster *m)
+static void m_sp_blackout (struct monster *m)
 {
     if ((distance (m->x, m->y, Player.x, Player.y) < 4) && (Player.status[BLINDED] == 0)) {
 	mprint ("The fungus emits a burst of black spores. You've been blinded!");
@@ -1494,7 +1910,7 @@ void m_sp_blackout (struct monster *m)
     }
 }
 
-void m_sp_bogthing (struct monster *m)
+static void m_sp_bogthing (struct monster *m)
 {
     if (Player.status[IMMOBILE] && (distance (Player.x, Player.y, m->x, m->y) < 2)) {
 	if (!Player.status[AFRAID]) {
@@ -1515,7 +1931,7 @@ void m_sp_bogthing (struct monster *m)
     }
 }
 
-void m_sp_were (struct monster *m)
+static void m_sp_were (struct monster *m)
 {
     int mid;
     if (m_statusp (m, HOSTILE) || (Phase == 6)) {
@@ -1552,7 +1968,7 @@ void m_sp_were (struct monster *m)
     }
 }
 
-void m_sp_servant (struct monster *m)
+static void m_sp_servant (struct monster *m)
 {
     if ((m->id == SERV_LAW) && (Player.alignment < 0))
 	m_status_set (m, HOSTILE);
@@ -1560,7 +1976,7 @@ void m_sp_servant (struct monster *m)
 	m_status_set (m, HOSTILE);
 }
 
-void m_sp_av (struct monster *m)
+static void m_sp_av (struct monster *m)
 {
     if (Player.mana > 0) {
 	mprint ("You feel a sudden loss of mana!");
@@ -1569,7 +1985,7 @@ void m_sp_av (struct monster *m)
     }
 }
 
-void m_sp_lw (struct monster *m)
+static void m_sp_lw (struct monster *m)
 {
     if (random_range (2)) {
 	if (Level->site[m->x][m->y].locchar == FLOOR) {
@@ -1584,7 +2000,7 @@ void m_sp_lw (struct monster *m)
     }
 }
 
-void m_sp_angel (struct monster *m)
+static void m_sp_angel (struct monster *m)
 {
     int mid, hostile = FALSE;
     switch (m->aux1) {
@@ -1625,7 +2041,7 @@ void m_sp_angel (struct monster *m)
 }
 
 /* Could completely fill up level */
-void m_sp_swarm (struct monster *m)
+static void m_sp_swarm (struct monster *m)
 {
     if (random_range (5) == 1) {
 	if (view_los_p (m->x, m->y, Player.x, Player.y))
@@ -1637,7 +2053,7 @@ void m_sp_swarm (struct monster *m)
 }
 
 /* raise nearby corpses from the dead.... */
-void m_sp_raise (struct monster *m)
+static void m_sp_raise (struct monster *m)
 {
     int x, y;
     pol t;
@@ -1654,7 +2070,7 @@ void m_sp_raise (struct monster *m)
 		    }
 }
 
-void m_sp_mb (struct monster *m)
+static void m_sp_mb (struct monster *m)
 {
     if (distance (m->x, m->y, Player.x, Player.y) == 1) {
 	mprint ("The manaburst explodes!");
@@ -1679,7 +2095,7 @@ void m_sp_mb (struct monster *m)
     }
 }
 
-void m_sp_mirror (struct monster *m)
+static void m_sp_mirror (struct monster *m)
 {
     int i, x, y;
     if (view_los_p (m->x, m->y, Player.x, Player.y)) {
@@ -1698,7 +2114,7 @@ void m_sp_mirror (struct monster *m)
     }
 }
 
-void m_illusion (struct monster *m)
+static void m_illusion (struct monster *m)
 {
     int i = random_range (NUMMONSTERS);
     if (i == NPC || i == HISCORE_NPC || i == ZERO_NPC)
@@ -1712,13 +2128,13 @@ void m_illusion (struct monster *m)
     }
 }
 
-void m_huge_sounds (struct monster *m)
+static void m_huge_sounds (struct monster *m)
 {
     if (m_statusp (m, AWAKE) && (!los_p (m->x, m->y, Player.x, Player.y)) && (random_range (10) == 1))
 	mprint ("The dungeon shakes!");
 }
 
-void m_thief_f (struct monster *m)
+static void m_thief_f (struct monster *m)
 {
     int i = random_item ();
     if (random_range (3) == 1) {
@@ -1751,7 +2167,7 @@ void m_thief_f (struct monster *m)
     }
 }
 
-void m_summon (struct monster *m)
+static void m_summon (struct monster *m)
 {
     if ((distance (Player.x, Player.y, m->x, m->y) < 2) && (random_range (3) == 1)) {
 	summon (0, -1);
@@ -1759,7 +2175,7 @@ void m_summon (struct monster *m)
     }
 }
 
-void m_aggravate (struct monster *m)
+static void m_aggravate (struct monster *m)
 {
 
     if (m_statusp (m, HOSTILE)) {
@@ -1775,7 +2191,7 @@ void m_aggravate (struct monster *m)
     }
 }
 
-void m_sp_merchant (struct monster *m)
+static void m_sp_merchant (struct monster *m)
 {
     pml ml;
     if (m_statusp (m, HOSTILE))
@@ -1792,7 +2208,7 @@ void m_sp_merchant (struct monster *m)
 
 /* The special function of the various people in the court of the archmage */
 /* and the sorcerors' circle */
-void m_sp_court (struct monster *m)
+static void m_sp_court (struct monster *m)
 {
     pml ml;
     if (m_statusp (m, HOSTILE)) {
@@ -1807,7 +2223,7 @@ void m_sp_court (struct monster *m)
 }
 
 /* The special function of the dragons in the dragons' lair */
-void m_sp_lair (struct monster *m)
+static void m_sp_lair (struct monster *m)
 {
     pml ml;
     if (m_statusp (m, HOSTILE)) {
@@ -1826,7 +2242,7 @@ void m_sp_lair (struct monster *m)
     }
 }
 
-void m_sp_prime (struct monster *m)
+static void m_sp_prime (struct monster *m)
 {
     if (m_statusp (m, HOSTILE)) {
 	mprint ("The prime sorceror gestures and a pentacular gate opens!");
@@ -2101,12 +2517,12 @@ void m_death (struct monster *m)
     }
 }
 
-void monster_move (struct monster *m)
+static void monster_move (struct monster *m)
 {
     monster_action (m, m->movef);
 }
 
-void monster_strike (struct monster *m)
+static void monster_strike (struct monster *m)
 {
     if (player_on_sanctuary ())
 	print1 ("The aegis of your deity protects you!");
@@ -2119,7 +2535,7 @@ void monster_strike (struct monster *m)
     }
 }
 
-void monster_special (struct monster *m)
+static void monster_special (struct monster *m)
 {
     /* since many special functions are really attacks, cancel them
        all if on sanctuary */
@@ -2132,7 +2548,7 @@ void monster_talk (struct monster *m)
     monster_action (m, m->talkf);
 }
 
-void monster_action (struct monster *m, int action)
+static void monster_action (struct monster *m, int action)
 {
     int meleef;
     if ((action >= M_MELEE_NORMAL) && (action < M_MOVE_NORMAL)) {
@@ -3028,7 +3444,7 @@ char *mantype (void)
     }
 }
 
-void strengthen_death (struct monster *m)
+static void strengthen_death (struct monster *m)
 {
     pol ol = ((pol) checkmalloc (sizeof (oltype)));
     pob scythe = ((pob) checkmalloc (sizeof (objtype)));

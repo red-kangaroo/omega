@@ -1,5 +1,7 @@
 #include "glob.h"
 
+static void fix_phantom(struct monster *m);
+
 /* This function coordinates monsters and player actions, as well as
 random events. Each tick is a second. There are therefore 60 ticks to
 the minute and 60 minutes to the hour.
@@ -67,7 +69,7 @@ void time_clock (int reset)
 }
 
 /* remedies occasional defective monsters */
-void fix_phantom (struct monster *m)
+static void fix_phantom (struct monster *m)
 {
     if (Level->site[m->x][m->y].creature == NULL) {
 	mprint ("You hear a sound like a sigh of relief....");

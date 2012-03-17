@@ -1,6 +1,16 @@
 #include "glob.h"
 #include <unistd.h>
 
+//----------------------------------------------------------------------
+
+static void buyfromstock(int base, int numitems);
+static void cureforpay(void);
+static void gymtrain(int *maxstat, int *stat);
+static void healforpay(void);
+static void wake_statue(int x, int y, int first);
+
+//----------------------------------------------------------------------
+
 /* the bank; can be broken into (!) */
 void l_bank (void)
 {
@@ -166,7 +176,7 @@ void l_armorer (void)
     xredraw ();
 }
 
-void buyfromstock (int base, int numitems)
+static void buyfromstock (int base, int numitems)
 {
     int i;
     char item;
@@ -423,7 +433,7 @@ void l_statue_wake (void)
 	wake_statue (x + Dirs[0][i], y + Dirs[1][i], TRUE);
 }
 
-void wake_statue (int x, int y, int first)
+static void wake_statue (int x, int y, int first)
 {
     int i;
     pml tml;
@@ -1259,7 +1269,7 @@ void l_condo (void)
     }
 }
 
-void gymtrain (int *maxstat, int *stat)
+static void gymtrain (int *maxstat, int *stat)
 {
     if (Gymcredit + Player.cash < 2000)
 	print2 ("You can't afford our training!");
@@ -1286,7 +1296,7 @@ void gymtrain (int *maxstat, int *stat)
     dataprint ();
 }
 
-void healforpay (void)
+static void healforpay (void)
 {
     if (Player.cash < 50)
 	print2 ("You can't afford to be healed!");
@@ -1300,7 +1310,7 @@ void healforpay (void)
     calc_melee ();
 }
 
-void cureforpay (void)
+static void cureforpay (void)
 {
     if (Player.cash < 250)
 	print2 ("You can't afford to be cured!");

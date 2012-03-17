@@ -1,5 +1,16 @@
 #include "glob.h"
 
+//----------------------------------------------------------------------
+
+static void answer_prayer(void);
+static int check_sacrilege(int deity);
+static void hp_req_print(void);
+static void hp_req_test(void);
+static int increase_priest_rank(int deity);
+static void make_hp(pob o);
+
+//----------------------------------------------------------------------
+
 /* prayer occurs at altars, hence name of function */
 void l_altar (void)
 {
@@ -106,7 +117,7 @@ void l_altar (void)
     }
 }
 
-int check_sacrilege (int deity)
+static int check_sacrilege (int deity)
 {
     int i, sacrilege = FALSE;
     if ((Player.patron != deity) && (Player.patron > 0)) {
@@ -219,7 +230,7 @@ int check_sacrilege (int deity)
     return (sacrilege);
 }
 
-int increase_priest_rank (int deity)
+static int increase_priest_rank (int deity)
 {
     if (Player.rank[PRIESTHOOD] == 0)
 	switch (deity) {
@@ -357,7 +368,7 @@ int increase_priest_rank (int deity)
     return 1;
 }
 
-void answer_prayer (void)
+static void answer_prayer (void)
 {
     clearmsg ();
     switch (random_range (12)) {
@@ -376,7 +387,7 @@ void answer_prayer (void)
     }
 }
 
-void hp_req_test (void)
+static void hp_req_test (void)
 {
     pob o;
     switch (Player.patron) {
@@ -425,7 +436,7 @@ void hp_req_test (void)
     }
 }
 
-void hp_req_print (void)
+static void hp_req_print (void)
 {
     morewait ();
     print1 ("To advance further, you must obtain the Holy Symbol of ");
@@ -456,7 +467,7 @@ void hp_req_print (void)
     }
 }
 
-void make_hp (pob o)
+static void make_hp (pob o)
 {
     print1 ("A full-scale heavenly choir chants 'Hallelujah' all around you!");
     print2 ("You notice a change in the symbol you carry....");

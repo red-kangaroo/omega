@@ -2,6 +2,17 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+//----------------------------------------------------------------------
+
+static FILE* omegarc_check(void);
+static void initstats(void);
+static void save_omegarc(void);
+static int competence_check(int attack);
+static void user_character_stats(void);
+static void omegan_character_stats(void);
+
+//----------------------------------------------------------------------
+
 /* set player to begin with */
 void initplayer (void)
 {
@@ -65,7 +76,7 @@ void initplayer (void)
     ScreenOffset = -1000;	/* to force a redraw */
 }
 
-FILE *omegarc_check ()
+static FILE* omegarc_check (void)
 {
     FILE *fd;
     sprintf (Str1, "%s/.omegarc", getenv ("HOME"));
@@ -80,7 +91,7 @@ FILE *omegarc_check ()
     return (fd);
 }
 
-void initstats (void)
+static void initstats (void)
 {
     char response;
     print1 ("Do you want to run a character [c] or play yourself [p]?");
@@ -99,7 +110,7 @@ void initstats (void)
     xredraw ();
 }
 
-void save_omegarc (void)
+static void save_omegarc (void)
 {
     int i = VERSION;
     FILE *fd;
@@ -190,7 +201,7 @@ int fixnpc (int status)
 }
 
 /* estimates on a 0..9 scale how good a player is at something */
-int competence_check (int attack)
+static int competence_check (int attack)
 {
     int ability = 0;
     switch (attack) {
@@ -225,7 +236,7 @@ int competence_check (int attack)
     return (ability);
 }
 
-void user_character_stats (void)
+static void user_character_stats (void)
 {
     int num, iqpts = 0, numints = 0, ok, agipts = 0, dexpts = 0, powpts = 0, conpts = 0;
     print1 ("OK, now try to answer the following questions honestly:");
@@ -501,7 +512,7 @@ void user_character_stats (void)
     while ((Player.preference != 'm') && (Player.preference != 'f') && (Player.preference != 'y') && (Player.preference != 'n'));	/* :-) */
 }
 
-void omegan_character_stats (void)
+static void omegan_character_stats (void)
 {
     int share1, share2, i = 0;
     print1 ("To reroll hit ESCAPE; hit any other key to accept these stats.");

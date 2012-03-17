@@ -1,7 +1,35 @@
 #include <curses.h>
 #include "glob.h"
 
+//----------------------------------------------------------------------
+
+static void add_to_pack(pob o);
+static int aux_display_pack(int start_item, int slot);
+static int aux_slottable(pob o, int slot);
+static int aux_take_from_pack(int slot);
+static int aux_top_take_from_pack(int slot, int display);
+static pob detach_money(void);
+static void drop_from_slot(int slot);
+static int get_inventory_slot(void);
+static int get_item_number(pob o);
+static int get_to_pack(pob o);
+static int item_useable(pob o, int slot);
+static int key_to_index(int key);
+static void merge_item(int slot);
+static int objequal(struct object *o, struct object *p);
+static void pack_extra_items(pob item);
+static int pack_item_cost(int ii);
+static void push_pack(pob o);
+static void put_to_pack(int slot);
+static void setchargestr(pob obj, char *cstr);
+static void setnumstr(pob obj, char *nstr);
+static void setplustr(pob obj, char *pstr);
+static void show_inventory_slot(int slotnum, int topline);
+static int slottable(pob o, int slot);
+static void switch_to_slot (int slot);
 static int take_from_pack (int slot, int display);
+
+//----------------------------------------------------------------------
 
 /* drops money, heh heh */
 void drop_money (void)
@@ -22,7 +50,7 @@ void drop_money (void)
 
 /* returns some money from player back into "money" item.
    for giving and dropping money */
-pob detach_money (void)
+static pob detach_money (void)
 {
     long c;
     pob cash = NULL;
@@ -90,7 +118,7 @@ void pickup_at (int x, int y)
  * than could be needed, but I don't want to short myself for later.
  */
 signed char inventory_keymap[] = "-abcfghimnoqruvwyz";
-int key_to_index (int key)
+static int key_to_index (int key)
 {
     int i;
     assert (MAXITEMS > 0);	/* must have room for an item, or this loop will
@@ -110,7 +138,7 @@ signed char index_to_key (int i)
 
 /* criteria for being able to put some item in some slot */
 /* WDT -- why on earth does the 'slottable' function print stuff???? */
-int aux_slottable (pob o, int slot)
+static int aux_slottable (pob o, int slot)
 {
     int ok = TRUE;
     if (o == NULL)
@@ -256,7 +284,7 @@ char *cashstr (void)
 }
 
 /* return an object's plus as a string */
-void setplustr (pob obj, char *pstr)
+static void setplustr (pob obj, char *pstr)
 {
     pstr[0] = ' ';
     pstr[1] = (obj->plus < 0 ? '-' : '+');
@@ -271,7 +299,7 @@ void setplustr (pob obj, char *pstr)
 }
 
 /* return an object's number as a string */
-void setnumstr (pob obj, char *nstr)
+static void setnumstr (pob obj, char *nstr)
 {
     if (obj->number < 2)
 	nstr[0] = 0;
@@ -291,7 +319,7 @@ void setnumstr (pob obj, char *nstr)
 }
 
 /* return object with charges */
-void setchargestr (pob obj, char *cstr)
+static void setchargestr (pob obj, char *cstr)
 {
     cstr[0] = ' ';
     cstr[1] = '[';
@@ -533,26 +561,6 @@ int getitem (Symbol itype)
     }
 }
 
-/* true if the numerical index based on 'a' == 1 turns out to be either
-out of the range of the possessions array or a null item */
-int badobject (int slotchar)
-{
-    int slot = slotchar + 1 - 'a';
-    if ((slot < 1) || (slot >= MAXITEMS))
-	return (TRUE);
-    else
-	return (Player.possessions[slot] == NULL);
-}
-
-/* this takes the numerical index directly for the same effect as badobject*/
-int baditem (int slotnum)
-{
-    if ((slotnum < 1) || (slotnum >= MAXITEMS))
-	return (TRUE);
-    else
-	return (Player.possessions[slotnum] == NULL);
-}
-
 /* formerly add_item_to_pack */
 void gain_item (struct object *o)
 {
@@ -575,7 +583,7 @@ void gain_item (struct object *o)
 }
 
 /* inserts the item at the start of the pack array */
-void push_pack (pob o)
+static void push_pack (pob o)
 {
     int i;
     for (i = Player.packptr; i > 0; i--)
@@ -585,7 +593,7 @@ void push_pack (pob o)
 }
 
 /* Adds item to pack list */
-void add_to_pack (pob o)
+static void add_to_pack (pob o)
 {
     if (Player.packptr >= MAXPACK) {
 	print3 ("Your pack is full. The item drops to the ground.");
@@ -597,7 +605,7 @@ void add_to_pack (pob o)
 }
 
 /* Adds item to pack list, maybe going into inventory mode if pack is full */
-int get_to_pack (pob o)
+static int get_to_pack (pob o)
 {
     if (Player.packptr >= MAXPACK) {
 	print3 ("Your pack is full.");
@@ -610,7 +618,7 @@ int get_to_pack (pob o)
     }
 }
 
-int pack_item_cost (int ii)
+static int pack_item_cost (int ii)
 {
     return (ii > 20 ? 17 : (ii > 15 ? 7 : 2));
 }
@@ -654,7 +662,7 @@ static void use_pack_item (int response, int slot)
 
 /* WDT HACK!  This ought to be in scr.c, along with its companion.  However,
  * right now it's only used in the function directly below. */
-int aux_display_pack (int start_item, int slot)
+static int aux_display_pack (int start_item, int slot)
 {
     int i = start_item, items;
     char *depth_string;
@@ -692,7 +700,7 @@ int aux_display_pack (int start_item, int slot)
 
 /* takes something from pack, puts to slot, 
 or to 'up-in-air', one of which at least must be empty */
-int aux_take_from_pack (int slot)
+static int aux_take_from_pack (int slot)
 {
     char response, pack_item, last_item;
     if (Player.possessions[slot] != NULL)
@@ -750,7 +758,7 @@ int aux_take_from_pack (int slot)
 
 /* takes something from pack, puts to slot, 
 or to 'up-in-air', one of which at least must be empty */
-int aux_top_take_from_pack (int slot, int display)
+static int aux_top_take_from_pack (int slot, int display)
 {
     char response;
     int quitting = FALSE, ok = TRUE, displayed = FALSE;
@@ -795,16 +803,6 @@ static int take_from_pack (int slot, int display)
 	return (aux_top_take_from_pack (slot, display));
     else
 	return (aux_take_from_pack (slot));
-}
-
-/* General interface to inventory */
-void item_inventory (int topline)
-{
-    if (topline) {
-	display_possessions ();
-	inventory_control ();
-    } else
-	top_inventory_control ();
 }
 
 void do_inventory_control (void)
@@ -1108,7 +1106,7 @@ void top_inventory_control (void)
 }
 
 /* Let the user select a slot. */
-int get_inventory_slot (void)
+static int get_inventory_slot (void)
 {
     signed char response;
     do {
@@ -1124,7 +1122,7 @@ int get_inventory_slot (void)
 }
 
 /* returns some number between 0 and o->number */
-int get_item_number (pob o)
+static int get_item_number (pob o)
 {
     int n = 0;
     if (o->number == 1)
@@ -1145,7 +1143,7 @@ int get_item_number (pob o)
     return (n);
 }
 
-void drop_from_slot (int slot)
+static void drop_from_slot (int slot)
 {
     int n, waitflag;
     if (Player.possessions[slot] != NULL) {
@@ -1166,7 +1164,7 @@ void drop_from_slot (int slot)
 	print3 ("Didn't drop anything.");
 }
 
-void put_to_pack (int slot)
+static void put_to_pack (int slot)
 {
     int waitflag, num = 1;
     pob temp, oslot = Player.possessions[slot];
@@ -1209,7 +1207,7 @@ may be null. If both slots are 'objequal' merges two groups into one
 in the selected slot. If one slot is null and the number of the other
 is greater than one, requests how many to move. */
 
-void switch_to_slot (int slot)
+static void switch_to_slot (int slot)
 {
     pob oslot = Player.possessions[slot];
     pob oair = Player.possessions[O_UP_IN_AIR];
@@ -1321,7 +1319,7 @@ void switch_to_slot (int slot)
 
 /* merges the up-in-air items into the selected items */
 
-void merge_item (int slot)
+static void merge_item (int slot)
 {
     Player.possessions[slot]->number += Player.possessions[O_UP_IN_AIR]->number;
     Player.possessions[O_UP_IN_AIR] = NULL;
@@ -1329,7 +1327,7 @@ void merge_item (int slot)
 
 /* are two objects equal except for their number field? */
 /* returns false if either object is null */
-int objequal (struct object *o, struct object *p)
+static int objequal (struct object *o, struct object *p)
 {
     if ((o == NULL) || (p == NULL))
 	return (FALSE);
@@ -1340,7 +1338,7 @@ int objequal (struct object *o, struct object *p)
 }
 
 /* criteria for being able to put some item in some slot */
-int slottable (pob o, int slot)
+static int slottable (pob o, int slot)
 {
     int ok = TRUE;
     if (o == NULL)
@@ -1378,7 +1376,7 @@ int slottable (pob o, int slot)
  * printing SILLY stuff out. */
 /* whether or not an item o can be used in a slot. Assumes o can in
    fact be placed in the slot. */
-int item_useable (pob o, int slot)
+static int item_useable (pob o, int slot)
 {
     /* don't have to check the object in the first if since only armor
        can go in armor slot, cloak in cloak slot, etc */
@@ -1488,7 +1486,7 @@ void lose_all_items (void)
 }
 
 /* prevents people from wielding 3 short swords, etc. */
-void pack_extra_items (pob item)
+static void pack_extra_items (pob item)
 {
     pob extra = ((pob) checkmalloc (sizeof (objtype)));
     *extra = *item;
@@ -1526,7 +1524,7 @@ void fixpack (void)
 
 /* show slots, with appropriate additional displays if two-handed weapons */
 /* are involved */
-void show_inventory_slot (int slotnum, int topline)
+static void show_inventory_slot (int slotnum, int topline)
 {
     if (!topline)
 	if (Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND] && (slotnum == O_READY_HAND || slotnum == O_WEAPON_HAND)) {

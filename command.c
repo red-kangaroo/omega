@@ -2,6 +2,45 @@
 #include <ctype.h>
 #include "glob.h"
 
+//----------------------------------------------------------------------
+
+static void rest(void);
+static void peruse(void);
+static void quaff(void);
+static void activate(void);
+static void eat(void);
+static void search(int *searchval);
+static void talk(void);
+static void disarm(void);
+static void give(void);
+static void zapwand(void);
+static void magic(void);
+static void upstairs(void);
+static void downstairs(void);
+static void callitem(void);
+static void opendoor(void);
+static void bash_location(void);
+static void closedoor(void);
+static void moveplayer(int dx, int dy);
+static void movepincountry(int dx, int dy);
+static void examine(void);
+static void help(void);
+static void version(void);
+static void fire(void);
+static void nap(void);
+static void charid(void);
+static void wizard(void);
+static void vault(void);
+static void tacoptions(void);
+static void pickpocket(void);
+static void abortshadowform(void);
+static void tunnel(void);
+static void hunt(int terrain);
+static void city_move(void);
+static void frobgamestatus(void);
+
+//----------------------------------------------------------------------
+
 /* deal with a new player command in dungeon or city mode*/
 void p_process (void)
 {
@@ -466,7 +505,7 @@ void p_country_process (void)
 }
 
 /* no op a turn.... */
-void rest (void)
+static void rest (void)
 {
     if (random_range (20) == 1) {
 	switch (random_range (10)) {
@@ -506,7 +545,7 @@ void rest (void)
 }
 
 /* read a scroll, book, tome, etc. */
-void peruse (void)
+static void peruse (void)
 {
     int iidx;
     struct object *obj;
@@ -537,7 +576,7 @@ void peruse (void)
     }
 }
 
-void quaff (void)
+static void quaff (void)
 {
     int iidx;
     struct object *obj;
@@ -560,7 +599,7 @@ void quaff (void)
     }
 }
 
-void activate (void)
+static void activate (void)
 {
     clearmsg ();
 
@@ -586,7 +625,7 @@ void activate (void)
 	setgamestatus (SKIP_MONSTERS);
 }
 
-void eat (void)
+static void eat (void)
 {
     int iidx;
     struct object *obj;
@@ -617,7 +656,7 @@ void eat (void)
 }
 
 /* search all adjacent spots for secrecy */
-void search (int *searchval)
+static void search (int *searchval)
 {
     int i;
     if (Player.status[AFRAID] > 0)
@@ -642,26 +681,6 @@ void pickup (void)
 	print3 ("You can't really interact with the real world in your shadowy state.");
     else
 	pickup_at (Player.x, Player.y);
-}
-
-/* floor inventory */
-void floor_inv (void)
-{
-    pol ol = Level->site[Player.x][Player.y].things;
-    setgamestatus (SKIP_MONSTERS);
-    menuclear ();
-    while (ol != NULL) {
-	if (ol->thing == NULL)
-	    print3 ("***Error; null thing on things list***");
-	else {
-	    menuprint (itemid (ol->thing));
-	    menuprint ("\n");
-	}
-	ol = ol->next;
-    }
-    showmenu ();
-    morewait ();
-    xredraw ();
 }
 
 void drop (void)
@@ -695,7 +714,7 @@ void drop (void)
 }
 
 /* talk to the animals -- learn their languages.... */
-void talk (void)
+static void talk (void)
 {
     int dx, dy, iidx = 0;
     char response;
@@ -750,7 +769,7 @@ void talk (void)
 }
 
 /* try to deactivate a trap */
-void disarm (void)
+static void disarm (void)
 {
     int x, y, iidx = 0;
     pob o;
@@ -833,7 +852,7 @@ void disarm (void)
 }
 
 /* is it more blessed to give, or receive? */
-void give (void)
+static void give (void)
 {
     int iidx;
     int dx, dy, dindex = 0;
@@ -888,7 +907,7 @@ void give (void)
 }
 
 /* zap a wand, of course */
-void zapwand (void)
+static void zapwand (void)
 {
     int iidx;
     struct object *obj;
@@ -918,7 +937,7 @@ void zapwand (void)
 }
 
 /* cast a spell */
-void magic (void)
+static void magic (void)
 {
     int iidx, pwrdrain;
     clearmsg ();
@@ -950,7 +969,7 @@ void magic (void)
 }
 
 /* go upstairs ('<' command) */
-void upstairs (void)
+static void upstairs (void)
 {
     if (Level->site[Player.x][Player.y].locchar != STAIRS_UP)
 	print3 ("Not here!");
@@ -973,7 +992,7 @@ void upstairs (void)
 }
 
 /* go downstairs ('>' command) */
-void downstairs (void)
+static void downstairs (void)
 {
     if (Level->site[Player.x][Player.y].locchar != STAIRS_DOWN)
 	print3 ("Not here!");
@@ -1094,7 +1113,7 @@ void setoptions (void)
 }
 
 /* name an item */
-void callitem (void)
+static void callitem (void)
 {
     int iidx;
     pob obj;
@@ -1122,7 +1141,7 @@ void callitem (void)
 }
 
 /* open a door */
-void opendoor (void)
+static void opendoor (void)
 {
     int dir;
     int ox, oy;
@@ -1161,7 +1180,7 @@ void opendoor (void)
 }
 
 /* Try to destroy some location */
-void bash_location (void)
+static void bash_location (void)
 {
     int dir;
     int ox, oy;
@@ -1394,7 +1413,7 @@ void save (int compress, int force)
 }
 
 /* close a door */
-void closedoor (void)
+static void closedoor (void)
 {
     int dir;
     int ox, oy;
@@ -1421,7 +1440,7 @@ void closedoor (void)
 }
 
 /* handle a h,j,k,l, etc. */
-void moveplayer (int dx, int dy)
+static void moveplayer (int dx, int dy)
 {
     if (p_moveable (Player.x + dx, Player.y + dy)) {
 
@@ -1475,7 +1494,7 @@ void moveplayer (int dx, int dy)
 }
 
 /* handle a h,j,k,l, etc. */
-void movepincountry (int dx, int dy)
+static void movepincountry (int dx, int dy)
 {
     int i, takestime = TRUE;
     if ((Player.maxweight < Player.itemweight) && random_range (2) && (!Player.status[LEVITATING])) {
@@ -1552,7 +1571,7 @@ void movepincountry (int dx, int dy)
 }
 
 /* look at some spot */
-void examine (void)
+static void examine (void)
 {
     pol ol;
     int x = Player.x, y = Player.y, drewmenu = FALSE;
@@ -1714,7 +1733,7 @@ void examine (void)
 	xredraw ();
 }
 
-void help (void)
+static void help (void)
 {
     char c;
     char filestr[80];
@@ -1774,13 +1793,13 @@ void help (void)
     xredraw ();
 }
 
-void version (void)
+static void version (void)
 {
     setgamestatus (SKIP_MONSTERS);
     print3 (VERSIONSTRING);
 }
 
-void fire (void)
+static void fire (void)
 {
     int ii, x1, y1, x2, y2;
     pob obj;
@@ -1877,7 +1896,7 @@ void quit (void)
 
 /* rest in 10 second segments so if woken up by monster won't
 die automatically.... */
-void nap (void)
+static void nap (void)
 {
     static int naptime;
     if (gamestatusp (FAST_MOVE)) {
@@ -1904,7 +1923,7 @@ void nap (void)
     }
 }
 
-void charid (void)
+static void charid (void)
 {
     char id;
     int countryside = FALSE;
@@ -2044,7 +2063,7 @@ void charid (void)
     }
 }
 
-void wizard (void)
+static void wizard (void)
 {
     setgamestatus (SKIP_MONSTERS);
     if (gamestatusp (CHEATED))
@@ -2060,7 +2079,7 @@ void wizard (void)
 }
 
 /* Jump, that is */
-void vault (void)
+static void vault (void)
 {
     int x = Player.x, y = Player.y, jumper = 0;
 
@@ -2104,7 +2123,7 @@ void vault (void)
 }
 
 /* Sets sequence of combat maneuvers. */
-void tacoptions (void)
+static void tacoptions (void)
 {
     int actionsleft, done, place;
     char defatt, *attstr, *defstr;	/* for the default setting */
@@ -2277,7 +2296,7 @@ void tacoptions (void)
 }
 
 /* Do the Artful Dodger trick */
-void pickpocket (void)
+static void pickpocket (void)
 {
     int dx, dy, ii = 0;
     struct monster *m;
@@ -2345,7 +2364,7 @@ void rename_player (void)
     print2 (Str1);
 }
 
-void abortshadowform (void)
+static void abortshadowform (void)
 {
     setgamestatus (SKIP_MONSTERS);
     if (Player.status[SHADOWFORM] && (Player.status[SHADOWFORM] < 1000)) {
@@ -2359,7 +2378,7 @@ void abortshadowform (void)
     }
 }
 
-void tunnel (void)
+static void tunnel (void)
 {
     int dir, ox, oy, aux;
 
@@ -2419,7 +2438,7 @@ void tunnel (void)
     }
 }
 
-void hunt (int terrain)
+static void hunt (int terrain)
 {
     int fertility = 0;
     switch (terrain) {
@@ -2525,7 +2544,7 @@ void dismount_steed (void)
     calc_melee ();
 }
 
-void city_move (void)
+static void city_move (void)
 {
     int site, x = Player.x, y = Player.y, toggle = FALSE;
     clearmsg ();
@@ -2570,7 +2589,7 @@ void city_move (void)
     }
 }
 
-void frobgamestatus (void)
+static void frobgamestatus (void)
 {
     char response;
     long num;

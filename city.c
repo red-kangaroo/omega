@@ -1,5 +1,16 @@
 #include "glob.h"
 
+//----------------------------------------------------------------------
+
+static void assign_city_function(int x, int y);
+static void make_justiciar(int i, int j);
+static void mazesite(int i, int j, int populate);
+static void randommazesite(int i, int j, int populate);
+static void make_minor_undead(int i, int j);
+static void make_major_undead(int i, int j);
+
+//----------------------------------------------------------------------
+
 /* loads the city level */
 void load_city (int populate)
 {
@@ -286,7 +297,7 @@ void load_city (int populate)
     initrand (E_RESTORE, 0);
 }
 
-void assign_city_function (int x, int y)
+static void assign_city_function (int x, int y)
 {
     static int setup = 0;
     static int next = 0;
@@ -442,7 +453,7 @@ void assign_city_function (int x, int y)
 }
 
 /* makes a hiscore npc for mansions */
-void make_justiciar (int i, int j)
+static void make_justiciar (int i, int j)
 {
     pml ml = ((pml) checkmalloc (sizeof (mltype)));
     ml->m = ((pmt) checkmalloc (sizeof (montype)));
@@ -492,7 +503,7 @@ void resurrect_guards (void)
     fclose (fd);
 }
 
-void mazesite (int i, int j, int populate)
+static void mazesite (int i, int j, int populate)
 {
     static FILE *fd = NULL;
     static int k = 0;
@@ -544,7 +555,7 @@ void mazesite (int i, int j, int populate)
     lreset (i, j, SEEN);
 }
 
-void randommazesite (int i, int j, int populate)
+static void randommazesite (int i, int j, int populate)
 {
     switch (random_range (7)) {
 	case 0:
@@ -570,7 +581,7 @@ void randommazesite (int i, int j, int populate)
 }
 
 /* undead are not hostile unless disturbed.... */
-void make_minor_undead (int i, int j)
+static void make_minor_undead (int i, int j)
 {
     int mid;
     if (random_range (2))
@@ -583,7 +594,7 @@ void make_minor_undead (int i, int j)
 }
 
 /* undead are not hostile unless disturbed.... */
-void make_major_undead (int i, int j)
+static void make_major_undead (int i, int j)
 {
     int mid;
     if (random_range (2))
@@ -595,7 +606,7 @@ void make_major_undead (int i, int j)
     m_status_reset (Level->site[i][j].creature, HOSTILE);
 }
 
-static char jail[5][11] = {
+static const char jail[5][11] = {
     {'#', '#', '*', '#', '#', '*', '#', '#', '*', '#', '#'},
     {'#', '#', '*', '#', '#', '*', '#', '*', '#', '#', '#'},
     {'#', '#', 'T', '#', 'T', '#', 'T', '#', 'T', '#', '#'},

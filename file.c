@@ -1,8 +1,3 @@
-/* omega (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* file.c */
-/* functions with file access in them. Also some direct calls to
-   curses functions */
-
 #include "glob.h"
 #include <sys/types.h>
 #include <unistd.h>
@@ -10,8 +5,17 @@
 #include <fcntl.h>
 #include <errno.h>
 
-FILE *checkfopen (filestring, optionstring)
-char *filestring, *optionstring;
+//----------------------------------------------------------------------
+
+static int test_file_access(char *file_name, int mode);
+static void checkhigh(char *descrip, int behavior);
+static void displaycryptfile(char *filestr);
+static void lock_score_file(void);
+static void unlock_score_file(void);
+
+//----------------------------------------------------------------------
+
+FILE* checkfopen (char* filestring, char* optionstring)
 {
     FILE *fd;
     char response;
@@ -36,17 +40,6 @@ char *filestring, *optionstring;
 	}
     }
     return (fd);
-}
-
-void commandlist (void)
-{
-    strcpy (Str1, Omegalib);
-    if (Current_Environment == E_COUNTRYSIDE)
-	strcat (Str1, "help13.txt");
-    else
-	strcat (Str1, "help12.txt");
-    displayfile (Str1);
-    xredraw ();
 }
 
 void user_intro (void)
@@ -127,7 +120,7 @@ void showmotd (void)
     displayfile (Str1);
 }
 
-void lock_score_file (void)
+static void lock_score_file (void)
 {
     int lock, attempts = 0, thispid, lastpid = 0;
     FILE *lockfile;
@@ -158,7 +151,7 @@ void lock_score_file (void)
     close (lock);
 }
 
-void unlock_score_file (void)
+static void unlock_score_file (void)
 {
     strcpy (Str1, Omegalib);
     strcat (Str1, "omega.hi.lock");
@@ -319,7 +312,7 @@ void save_hiscore_npc (int npc)
     unlock_score_file ();
 }
 
-void checkhigh (char *descrip, int behavior)
+static void checkhigh (char *descrip, int behavior)
 {
     long points;
 
@@ -375,11 +368,8 @@ void extendlog (char *descrip, int lifestatus)
     }
 }
 
-/* reads a string from a file. If it is a line with more than 80 char's,
-   then remainder of line to \n is consumed */
-void filescanstring (fd, fstr)
-FILE *fd;
-char *fstr;
+// reads a string from a file. If it is a line with more than 80 char's, then remainder of line to \n is consumed
+void filescanstring (FILE* fd, char* fstr)
 {
     int i = -1;
     int byte = 'x';
@@ -394,7 +384,7 @@ char *fstr;
     fstr[i] = 0;
 }
 
-int test_file_access (char *file_name, int mode)
+static int test_file_access (char *file_name, int mode)
 {
     int fd;
 
@@ -408,7 +398,7 @@ int test_file_access (char *file_name, int mode)
     return 1;
 }
 
-char *required_file_list[] = {
+static const char* required_file_list[] = {
     "city.dat", "country.dat", "dlair.dat", "misle.dat", "court.dat",
     "speak.dat", "temple.dat", "abyss.dat", "village1.dat", "village2.dat",
     "village3.dat", "village4.dat", "village5.dat", "village6.dat",
@@ -417,7 +407,7 @@ char *required_file_list[] = {
     "license.txt", "circle.dat", NULL
 };
 
-char *optional_file_list[] = {
+static const char* optional_file_list[] = {
     "help1.txt", "help2.txt", "help3.txt", "help4.txt", "help5.txt",
     "help6.txt", "help7.txt", "help8.txt", "help9.txt", "help10.txt",
     "help11.txt", "help12.txt", "help13.txt", "abyss.txt", "scroll1.txt",
@@ -502,7 +492,7 @@ void displayfile (char *filestr)
 }
 
 /* display a file given a string name of file */
-void displaycryptfile (char *filestr)
+static void displaycryptfile (char *filestr)
 {
     FILE *fd = checkfopen (filestr, "rb");
     int c, d = ' ';

@@ -7,6 +7,19 @@
 #include "glob.h"
 #include <unistd.h>
 
+//----------------------------------------------------------------------
+
+static int bufferappend(char *s);
+static void blankoutspot(int i, int j);
+static void blotspot(int i, int j);
+static void buffercycle(char *s);
+static void dobackspace(void);
+static void drawplayer(void);
+static void hide_line(int i);
+static void lightspot(int x, int y);
+
+//----------------------------------------------------------------------
+
 #define CHARATTR(c)	((c) & ~0xff)
 
 /* note these variables are not exported to other files */
@@ -345,7 +358,7 @@ void omega_title (void)
 }
 
 /* blanks out ith line of Menuw or Levelw */
-void hide_line (int i)
+static void hide_line (int i)
 {
     wclear (Showline[i]);
     touchwin (Showline[i]);
@@ -436,9 +449,9 @@ void initgraf (void)
     /*  refresh();*//* DG */
 }
 
-int lastx = -1, lasty = -1;
+static int lastx = -1, lasty = -1;
 
-void drawplayer (void)
+static void drawplayer (void)
 {
     int c;
 
@@ -468,19 +481,10 @@ void drawplayer (void)
     lasty = Player.y;
 }
 
-void setlastxy (		/* used when changing environments */
-		   int new_x, int new_y)
+void setlastxy (int new_x, int new_y)
 {
     lastx = new_x;
     lasty = new_y;
-}
-
-int litroom (int x, int y)
-{
-    if (Level->site[x][y].roomnumber < ROOMBASE)
-	return (FALSE);
-    else
-	return (loc_statusp (x, y, LIT) || Player.status[ILLUMINATION]);
 }
 
 void drawvision (int x, int y)
@@ -575,7 +579,7 @@ void dodrawspot (int x, int y)
 }
 
 /* write a blank to a spot if it is floor */
-void blankoutspot (int i, int j)
+static void blankoutspot (int i, int j)
 {
     if (inbounds (i, j)) {
 	lreset (i, j, LIT);
@@ -588,7 +592,7 @@ void blankoutspot (int i, int j)
 }
 
 /* blank out a spot regardless */
-void blotspot (int i, int j)
+static void blotspot (int i, int j)
 {
     if (inbounds (i, j)) {
 	lreset (i, j, SEEN);
@@ -838,18 +842,6 @@ void menuclear (void)
     wrefresh (Menuw);
 }
 
-void menuspellprint (int i)
-{
-    if (getcury(Menuw) >= ScreenLength - 2) {
-	wrefresh (Menuw);
-	morewait ();
-	wclear (Menuw);
-	touchwin (Menuw);
-    }
-    wprintw (Menuw, spellid (i));
-    wprintw (Menuw, "(%d)\n", Spells[i].powerdrain);
-}
-
 void menuprint (char *s)
 {
     if (getcury(Menuw) >= ScreenLength - 2) {
@@ -1025,12 +1017,6 @@ long parsenum (void)
     }
 }
 
-void maddch (int c)
-{
-    waddch (Msgw, c);
-    wrefresh (Msgw);
-}
-
 void display_death (char *source)
 {
     clear ();
@@ -1152,7 +1138,7 @@ void menulongprint (long n)
     wprintw (Menuw, "%ld", n);
 }
 
-void dobackspace (void)
+static void dobackspace (void)
 {
     int x, y;
     getyx (Msgw, y, x);
@@ -1301,7 +1287,7 @@ void spreadroomlight (int x, int y, int roomno)
 }
 
 /* illuminate one spot at x y */
-void lightspot (int x, int y)
+static void lightspot (int x, int y)
 {
     Symbol c;
     lset (x, y, LIT);
@@ -1546,16 +1532,16 @@ void clear_if_necessary (void)
     }
 }
 
-int bufferpos = 0;
+static int bufferpos = 0;
 
-void buffercycle (char *s)
+static void buffercycle (char *s)
 {
     strcpy (Stringbuffer[bufferpos++], s);
     if (bufferpos >= STRING_BUFFER_SIZE)
 	bufferpos = 0;
 }
 
-int bufferappend (char *s)
+static int bufferappend (char *s)
 {
     int pos = bufferpos - 1;
 

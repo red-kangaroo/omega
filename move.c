@@ -1,8 +1,50 @@
 #include "glob.h"
 #include <unistd.h>
 
+//----------------------------------------------------------------------
+
+static void l_air_station(void);
+static void l_arena_exit(void);
+static void l_balancestone(void);
+static void l_chaostone(void);
+static void l_circle_library(void);
+static void l_drop_every_portcullis(void);
+static void l_earth_station(void);
+static void l_enter_circle(void);
+static void l_enter_court(void);
+static void l_escalator(void);
+static void l_fire(void);
+static void l_fire_station(void);
+static void l_hedge(void);
+static void l_house_exit(void);
+static void l_lava(void);
+static void l_lawstone(void);
+static void l_lift(void);
+static void l_magic_pool(void);
+static void l_mindstone(void);
+static void l_no_op(void);
+static void l_rubble(void);
+static void l_sacrificestone(void);
+static void l_tactical_exit(void);
+static void l_temple_warning(void);
+static void l_throne(void);
+static void l_tome1(void);
+static void l_tome2(void);
+static void l_voice1(void);
+static void l_voice2(void);
+static void l_voice3(void);
+static void l_void(void);
+static void l_void_station(void);
+static void l_voidstone(void);
+static void l_water(void);
+static void l_water_station(void);
+static void l_whirlwind(void);
+static void stationcheck(void);
+
+//----------------------------------------------------------------------
+
 /* various miscellaneous location functions */
-void l_water (void)
+static void l_water (void)
 {
     if (!gamestatusp (MOUNTED)) {
 	if ((Player.possessions[O_ARMOR] != NULL)) {
@@ -83,7 +125,7 @@ void l_chaos (void)
     }
 }
 
-void l_hedge (void)
+static void l_hedge (void)
 {
     if (Player.patron == DRUID)
 	print1 ("You move through the hedges freely.");
@@ -118,7 +160,7 @@ void l_hedge (void)
     }
 }
 
-void l_lava (void)
+static void l_lava (void)
 {
     print1 ("Very clever -- walking into a pool of lava...");
     if (gamestatusp (MOUNTED)) {
@@ -137,7 +179,7 @@ void l_lava (void)
     }
 }
 
-void l_fire (void)
+static void l_fire (void)
 {
     print1 ("You boldly stride through the curtain of fire...");
     if (gamestatusp (MOUNTED)) {
@@ -208,7 +250,7 @@ void l_abyss (void)
     }
 }
 
-void l_lift (void)
+static void l_lift (void)
 {
     char response;
     int levelnum;
@@ -264,7 +306,7 @@ void l_lift (void)
     }
 }
 
-void l_magic_pool (void)
+static void l_magic_pool (void)
 {
     int possibilities = random_range (100);
     print1 ("This pool seems to be enchanted....");
@@ -323,11 +365,11 @@ void l_magic_pool (void)
     lset (Player.x, Player.y, CHANGED);
 }
 
-void l_no_op (void)
+static void l_no_op (void)
 {
 }
 
-void l_tactical_exit (void)
+static void l_tactical_exit (void)
 {
     if (optionp (CONFIRM)) {
 	clearmsg ();
@@ -344,7 +386,7 @@ void l_tactical_exit (void)
 	change_environment (Last_Environment);
 }
 
-void l_rubble (void)
+static void l_rubble (void)
 {
     int screwup = random_range (100) - (Player.agi + Player.level);
     print1 ("You climb over the unstable pile of rubble....");
@@ -385,7 +427,7 @@ void l_portcullis_trap (void)
 }
 
 /* drops every portcullis on level, then kills itself and all similar traps. */
-void l_drop_every_portcullis (void)
+static void l_drop_every_portcullis (void)
 {
     int i, j, slam = FALSE;
 
@@ -428,7 +470,7 @@ void l_raise_portcullis (void)
 	print1 ("You hear the sound of steel on stone!");
 }
 
-void l_arena_exit (void)
+static void l_arena_exit (void)
 {
     resetgamestatus (ARENA_MODE);
     free_level (Level);
@@ -436,7 +478,7 @@ void l_arena_exit (void)
     change_environment (E_CITY);
 }
 
-void l_house_exit (void)
+static void l_house_exit (void)
 {
     if (optionp (CONFIRM)) {
 	clearmsg ();
@@ -449,7 +491,7 @@ void l_house_exit (void)
     change_environment (Last_Environment);
 }
 
-void l_void (void)
+static void l_void (void)
 {
     clearmsg ();
     print1 ("Geronimo!");
@@ -469,7 +511,7 @@ void l_void (void)
     }
 }
 
-void l_fire_station (void)
+static void l_fire_station (void)
 {
     print1 ("The flames leap up, and the heat is incredible.");
     if (Player.immunity[FLAME]) {
@@ -503,7 +545,7 @@ void l_fire_station (void)
 	print2 ("You flinch away from the all-consuming fire.");
 }
 
-void l_water_station (void)
+static void l_water_station (void)
 {
     print1 ("The fluid seems murky and unknowably deep.");
     print2 ("It bubbles and hisses threateningly.");
@@ -549,7 +591,7 @@ void l_water_station (void)
 	print2 ("You step back from the pool of acid.");
 }
 
-void l_air_station (void)
+static void l_air_station (void)
 {
     print1 ("The whirlwind spins wildly and crackles with lightning.");
     if (Player.immunity[ELECTRICITY])
@@ -583,7 +625,7 @@ void l_air_station (void)
 	print2 ("You step back from the ominous whirlwind.");
 }
 
-void l_earth_station (void)
+static void l_earth_station (void)
 {
     pob o;
     print1 ("The tendrilled mass reaches out for you from the muddy ooze.");
@@ -618,7 +660,7 @@ void l_earth_station (void)
 	print2 ("You step back from the ominous vegetation.");
 }
 
-void stationcheck (void)
+static void stationcheck (void)
 {
     int stationsleft = FALSE;
     int i, j;
@@ -649,7 +691,7 @@ void stationcheck (void)
    must be thrown in to satiate the void, then all other items must
    be dropped, then the void must be entered. */
 
-void l_void_station (void)
+static void l_void_station (void)
 {
     int i, something = FALSE;
     print1 ("You are at the brink of an endless void. Enter it? [yn] ");
@@ -709,25 +751,25 @@ void l_void_station (void)
 	print2 ("You back away from the edge....");
 }
 
-void l_voice1 (void)
+static void l_voice1 (void)
 {
     print1 ("A mysterious voice says: The Hunger of the Void must be satiated.");
     Level->site[Player.x][Player.y].p_locf = L_NO_OP;
 }
 
-void l_voice2 (void)
+static void l_voice2 (void)
 {
     print1 ("A strange voice recites: Enter the Void as you entered the World.");
     Level->site[Player.x][Player.y].p_locf = L_NO_OP;
 }
 
-void l_voice3 (void)
+static void l_voice3 (void)
 {
     print1 ("An eerie voice resounds: The Void is the fifth Elemental Station.");
     Level->site[Player.x][Player.y].p_locf = L_NO_OP;
 }
 
-void l_whirlwind (void)
+static void l_whirlwind (void)
 {
     print1 ("Buffeting winds swirl you up!");
     p_damage (random_range (difficulty () * 10), NORMAL_DAMAGE, "a magic whirlwind");
@@ -744,7 +786,7 @@ void l_whirlwind (void)
     }
 }
 
-void l_enter_circle (void)
+static void l_enter_circle (void)
 {
     print1 ("You see a translucent stairway before you, leading down.");
     print2 ("Take it? [yn] ");
@@ -752,12 +794,12 @@ void l_enter_circle (void)
 	change_environment (E_CIRCLE);
 }
 
-void l_circle_library (void)
+static void l_circle_library (void)
 {
     print1 ("You see before you the arcane library of the Circle of Sorcerors.");
 }
 
-void l_tome1 (void)
+static void l_tome1 (void)
 {
     menuclear ();
     menuprint ("\nYou discover in a dusty tome some interesting information....");
@@ -775,7 +817,7 @@ void l_tome1 (void)
     xredraw ();
 }
 
-void l_tome2 (void)
+static void l_tome2 (void)
 {
     menuclear ();
     menuprint ("\nYou discover in some ancient notes that the Star Gem can be");
@@ -788,14 +830,14 @@ void l_tome2 (void)
     xredraw ();
 }
 
-void l_temple_warning (void)
+static void l_temple_warning (void)
 {
     print1 ("A stern voice thunders in the air around you:");
     print2 ("'No unbelievers may enter these sacred precincts;");
     print3 ("those who defile this shrine will be destroyed!");
 }
 
-void l_throne (void)
+static void l_throne (void)
 {
     pob o;
     int i;
@@ -889,7 +931,7 @@ void l_throne (void)
     }
 }
 
-void l_escalator (void)
+static void l_escalator (void)
 {
     print1 ("You have found an extremely long stairway going straight up.");
     print2 ("The stairs are grilled steel and the bannister is rubber.");
@@ -902,7 +944,7 @@ void l_escalator (void)
     }
 }
 
-void l_enter_court (void)
+static void l_enter_court (void)
 {
     print1 ("You have found a magical portal! Enter it? [yn] ");
     if (ynq1 () == 'y') {
@@ -917,7 +959,7 @@ void l_enter_court (void)
     }
 }
 
-void l_chaostone (void)
+static void l_chaostone (void)
 {
     print1 ("This is a menhir carved of black marble with veins of gold.");
     print2 ("It emanates an aura of raw chaos, which is not terribly");
@@ -942,7 +984,7 @@ void l_chaostone (void)
 	print1 ("You step back from the ominous dolmech.");
 }
 
-void l_balancestone (void)
+static void l_balancestone (void)
 {
     print1 ("This is a massive granite slab teetering dangerously on a corner.");
     print2 ("You feel a sense of balance as you regard it.");
@@ -979,7 +1021,7 @@ void l_balancestone (void)
 	print1 ("You step back from the unlikely boulder.");
 }
 
-void l_lawstone (void)
+static void l_lawstone (void)
 {
     print1 ("This is a stele carved of blueish-green feldspar.");
     print2 ("You feel an aura of serenity rising from it, and your gaze");
@@ -1004,7 +1046,7 @@ void l_lawstone (void)
 	print1 ("You step back from the strange obelisk.");
 }
 
-void l_voidstone (void)
+static void l_voidstone (void)
 {
     int i;
     print1 ("This is a grey and uninteresting stone.");
@@ -1031,7 +1073,7 @@ void l_voidstone (void)
 	print1 ("You back away from the strange rock.");
 }
 
-void l_sacrificestone (void)
+static void l_sacrificestone (void)
 {
     int sacrifice = 1;
     int oldmaxhp = Player.maxhp;
@@ -1094,7 +1136,7 @@ void l_sacrificestone (void)
     }
 }
 
-void l_mindstone (void)
+static void l_mindstone (void)
 {
     print1 ("You approach a giant crystal of some opaline material.");
     print2 ("Flashes of irridescent light glint from the object.");

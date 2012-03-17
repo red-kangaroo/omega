@@ -1,6 +1,54 @@
 #include "glob.h"
 
-void s_wish (void)
+//----------------------------------------------------------------------
+
+static void s_accuracy(void);
+static void s_alert(void);
+static void s_apport(void);
+static void s_bless(void);
+static void s_breathe(void);
+static void s_clairvoyance(void);
+static void s_cure(void);
+static void s_desecrate(void);
+static void s_disintegrate(void);
+static void s_dispel(void);
+static void s_disrupt(void);
+static void s_drain(void);
+static void s_enchant(void);
+static void s_fear(void);
+static void s_firebolt(void);
+static void s_haste(void);
+static void s_heal(void);
+static void s_hellfire(void);
+static void s_hero(void);
+static void s_identify(void);
+static void s_invisible(void);
+static void s_knowledge(void);
+static void s_lball(void);
+static void s_levitate(void);
+static void s_missile(void);
+static void s_mondet(void);
+static void s_objdet(void);
+static void s_polymorph(void);
+static void s_regenerate(void);
+static void s_restore(void);
+static void s_return(void);
+static void s_ritual(void);
+static void s_sanctify(void);
+static void s_sanctuary(void);
+static void s_shadowform(void);
+static void s_sleep(void);
+static void s_summon(void);
+static void s_teleport(void);
+static void s_truesight(void);
+static void s_warp(void);
+static void s_wish(void);
+static void showknownspells(int first, int last);
+static int spellparse(void);
+
+//----------------------------------------------------------------------
+
+static void s_wish (void)
 {
     if (random_range (100) > Player.iq + Player.pow + Player.level) {
 	mprint ("Your concentration is flawed!");
@@ -16,149 +64,149 @@ void s_wish (void)
     }
 }
 
-void s_firebolt (void)
+static void s_firebolt (void)
 {
     int x = Player.x, y = Player.y;
     setspot (&x, &y);
     fbolt (Player.x, Player.y, x, y, Player.dex * 2 + Player.level, Player.level * 10 + 10);
 }
 
-void s_missile (void)
+static void s_missile (void)
 {
     int x = Player.x, y = Player.y;
     setspot (&x, &y);
     nbolt (Player.x, Player.y, x, y, Player.dex * 2 + Player.level, Player.level * 3 + 3);
 }
 
-void s_teleport (void)
+static void s_teleport (void)
 {
     p_teleport (0);
 }
 
-void s_disrupt (void)
+static void s_disrupt (void)
 {
     int x = Player.x, y = Player.y;
     setspot (&x, &y);
     disrupt (x, y, Player.level * 10 + 25);
 }
 
-void s_disintegrate (void)
+static void s_disintegrate (void)
 {
     int x = Player.x, y = Player.y;
     setspot (&x, &y);
     disintegrate (x, y);
 }
 
-void s_sleep (void)
+static void s_sleep (void)
 {
     sleep_monster (0);
 }
 
-void s_heal (void)
+static void s_heal (void)
 {
     heal (3);
 }
 
-void s_dispel (void)
+static void s_dispel (void)
 {
     dispel ((Player.level + Player.maxpow) / 10);
 }
 
-void s_breathe (void)
+static void s_breathe (void)
 {
     breathe (0);
 }
 
-void s_invisible (void)
+static void s_invisible (void)
 {
     invisible (0);
 }
 
-void s_warp (void)
+static void s_warp (void)
 {
     warp (1);
 }
 
-void s_enchant (void)
+static void s_enchant (void)
 {
     enchant (1);
 }
 
-void s_bless (void)
+static void s_bless (void)
 {
     bless (0);
 }
 
-void s_restore (void)
+static void s_restore (void)
 {
     recover_stat (0);
 }
 
-void s_cure (void)
+static void s_cure (void)
 {
     cure (0);
 }
 
-void s_truesight (void)
+static void s_truesight (void)
 {
     truesight (0);
 }
 
-void s_hellfire (void)
+static void s_hellfire (void)
 {
     int x = Player.x, y = Player.y;
     setspot (&x, &y);
     hellfire (x, y, 0);
 }
 
-void s_knowledge (void)
+static void s_knowledge (void)
 {
     knowledge (0);
 }
 
-void s_hero (void)
+static void s_hero (void)
 {
     hero (0);
 }
 
 /* spell takes longer and longer to work deeper into dungeon */
-void s_return (void)
+static void s_return (void)
 {
     mprint ("You hear a whine as your spell begins to charge up.");
     Player.status[RETURNING] = ((Current_Environment == Current_Dungeon) ? difficulty () : 1);
 }
 
-void s_desecrate (void)
+static void s_desecrate (void)
 {
     sanctify (-1);
 }
 
-void s_haste (void)
+static void s_haste (void)
 {
     haste (0);
 }
 
-void s_summon (void)
+static void s_summon (void)
 {
     summon (0, -1);
 }
 
-void s_sanctuary (void)
+static void s_sanctuary (void)
 {
     sanctuary ();
 }
 
-void s_sanctify (void)
+static void s_sanctify (void)
 {
     sanctify (1);
 }
 
-void s_accuracy (void)
+static void s_accuracy (void)
 {
     accuracy (0);
 }
 
-void s_fear (void)
+static void s_fear (void)
 {
     int x = Player.x, y = Player.y;
     setspot (&x, &y);
@@ -167,7 +215,7 @@ void s_fear (void)
 
 /* Has all kinds of effects in different circumstances.
    Eventually will be more interesting */
-void s_ritual (void)
+static void s_ritual (void)
 {
     pob symbol;
     int i, roomno;
@@ -333,65 +381,65 @@ void s_ritual (void)
     }
 }
 
-void s_apport (void)
+static void s_apport (void)
 {
     apport (0);
 }
 
-void s_shadowform (void)
+static void s_shadowform (void)
 {
     shadowform ();
 }
 
-void s_alert (void)
+static void s_alert (void)
 {
     alert (0);
 }
 
-void s_regenerate (void)
+static void s_regenerate (void)
 {
     regenerate (0);
 }
 
-void s_clairvoyance (void)
+static void s_clairvoyance (void)
 {
     clairvoyance (10);
 }
 
-void s_drain (void)
+static void s_drain (void)
 {
     drain (0);
 }
 
-void s_levitate (void)
+static void s_levitate (void)
 {
     levitate (0);
 }
 
-void s_polymorph (void)
+static void s_polymorph (void)
 {
     polymorph (0);
 }
 
 /* lball spell */
-void s_lball (void)
+static void s_lball (void)
 {
     int x = Player.x, y = Player.y;
     setspot (&x, &y);
     lball (Player.x, Player.y, x, y, Player.level * 10 + 10);
 }
 
-void s_identify (void)
+static void s_identify (void)
 {
     identify (0);
 }
 
-void s_objdet (void)
+static void s_objdet (void)
 {
     objdet (1);
 }
 
-void s_mondet (void)
+static void s_mondet (void)
 {
     mondet (1);
 }
@@ -773,7 +821,7 @@ static char *spell_names[] = {	/* alphabetical listing */
     "summoning", "teleport", "the warp", "true sight", "wishing"
 };
 
-static int spell_ids[] = {	/* in the same order as spell_names[] */
+static const int spell_ids[] = {	/* in the same order as spell_names[] */
     S_ACCURACY, S_ALERT, S_APPORT, S_LBALL, S_BLESS, S_BREATHE, S_CLAIRVOYANCE,
     S_CURE, S_DESECRATE, S_DISINTEGRATE, S_DISPEL, S_DISRUPT, S_ENCHANT, S_DRAIN,
     S_FEAR, S_FIREBOLT, S_HASTE, S_HEAL, S_HELLFIRE, S_HERO, S_IDENTIFY,
@@ -783,7 +831,7 @@ static int spell_ids[] = {	/* in the same order as spell_names[] */
     S_WISH
 };
 
-void showknownspells (int first, int last)
+static void showknownspells (int first, int last)
 {
     int i, printed = FALSE;
 
@@ -803,7 +851,7 @@ void showknownspells (int first, int last)
     showmenu ();
 }
 
-int spellparse (void)
+static int spellparse (void)
 {
     int first, last, pos;
     char byte, prefix[80];

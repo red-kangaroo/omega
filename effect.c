@@ -1,5 +1,14 @@
 #include "glob.h"
 
+//----------------------------------------------------------------------
+
+static int itemlist(int itemindex, int num);
+static int monsterlist(void);
+static void ball(int fx, int fy, int tx, int ty, int dmg, int dtype);
+static void bolt(int fx, int fy, int tx, int ty, int hit, int dmg, int dtype);
+
+//----------------------------------------------------------------------
+
 /* enchant */
 void enchant (int delta)
 {
@@ -211,7 +220,7 @@ void nbolt (int fx, int fy, int tx, int ty, int hit, int dmg)
 }
 
 /* from f to t */
-void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
+static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 {
     int xx, yy;
     struct monster *target;
@@ -352,7 +361,7 @@ void fball (int fx, int fy, int tx, int ty, int dmg)
 }
 
 /* from f to t */
-void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
+static void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
 {
     int xx, yy, ex, ey, i;
     struct monster *target;
@@ -1442,7 +1451,7 @@ void summon (int blessing, int id)
     }
 }
 
-int itemlist (int itemindex, int num)
+static int itemlist (int itemindex, int num)
 {
     int i, itemno;
 
@@ -1464,7 +1473,7 @@ int itemlist (int itemindex, int num)
     return (itemno);
 }
 
-int monsterlist (void)
+static int monsterlist (void)
 {
     int i, itemno;
     print2 ("Show ID list? ");

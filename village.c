@@ -1,5 +1,17 @@
 #include "glob.h"
 
+//----------------------------------------------------------------------
+
+static void assign_village_function(int x, int y, int setup);
+static void make_food_bin(int i, int j);
+static void make_guard(int i, int j);
+static void make_horse(int i, int j);
+static void make_merchant(int i, int j);
+static void make_sheep(int i, int j);
+static void special_village_site(int i, int j, int villagenum);
+
+//----------------------------------------------------------------------
+
 /* loads the village level into Level*/
 void load_village (int villagenum, int populate)
 {
@@ -145,7 +157,7 @@ void load_village (int villagenum, int populate)
     initrand (E_RESTORE, 0);
 }
 
-void make_guard (int i, int j)
+static void make_guard (int i, int j)
 {
     pml tml = ((pml) (checkmalloc (sizeof (mltype))));
     tml->m = (Level->site[i][j].creature = make_creature (GUARD));
@@ -155,7 +167,7 @@ void make_guard (int i, int j)
     Level->mlist = tml;
 }
 
-void make_sheep (int i, int j)
+static void make_sheep (int i, int j)
 {
     pml tml = ((pml) (checkmalloc (sizeof (mltype))));
     tml->m = (Level->site[i][j].creature = make_creature (SHEEP));
@@ -165,7 +177,7 @@ void make_sheep (int i, int j)
     Level->mlist = tml;
 }
 
-void make_food_bin (int i, int j)
+static void make_food_bin (int i, int j)
 {
     pol tol;
     int k;
@@ -179,7 +191,7 @@ void make_food_bin (int i, int j)
     }
 }
 
-void make_horse (int i, int j)
+static void make_horse (int i, int j)
 {
     pml tml = ((pml) (checkmalloc (sizeof (mltype))));
     tml->m = (Level->site[i][j].creature = make_creature (HORSE));
@@ -189,7 +201,7 @@ void make_horse (int i, int j)
     Level->mlist = tml;
 }
 
-void make_merchant (int i, int j)
+static void make_merchant (int i, int j)
 {
     pml tml = ((pml) (checkmalloc (sizeof (mltype))));
     tml->m = (Level->site[i][j].creature = make_creature (MERCHANT));
@@ -199,7 +211,7 @@ void make_merchant (int i, int j)
     Level->mlist = tml;
 }
 
-void assign_village_function (int x, int y, int setup)
+static void assign_village_function (int x, int y, int setup)
 {
     static int next = 0;
     static int permutation[24];	/* number of x's in village map */
@@ -257,7 +269,7 @@ void assign_village_function (int x, int y, int setup)
     }
 }
 
-void special_village_site (int i, int j, int villagenum)
+static void special_village_site (int i, int j, int villagenum)
 {
     if (villagenum == 1) {
 	Level->site[i][j].locchar = ALTAR;

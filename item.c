@@ -1,5 +1,128 @@
 #include "glob.h"
 
+//----------------------------------------------------------------------
+
+static char* grotname(void);
+static void i_accuracy(pob o);
+static void i_acquire(pob o);
+static void i_alert(pob o);
+static void i_antioch(pob o);
+static void i_apport(pob o);
+static void i_augment(pob o);
+static void i_azoth(pob o);
+static void i_bless(pob o);
+static void i_breathing(pob o);
+static void i_charge(pob o);
+static void i_clairvoyance(struct object *o);
+static void i_corpse(pob o);
+static void i_crystal(pob o);
+static void i_cure(pob o);
+static void i_death(pob o);
+static void i_defend(pob o);
+static void i_deflect(pob o);
+static void i_demonblade(pob o);
+static void i_desecrate(pob o);
+static void i_disintegrate(pob o);
+static void i_dispel(pob o);
+static void i_displace(pob o);
+static void i_disrupt(pob o);
+static void i_enchant(pob o);
+static void i_enchantment(pob o);
+static void i_fear(pob o);
+static void i_fear_resist(pob o);
+static void i_fireball(pob o);
+static void i_firebolt(pob o);
+static void i_flux(pob o);
+static void i_food(pob o);
+static void i_heal(pob o);
+static void i_helm(pob o);
+static void i_hero(pob o);
+static void i_hide(pob o);
+static void i_id(pob o);
+static void i_illuminate(pob o);
+static void i_immune(pob o);
+static void i_invisible(pob o);
+static void i_jane_t(pob o);
+static void i_juggernaut(pob o);
+static void i_key(pob o);
+static void i_knowledge(pob o);
+static void i_kolwynia(pob o);
+static void i_lball(pob o);
+static void i_lbolt(pob o);
+static void i_lembas(pob o);
+static void i_levitate(pob o);
+static void i_life(pob o);
+static void i_lightsabre(pob o);
+static void i_mace_disrupt(pob o);
+static void i_missile(pob o);
+static void i_mondet(pob o);
+static void i_neutralize_poison(pob o);
+static void i_no_op(pob o);
+static void i_normal_armor(pob o);
+static void i_normal_shield(pob o);
+static void i_normal_weapon(pob o);
+static void i_nothing(pob o);
+static void i_objdet(pob o);
+static void i_orbair(pob o);
+static void i_orbdead(pob o);
+static void i_orbearth(pob o);
+static void i_orbfire(pob o);
+static void i_orbmastery(pob o);
+static void i_orbwater(pob o);
+static void i_pepper_food(pob o);
+static void i_perm_accuracy(pob o);
+static void i_perm_agility(pob o);
+static void i_perm_breathing(pob o);
+static void i_perm_burden(pob o);
+static void i_perm_deflect(pob o);
+static void i_perm_displace(pob o);
+static void i_perm_energy_resist(pob o);
+static void i_perm_fear_resist(pob o);
+static void i_perm_fire_resist(pob o);
+static void i_perm_gaze_immune(pob o);
+static void i_perm_hero(pob o);
+static void i_perm_illuminate(pob o);
+static void i_perm_invisible(pob o);
+static void i_perm_knowledge(pob o);
+static void i_perm_levitate(pob o);
+static void i_perm_negimmune(pob o);
+static void i_perm_poison_resist(pob o);
+static void i_perm_protection(pob o);
+static void i_perm_regenerate(pob o);
+static void i_perm_speed(pob o);
+static void i_perm_strength(pob o);
+static void i_perm_truesight(pob o);
+static void i_pick(pob o);
+static void i_planes(pob o);
+static void i_poison_food(pob o);
+static void i_polymorph(pob o);
+static void i_pow(pob o);
+static void i_raise_portcullis(pob o);
+static void i_regenerate(pob o);
+static void i_restore(pob o);
+static void i_sceptre(pob o);
+static void i_sleep_other(pob o);
+static void i_sleep_self(pob o);
+static void i_snowball(pob o);
+static void i_speed(pob o);
+static void i_spells(pob o);
+static void i_stargem(pob o);
+static void i_stim(pob o);
+static void i_summon(pob o);
+static void i_symbol(pob o);
+static void i_teleport(pob o);
+static void i_trap(pob o);
+static void i_truesight(pob o);
+static void i_victrix(pob o);
+static void i_warp(pob o);
+static void i_wish(pob o);
+static int itemblessing(void);
+static int itemcharge(void);
+static int itemplus(void);
+static int orbcheck(int element);
+
+//----------------------------------------------------------------------
+
 /* make a random new object, returning pointer */
 pob create_object (int itemlevel)
 {
@@ -331,7 +454,7 @@ char *scrollname (int id)
     }
 }
 
-char *grotname (void)
+static char *grotname (void)
 {
     switch (random_range (20)) {
 	case 0:
@@ -619,7 +742,7 @@ char *bootname (int id)
     }
 }
 
-int itemplus (void)
+static int itemplus (void)
 {
     int p = 0;
 
@@ -628,12 +751,12 @@ int itemplus (void)
     return (p);
 }
 
-int itemcharge (void)
+static int itemcharge (void)
 {
     return (random_range (20) + 1);
 }
 
-int itemblessing (void)
+static int itemblessing (void)
 {
     switch (random_range (10)) {
 	case 0:
@@ -668,24 +791,24 @@ int twohandedp (int id)
 
 /* general item functions */
 
-void i_no_op (pob o UNUSED)
+static void i_no_op (pob o UNUSED)
 {
 }
 
-void i_nothing (pob o UNUSED)
+static void i_nothing (pob o UNUSED)
 {
 }
 
 /*  scroll functions */
 
-void i_knowledge (pob o)
+static void i_knowledge (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
     knowledge (o->blessing);
 }
 
-void i_jane_t (pob o)
+static void i_jane_t (pob o)
 {
     int volume = random_range (6);
     int j = 0, k = 0;
@@ -743,7 +866,7 @@ void i_jane_t (pob o)
     xredraw ();
 }
 
-void i_flux (pob o)
+static void i_flux (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
@@ -751,7 +874,7 @@ void i_flux (pob o)
 }
 
 /* enchantment */
-void i_enchant (pob o)
+static void i_enchant (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
@@ -759,7 +882,7 @@ void i_enchant (pob o)
 }
 
 /* scroll of clairvoyance */
-void i_clairvoyance (struct object *o)
+static void i_clairvoyance (struct object *o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
@@ -769,7 +892,7 @@ void i_clairvoyance (struct object *o)
 	clairvoyance (5 + o->blessing * 5);
 }
 
-void i_acquire (pob o)
+static void i_acquire (pob o)
 {
     int blessing;
 
@@ -780,14 +903,14 @@ void i_acquire (pob o)
     acquire (blessing);
 }
 
-void i_teleport (pob o)
+static void i_teleport (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
     p_teleport (o->blessing);
 }
 
-void i_spells (pob o)
+static void i_spells (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
@@ -797,14 +920,14 @@ void i_spells (pob o)
 }
 
 /* scroll of blessing */
-void i_bless (pob o)
+static void i_bless (pob o)
 {
     Objects[o->id].known = 1;
     bless (o->blessing);
 }
 
 /* scroll of wishing */
-void i_wish (pob o)
+static void i_wish (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
@@ -813,7 +936,7 @@ void i_wish (pob o)
 }
 
 /* scroll of displacement */
-void i_displace (pob o)
+static void i_displace (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
@@ -821,7 +944,7 @@ void i_displace (pob o)
 }
 
 /* scroll of deflection */
-void i_deflect (pob o)
+static void i_deflect (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
@@ -829,7 +952,7 @@ void i_deflect (pob o)
 }
 
 /* scroll of identification */
-void i_id (pob o)
+static void i_id (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
@@ -839,7 +962,7 @@ void i_id (pob o)
 /* potion functions */
 
 /* potion of healing */
-void i_heal (pob o)
+static void i_heal (pob o)
 {
     if (o->blessing > -1) {
 	Objects[o->id].known = 1;
@@ -849,7 +972,7 @@ void i_heal (pob o)
 }
 
 /* potion of monster detection */
-void i_mondet (pob o)
+static void i_mondet (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
@@ -857,7 +980,7 @@ void i_mondet (pob o)
 }
 
 /* potion of object detection */
-void i_objdet (pob o)
+static void i_objdet (pob o)
 {
 
     if (o->blessing > -1)
@@ -866,7 +989,7 @@ void i_objdet (pob o)
 }
 
 /* potion of neutralize poison */
-void i_neutralize_poison (pob o)
+static void i_neutralize_poison (pob o)
 {
     if (o->blessing > -1) {
 	Objects[o->id].known = 1;
@@ -877,14 +1000,14 @@ void i_neutralize_poison (pob o)
 }
 
 /* potion of sleep */
-void i_sleep_self (pob o)
+static void i_sleep_self (pob o)
 {
     sleep_player (6);
     Objects[o->id].known = 1;
 }
 
 /* potion of speed */
-void i_speed (pob o)
+static void i_speed (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
@@ -892,21 +1015,21 @@ void i_speed (pob o)
 }
 
 /* potion of restoration */
-void i_restore (pob o)
+static void i_restore (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
     recover_stat (o->blessing);
 }
 
-void i_augment (pob o)
+static void i_augment (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
     augment (o->blessing);
 }
 
-void i_azoth (pob o)
+static void i_azoth (pob o)
 {
     if (o->plus < 0) {
 	mprint ("The mercury was poisonous!");
@@ -935,13 +1058,13 @@ void i_azoth (pob o)
     }
 }
 
-void i_regenerate (pob o)
+static void i_regenerate (pob o)
 {
     regenerate (o->blessing);
 }
 
 /* boots functions */
-void i_perm_speed (pob o)
+static void i_perm_speed (pob o)
 {
     if (o->blessing > -1) {
 	if (o->used) {
@@ -973,7 +1096,7 @@ void i_perm_speed (pob o)
 }
 
 /* cloak functions */
-void i_perm_displace (pob o)
+static void i_perm_displace (pob o)
 {
     if (o->blessing > -1) {
 	if (o->used) {
@@ -1000,7 +1123,7 @@ void i_perm_displace (pob o)
     }
 }
 
-void i_perm_negimmune (pob o)
+static void i_perm_negimmune (pob o)
 {
     if (o->blessing > -1) {
 	if (o->used) {
@@ -1013,7 +1136,7 @@ void i_perm_negimmune (pob o)
 
 /* food functions */
 
-void i_food (pob o UNUSED)
+static void i_food (pob o UNUSED)
 {
     switch (random_range (5)) {
 	case 0:
@@ -1034,7 +1157,7 @@ void i_food (pob o UNUSED)
     }
 }
 
-void i_stim (pob o)
+static void i_stim (pob o)
 {
     mprint ("You feel Hyper!");
     i_speed (o);
@@ -1043,19 +1166,19 @@ void i_stim (pob o)
     calc_melee ();
 }
 
-void i_pow (pob o UNUSED)
+static void i_pow (pob o UNUSED)
 {
     mprint ("You feel a surge of mystic power!");
     Player.mana = 2 * calcmana ();
 }
 
-void i_poison_food (pob o UNUSED)
+static void i_poison_food (pob o UNUSED)
 {
     mprint ("This food was contaminated with cyanide!");
     p_poison (random_range (20) + 5);
 }
 
-void i_pepper_food (pob o UNUSED)
+static void i_pepper_food (pob o UNUSED)
 {
     mprint ("You innocently start to chew the szechuan pepper.....");
     morewait ();
@@ -1074,19 +1197,19 @@ void i_pepper_food (pob o UNUSED)
     Player.immunity[SLEEP]++;
 }
 
-void i_lembas (pob o UNUSED)
+static void i_lembas (pob o UNUSED)
 {
     heal (10);
     cleanse (0);
     Player.food = 40;
 }
 
-void i_cure (pob o)
+static void i_cure (pob o)
 {
     cure (o->blessing);
 }
 
-void i_immune (pob o)
+static void i_immune (pob o)
 {
     if (o->blessing > 0) {
 	mprint ("You feel a sense of innoculation");
@@ -1095,7 +1218,7 @@ void i_immune (pob o)
     }
 }
 
-void i_breathing (pob o)
+static void i_breathing (pob o)
 {
 
     if (o->blessing > -1)
@@ -1103,14 +1226,14 @@ void i_breathing (pob o)
     breathe (o->blessing);
 }
 
-void i_invisible (pob o)
+static void i_invisible (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
     invisible (o->blessing);
 }
 
-void i_perm_invisible (pob o)
+static void i_perm_invisible (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
@@ -1139,14 +1262,14 @@ void i_perm_invisible (pob o)
     }
 }
 
-void i_warp (pob o)
+static void i_warp (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
     warp (o->blessing);
 }
 
-void i_alert (pob o)
+static void i_alert (pob o)
 {
     if (o->blessing > -1) {
 	Objects[o->id].known = 1;
@@ -1154,7 +1277,7 @@ void i_alert (pob o)
     }
 }
 
-void i_charge (pob o)
+static void i_charge (pob o)
 {
     int i;
     if (o->blessing > -1)
@@ -1175,7 +1298,7 @@ void i_charge (pob o)
     }
 }
 
-void i_fear_resist (pob o)
+static void i_fear_resist (pob o)
 {
     if (o->blessing > -1) {
 	Objects[o->id].known = 1;
@@ -1190,7 +1313,7 @@ void i_fear_resist (pob o)
 }
 
 /* use a thieves pick */
-void i_pick (pob o)
+static void i_pick (pob o)
 {
     int dir;
     int ox, oy;
@@ -1227,7 +1350,7 @@ void i_pick (pob o)
 }
 
 /* use a magic key*/
-void i_key (pob o)
+static void i_key (pob o)
 {
     int dir;
     int ox, oy;
@@ -1257,7 +1380,7 @@ void i_key (pob o)
     }
 }
 
-void i_corpse (pob o)
+static void i_corpse (pob o)
 {
     /* WDT HACK: there are some comments in this function which need
      * to be backed up with assert(). */
@@ -1347,14 +1470,14 @@ void i_corpse (pob o)
     }
 }
 
-void i_accuracy (pob o)
+static void i_accuracy (pob o)
 {
     o->known = 1;
     Objects[o->id].known = 1;
     accuracy (o->blessing);
 }
 
-void i_perm_accuracy (pob o)
+static void i_perm_accuracy (pob o)
 {
     o->known = 1;
     Objects[o->id].known = 1;
@@ -1371,14 +1494,14 @@ void i_perm_accuracy (pob o)
     }
 }
 
-void i_hero (pob o)
+static void i_hero (pob o)
 {
     o->known = 1;
     Objects[o->id].known = 1;
     hero (o->blessing);
 }
 
-void i_perm_hero (pob o)
+static void i_perm_hero (pob o)
 {
     o->known = 1;
     Objects[o->id].known = 1;
@@ -1413,14 +1536,14 @@ void i_perm_hero (pob o)
     }
 }
 
-void i_levitate (pob o)
+static void i_levitate (pob o)
 {
     o->known = 1;
     Objects[o->id].known = 1;
     levitate (o->blessing);
 }
 
-void i_perm_levitate (pob o)
+static void i_perm_levitate (pob o)
 {
     o->known = 1;
     Objects[o->id].known = 1;
@@ -1440,7 +1563,7 @@ void i_perm_levitate (pob o)
 	i_perm_burden (o);
 }
 
-void i_perm_protection (pob o)
+static void i_perm_protection (pob o)
 {
     if (o->used) {
 	if (o->blessing > -1)
@@ -1456,7 +1579,7 @@ void i_perm_protection (pob o)
     calc_melee ();
 }
 
-void i_perm_agility (pob o)
+static void i_perm_agility (pob o)
 {
     o->known = 2;
     Objects[o->id].known = 1;
@@ -1474,14 +1597,14 @@ void i_perm_agility (pob o)
     calc_melee ();
 }
 
-void i_truesight (pob o)
+static void i_truesight (pob o)
 {
     o->known = 1;
     Objects[o->id].known = 1;
     truesight (o->blessing);
 }
 
-void i_perm_truesight (pob o)
+static void i_perm_truesight (pob o)
 {
     o->known = 1;
     Objects[o->id].known = 1;
@@ -1510,14 +1633,14 @@ void i_perm_truesight (pob o)
     }
 }
 
-void i_illuminate (pob o)
+static void i_illuminate (pob o)
 {
     o->known = 1;
     Objects[o->id].known = 1;
     illuminate (o->blessing);
 }
 
-void i_perm_illuminate (pob o)
+static void i_perm_illuminate (pob o)
 {
     o->known = 1;
     Objects[o->id].known = 1;
@@ -1527,7 +1650,7 @@ void i_perm_illuminate (pob o)
 	Player.status[ILLUMINATION] = max (0, Player.status[ILLUMINATION] - 1500);
 }
 
-void i_trap (pob o)
+static void i_trap (pob o)
 {
     Objects[o->id].known = 1;
 
@@ -1544,7 +1667,7 @@ void i_trap (pob o)
     dispose_lost_objects (1, o);
 }
 
-void i_raise_portcullis (pob o)
+static void i_raise_portcullis (pob o)
 {
     l_raise_portcullis ();
     mprint ("The box beeps once and explodes in your hands!");
@@ -1552,7 +1675,7 @@ void i_raise_portcullis (pob o)
 }
 
 /* ring functions */
-void i_perm_knowledge (pob o)
+static void i_perm_knowledge (pob o)
 {
     if (o->known < 1)
 	o->known = 1;
@@ -1562,7 +1685,7 @@ void i_perm_knowledge (pob o)
 	knowledge (o->blessing);
 }
 
-void i_perm_strength (pob o)
+static void i_perm_strength (pob o)
 {
     if (o->known < 1)
 	o->known = 1;
@@ -1581,7 +1704,7 @@ void i_perm_strength (pob o)
     calc_melee ();
 }
 
-void i_perm_burden (pob o)
+static void i_perm_burden (pob o)
 {
     int i;
 
@@ -1599,7 +1722,7 @@ void i_perm_burden (pob o)
     }
 }
 
-void i_perm_gaze_immune (pob o)
+static void i_perm_gaze_immune (pob o)
 {
     if (o->used)
 	Player.immunity[GAZE]++;
@@ -1607,7 +1730,7 @@ void i_perm_gaze_immune (pob o)
 	Player.immunity[GAZE]--;
 }
 
-void i_perm_fire_resist (pob o)
+static void i_perm_fire_resist (pob o)
 {
     if (o->used)
 	Player.immunity[FLAME]++;
@@ -1615,7 +1738,7 @@ void i_perm_fire_resist (pob o)
 	Player.immunity[FLAME]--;
 }
 
-void i_perm_poison_resist (pob o)
+static void i_perm_poison_resist (pob o)
 {
     if (o->used) {
 	if (o->blessing < 0) {
@@ -1634,7 +1757,7 @@ void i_perm_poison_resist (pob o)
     }
 }
 
-void i_perm_regenerate (pob o)
+static void i_perm_regenerate (pob o)
 {
     if (o->known < 1)
 	o->known = 1;
@@ -1654,13 +1777,13 @@ void i_perm_regenerate (pob o)
 
 /* armor functions */
 
-void i_normal_armor (pob o)
+static void i_normal_armor (pob o)
 {
     if (o->used)
 	mprint ("You put on your suit of armor.");
 }
 
-void i_perm_energy_resist (pob o)
+static void i_perm_energy_resist (pob o)
 {
     if (o->used) {
 	Player.immunity[FLAME]++;
@@ -1673,7 +1796,7 @@ void i_perm_energy_resist (pob o)
     }
 }
 
-void i_perm_fear_resist (pob o)
+static void i_perm_fear_resist (pob o)
 {
     if (o->used) {
 	Player.immunity[FEAR]++;
@@ -1693,7 +1816,7 @@ void i_perm_fear_resist (pob o)
     }
 }
 
-void i_perm_breathing (pob o)
+static void i_perm_breathing (pob o)
 {
     if (o->known < 1)
 	o->known = 1;
@@ -1848,7 +1971,7 @@ void weapon_bare_hands (int dmgmod, struct monster *m)
     p_hit (m, Player.dmg + dmgmod, NORMAL_DAMAGE);
 }
 
-void i_demonblade (pob o)
+static void i_demonblade (pob o)
 {
     if (o->used) {
 	o->known = 2;
@@ -1863,13 +1986,13 @@ void i_demonblade (pob o)
     }
 }
 
-void i_normal_weapon (pob o)
+static void i_normal_weapon (pob o)
 {
     if (o->used)
 	mprint ("You ready your weapon for battle.");
 }
 
-void i_lightsabre (pob o)
+static void i_lightsabre (pob o)
 {
     if (o->used)
 	mprint ("You feel one with the Force.");
@@ -1877,7 +2000,7 @@ void i_lightsabre (pob o)
 	mprint ("You feel out of touch with the Force.");
 }
 
-void i_mace_disrupt (pob o UNUSED)
+static void i_mace_disrupt (pob o UNUSED)
 {
     mprint ("That's a damned heavy mace!");
 }
@@ -1955,7 +2078,7 @@ void weapon_victrix (int dmgmod, pob o, struct monster *m)
 	weapon_normal_hit (dmgmod, o, m);
 }
 
-void i_defend (pob o)
+static void i_defend (pob o)
 {
     o->known = 2;
     if (o->used) {
@@ -1965,7 +2088,7 @@ void i_defend (pob o)
 	Player.status[PROTECTION] -= o->hit;
 }
 
-void i_victrix (pob o)
+static void i_victrix (pob o)
 {
     o->known = 2;
     o->blessing = abs (o->blessing);
@@ -1980,7 +2103,7 @@ void i_victrix (pob o)
     }
 }
 
-void i_desecrate (pob o)
+static void i_desecrate (pob o)
 {
     if (o->known < 1)
 	o->known = 2;
@@ -1993,13 +2116,13 @@ void i_desecrate (pob o)
 }
 
 /* shield functions */
-void i_normal_shield (pob o)
+static void i_normal_shield (pob o)
 {
     if (o->used)
 	mprint ("You sling your shield across a forearm.");
 }
 
-void i_perm_deflect (pob o)
+static void i_perm_deflect (pob o)
 {
     if (o->known < 1)
 	o->known = 2;
@@ -2030,7 +2153,7 @@ void i_perm_deflect (pob o)
 }
 
 /* amulet of the planes */
-void i_planes (pob o UNUSED)
+static void i_planes (pob o UNUSED)
 {
     if (Player.mana < 1)
 	print1 ("The amulet spits some multicolored sparks.");
@@ -2044,7 +2167,7 @@ void i_planes (pob o UNUSED)
 }
 
 /* the sceptre of high magic */
-void i_sceptre (pob o UNUSED)
+static void i_sceptre (pob o UNUSED)
 {
     if (HiMagicUse == Date)
 	print1 ("The Sceptre makes a sort of dull 'thut' noise.");
@@ -2067,7 +2190,7 @@ void i_sceptre (pob o UNUSED)
 }
 
 /* the star gem */
-void i_stargem (pob o)
+static void i_stargem (pob o)
 {
     if (StarGemUse == Date) {
 	print1 ("The Star Gem glints weakly as if to say:");
@@ -2108,7 +2231,7 @@ void i_stargem (pob o)
 }
 
 /* wand of fear */
-void i_fear (pob o)
+static void i_fear (pob o)
 {
     int x = Player.x, y = Player.y;
     Objects[o->id].known = 1;
@@ -2121,7 +2244,7 @@ void i_fear (pob o)
     inflict_fear (x, y);
 }
 
-void i_juggernaut (pob o)
+static void i_juggernaut (pob o)
 {
     int d, x = Player.x, y = Player.y;
     int seen = 1, not_seen = 0;
@@ -2178,7 +2301,7 @@ void i_juggernaut (pob o)
     }
 }
 
-void i_symbol (pob o)
+static void i_symbol (pob o)
 {
     int i;
     if (!o->known)
@@ -2212,7 +2335,7 @@ void i_symbol (pob o)
     }
 }
 
-void i_crystal (pob o)
+static void i_crystal (pob o)
 {
     if (!o->known)
 	print1 ("You can't figure out how to activate this orb.");
@@ -2238,7 +2361,7 @@ void i_crystal (pob o)
     }
 }
 
-void i_antioch (pob o)
+static void i_antioch (pob o)
 {
     int x = Player.x, y = Player.y;
     int count;
@@ -2284,7 +2407,7 @@ void i_antioch (pob o)
     dispose_lost_objects (1, o);
 }
 
-void i_kolwynia (pob o)
+static void i_kolwynia (pob o)
 {
     int i;
     if (!o->known) {
@@ -2300,7 +2423,7 @@ void i_kolwynia (pob o)
     dispose_lost_objects (1, o);
 }
 
-void i_enchantment (pob o)
+static void i_enchantment (pob o)
 {
     char response;
     if (ZapHour == hour ())
@@ -2323,7 +2446,7 @@ void i_enchantment (pob o)
     }
 }
 
-void i_helm (pob o)
+static void i_helm (pob o)
 {
     if (HelmHour == hour ())
 	print1 ("The helm doesn't seem to have recharged yet.");
@@ -2338,14 +2461,14 @@ void i_helm (pob o)
     }
 }
 
-void i_death (pob o UNUSED)
+static void i_death (pob o UNUSED)
 {
     clearmsg ();
     print1 ("Bad move...");
     p_death ("the Potion of Death");
 }
 
-void i_life (pob o)
+static void i_life (pob o)
 {
     clearmsg ();
     print1 ("Good move.");
@@ -2354,7 +2477,7 @@ void i_life (pob o)
 }
 
 /* f = fire, w = water, e = earth, a = air, m = mastery */
-int orbcheck (int element)
+static int orbcheck (int element)
 {
     char response;
     print1 ("The orb begins to glow with increasing intensity!");
@@ -2375,7 +2498,7 @@ int orbcheck (int element)
 }
 
 /* orb functions */
-void i_orbfire (pob o)
+static void i_orbfire (pob o)
 {
     if (!orbcheck ('f')) {
 	print1 ("Bad choice!");
@@ -2395,7 +2518,7 @@ void i_orbfire (pob o)
     *o = Objects[ARTIFACTID + 5];
 }
 
-void i_orbwater (pob o)
+static void i_orbwater (pob o)
 {
     if (!orbcheck ('w')) {
 	print1 ("A serious mistake!");
@@ -2415,7 +2538,7 @@ void i_orbwater (pob o)
     *o = Objects[ARTIFACTID + 5];
 }
 
-void i_orbearth (pob o)
+static void i_orbearth (pob o)
 {
     int i;
     if (!orbcheck ('e')) {
@@ -2450,7 +2573,7 @@ void i_orbearth (pob o)
     *o = Objects[ARTIFACTID + 5];
 }
 
-void i_orbair (pob o)
+static void i_orbair (pob o)
 {
     if (!orbcheck ('a')) {
 	print1 ("You lose!");
@@ -2471,7 +2594,7 @@ void i_orbair (pob o)
     *o = Objects[ARTIFACTID + 5];
 }
 
-void i_orbmastery (pob o)
+static void i_orbmastery (pob o)
 {
 
     if (!orbcheck ('m')) {
@@ -2505,7 +2628,7 @@ void i_orbmastery (pob o)
     }
 }
 
-void i_orbdead (pob o UNUSED)
+static void i_orbdead (pob o UNUSED)
 {
     int i;
     print1 ("The burnt-out orb drains all your energy!");
@@ -2525,7 +2648,7 @@ void i_orbdead (pob o UNUSED)
     Player.pow -= 10;
 }
 
-void i_dispel (pob o)
+static void i_dispel (pob o)
 {
     dispel ((o->blessing > -1) ? o->blessing + random_range (3) : o->blessing);
 }
@@ -2533,7 +2656,7 @@ void i_dispel (pob o)
 /* stick functions */
 
 /* wand of apportation */
-void i_apport (pob o)
+static void i_apport (pob o)
 {
     o->known = max (1, o->known);
     Objects[o->id].known = 1;
@@ -2541,7 +2664,7 @@ void i_apport (pob o)
 }
 
 /* staff of firebolts */
-void i_firebolt (pob o)
+static void i_firebolt (pob o)
 {
     int x = Player.x, y = Player.y;
     o->known = max (1, o->known);
@@ -2554,7 +2677,7 @@ void i_firebolt (pob o)
     fbolt (Player.x, Player.y, x, y, Player.dex * 2 + Player.level, 75);
 }
 
-void i_disintegrate (pob o)
+static void i_disintegrate (pob o)
 {
     int x = Player.x, y = Player.y;
     o->known = max (1, o->known);
@@ -2567,7 +2690,7 @@ void i_disintegrate (pob o)
     disintegrate (x, y);
 }
 
-void i_disrupt (pob o)
+static void i_disrupt (pob o)
 {
     int x = Player.x, y = Player.y;
     o->known = max (1, o->known);
@@ -2581,7 +2704,7 @@ void i_disrupt (pob o)
 }
 
 /* staff of lightning bolts */
-void i_lbolt (pob o)
+static void i_lbolt (pob o)
 {
     int x = Player.x, y = Player.y;
     o->known = max (1, o->known);
@@ -2595,7 +2718,7 @@ void i_lbolt (pob o)
 }
 
 /* wand of magic missiles */
-void i_missile (pob o)
+static void i_missile (pob o)
 {
     int x = Player.x, y = Player.y;
     o->known = max (1, o->known);
@@ -2609,7 +2732,7 @@ void i_missile (pob o)
 }
 
 /* wand of fire balls */
-void i_fireball (pob o)
+static void i_fireball (pob o)
 {
     int x = Player.x, y = Player.y;
     Objects[o->id].known = 1;
@@ -2623,7 +2746,7 @@ void i_fireball (pob o)
 }
 
 /* wand of snowballs */
-void i_snowball (pob o)
+static void i_snowball (pob o)
 {
     int x = Player.x, y = Player.y;
     Objects[o->id].known = 1;
@@ -2637,7 +2760,7 @@ void i_snowball (pob o)
 }
 
 /* wand of lightning balls */
-void i_lball (pob o)
+static void i_lball (pob o)
 {
     int x = Player.x, y = Player.y;
     Objects[o->id].known = 1;
@@ -2651,7 +2774,7 @@ void i_lball (pob o)
 }
 
 /* staff of sleep */
-void i_sleep_other (pob o)
+static void i_sleep_other (pob o)
 {
     Objects[o->id].known = 1;
     o->known = max (1, o->known);
@@ -2660,14 +2783,14 @@ void i_sleep_other (pob o)
 
 /* rod of summoning */
 /* rod of summoning now always summons as if cursed */
-void i_summon (pob o)
+static void i_summon (pob o)
 {
     Objects[o->id].known = 1;
     o->known = max (1, o->known);
     summon (-1, -1);
 }
 
-void i_hide (pob o)
+static void i_hide (pob o)
 {
     int x = Player.x, y = Player.y;
     Objects[o->id].known = 1;
@@ -2676,7 +2799,7 @@ void i_hide (pob o)
     hide (x, y);
 }
 
-void i_polymorph (pob o)
+static void i_polymorph (pob o)
 {
     Objects[o->id].known = 1;
     o->known = max (1, o->known);

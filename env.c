@@ -1,5 +1,12 @@
 #include "glob.h"
 
+//----------------------------------------------------------------------
+
+static void make_prime(int i, int j);
+static void make_archmage(int i, int j);
+
+//----------------------------------------------------------------------
+
 /* loads the arena level into Level*/
 void load_arena (void)
 {
@@ -180,7 +187,7 @@ void load_circle (int populate)
 }
 
 /* make the prime sorceror */
-void make_prime (int i, int j)
+static void make_prime (int i, int j)
 {
     pml ml = ((pml) checkmalloc (sizeof (mltype)));
     pmt m = ((pmt) checkmalloc (sizeof (montype)));
@@ -291,7 +298,7 @@ void load_court (int populate)
 }
 
 /* make the archmage */
-void make_archmage (int i, int j)
+static void make_archmage (int i, int j)
 {
     pml ml = ((pml) checkmalloc (sizeof (mltype)));
     pmt m = ((pmt) checkmalloc (sizeof (montype)));
