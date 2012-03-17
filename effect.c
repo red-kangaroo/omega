@@ -9,7 +9,7 @@ static void bolt(int fx, int fy, int tx, int ty, int hit, int dmg, int dtype);
 
 //----------------------------------------------------------------------
 
-/* enchant */
+// enchant
 void enchant (int delta)
 {
     int i, used = FALSE;
@@ -104,7 +104,7 @@ void enchant (int delta)
     }
 }
 
-/* bless */
+// bless
 void bless (int blessing)
 {
     int iidx, used;
@@ -208,7 +208,7 @@ void lbolt (int fx, int fy, int tx, int ty, int hit, int dmg)
     bolt (fx, fy, tx, ty, hit, dmg, ELECTRICITY);
 }
 
-/* Added 12/30/98 DG */
+// Added 12/30/98 DG
 void icebolt (int fx, int fy, int tx, int ty, int hit, int dmg)
 {
     bolt (fx, fy, tx, ty, hit, dmg, COLD);
@@ -219,7 +219,7 @@ void nbolt (int fx, int fy, int tx, int ty, int hit, int dmg)
     bolt (fx, fy, tx, ty, hit, dmg, NORMAL_DAMAGE);
 }
 
-/* from f to t */
+// from f to t
 static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 {
     int xx, yy;
@@ -236,7 +236,7 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 	    boltchar = ('^' | CLR (LIGHT_BLUE));
 	    break;
 	default:
-	    assert (FALSE);	/* this should never happen, right? WDT */
+	    assert (FALSE);	// this should never happen, right? WDT
 	case NORMAL_DAMAGE:
 	    boltchar = ('!' | CLR (BROWN));
 	    break;
@@ -279,8 +279,8 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 	    } else
 		strcpy (Str1, target->monstring);
 	    switch (dtype) {
-		    /* WDT: these sentances really ought to be livened up.  Especially
-		     * in full verbose mode. */
+		    // WDT: these sentances really ought to be livened up.  Especially
+		    // in full verbose mode.
 		case FLAME:
 		    strcat (Str1, " was blasted by a firebolt!");
 		    break;
@@ -360,7 +360,7 @@ void fball (int fx, int fy, int tx, int ty, int dmg)
     ball (fx, fy, tx, ty, dmg, FLAME);
 }
 
-/* from f to t */
+// from f to t
 static void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
 {
     int xx, yy, ex, ey, i;
@@ -543,7 +543,7 @@ void identify (int blessing)
     calc_melee ();
 }
 
-/* returns index of random item, ABORT if player carrying none */
+// returns index of random item, ABORT if player carrying none
 int random_item (void)
 {
     int item = ABORT, tries = 0;
@@ -558,7 +558,7 @@ int random_item (void)
     return (item);
 }
 
-/* various kinds of wishes */
+// various kinds of wishes
 void wish (int blessing)
 {
     int i;
@@ -623,7 +623,7 @@ void wish (int blessing)
     showflags ();
 }
 
-/* gain for an item */
+// gain for an item
 void acquire (int blessing)
 {
     char otype;
@@ -1115,7 +1115,7 @@ void knowledge (int blessing)
     }
 }
 
-/* Recreates the current level */
+// Recreates the current level
 void flux (int blessing UNUSED)
 {
     mprint ("The universe warps around you!");
@@ -1136,7 +1136,7 @@ void flux (int blessing UNUSED)
     }
 }
 
-/*Turns on displacement status for the player */
+//Turns on displacement status for the player
 void displace (int blessing)
 {
     if (blessing > -1) {
@@ -1412,7 +1412,7 @@ void accuracy (int blessing)
     }
 }
 
-/* if know id, then summon that monster; else (if < 0) get one. */
+// if know id, then summon that monster; else (if < 0) get one.
 void summon (int blessing, int id)
 {
     int i, looking = TRUE, x, y;
@@ -1423,7 +1423,7 @@ void summon (int blessing, int id)
 	    id = monsterlist ();
 	    xredraw ();
 	}
-	/* for (id ==0) case, see below -- get a "fair" monster */
+	// for (id ==0) case, see below -- get a "fair" monster
 	else if (blessing < 0)
 	    id = random_range (NUMMONSTERS);
     }
@@ -1503,7 +1503,7 @@ static int monsterlist (void)
     return (itemno);
 }
 
-/* uncurse all items, cure diseases, and neutralize poison */
+// uncurse all items, cure diseases, and neutralize poison
 void cleanse (int blessing)
 {
     int i;
@@ -1607,7 +1607,7 @@ void sleep_monster (int blessing)
 
 void sleep_player (int amount)
 {
-    if (Player.status[SLEPT] == 0) {	/* prevent player from sleeping forever */
+    if (Player.status[SLEPT] == 0) {	// prevent player from sleeping forever
 	mprint ("You feel sleepy...");
 	if (!p_immune (SLEEP)) {
 	    Player.status[SLEPT] += random_range (amount * 2) + 2;
@@ -1698,7 +1698,7 @@ void amnesia (void)
     drawvision (Player.x, Player.y);
 }
 
-/*affects player only */
+//affects player only
 void level_drain (int levels, char *source)
 {
     int decrement = ((int) (Player.maxhp / (Player.level + 1)));
@@ -1847,7 +1847,7 @@ void acid_cloud (void)
     }
 }
 
-/* teleport player */
+// teleport player
 void p_teleport (int type)
 {
     int x = Player.x, y = Player.y;
@@ -1913,11 +1913,11 @@ void strategic_teleport (int blessing)
 {
     int new_env;
 
-    /* WDT HACK: Game balance issue: the star gem is supposed to be the only
-     * way out of the astral plane (including the Circle of Sorcerors).  However,
-     * Hy Magic offers the Location wish, and some artifacts grant this
-     * as well.  Seems to me that Hy Magic ought to allow it, and nothing
-     * else (aside from the Star Gem, of course). */
+    // WDT HACK: Game balance issue: the star gem is supposed to be the only
+    // way out of the astral plane (including the Circle of Sorcerors).  However,
+    // Hy Magic offers the Location wish, and some artifacts grant this
+    // as well.  Seems to me that Hy Magic ought to allow it, and nothing
+    // else (aside from the Star Gem, of course).
     if ((Current_Environment == E_CIRCLE || Current_Environment == E_ASTRAL) && !gamestatusp (CHEATED)) {
 	mprint ("Some property of this eerie place interferes with the magic!\n");
 	return;
@@ -2073,7 +2073,7 @@ void levitate (int blessing)
 	mprint ("Nothing much happens.");
 }
 
-/* has effect of switching between 1st level and deepest level attained */
+// has effect of switching between 1st level and deepest level attained
 void level_return (void)
 {
     if (Current_Environment == Current_Dungeon) {
@@ -2229,9 +2229,8 @@ void polymorph (int blessing)
     setspot (&x, &y);
     clearmsg ();
     if ((x == Player.x) && (y == Player.y)) {
-	/* WDT HACK: shouldn't this use one of the 'getarticle' functions
-	 * to prevent things like "a elder grue" (should be "an elder grue")?
-	 */
+	// WDT HACK: shouldn't this use one of the 'getarticle' functions
+	// to prevent things like "a elder grue" (should be "an elder grue")?
 	mprint ("You enjoy your new life as a");
 	mprint (Monsters[random_range (NUMMONSTERS)].monstring);
 	mprint ("But your game is over....");
@@ -2254,11 +2253,11 @@ void polymorph (int blessing)
 		    newmonster = random_range (NUMMONSTERS);
 		while ((newmonster == NPC) || (newmonster == MAST_THIEF) || (Monsters[newmonster].uniqueness != COMMON));
 	    }
-	    /* WDT HACK: most of this could (and should) be implemented by 
-	     * the following line: "*m = Monsters[newmonster];".  The exception,
-	     * of course, are the parts where the new monster inherits the old
-	     * one's abilities.  This would be better because it would be robust
-	     * even in the face of additions to the monster structure. */
+	    // WDT HACK: most of this could (and should) be implemented by 
+	    // the following line: "*m = Monsters[newmonster];".  The exception,
+	    // of course, are the parts where the new monster inherits the old
+	    // one's abilities.  This would be better because it would be robust
+	    // even in the face of additions to the monster structure.
 	    m->id = Monsters[newmonster].id;
 	    m->hp = max (m->hp, Monsters[newmonster].id);
 	    m->speed = Monsters[newmonster].speed;
@@ -2402,9 +2401,9 @@ void sanctuary (void)
 
 void shadowform (void)
 {
-    /* WDT HACK: this fix might work, but it seems like the immunity
-     * will be FAR too short.  It's obviously better than the old 
-     * situation, though... */
+    // WDT HACK: this fix might work, but it seems like the immunity
+    // will be FAR too short.  It's obviously better than the old 
+    // situation, though...
     if (!Player.status[SHADOWFORM]) {
 	mprint ("You feel like a shadow.");
 	Player.immunity[NORMAL_DAMAGE]++;
@@ -2500,7 +2499,7 @@ void inflict_fear (int x, int y)
 	mprint ("A thrill of fear tickles your spine ... and passes.");
 }
 
-/*Turns on deflection status for the player */
+//Turns on deflection status for the player
 void deflection (int blessing)
 {
     if (blessing > -1) {

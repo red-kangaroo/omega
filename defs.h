@@ -1,24 +1,24 @@
 #pragma once
 #include "config.h"
 
-/*--------------------------USER DEFINITIONS--------------------------*/
+//--------------------------USER DEFINITIONS--------------------------
 
-/* OMEGALIB is where all the data files reside. 
-   Note the final / is necessary.
-   msdos note: \ is the C string escape character, so you need \\ in the
-   path given in OMEGALIB
-   This might usually be "/usr/games/lib/omegalib/", for unix,
-   or something like "c:\\games\\omega\\omegalib\\" for msdos */
+// OMEGALIB is where all the data files reside. 
+// Note the final / is necessary.
+// msdos note: \ is the C string escape character, so you need \\ in the
+// path given in OMEGALIB
+// This might usually be "/usr/games/lib/omegalib/", for unix,
+// or something like "c:\\games\\omega\\omegalib\\" for msdos
 
 #define OMEGALIB "./lib/"
 
-/* set WIZARD to maintainers's username */
+// set WIZARD to maintainers's username
 
 #define WIZARD "wtanksle"
 
-/*---------------------------SYSTEM DEFINITIONS---------------------------*/
+//---------------------------SYSTEM DEFINITIONS---------------------------
 
-/* Don't change anything from here on (unless you know what you're doing) */
+// Don't change anything from here on (unless you know what you're doing)
 #define VERSION 90
 #define VERSIONSTRING "omega version 0.90"
 
@@ -26,34 +26,34 @@
 #define VACANT 0
 #define ABORT -1
 #define CASHVALUE -2
-/* moderately arbitrary but probably cannot be easily changed */
+// moderately arbitrary but probably cannot be easily changed
 #define MAXWIDTH 64
 #define MAXLENGTH 64
 #define SMALLSCREENLENGTH 16
-/* number of slots in inventory. Cannot be changed without work */
+// number of slots in inventory. Cannot be changed without work
 #define MAXITEMS 16
-/* number of slots in pack. Should be <= 26. */
+// number of slots in pack. Should be <= 26.
 #define MAXPACK 26
-/* number of items in pawn shop. Should be <= 26 */
-#define PAWNITEMS 20		/* DG -- the more the merrier.  WDT -- I agree. */
-/* number of lines back strings are recalled */
+// number of items in pawn shop. Should be <= 26
+#define PAWNITEMS 20
+// number of lines back strings are recalled
 #define STRING_BUFFER_SIZE 25
-    /* number of rerolls allowed +1 *//* added by dagibbs (DG) */
+// number of rerolls allowed +1
 #define REROLLS 31
-/* Verbosity levels */
+// Verbosity levels
 #define TERSE 0
 #define MEDIUM 1
 #define VERBOSE 2
-/* Arbitrary. Max of the levels in the dungeons */
+// Arbitrary. Max of the levels in the dungeons
 #define MAXLEVELS 21
-/* levels in each dungeon */
+// levels in each dungeon
 #define ASTRALLEVELS 5
 #define SEWERLEVELS 18
 #define CASTLELEVELS 16
 #define CAVELEVELS 10
 #define VOLCANOLEVELS 20
-/* Overall Game Progress Vector Bits */
-/* Long had BETTER have at least 32 bits.... */
+// Overall Game Progress Vector Bits
+// Long had BETTER have at least 32 bits....
 #define SPOKE_TO_DRUID		0x1
 #define COMPLETED_CAVES		0x2
 #define COMPLETED_SEWERS	0x4
@@ -80,11 +80,10 @@
 #define GAVE_STARGEM		0x800000
 #define ATTACKED_ORACLE		0x1000000
 #define UNDEAD_GUARDS		0x2000000
-/* non-existant environments for the random number seeding routine */
-    /* added 12/30/98 (DG) */
+// non-existant environments for the random number seeding routine
 #define E_RESTORE -2
 #define E_RANDOM -1
-/* general environment types */
+// general environment types
 #define E_NEVER_NEVER_LAND 0
 #define E_COUNTRYSIDE 1
 #define E_CITY 2
@@ -107,23 +106,23 @@
 #define E_CIRCLE 19
 #define E_COURT 20
 #define E_MAX E_COURT
-/* player game status */
+// player game status
 #define DEAD 1
 #define QUIT 2
 #define WIN 3
 #define BIGWIN 4
-/* kind of arbitrary */
+// kind of arbitrary
 #define MAXROOMS 48
 #define MAXCONNECTIONS 4
 #define STRING_LEN 100
-/* some random characters */
+// some random characters
 #define ESCAPE 27
 #define RETURN '\n'
 #define LINEFEED '\r'
 #define BACKSPACE '\b'
 #define DELETE 127
-/* tac mode action definitions */
-/* have to remember to find where these are used, mostly unused, now! */
+// tac mode action definitions
+// have to remember to find where these are used, mostly unused, now!
 #define DISENGAGE 10
 #define BLOCK 20
 #define CUT 30
@@ -133,34 +132,34 @@
 #define RIPOSTE 70
 #define WIELD 80
 #define PICK_UP 90
-/* as in attack low, block high, etc. */
-/* These values may be added to the ones above to get things like
-   block high, cut low, etc. CLEVER is only used by some monsters
-   to cheat with.... */
+// as in attack low, block high, etc.
+// These values may be added to the ones above to get things like
+// block high, cut low, etc. CLEVER is only used by some monsters
+// to cheat with....
 #define LOW 1
 #define CENTER 2
 #define HIGH 3
 #define CLEVER 4
-/* weapon types */
+// weapon types
 #define CUTTING 1
 #define THRUSTING 2
 #define STRIKING 3
 #define MISSILE 4
-/* random aux constants */
-/* aux field for private residences in city */
+// random aux constants
+// aux field for private residences in city
 #define BURGLED 2
 #define LOCKED 3
 #define UNLOCKED 0
-/* cannot use M command on site with this aux value */
+// cannot use M command on site with this aux value
 #define NOCITYMOVE 666
-/* bow and crossbow object aux fields */
+// bow and crossbow object aux fields
 #define LOADED 1
 #define UNLOADED 0
-/* alignment used randomly throughout*/
+// alignment used randomly throughout
 #define LAWFUL 1
 #define CHAOTIC 2
 #define NEUTRAL 3
-/* spells */
+// spells
 #define NUMSPELLS 41
 #define S_MON_DET 0
 #define S_OBJ_DET 1
@@ -203,7 +202,7 @@
 #define S_DRAIN 38
 #define S_LEVITATE 39
 #define S_WISH 40
-/* ranks in guilds, etc */
+// ranks in guilds, etc
 #define NUMRANKS 9
 #define LEGION 0
 #define ARENA 1
@@ -254,14 +253,14 @@
 #define PRIEST 3
 #define SPRIEST 4
 #define HIGHPRIEST 5
-/* different priesthoods */
+// different priesthoods
 #define ODIN 1
 #define SET 2
 #define ATHENA 3
 #define HECATE 4
 #define DRUID 5
 #define DESTINY 6
-/* MONSTER STATUS/ABILITY BITS */
+// MONSTER STATUS/ABILITY BITS
 #define AWAKE 1
 #define MOBILE 2
 #define HOSTILE 4
@@ -276,7 +275,7 @@
 #define SWIMMING 4096
 #define POISONOUS 8192
 #define EDIBLE 16384
-/* PLAYER STATUS INDICES */
+// PLAYER STATUS INDICES
 #define NUMSTATI 25
 #define ACCURACY 0
 #define BLINDED 1
@@ -302,12 +301,12 @@
 #define ILLUMINATION 21
 #define DEFLECTION 22
 #define PROTECTION 23
-/* PROTECTION is deviant -- indicates protective value, not duration */
+// PROTECTION is deviant -- indicates protective value, not duration
 #define RETURNING 24
-/* RETURNING is somewhat deviant--how many turns 'til RETURN spell goes off */
-/* player immunity indices */
-/* also monster immunity bits (2^n) */
-/* also damage types */
+// RETURNING is somewhat deviant--how many turns 'til RETURN spell goes off
+// player immunity indices
+// also monster immunity bits (2^n)
+// also damage types
 #define NUMIMMUNITIES 14
 #define UNSTOPPABLE 0
 #define NORMAL_DAMAGE 1
@@ -324,16 +323,16 @@
 #define GAZE 12
 #define INFECTION 13
 #define EVERYTHING -1
-/* location lstatus bits */
+// location lstatus bits
 #define SEEN 1
 #define LIT 2
 #define SECRET 4
 #define STOPS 8
 #define CHANGED 16
-/* room string id */
-/* for use in roomname() */
+// room string id
+// for use in roomname()
 #define NUMROOMNAMES 30
-/* normal room name indices start after the RS_ constants */
+// normal room name indices start after the RS_ constants
 #define ROOMBASE 39
 #define RS_COURT 38
 #define RS_ZORCH 37
@@ -421,7 +420,7 @@
 #define CLR(fg)		CLR_##fg##_BLACK
 #define CLRS(fg, bg)	CLR_##fg##_##bg
 
-/* objects, locations, and terrain; characters to draw */
+// objects, locations, and terrain; characters to draw
 #define NULL_ITEM '\0'
 #define SPACE (' ' | CLR(WHITE))
 #define WALL ('#' | CLR(GREY))
@@ -445,8 +444,8 @@
 #define STATUE ('1' | CLR(GREY))
 #define RUBBLE ('4' | CLR(GREY))
 #define ALTAR ('8' | CLR(LIGHT_BLUE))
-#define CASH ('$' | CLR(YELLOW))	/* various kinds of money */
-#define PILE ('*' | CLR(BRIGHT_WHITE))	/* several objects in one place */
+#define CASH ('$' | CLR(YELLOW))	// various kinds of money
+#define PILE ('*' | CLR(BRIGHT_WHITE))	// several objects in one place
 #define FOOD ('%' | CLR(BROWN))
 #define WEAPON (')' | CLR(GREY))
 #define MISSILEWEAPON ('(' | CLR(BROWN))
@@ -460,7 +459,7 @@
 #define RING ('=' | CLR(YELLOW))
 #define THING ('\\' | CLR(WHITE))
 #define ARTIFACT ('&' | CLR(YELLOW))
-/* TERRAIN TYPES */
+// TERRAIN TYPES
 #define PLAINS ('-' | CLR(LIGHT_GREEN))
 #define TUNDRA ('_' | CLR(GREY))
 #define ROAD ('.' | CLR(BROWN))
@@ -485,15 +484,15 @@
 #define SAFE ('3' | CLR(GREY))
 #define FURNITURE ('2' | CLR(BROWN))
 #define BED ('9' | CLR(CYAN))
-/* wow, all characters used! */
-/* total number of player options */
+// wow, all characters used!
+// total number of player options
 #define NUMOPTIONS 11
-/* number of options with TRUE/FALSE values */
+// number of options with TRUE/FALSE values
 #define NUMTFOPTIONS 9
-/* The slot number of the two options not in Player.options */
+// The slot number of the two options not in Player.options
 #define VERBOSITY_LEVEL 10
 #define SEARCH_DURATION 11
-/* Player.options bits */
+// Player.options bits
 #define BELLICOSE 1
 #define JUMPMOVE 2
 #define RUNSTOP 4
@@ -503,7 +502,7 @@
 #define PACKADD 64
 #define COMPRESS_OPTION 128
 #define SHOW_COLOUR 256
-/* This has to be changed whenever an item is added */
+// This has to be changed whenever an item is added
 #define NUMSCROLLS 24
 #define NUMPOTIONS 18
 #define NUMFOODS 16
@@ -516,7 +515,7 @@
 #define NUMRINGS 10
 #define NUMSTICKS 17
 #define NUMARTIFACTS 24
-/* running sum of itemtypes, for indexing into Objects array */
+// running sum of itemtypes, for indexing into Objects array
 #define THINGID 0
 #define FOODID NUMTHINGS
 #define SCROLLID (FOODID + NUMFOODS)
@@ -530,19 +529,19 @@
 #define STICKID (RINGID + NUMRINGS)
 #define ARTIFACTID (STICKID + NUMSTICKS)
 #define CASHID (ARTIFACTID+NUMARTIFACTS)
-/* Corpse's aux field is monster id */
+// Corpse's aux field is monster id
 #define CORPSEID (CASHID+1)
 #define TOTALITEMS (CORPSEID+1)
-/* describing unique items and monsters */
+// describing unique items and monsters
 #define COMMON 0
 #define UNIQUE_UNMADE 1
 #define UNIQUE_MADE 2
 #define UNIQUE_TAKEN 3
-/* general item function id's */
+// general item function id's
 #define I_NO_OP 0
 #define I_NOTHING 1
-    /* note some of these functions are for other types of items too */
-    /* scroll functions */
+// note some of these functions are for other types of items too
+// scroll functions
 #define I_BLESS 101
 #define I_ACQUIRE 102
 #define I_ENCHANT 103
@@ -565,7 +564,7 @@
 #define I_TRUESIGHT 120
 #define I_ILLUMINATE 121
 #define I_DEFLECT 122
-    /* potion functions */
+// potion functions
 #define I_HEAL 201
 #define I_OBJDET 202
 #define I_MONDET 203
@@ -583,7 +582,7 @@
 #define I_ACCURACY 216
 #define I_LEVITATION 217
 #define I_CURE 218
-    /* stick functions */
+// stick functions
 #define I_FIREBOLT 301
 #define I_LBOLT 302
 #define I_MISSILE 303
@@ -599,7 +598,7 @@
 #define I_DISPEL 313
 #define I_POLYMORPH 314
 #define I_FEAR 315
-    /* food functions */
+    // food functions
 #define I_FOOD 401
 #define I_LEMBAS 402
 #define I_STIM 403
@@ -610,21 +609,21 @@
 #define I_PEPPER_FOOD 408
 #define I_CANNIBAL 409
 #define I_INEDIBLE 410
-    /* boots functions */
+    // boots functions
 #define I_PERM_SPEED 501
 #define I_PERM_HERO 502
 #define I_PERM_LEVITATE 503
 #define I_PERM_AGILITY 504
 #define I_BOOTS_JUMPING 505
 #define I_BOOTS_7LEAGUE 506
-    /* cloak functions */
+    // cloak functions
 #define I_PERM_DISPLACE 601
 #define I_PERM_NEGIMMUNE 602
 #define I_PERM_INVISIBLE 603
 #define I_PERM_ACCURACY 604
 #define I_PERM_PROTECTION 605
 #define I_PERM_TRUESIGHT 606
-    /* ring functions */
+    // ring functions
 #define I_PERM_VISION 701
 #define I_PERM_BURDEN 702
 #define I_PERM_STRENGTH 703
@@ -633,12 +632,12 @@
 #define I_PERM_POISON_RESIST 706
 #define I_PERM_REGENERATE 707
 #define I_PERM_KNOWLEDGE 708
-    /* armor functions */
+    // armor functions
 #define I_PERM_ENERGY_RESIST 801
 #define I_PERM_BREATHING 802
 #define I_PERM_FEAR_RESIST 803
 #define I_NORMAL_ARMOR 804
-/* artifact functions */
+// artifact functions
 #define I_ORBFIRE 901
 #define I_ORBWATER 902
 #define I_ORBEARTH 903
@@ -657,7 +656,7 @@
 #define I_STARGEM 916
 #define I_SCEPTRE 917
 #define I_PLANES 918
-/* weapons functions */
+// weapons functions
 #define I_NORMAL_WEAPON 1001
 #define I_LIGHTSABRE 1002
 #define I_DEMONBLADE 1003
@@ -673,23 +672,23 @@
 #define I_EMPIRE 1013
 #define I_SCYTHE 1014
 #define I_ACIDWHIP 1015
-/* thing functions */
+// thing functions
 #define I_PICK 1101
 #define I_KEY 1102
-#define I_SHOVEL 1103		/* unused */
-#define I_EXCAVATOR 1104	/* unused */
+#define I_SHOVEL 1103		// unused
+#define I_EXCAVATOR 1104	// unused
 #define I_PERM_ILLUMINATE 1105
 #define I_TRAP 1106
 #define I_RAISE_PORTCULLIS 1107
-/* shield functions */
+// shield functions
 #define I_PERM_DEFLECT 1201
 #define I_NORMAL_SHIELD 1202
-/* monster function ids */
-/* Its conceivable for a function of one type to be called when another
-would usually occur. A monster's special function may be an extra move,
-for example. */
+// monster function ids
+// Its conceivable for a function of one type to be called when another
+// would usually occur. A monster's special function may be an extra move,
+// for example.
 #define M_NO_OP -1
-/* talk functions */
+// talk functions
 #define M_TALK_STUPID 101
 #define M_TALK_SILENT 102
 #define M_TALK_HUNGRY 103
@@ -726,7 +725,7 @@ for example. */
 #define M_TALK_DRUID 134
 #define M_TALK_ARCHMAGE 135
 #define M_TALK_PRIME 136
-/* ability functions */
+// ability functions
 #define M_SP_SURPRISE 201
 #define M_SP_MP 202
 #define M_SP_THIEF 203
@@ -768,7 +767,7 @@ for example. */
 #define M_SP_COURT 240
 #define M_SP_LAIR 241
 #define M_SP_PRIME 242
-/* rangestrike functions */
+// rangestrike functions
 #define M_STRIKE_MISSILE 301
 #define M_STRIKE_FBOLT 302
 #define M_STRIKE_LBALL 303
@@ -777,7 +776,7 @@ for example. */
 #define M_STRIKE_SNOWBALL 306
 #define M_STRIKE_MASTER 307
 #define M_STRIKE_SONIC 308
-/* combat functions */
+// combat functions
 #define M_MELEE_NORMAL 401
 #define M_MELEE_FIRE 402
 #define M_MELEE_DRAGON 403
@@ -793,7 +792,7 @@ for example. */
 #define M_MELEE_MASTER 413
 #define M_MELEE_GRAPPLE 414
 #define M_MELEE_DEATH 415
-/* movement functions */
+// movement functions
 #define M_MOVE_NORMAL 501
 #define M_MOVE_FLUTTER 502
 #define M_MOVE_TELEPORT 503
@@ -805,39 +804,39 @@ for example. */
 #define M_MOVE_CONFUSED 509
 #define M_MOVE_ANIMAL 510
 #define M_MOVE_LEASH 230
-/* MLx -> index to Monsters starting for level x */
-/* MLx -> number of monsters of level x or less */
-/* NML_x -> number of monsters of level x */
-/* NML-X must be changed whenever a monster is added */
-/* This whole thing MUST be repaired.  Monster levels must
- * be represented elsewhere. */
+// MLx -> index to Monsters starting for level x
+// MLx -> number of monsters of level x or less
+// NML_x -> number of monsters of level x
+// NML-X must be changed whenever a monster is added
+// This whole thing MUST be repaired.  Monster levels must
+// be represented elsewhere.
 #define ML0 0
 #define NML_0 9
-#define ML1 (ML0 + NML_0)	/* 9 */
+#define ML1 (ML0 + NML_0)	// 9
 #define NML_1 22
-#define ML2 (ML1 + NML_1)	/* 31 */
+#define ML2 (ML1 + NML_1)	// 31
 #define NML_2 14
-#define ML3 (ML2 + NML_2)	/* 45 */
+#define ML3 (ML2 + NML_2)	// 45
 #define NML_3 15
-#define ML4 (ML3 + NML_3)	/* 60 */
+#define ML4 (ML3 + NML_3)	// 60
 #define NML_4 18
-#define ML5 (ML4 + NML_4)	/* 78 */
+#define ML5 (ML4 + NML_4)	// 78
 #define NML_5 14
-#define ML6 (ML5 + NML_5)	/* 92 */
+#define ML6 (ML5 + NML_5)	// 92
 #define NML_6 13
-#define ML7 (ML6 + NML_6)	/* 105 */
+#define ML7 (ML6 + NML_6)	// 105
 #define NML_7 15
-#define ML8 (ML7 + NML_7)	/* 120 */
+#define ML8 (ML7 + NML_7)	// 120
 #define NML_8 12
-#define ML9 (ML8 + NML_8)	/* 132 */
+#define ML9 (ML8 + NML_8)	// 132
 #define NML_9 8
-#define ML10 (ML9 + NML_9)	/* 140 */
+#define ML10 (ML9 + NML_9)	// 140
 #define NML_10 10
-#define NUMMONSTERS (ML10 + NML_10)	/* 150 */
-/* Some monster ID's : (Those that are explicitly named in code) */
-/* Actually, there are still many magic constants floating around. */
-/* Eventually I'll get around to making each monster's id a constant.... */
-/* done, thanks to David Given. */
+#define NUMMONSTERS (ML10 + NML_10)	// 150
+// Some monster ID's : (Those that are explicitly named in code)
+// Actually, there are still many magic constants floating around.
+// Eventually I'll get around to making each monster's id a constant....
+// done, thanks to David Given.
 #define RANDOM -1
 #define HORNET (ML0+0)
 #define MEND_PRIEST (ML0+1)
@@ -877,7 +876,7 @@ for example. */
 #define TOVE (ML2+4)
 #define NASTY (ML2+5)
 #define GHOST (ML2+6)
-#define ENCHANTOR (ML2+7)	/* use 'OR' to avoid conflict with circle rank */
+#define ENCHANTOR (ML2+7)	// use 'OR' to avoid conflict with circle rank
 #define MURK (ML2+8)
 #define GOBLIN_CHIEF (ML2+9)
 #define WOLF (ML2+10)
@@ -989,9 +988,9 @@ for example. */
 #define LORD_WATER (ML10+7)
 #define LORD_FIRE (ML10+8)
 #define ELEM_MASTER (ML10+9)
-/* location functions */
+// location functions
 #define L_NO_OP 0
-/* random sites */
+// random sites
 #define L_LIFT 1
 #define L_BALANCESTONE 2
 #define L_FIRE 3
@@ -1001,8 +1000,8 @@ for example. */
 #define L_ARENA_EXIT 7
 #define L_HOUSE_EXIT 8
 #define L_SAFE 9
-/* city level shop and guild functions */
-/* following are those in CitySiteList */
+// city level shop and guild functions
+// following are those in CitySiteList
 #define NUMCITYSITES 27
 #define CITYSITEBASE 10
 #define L_CHARITY 10
@@ -1032,13 +1031,13 @@ for example. */
 #define L_TEMPLE 34
 #define L_COUNTRYSIDE 35
 #define L_BROTHEL 36
-/* end of city sites */
-/* random sites */
+// end of city sites
+// random sites
 #define L_JAIL 37
 #define L_TEMPLE_WARNING 38
 #define L_LAWSTONE 39
 #define L_CHAOSTONE 40
-/* final abyss sites ignore levitation*/
+// final abyss sites ignore levitation
 #define L_EARTH_STATION 41
 #define L_FIRE_STATION 42
 #define L_WATER_STATION 43
@@ -1049,12 +1048,12 @@ for example. */
 #define L_VOICE2 48
 #define L_VOICE3 49
 #define L_SACRIFICESTONE 50
-/* circle hq sites */
+// circle hq sites
 #define L_TOME1 51
 #define L_TOME2 52
 #define L_ENTER_CIRCLE 53
 #define L_CIRCLE_LIBRARY 54
-/* other site functions */
+// other site functions
 #define L_DRUID 55
 #define L_ALTAR 56
 #define L_GARDEN 57
@@ -1080,9 +1079,9 @@ for example. */
 #define L_FINAL_ABYSS 77
 #define L_RAISE_PORTCULLIS 78
 #define L_MINDSTONE 79
-/* above LEVITATION_AVOIDANCE, no effect if player is levitating */
+// above LEVITATION_AVOIDANCE, no effect if player is levitating
 #define LEVITATION_AVOIDANCE 80
-/* random sites */
+// random sites
 #define L_CHAOS 81
 #define L_WATER 82
 #define L_LAVA 83
@@ -1090,10 +1089,10 @@ for example. */
 #define L_PORTCULLIS_TRAP 85
 #define L_DROP_EVERY_PORTCULLIS 87
 #define L_PORTCULLIS 88
-/* traps */
+// traps
 #define NUMTRAPS 13
 #define TRAP_BASE 89
-/* traps */
+// traps
 #define L_TRAP_DART 89
 #define L_TRAP_PIT 90
 #define L_TRAP_DOOR 91
@@ -1107,14 +1106,14 @@ for example. */
 #define L_TRAP_MANADRAIN 99
 #define L_TRAP_ABYSS 100
 #define L_TRAP_SIREN 101
-/* more random sites */
+// more random sites
 #define L_STATUE_WAKE 102
 #define L_STATUE_RANDOM 103
 #define L_HEDGE 104
 #define L_RUBBLE 105
 #define L_ABYSS 106
-/* player possession slots */
-/* slot 0 should not be filled when out of inventory_control() */
+// player possession slots
+// slot 0 should not be filled when out of inventory_control()
 #define O_UP_IN_AIR 0
 #define O_READY_HAND 1
 #define O_WEAPON_HAND 2
@@ -1131,15 +1130,15 @@ for example. */
 #define O_RING2 13
 #define O_RING3 14
 #define O_RING4 15
-/* typedefs needed by structs */
+// typedefs needed by structs
 typedef int Symbol;
 
-/* structure definitions */
+// structure definitions
 
 struct room {
     int lighted;
     int left, right, top, bottom;
-    int rsi;			/* index into roomname switch */
+    int rsi;			// index into roomname switch
 };
 
 struct spell {
@@ -1177,8 +1176,8 @@ struct player {
     long cash;
     int patron, birthday;
     char preference;
-    int sx, sy;			/* sanctuary coordinates */
-    int x, y;			/* current player coordinates */
+    int sx, sy;			// sanctuary coordinates
+    int x, y;			// current player coordinates
     int itemweight, maxweight;
     int immunity[NUMIMMUNITIES];
     int status[NUMSTATI];
@@ -1209,7 +1208,7 @@ struct objectlist {
     struct objectlist *next;
 };
 
-/* terrain locations */
+// terrain locations
 struct terrain {
     Symbol base_terrain_type;
     Symbol current_terrain_type;
@@ -1217,32 +1216,32 @@ struct terrain {
     char status;
 };
 
-/* dungeon locations */
+// dungeon locations
 struct location {
-    char p_locf;		/* function executed when moved on */
-    unsigned char lstatus;	/* seen,stopsrun,lit,secret, */
-    char roomnumber;		/* so room can be named */
-    Symbol locchar;		/* terrain type */
-    Symbol showchar;		/*char instantaneously drawn for site */
-    int aux;			/* signifies various things */
-    unsigned char buildaux;	/* used in constructing level */
+    char p_locf;		// function executed when moved on
+    unsigned char lstatus;	// seen,stopsrun,lit,secret,
+    char roomnumber;		// so room can be named
+    Symbol locchar;		// terrain type
+    Symbol showchar;		// char instantaneously drawn for site
+    int aux;			// signifies various things
+    unsigned char buildaux;	// used in constructing level
     struct objectlist *things;
     struct monster *creature;
 };
 
 struct level {
-    char depth;			/* which level is this */
-    struct level *next;		/* pointer to next level in dungeon */
-    struct location site[MAXWIDTH][MAXLENGTH];	/* dungeon data */
-    char generated;		/* has the level been made (visited) yet? */
-    char numrooms;		/* number of rooms on level */
-    char tunnelled;		/* amount of tunnelling done on this level */
-    struct monsterlist *mlist;	/* List of monsters on level */
-    int environment;		/* where kind of level is this? */
-    int last_visited;		/* time player was last on this level */
+    char depth;			// which level is this
+    struct level *next;		// pointer to next level in dungeon
+    struct location site[MAXWIDTH][MAXLENGTH];	// dungeon data
+    char generated;		// has the level been made (visited) yet?
+    char numrooms;		// number of rooms on level
+    char tunnelled;		// amount of tunnelling done on this level
+    struct monsterlist *mlist;	// List of monsters on level
+    int environment;		// where kind of level is this?
+    int last_visited;		// time player was last on this level
 };
 
-/* random typedef's */
+// random typedefs
 
 typedef struct monsterlist mltype;
 typedef mltype *pml;
@@ -1262,28 +1261,28 @@ typedef objtype *pob;
 typedef struct objectlist oltype;
 typedef oltype *pol;
 
-/* random  function declarations from system libraries */
+// random  function declarations from system libraries
 
 #include <stdlib.h>
 
-/* The assert macro (for ANSI/ISO C).  Hopefully this will always work! */
+// The assert macro (for ANSI/ISO C).  Hopefully this will always work!
 #include <assert.h>
 
 #undef sign
 #undef max
 #undef min
 #undef abs
-/* These must be made to work for both longs and ints */
+// These must be made to work for both longs and ints
 #define sign(n) (((n) < 0) ? -1 : (((n) > 0) ? 1 : 0))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define abs(n) (((n) < 0) ? (-(n)) : (n))
 
-/* WDT: This should be harmless under ANSI C, and will stop
- * some errors under bizarre platforms. */
+// WDT: This should be harmless under ANSI C, and will stop
+// some errors under bizarre platforms.
 #define pow2(n) (1L << (n))
 
-/* these bit operations were functions, but are faster as macros... */
+// these bit operations were functions, but are faster as macros...
 
 #define loc_statusp(x,y,stat) ((Level->site[x][y].lstatus&(stat))?1:0)
 #define lset(x,y,stat) (Level->site[x][y].lstatus |= (stat))
@@ -1306,8 +1305,8 @@ typedef oltype *pol;
 #define optionset(o) (Player.options |= (o))
 #define optionreset(o) (Player.options &= ~(o))
 
-/* systemV for some reason uses string.h instead of strings.h */
-/* Also, random and srandom are unlikely to be found on system V... */
+// systemV for some reason uses string.h instead of strings.h
+// Also, random and srandom are unlikely to be found on system V...
 
 #include <string.h>
 #include <stdio.h>

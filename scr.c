@@ -1,8 +1,8 @@
-/* omega (c) 1987,1988,1989 by Laurence Raphael Brothers */
-/* scr.c */
-/* functions that use curses routines directly */
-/* plus a few file i/o stuff */
-/* also some in file.c */
+// omega (c) 1987,1988,1989 by Laurence Raphael Brothers
+// scr.c
+// functions that use curses routines directly
+// plus a few file i/o stuff
+// also some in file.c
 
 #include "glob.h"
 #include <unistd.h>
@@ -22,7 +22,7 @@ static void lightspot(int x, int y);
 
 #define CHARATTR(c)	((c) & ~0xff)
 
-/* note these variables are not exported to other files */
+// note these variables are not exported to other files
 
 WINDOW *Levelw, *Dataw, *Flagw, *Timew, *Menuw, *Locw, *Morew, *Phasew;
 WINDOW *Comwin, *Msg1w, *Msg2w, *Msg3w, *Msgw;
@@ -103,7 +103,7 @@ char mgetc (void)
     return (wgetch (Msgw));
 }
 
-/* case insensitive mgetc -- sends uppercase to lowercase */
+// case insensitive mgetc -- sends uppercase to lowercase
 int mcigetc (void)
 {
     int c = wgetch (Msgw);
@@ -125,8 +125,8 @@ char lgetc (void)
 
 int ynq (void)
 {
-    char p = '*';		/* the user's choice; start with something impossible
-				 * to prevent a loop. */
+    char p = '*';		// the user's choice; start with something impossible
+				// to prevent a loop.
     while ((p != 'n') && (p != 'y') && (p != 'q') && (p != ESCAPE) && (p != EOF) && (p != ' '))
 	p = wgetch (Msgw);
     switch (p) {
@@ -138,9 +138,9 @@ int ynq (void)
 	    break;
 
 	case ESCAPE:
-	    p = 'q';		/* fall through to 'q' */
+	    p = 'q';		// fall through to 'q'
 	case ' ':
-	    p = 'q';		/* fall through to 'q' */
+	    p = 'q';		// fall through to 'q'
 	case 'q':
 	    wprintw (Msgw, "quit. ");
 	    break;
@@ -153,8 +153,8 @@ int ynq (void)
 
 int ynq1 (void)
 {
-    char p = '*';		/* the user's choice; start with something impossible
-				 * to prevent a loop. */
+    char p = '*';		// the user's choice; start with something impossible
+				// to prevent a loop.
     while ((p != 'n') && (p != 'y') && (p != 'q') && (p != ESCAPE) && (p != ' ') && (p != EOF))
 	p = wgetch (Msg1w);
     switch (p) {
@@ -166,9 +166,9 @@ int ynq1 (void)
 	    break;
 
 	case ESCAPE:
-	    p = 'q';		/* fall through to 'q' */
+	    p = 'q';		// fall through to 'q'
 	case ' ':
-	    p = 'q';		/* fall through to 'q' */
+	    p = 'q';		// fall through to 'q'
 	case 'q':
 	    wprintw (Msg1w, "quit. ");
 	    break;
@@ -181,8 +181,8 @@ int ynq1 (void)
 
 int ynq2 (void)
 {
-    char p = '*';		/* the user's choice; start with something impossible
-				 * to prevent a loop. */
+    char p = '*';		// the user's choice; start with something impossible
+				// to prevent a loop.
     while ((p != 'n') && (p != 'y') && (p != 'q') && (p != ESCAPE) && (p != ' ') && (p != EOF))
 	p = wgetch (Msg2w);
     switch (p) {
@@ -194,9 +194,9 @@ int ynq2 (void)
 	    break;
 
 	case ESCAPE:
-	    p = 'q';		/* fall through to 'q' */
+	    p = 'q';		// fall through to 'q'
 	case ' ':
-	    p = 'q';		/* fall through to 'q' */
+	    p = 'q';		// fall through to 'q'
 	case 'q':
 	    wprintw (Msg2w, "quit. ");
 	    break;
@@ -207,7 +207,7 @@ int ynq2 (void)
     return (p);
 }
 
-/* puts up a morewait to allow reading if anything in top two lines */
+// puts up a morewait to allow reading if anything in top two lines
 void checkclear (void)
 {
     int y1 = getcury (Msg1w), y2 = getcury (Msg2w);
@@ -220,7 +220,7 @@ void checkclear (void)
     }
 }
 
-/* for external call */
+// for external call
 void clearmsg (void)
 {
     wclear (Msg1w);
@@ -253,7 +253,7 @@ void erase_level (void)
     wrefresh (Levelw);
 }
 
-/* direct print to first msg line */
+// direct print to first msg line
 void print1 (char *s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
@@ -264,7 +264,7 @@ void print1 (char *s)
     }
 }
 
-/* for run on-messages -- print1 clears first.... */
+// for run on-messages -- print1 clears first....
 void nprint1 (char *s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
@@ -275,7 +275,7 @@ void nprint1 (char *s)
     }
 }
 
-/* direct print to second msg line */
+// direct print to second msg line
 void print2 (char *s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
@@ -286,7 +286,7 @@ void print2 (char *s)
     }
 }
 
-/* for run on-messages -- print2 clears first.... */
+// for run on-messages -- print2 clears first....
 void nprint2 (char *s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
@@ -297,8 +297,8 @@ void nprint2 (char *s)
     }
 }
 
-/* msg line 3 is not part of the region that mprint or printm can reach */
-/* typical use of print3 is for "you can't do that" type error messages */
+// msg line 3 is not part of the region that mprint or printm can reach
+// typical use of print3 is for "you can't do that" type error messages
 void print3 (char *s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
@@ -309,7 +309,7 @@ void print3 (char *s)
     }
 }
 
-/* for run on-messages -- print3 clears first.... */
+// for run on-messages -- print3 clears first....
 void nprint3 (char *s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
@@ -320,8 +320,8 @@ void nprint3 (char *s)
     }
 }
 
-/* prints wherever cursor is in window, but checks to see if
-it should morewait and clear window */
+// prints wherever cursor is in window, but checks to see if
+// it should morewait and clear window
 void mprint (char *s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
@@ -354,10 +354,10 @@ void omega_title (void)
     clear ();
     touchwin (stdscr);
     refresh ();
-    /*  showscores();*//* DG */
+    //  showscores();*//* DG
 }
 
-/* blanks out ith line of Menuw or Levelw */
+// blanks out ith line of Menuw or Levelw
 static void hide_line (int i)
 {
     wclear (Showline[i]);
@@ -394,7 +394,7 @@ static void clrgen_init (void)
     init_pair (25, COLOR_YELLOW, COLOR_YELLOW);
 }
 
-/* initialize, screen, windows */
+// initialize, screen, windows
 void initgraf (void)
 {
     int i;
@@ -408,7 +408,7 @@ void initgraf (void)
     }
     ScreenLength = LINES - 6;
     Msg1w = newwin (1, 80, 0, 0);
-    scrollok (Msg1w, 0);	/* DJGPP curses defaults to scrollable new windows */
+    scrollok (Msg1w, 0);	// DJGPP curses defaults to scrollable new windows
     Msg2w = newwin (1, 80, 1, 0);
     scrollok (Msg2w, 0);
     Msg3w = newwin (1, 80, 2, 0);
@@ -443,10 +443,10 @@ void initgraf (void)
 
     clear ();
     touchwin (stdscr);
-/*  omega_title();*/
-/*  clear();*/
-/*  touchwin(stdscr);*/
-    /*  refresh();*//* DG */
+//  omega_title();
+//  clear();
+//  touchwin(stdscr);
+    //  refresh();*//* DG
 }
 
 static int lastx = -1, lasty = -1;
@@ -511,8 +511,8 @@ void drawvision (int x, int y)
 			    dodrawspot (x + i, y + j);
 	    }
 	    drawplayer ();
-	    drawmonsters (FALSE);	/* erase all monsters */
-	    drawmonsters (TRUE);	/* draw those now visible */
+	    drawmonsters (FALSE);	// erase all monsters
+	    drawmonsters (TRUE);	// draw those now visible
 	}
 	if ((!gamestatusp (FAST_MOVE)) || (!optionp (JUMPMOVE)))
 	    omshowcursor (Player.x, Player.y);
@@ -549,7 +549,7 @@ void levelrefresh (void)
     wrefresh (Levelw);
 }
 
-/* draws a particular spot under if in line-of-sight */
+// draws a particular spot under if in line-of-sight
 void drawspot (int x, int y)
 {
     Symbol c;
@@ -564,7 +564,7 @@ void drawspot (int x, int y)
     }
 }
 
-/* draws a particular spot regardless of line-of-sight */
+// draws a particular spot regardless of line-of-sight
 void dodrawspot (int x, int y)
 {
     Symbol c;
@@ -578,7 +578,7 @@ void dodrawspot (int x, int y)
     }
 }
 
-/* write a blank to a spot if it is floor */
+// write a blank to a spot if it is floor
 static void blankoutspot (int i, int j)
 {
     if (inbounds (i, j)) {
@@ -591,7 +591,7 @@ static void blankoutspot (int i, int j)
     }
 }
 
-/* blank out a spot regardless */
+// blank out a spot regardless
 static void blotspot (int i, int j)
 {
     if (inbounds (i, j)) {
@@ -605,7 +605,7 @@ static void blotspot (int i, int j)
     }
 }
 
-/* for displaying activity specifically at some point */
+// for displaying activity specifically at some point
 void plotspot (int x, int y, int showmonster)
 {
     if (loc_statusp (x, y, SEEN))
@@ -614,7 +614,7 @@ void plotspot (int x, int y, int showmonster)
 	putspot (x, y, SPACE);
 }
 
-/* Puts c at x,y on screen. No fuss, no bother. */
+// Puts c at x,y on screen. No fuss, no bother.
 void putspot (int x, int y, Symbol c)
 {
     if (!offscreen (y)) {
@@ -625,7 +625,7 @@ void putspot (int x, int y, Symbol c)
     }
 }
 
-/* regardless of line of sight, etc, draw a monster */
+// regardless of line of sight, etc, draw a monster
 void plotmon (struct monster *m)
 {
     if (!offscreen (m->y)) {
@@ -636,7 +636,7 @@ void plotmon (struct monster *m)
     }
 }
 
-/* if display, displays monsters, otherwise erases them */
+// if display, displays monsters, otherwise erases them
 void drawmonsters (int display)
 {
     pml ml;
@@ -658,7 +658,7 @@ void drawmonsters (int display)
     }
 }
 
-/* replace monster with what would be displayed if monster weren't there */
+// replace monster with what would be displayed if monster weren't there
 void erase_monster (struct monster *m)
 {
     if (loc_statusp (m->x, m->y, SEEN))
@@ -667,7 +667,7 @@ void erase_monster (struct monster *m)
 	blotspot (m->x, m->y);
 }
 
-/* find apt char to display at some location */
+// find apt char to display at some location
 Symbol getspot (int x, int y, int showmonster)
 {
     if (loc_statusp (x, y, SECRET))
@@ -683,13 +683,13 @@ Symbol getspot (int x, int y, int showmonster)
 		    return (Level->site[x][y].creature->monchar);
 		else
 		    return (WATER);
-		/* these sites never show anything but their location char's */
+		// these sites never show anything but their location char's
 	    case CLOSED_DOOR:
 	    case LAVA:
 	    case FIRE:
 	    case ABYSS:
 		return (Level->site[x][y].locchar);
-		/* rubble and hedge don't show items on their location */
+		// rubble and hedge don't show items on their location
 	    case RUBBLE:
 	    case HEDGE:
 		if (showmonster && (Level->site[x][y].creature != NULL)) {
@@ -699,8 +699,7 @@ Symbol getspot (int x, int y, int showmonster)
 			return (Level->site[x][y].creature->monchar);
 		} else
 		    return (Level->site[x][y].locchar);
-		/* everywhere else, first try to show monster, next show items, next show
-		   location char */
+		// everywhere else, first try to show monster, next show items, next show location char
 	    default:
 		if (showmonster && (Level->site[x][y].creature != NULL)) {
 		    if ((m_statusp (Level->site[x][y].creature, M_INVISIBLE)) && (!Player.status[TRUESIGHT]))
@@ -751,21 +750,21 @@ void comwinprint (void)
 void dataprint (void)
 {
     wclear (Dataw);
-    /* WDT HACK: I should make these fields spaced and appropriately justified.
-     * Maybe I don't feel like it right now. */
+    // WDT HACK: I should make these fields spaced and appropriately justified.
+    // Maybe I don't feel like it right now.
     wprintw (Dataw, "Hp:%d/%d Mana:%ld/%ld Au:%ld Level:%d/%ld Carry:%d/%d \n", Player.hp, Player.maxhp, Player.mana, Player.maxmana, Player.cash, Player.level, Player.xp, Player.itemweight, Player.maxweight);
     wprintw (Dataw, "Str:%d/%d Con:%d/%d Dex:%d/%d Agi:%d/%d Int:%d/%d Pow:%d/%d   ", Player.str, Player.maxstr, Player.con, Player.maxcon, Player.dex, Player.maxdex, Player.agi, Player.maxagi, Player.iq, Player.maxiq, Player.pow, Player.maxpow);
     wrefresh (Dataw);
 }
 
-/* redraw everything currently displayed */
+// redraw everything currently displayed
 void redraw (void)
 {
     touchwin (curscr);
     wrefresh (curscr);
 }
 
-/* redraw each permanent window */
+// redraw each permanent window
 void xredraw (void)
 {
     touchwin (Msgw);
@@ -903,7 +902,7 @@ char *msgscanstring (void)
     curs_set (1);
     byte = mgetc ();
     while (byte != '\n') {
-	if ((byte == 8) || (byte == 127)) {	/* ^h or delete */
+	if ((byte == 8) || (byte == 127)) {	// ^h or delete
 	    if (i > 0) {
 		i--;
 		dobackspace ();
@@ -929,7 +928,7 @@ void locprint (char *s)
     wrefresh (Locw);
 }
 
-/* draw everything whether visible or not */
+// draw everything whether visible or not
 void drawscreen (void)
 {
     int i, j;
@@ -947,7 +946,7 @@ void drawscreen (void)
     show_screen ();
 }
 
-/*selects a number up to range */
+//selects a number up to range
 
 int getnumber (int range)
 {
@@ -975,7 +974,7 @@ int getnumber (int range)
     return (value);
 }
 
-/* reads a positive number up to 999999 */
+// reads a positive number up to 999999
 long parsenum (void)
 {
     int number[8];
@@ -1259,10 +1258,8 @@ void drawomega (void)
     wattrset (stdscr, CHARATTR (CLR (WHITE)));
 }
 
-/* y is an absolute coordinate */
-/* ScreenOffset is the upper left hand corner of the current screen
-   in absolute coordinates */
-
+// y is an absolute coordinate
+// ScreenOffset is the upper left hand corner of the current screen in absolute coordinates
 void screencheck (int y)
 {
     if (((y - ScreenOffset) < (ScreenLength / 8)) || ((y - ScreenOffset) > (7 * ScreenLength / 8))) {
@@ -1286,7 +1283,7 @@ void spreadroomlight (int x, int y, int roomno)
     }
 }
 
-/* illuminate one spot at x y */
+// illuminate one spot at x y
 static void lightspot (int x, int y)
 {
     Symbol c;
@@ -1495,7 +1492,7 @@ void display_options (void)
 	display_option_slot (i);
 }
 
-/* nya ha ha ha ha haaaa.... */
+// nya ha ha ha ha haaaa....
 void deathprint (void)
 {
     mgetc ();
@@ -1569,9 +1566,9 @@ void bufferprint (void)
 	wprintw (Msg2w, Stringbuffer[i]);
 	wrefresh (Msg2w);
 	c = mgetc ();
-	if (c == 16)		/* ^p */
+	if (c == 16)		// ^p
 	    i--;
-	else if (c == 14)	/* ^n */
+	else if (c == 14)	// ^n
 	    i++;
 	else
 	    finished = 1;

@@ -1,6 +1,6 @@
 #pragma once
 
-/* aux.c */
+// aux.c
 void tunnelcheck(void);
 void showroom(int i);
 int player_on_sanctuary(void);
@@ -52,11 +52,11 @@ int hostilemonstersnear(void);
 int stonecheck(int alignment);
 void alert_guards(void);
 int maneuvers(void);
-/* char.c */
+// char.c
 void initplayer(void);
 long calcmana(void);
 int fixnpc(int status);
-/* command.c */
+// command.c
 void p_process(void);
 void p_country_process(void);
 void pickup(void);
@@ -67,7 +67,7 @@ void save(int compress, int force);
 void quit(void);
 void rename_player(void);
 void dismount_steed(void);
-/* effect.c */
+// effect.c
 void accuracy(int blessing);
 void acid_cloud(void);
 void acquire(int blessing);
@@ -134,7 +134,7 @@ void summon(int blessing, int id);
 void truesight(int blessing);
 void warp(int blessing);
 void wish(int blessing);
-/* env.c */
+// env.c
 int difficulty(void);
 void l_adept(void);
 void l_alchemist(void);
@@ -195,7 +195,7 @@ void sign_print(int x, int y, int signp);
 void statue_random(int x, int y);
 void stock_level(void);
 void wandercheck(void);
-/* file.c */
+// file.c
 FILE *checkfopen(char *filestring, char *optionstring);
 int filecheck(void);
 void abyss_file(void);
@@ -214,7 +214,7 @@ void showscores(void);
 void theologyfile(void);
 void user_intro(void);
 void wishfile(void);
-/* gen.c */
+// gen.c
 void cavern_level(void);
 void change_level(int fromlevel, int tolevel, int rewrite_level);
 void clear_level(struct level *dungeon_level);
@@ -227,7 +227,7 @@ void maze_level(void);
 void room_level(void);
 char* roomname(int ri);
 void sewer_level(void);
-/* inv.c */
+// inv.c
 char* cashstr(void);
 void conform_lost_object(pob obj);
 void conform_lost_objects(int n, pob obj);
@@ -253,7 +253,7 @@ void p_drop_at(int x, int y, int n, pob o);
 void pickup_at(int x, int y);
 pob split_item(int num, pob item);
 void top_inventory_control(void);
-/* item.c */
+// item.c
 char* bootname(int id);
 char* cloakname(int id);
 pob create_object(int itemlevel);
@@ -293,7 +293,7 @@ void weapon_scythe(int dmgmod, pob o, struct monster *m);
 void weapon_tangle(int dmgmod, pob o, struct monster *m);
 void weapon_victrix(int dmgmod, pob o, struct monster *m);
 void weapon_vorpal(int dmgmod, pob o, struct monster *m);
-/* mon.c */
+// mon.c
 void determine_npc_behavior(pmt npc, int level, int behavior);
 void m_abyss(struct monster *m);
 void m_altar(struct monster *m);
@@ -326,24 +326,24 @@ char* mantype(void);
 void monster_talk(struct monster *m);
 char random_loc(void);
 void transcribe_monster_actions(struct monster *m);
-/* move.c */
+// move.c
 void l_abyss(void);
 void l_chaos(void);
 void l_portcullis_trap(void);
 void l_raise_portcullis(void);
 void m_movefunction(struct monster *m, int movef);
 void p_movefunction(int movef);
-/* omega.c */
+// omega.c
 void inititem(int reset);
 void initrand(int environment, int level);
 void time_clock(int reset);
-/* priest.c */
+// priest.c
 void l_altar(void);
-/* save.c */
+// save.c
 int restore_game(char *savestr);
 int save_game(char *savestr);
 void signalsave(int sig);
-/* scr.c */
+// scr.c
 void bufferprint(void);
 void checkclear(void);
 void clear_if_necessary(void);
@@ -424,12 +424,12 @@ void xredraw(void);
 int ynq(void);
 int ynq1(void);
 int ynq2(void);
-/* spell.c */
+// spell.c
 void cast_spell(int spell);
 int getspell(void);
 void initspells(void);
 char* spellid(int id);
-/* trap.c */
+// trap.c
 void l_trap_abyss(void);
 void l_trap_acid(void);
 void l_trap_blade(void);
@@ -443,7 +443,7 @@ void l_trap_siren(void);
 void l_trap_sleepgas(void);
 void l_trap_snare(void);
 void l_trap_teleport(void);
-/* util.c */
+// util.c
 long calc_points(void);
 void calc_weight(void);
 void* checkmalloc(unsigned int bytes);

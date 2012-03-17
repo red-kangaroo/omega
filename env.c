@@ -34,7 +34,7 @@ static void repair_jail(void);
 //----------------------------------------------------------------------
 
 
-/* loads the arena level into Level*/
+// loads the arena level into Level
 void load_arena (void)
 {
     int i, j;
@@ -92,14 +92,14 @@ void load_arena (void)
     Level->mlist = (pml) checkmalloc (sizeof (mltype));
     Level->mlist->m = Arena_Monster;
     Level->mlist->next = NULL;
-    /* hehehehe cackled the dungeon master.... */
+    // hehehehe cackled the dungeon master....
     print2 ("Your opponent holds the only way you can leave!");
     Arena_Monster->hp += Arena_Monster->level * 10;
     Arena_Monster->hit += Arena_Monster->hit;
     Arena_Monster->dmg += Arena_Monster->dmg / 2;
 }
 
-/* loads the sorcereror's circle into Level*/
+// loads the sorcereror's circle into Level
 void load_circle (int populate)
 {
     int i, j;
@@ -129,7 +129,7 @@ void load_circle (int populate)
 		case 'P':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (populate) {
-			make_prime (i, j);	/* prime sorceror */
+			make_prime (i, j);	// prime sorceror
 			Level->site[i][j].creature->specialf = M_SP_PRIME;
 			if (!safe)
 			    m_status_set (Level->site[i][j].creature, HOSTILE);
@@ -138,7 +138,7 @@ void load_circle (int populate)
 		case 'D':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (populate) {
-			make_site_monster (i, j, DEMON_PRINCE);	/* prime circle demon */
+			make_site_monster (i, j, DEMON_PRINCE);	// prime circle demon
 			if (safe)
 			    m_status_reset (Level->site[i][j].creature, HOSTILE);
 			Level->site[i][j].creature->specialf = M_SP_COURT;
@@ -147,7 +147,7 @@ void load_circle (int populate)
 		case 's':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (populate) {
-			make_site_monster (i, j, SERV_CHAOS);	/* servant of chaos */
+			make_site_monster (i, j, SERV_CHAOS);	// servant of chaos
 			Level->site[i][j].creature->specialf = M_SP_COURT;
 			if (safe)
 			    m_status_reset (Level->site[i][j].creature, HOSTILE);
@@ -156,7 +156,7 @@ void load_circle (int populate)
 		case 'e':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (populate) {
-			make_site_monster (i, j, ENCHANTOR);	/* enchanter */
+			make_site_monster (i, j, ENCHANTOR);	// enchanter
 			Level->site[i][j].creature->specialf = M_SP_COURT;
 			if (safe)
 			    m_status_reset (Level->site[i][j].creature, HOSTILE);
@@ -165,7 +165,7 @@ void load_circle (int populate)
 		case 'n':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (populate) {
-			make_site_monster (i, j, NECROMANCER);	/* necromancer */
+			make_site_monster (i, j, NECROMANCER);	// necromancer
 			Level->site[i][j].creature->specialf = M_SP_COURT;
 			if (safe)
 			    m_status_reset (Level->site[i][j].creature, HOSTILE);
@@ -174,7 +174,7 @@ void load_circle (int populate)
 		case 'T':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (populate) {
-			make_site_monster (i, j, THAUMATURGIST);	/* High Thaumaturgist */
+			make_site_monster (i, j, THAUMATURGIST);	// High Thaumaturgist
 			Level->site[i][j].creature->specialf = M_SP_COURT;
 			if (safe)
 			    m_status_reset (Level->site[i][j].creature, HOSTILE);
@@ -213,14 +213,14 @@ void load_circle (int populate)
     fclose (fd);
 }
 
-/* make the prime sorceror */
+// make the prime sorceror
 static void make_prime (int i, int j)
 {
     pml ml = ((pml) checkmalloc (sizeof (mltype)));
     pmt m = ((pmt) checkmalloc (sizeof (montype)));
     pol ol;
     pob o;
-    make_hiscore_npc (m, 10);	/* 10 is index for prime */
+    make_hiscore_npc (m, 10);	// 10 is index for prime
     m->x = i;
     m->y = j;
     Level->site[i][j].creature = m;
@@ -238,7 +238,7 @@ static void make_prime (int i, int j)
     }
 }
 
-/* loads the court of the archmage into Level*/
+// loads the court of the archmage into Level
 void load_court (int populate)
 {
     int i, j;
@@ -277,7 +277,7 @@ void load_court (int populate)
 		case 'e':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (populate) {
-			make_site_monster (i, j, ENCHANTOR);	/* enchanter */
+			make_site_monster (i, j, ENCHANTOR);	// enchanter
 			m_status_reset (Level->site[i][j].creature, HOSTILE);
 			Level->site[i][j].creature->specialf = M_SP_COURT;
 		    }
@@ -285,7 +285,7 @@ void load_court (int populate)
 		case 'n':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (populate) {
-			make_site_monster (i, j, NECROMANCER);	/* necromancer */
+			make_site_monster (i, j, NECROMANCER);	// necromancer
 			m_status_reset (Level->site[i][j].creature, HOSTILE);
 			Level->site[i][j].creature->specialf = M_SP_COURT;
 		    }
@@ -293,7 +293,7 @@ void load_court (int populate)
 		case 'T':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (populate) {
-			make_site_monster (i, j, THAUMATURGIST);	/* High Thaumaturgist */
+			make_site_monster (i, j, THAUMATURGIST);	// High Thaumaturgist
 			m_status_reset (Level->site[i][j].creature, HOSTILE);
 			Level->site[i][j].creature->specialf = M_SP_COURT;
 		    }
@@ -306,7 +306,7 @@ void load_court (int populate)
 		    Level->site[i][j].locchar = FLOOR;
 		    Level->site[i][j].locchar = FLOOR;
 		    if (populate) {
-			make_site_monster (i, j, GUARD);	/* guard */
+			make_site_monster (i, j, GUARD);	// guard
 			m_status_reset (Level->site[i][j].creature, HOSTILE);
 		    }
 		    break;
@@ -324,12 +324,12 @@ void load_court (int populate)
     fclose (fd);
 }
 
-/* make the archmage */
+// make the archmage
 static void make_archmage (int i, int j)
 {
     pml ml = ((pml) checkmalloc (sizeof (mltype)));
     pmt m = ((pmt) checkmalloc (sizeof (montype)));
-    make_hiscore_npc (m, 9);	/* 9 is index for archmage */
+    make_hiscore_npc (m, 9);	// 9 is index for archmage
     m->x = i;
     m->y = j;
     Level->site[i][j].creature = m;
@@ -339,7 +339,7 @@ static void make_archmage (int i, int j)
     m->specialf = M_SP_COURT;
 }
 
-/* loads the abyss level into Level*/
+// loads the abyss level into Level
 void load_abyss (void)
 {
     int i, j;
@@ -414,7 +414,7 @@ void load_abyss (void)
     fclose (fd);
 }
 
-/* loads the city level */
+// loads the city level
 void load_city (int populate)
 {
     int i, j;
@@ -689,9 +689,9 @@ void load_city (int populate)
     }
     City = Level;
 
-    /* make all city monsters asleep, and shorten their wakeup range to 2 */
-    /* to prevent players from being molested by vicious monsters on */
-    /* the streets */
+    // make all city monsters asleep, and shorten their wakeup range to 2
+    // to prevent players from being molested by vicious monsters on
+    // the streets
     for (ml = Level->mlist; ml != NULL; ml = ml->next) {
 	m_status_reset (ml->m, AWAKE);
 	ml->m->wakeup = 2;
@@ -704,7 +704,7 @@ static void assign_city_function (int x, int y)
 {
     static int setup = 0;
     static int next = 0;
-    static int permutation[64];	/* number of x's in city map */
+    static int permutation[64];	// number of x's in city map
     int i, j, k, l;
 
     Level->site[x][y].aux = TRUE;
@@ -727,7 +727,7 @@ static void assign_city_function (int x, int y)
 	    permutation[k] = l;
 	}
     }
-    if (next > 63) {		/* in case someone changes the no. of x's */
+    if (next > 63) {		// in case someone changes the no. of x's
 	Level->site[x][y].locchar = CLOSED_DOOR;
 	Level->site[x][y].p_locf = L_HOUSE;
 	if (random_range (5))
@@ -855,7 +855,7 @@ static void assign_city_function (int x, int y)
     next++;
 }
 
-/* makes a hiscore npc for mansions */
+// makes a hiscore npc for mansions
 static void make_justiciar (int i, int j)
 {
     pml ml = ((pml) checkmalloc (sizeof (mltype)));
@@ -871,7 +871,7 @@ static void make_justiciar (int i, int j)
     m_status_reset (ml->m, AWAKE);
 }
 
-/* loads the city level */
+// loads the city level
 void resurrect_guards (void)
 {
     int i, j;
@@ -983,7 +983,7 @@ static void randommazesite (int i, int j, int populate)
     }
 }
 
-/* undead are not hostile unless disturbed.... */
+// undead are not hostile unless disturbed....
 static void make_minor_undead (int i, int j)
 {
     int mid;
@@ -996,14 +996,14 @@ static void make_minor_undead (int i, int j)
     m_status_reset (Level->site[i][j].creature, HOSTILE);
 }
 
-/* undead are not hostile unless disturbed.... */
+// undead are not hostile unless disturbed....
 static void make_major_undead (int i, int j)
 {
     int mid;
     if (random_range (2))
-	mid = LICHE;		/* lich */
+	mid = LICHE;
     else
-	mid = VAMP_LORD;	/*vampire lord */
+	mid = VAMP_LORD;
     make_site_monster (i, j, mid);
     m_status_reset (Level->site[i][j].creature, AWAKE);
     m_status_reset (Level->site[i][j].creature, HOSTILE);
@@ -1017,7 +1017,7 @@ static const char jail[5][11] = {
     {'#', '#', 'R', '#', 'R', '#', 'R', '#', 'R', '#', '#'}
 };
 
-/* fixes up the jail in case it has been munged by player action */
+// fixes up the jail in case it has been munged by player action
 static void repair_jail (void)
 {
     int i, j;
@@ -1054,7 +1054,7 @@ static void repair_jail (void)
 	}
 }
 
-/* loads the countryside level from the data file */
+// loads the countryside level from the data file
 void load_country (void)
 {
     int i, j;
@@ -1159,7 +1159,7 @@ void load_country (void)
     fclose (fd);
 }
 
-/* loads the dragon's lair into Level*/
+// loads the dragon's lair into Level
 void load_dlair (int empty, int populate)
 {
     int i, j;
@@ -1206,7 +1206,7 @@ void load_dlair (int empty, int populate)
 		case 'd':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (!empty) {
-			make_site_monster (i, j, DRAGON);	/* elite dragons, actually */
+			make_site_monster (i, j, DRAGON);	// elite dragons, actually
 			Level->site[i][j].creature->specialf = M_SP_LAIR;
 			Level->site[i][j].creature->hit *= 2;
 			Level->site[i][j].creature->dmg *= 2;
@@ -1276,7 +1276,7 @@ void load_dlair (int empty, int populate)
     fclose (fd);
 }
 
-/* loads the star peak into Level*/
+// loads the star peak into Level
 void load_speak (int empty, int populate)
 {
     int i, j, safe = Player.alignment > 0;
@@ -1328,7 +1328,7 @@ void load_speak (int empty, int populate)
 		case 's':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (!empty) {
-			make_site_monster (i, j, SERV_LAW);	/* servant of law */
+			make_site_monster (i, j, SERV_LAW);	// servant of law
 			if (safe)
 			    m_status_reset (Level->site[i][j].creature, HOSTILE);
 		    }
@@ -1394,7 +1394,7 @@ void load_speak (int empty, int populate)
     fclose (fd);
 }
 
-/* loads the magic isle into Level*/
+// loads the magic isle into Level
 void load_misle (int empty, int populate)
 {
     int i, j;
@@ -1432,12 +1432,12 @@ void load_misle (int empty, int populate)
 		case 'E':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (!empty)
-			make_site_monster (i, j, EATER);	/* eater of magic */
+			make_site_monster (i, j, EATER);	// eater of magic
 		    break;
 		case 'm':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (!empty)
-			make_site_monster (i, j, MIL_PRIEST);	/* militant priest */
+			make_site_monster (i, j, MIL_PRIEST);	// militant priest
 		    break;
 		case 'n':
 		    Level->site[i][j].locchar = FLOOR;
@@ -1480,7 +1480,7 @@ void load_misle (int empty, int populate)
     fclose (fd);
 }
 
-/* loads a temple into Level*/
+// loads a temple into Level
 void load_temple (int deity, int populate)
 {
     int i, j;
@@ -1488,10 +1488,10 @@ void load_temple (int deity, int populate)
     pml ml;
     FILE *fd;
 
-    /* WDT HACK: I don't know why this is wrong.  Shrug.  David Givens
-     * suggested removing it, and he has more experience with Omega
-     * than I, so... */
-    /*  initrand(Current_Environment, deity); */
+    // WDT HACK: I don't know why this is wrong.  Shrug.  David Givens
+    // suggested removing it, and he has more experience with Omega
+    // than I, so...
+    //  initrand(Current_Environment, deity);
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
 	free_level (TempLevel);
@@ -1551,12 +1551,12 @@ void load_temple (int deity, int populate)
 		case 'm':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (populate)
-			make_site_monster (i, j, MIL_PRIEST);	/* militant priest */
+			make_site_monster (i, j, MIL_PRIEST);	// militant priest
 		    break;
 		case 'd':
 		    Level->site[i][j].locchar = FLOOR;
 		    if (populate)
-			make_site_monster (i, j, DOBERMAN);	/* doberman death hound */
+			make_site_monster (i, j, DOBERMAN);	// doberman death hound
 		    break;
 		case 'X':
 		    Level->site[i][j].locchar = FLOOR;
@@ -1596,12 +1596,12 @@ void load_temple (int deity, int populate)
 	}
 	site = getc (fd) ^ site;
     }
-    /* Main Temple is peaceful for player of same sect,druids always peaceful. */
+    // Main Temple is peaceful for player of same sect,druids always peaceful.
     if ((Player.patron == deity) || (deity == DRUID))
 	for (ml = Level->mlist; ml != NULL; ml = ml->next)
 	    m_status_reset (ml->m, HOSTILE);
     fclose (fd);
-    /*  initrand(-2, 0); */
+    //  initrand(-2, 0);
 }
 
 static void random_temple_site (int i, int j, int deity UNUSED, int populate)
@@ -1610,26 +1610,26 @@ static void random_temple_site (int i, int j, int deity UNUSED, int populate)
 	case 0:
 	    if (populate)
 		make_site_monster (i, j, MEND_PRIEST);
-	    break;		/* mendicant priest */
+	    break;		// mendicant priest
 	case 1:
 	    Level->site[i][j].locchar = WATER;
 	    Level->site[i][j].p_locf = L_MAGIC_POOL;
 	case 2:
 	    if (populate)
 		make_site_monster (i, j, INNER_DEMON);
-	    break;		/* inner circle demon */
+	    break;		// inner circle demon
 	case 3:
 	    if (populate)
 		make_site_monster (i, j, ANGEL);
-	    break;		/* angel of apropriate sect */
+	    break;		// angel of apropriate sect
 	case 4:
 	    if (populate)
 		make_site_monster (i, j, HIGH_ANGEL);
-	    break;		/* high angel of apropriate sect */
+	    break;		// high angel of apropriate sect
 	case 5:
 	    if (populate)
 		make_site_monster (i, j, ARCHANGEL);
-	    break;		/* archangel of apropriate sect */
+	    break;		// archangel of apropriate sect
     }
 }
 
@@ -1698,10 +1698,10 @@ void l_merc_guild (void)
 			morewait ();
 			clearmsg ();
 			newitem = ((pob) checkmalloc (sizeof (objtype)));
-			*newitem = Objects[WEAPONID + 1];	/* shortsword */
+			*newitem = Objects[WEAPONID + 1];	// shortsword
 			gain_item (newitem);
 			newitem = ((pob) checkmalloc (sizeof (objtype)));
-			*newitem = Objects[ARMORID + 1];	/* leather */
+			*newitem = Objects[ARMORID + 1];	// leather
 			gain_item (newitem);
 			Player.cash += 500;
 			Player.rank[LEGION] = LEGIONAIRE;
@@ -1960,10 +1960,10 @@ void l_arena (void)
 	    morewait ();
 	    clearmsg ();
 	    newitem = ((pob) checkmalloc (sizeof (objtype)));
-	    *newitem = Objects[WEAPONID + 17];	/* club */
+	    *newitem = Objects[WEAPONID + 17];	// club
 	    gain_item (newitem);
 	    newitem = ((pob) checkmalloc (sizeof (objtype)));
-	    *newitem = Objects[SHIELDID + 2];	/* shield */
+	    *newitem = Objects[SHIELDID + 2];	// shield
 	    gain_item (newitem);
 	    Player.rank[ARENA] = TRAINEE;
 	    Arena_Opponent = 3;
@@ -2080,22 +2080,22 @@ void l_arena (void)
 	while (Current_Environment == E_ARENA)
 	    time_clock (FALSE);
 
-	/* WDT -- Sheldon Simms points out that these objects are not
-	 * wastes of space; on the contrary, they can be carried out of the
-	 * arena.  Freeing them was causing subtle and hard to find problems.
-	 * However, not freeing them is causing a couple of tiny memory leaks.
-	 * This should be fixed, probably by modifying the object destruction
-	 * procedures to account for this case.  I'm not really concerned. */
-	/* David Given has proposed a nicer solution, but it still causes a
-	 * memory leak.  Obviously, we need a special field just for names
-	 * in the monster struct.  Yadda yadda -- I'll mmark this with a 
-	 * HACK!, and comme back to it later. */
-	/* can not free the corpse string... it is referenced in the */
-	/* corpse string of the corpse object.  */
-	/* Unfortunately, this will cause a memory leak, but I don't see */
-	/* any way to avoid it.  This fixes the munged arena corpse names */
-	/* problem. -DAG */
-	/* free(corpse); */
+	// WDT -- Sheldon Simms points out that these objects are not
+	// wastes of space; on the contrary, they can be carried out of the
+	// arena.  Freeing them was causing subtle and hard to find problems.
+	// However, not freeing them is causing a couple of tiny memory leaks.
+	// This should be fixed, probably by modifying the object destruction
+	// procedures to account for this case.  I'm not really concerned.
+	// David Given has proposed a nicer solution, but it still causes a
+	// memory leak.  Obviously, we need a special field just for names
+	// in the monster struct.  Yadda yadda -- I'll mmark this with a 
+	// HACK!, and comme back to it later.
+	// can not free the corpse string... it is referenced in the
+	// corpse string of the corpse object.
+	// Unfortunately, this will cause a memory leak, but I don't see
+	// any way to avoid it.  This fixes the munged arena corpse names
+	// problem. -DAG
+	// free(corpse);
 
 	if (melee)
 	    free (melee);
@@ -2235,7 +2235,7 @@ void l_thieves_guild (void)
 			    morewait ();
 			    Spells[S_OBJ_DET].known = TRUE;
 			    lockpick = ((pob) checkmalloc (sizeof (objtype)));
-			    *lockpick = Objects[THINGID + 2];	/* lock pick */
+			    *lockpick = Objects[THINGID + 2];	// lock pick
 			    gain_item (lockpick);
 			    Player.cash -= dues;
 			    dataprint ();
@@ -2364,7 +2364,7 @@ void l_thieves_guild (void)
 				    item_use (Player.possessions[i]);
 				}
 				Player.cash += number * 2 * item_value (Player.possessions[i]) / 3;
-				/* Fenced artifacts could turn up anywhere, really... */
+				// Fenced artifacts could turn up anywhere, really...
 				if (Objects[Player.possessions[i]->id].uniqueness > UNIQUE_UNMADE)
 				    Objects[Player.possessions[i]->id].uniqueness = UNIQUE_UNMADE;
 				dispose_lost_objects (number, Player.possessions[i]);
@@ -2386,7 +2386,7 @@ void l_thieves_guild (void)
 				    Player.cash += 2 * number * item_value (Player.pack[i]) / 3;
 				    Player.pack[i]->number -= number;
 				    if (Player.pack[i]->number < 1) {
-					/* Fenced an artifact?  You just might see it again. */
+					// Fenced an artifact?  You just might see it again.
 					if (Objects[Player.pack[i]->id].uniqueness > UNIQUE_UNMADE)
 					    Objects[Player.pack[i]->id].uniqueness = UNIQUE_UNMADE;
 					free ((char *) Player.pack[i]);
@@ -2765,11 +2765,11 @@ void l_order (void)
 	print2 ("You are now the Justiciar of Rampart and the Order!");
 	strcpy (Justiciar, Player.name);
 	for (ml = Level->mlist; ml && (ml->m->id != HISCORE_NPC || ml->m->aux2 != 15); ml = ml->next)
-	    /* just scan for current Justicar */ ;
+	    // just scan for current Justicar */ ;
 	if (ml) {
 	    Level->site[ml->m->x][ml->m->y].creature = NULL;
 	    erase_monster (ml->m);
-	    ml->m->hp = -1;	/* signals "death" -- no credit to player, though */
+	    ml->m->hp = -1;	// signals "death" -- no credit to player, though
 	}
 	Justiciarlevel = Player.level;
 	morewait ();
@@ -2779,7 +2779,7 @@ void l_order (void)
 	print1 ("You are awarded a blessed shield of deflection!");
 	morewait ();
 	newitem = ((pob) checkmalloc (sizeof (objtype)));
-	*newitem = Objects[SHIELDID + 7];	/* shield of deflection */
+	*newitem = Objects[SHIELDID + 7];	// shield of deflection
 	newitem->blessing = 9;
 	gain_item (newitem);
 	morewait ();
@@ -2820,7 +2820,7 @@ void l_order (void)
 		Player.guildxp[ORDER] = 1;
 		setgamestatus (MOUNTED);
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
-		*newitem = Objects[WEAPONID + 19];	/* spear */
+		*newitem = Objects[WEAPONID + 19];	// spear
 		newitem->blessing = 9;
 		newitem->plus = 1;
 		newitem->known = 2;
@@ -2860,7 +2860,7 @@ void l_order (void)
 		print2 ("You learn the Spell of Heroism and get Mithril Plate!");
 		morewait ();
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
-		*newitem = Objects[ARMORID + 11];	/* mithril plate armor */
+		*newitem = Objects[ARMORID + 11];	// mithril plate armor
 		newitem->blessing = 9;
 		newitem->known = 2;
 		gain_item (newitem);
@@ -2890,7 +2890,7 @@ void l_order (void)
 		morewait ();
 		clearmsg ();
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
-		*newitem = Objects[WEAPONID + 25];	/* mace of disruption */
+		*newitem = Objects[WEAPONID + 25];	// mace of disruption
 		newitem->known = 2;
 		gain_item (newitem);
 	    }
@@ -2909,7 +2909,7 @@ void l_order (void)
 		clearmsg ();
 		Player.rank[ORDER] = GUARDIAN;
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
-		*newitem = Objects[ARTIFACTID + 7];	/* holy hand grenade. */
+		*newitem = Objects[ARTIFACTID + 7];	// holy hand grenade.
 		newitem->known = 2;
 		gain_item (newitem);
 	    }
@@ -2917,7 +2917,7 @@ void l_order (void)
     }
 }
 
-/* loads the house level into Level*/
+// loads the house level into Level
 void load_house (int kind, int populate)
 {
     int i, j;
@@ -3081,7 +3081,7 @@ void load_house (int kind, int populate)
 		    Level->site[i][j].locchar = FLOOR;
 		    Level->site[i][j].roomnumber = RS_CORRIDOR;
 		    if (populate)
-			make_site_monster (i, j, AUTO_MINOR);	/* automaton */
+			make_site_monster (i, j, AUTO_MINOR);	// automaton
 		    break;
 	    }
 	    Level->site[i][j].showchar = ' ';
@@ -3092,7 +3092,7 @@ void load_house (int kind, int populate)
     initrand (E_RESTORE, 0);
 }
 
-/* makes a log npc for houses and hovels */
+// makes a log npc for houses and hovels
 static void make_house_npc (int i, int j)
 {
     pml ml = ((pml) checkmalloc (sizeof (mltype)));
@@ -3104,7 +3104,7 @@ static void make_house_npc (int i, int j)
 	mprint ("You detect signs of life in this house.");
     else
 	mprint ("An eerie shiver runs down your spine as you enter....");
-    /* if not == NPC, then we got a ghost off the npc list */
+    // if not == NPC, then we got a ghost off the npc list
     ml->m->x = i;
     ml->m->y = j;
     Level->site[i][j].creature = ml->m;
@@ -3123,7 +3123,7 @@ static void make_house_npc (int i, int j)
     }
 }
 
-/* makes a hiscore npc for mansions */
+// makes a hiscore npc for mansions
 static void make_mansion_npc (int i, int j)
 {
     pml ml = ((pml) checkmalloc (sizeof (mltype)));
@@ -3144,7 +3144,7 @@ static void make_mansion_npc (int i, int j)
 	m_status_set (ml->m, AWAKE);
 }
 
-/* loads the village level into Level*/
+// loads the village level into Level
 void load_village (int villagenum, int populate)
 {
     int i, j;
@@ -3317,7 +3317,7 @@ static void make_food_bin (int i, int j)
     for (k = 0; k < 10; k++) {
 	tol = ((pol) checkmalloc (sizeof (oltype)));
 	tol->thing = ((pob) checkmalloc (sizeof (objtype)));
-	make_food (tol->thing, 15);	/* grain */
+	make_food (tol->thing, 15);	// grain
 	tol->next = Level->site[i][j].things;
 	Level->site[i][j].things = tol;
     }
@@ -3346,7 +3346,7 @@ static void make_merchant (int i, int j)
 static void assign_village_function (int x, int y, int setup)
 {
     static int next = 0;
-    static int permutation[24];	/* number of x's in village map */
+    static int permutation[24];	// number of x's in village map
     int i, j, k;
 
     if (setup) {
@@ -3425,16 +3425,16 @@ static void special_village_site (int i, int j, int villagenum)
     }
 }
 
-/* Functions dealing with dungeon and country levels aside from actual
-level structure generation */
+// Functions dealing with dungeon and country levels aside from actual
+// level structure generation
 
-/* monsters for tactical encounters */
+// monsters for tactical encounters
 void make_country_monsters (int terrain)
 {
     pml tml, ml = NULL;
     static int plains[10] = { BUNNY, BUNNY, HORNET, QUAIL, HAWK, DEER, WOLF, LION, BRIGAND, RANDOM };
-/*    {BUNNY,BUNNY,BLACKSNAKE,HAWK,IMPALA,WOLF,LION,BRIGAND,RANDOM};*/
-    /* DG changed (WDT: I'd like to see a blacksnake). */
+//    {BUNNY,BUNNY,BLACKSNAKE,HAWK,IMPALA,WOLF,LION,BRIGAND,RANDOM};
+    // DG changed (WDT: I'd like to see a blacksnake).
     static int forest[10] = { BUNNY, QUAIL, HAWK, BADGER, DEER, DEER, WOLF, BEAR, BRIGAND, RANDOM };
     static int jungle[10] = { ANTEATER, PARROT, MAMBA, ANT, ANT, HYENA, HYENA, ELEPHANT, LION, RANDOM };
     static int river[10] = { QUAIL, TROUT, TROUT, MANOWAR, BASS, BASS, CROC, CROC, BRIGAND, RANDOM };
@@ -3500,10 +3500,10 @@ void make_country_monsters (int terrain)
     Level->mlist = ml;
 }
 
-/* monstertype is more or less Current_Dungeon */
-/* The caves and sewers get harder as you penetrate them; the castle
-is completely random, but also gets harder as it is explored;
-the astral and the volcano just stay hard... */
+// monstertype is more or less Current_Dungeon
+// The caves and sewers get harder as you penetrate them; the castle
+// is completely random, but also gets harder as it is explored;
+// the astral and the volcano just stay hard...
 void populate_level (int monstertype)
 {
     pml head, tml;
@@ -3527,11 +3527,11 @@ void populate_level (int monstertype)
 		if (Level->depth * 10 + random_range (100) > 150)
 		    monsterid = GOBLIN_SHAMAN;
 		else if (Level->depth * 10 + random_range (100) > 100)
-		    monsterid = GOBLIN_CHIEF;	/* Goblin Chieftain */
+		    monsterid = GOBLIN_CHIEF;	// Goblin Chieftain
 		else if (random_range (100) > 50)
 		    monsterid = GOBLIN;
 		else
-		    monsterid = RANDOM;	/* IE, random monster */
+		    monsterid = RANDOM;	// IE, random monster
 		break;
 	    case E_SEWERS:
 		if (!random_range (3))
@@ -3543,19 +3543,19 @@ void populate_level (int monstertype)
 			    break;
 			case 1:
 			    monsterid = AGGRAVATOR;
-			    break;	/* aggravator fungus */
+			    break;	// aggravator fungus
 			case 2:
 			    monsterid = BLIPPER;
-			    break;	/* blipper rat */
+			    break;	// blipper rat
 			case 3:
 			    monsterid = NIGHT_GAUNT;
 			    break;
 			case 4:
 			    monsterid = NASTY;
-			    break;	/* transparent nasty */
+			    break;	// transparent nasty
 			case 5:
 			    monsterid = MURK;
-			    break;	/* murk fungus */
+			    break;	// murk fungus
 			case 6:
 			    monsterid = CATOBLEPAS;
 			    break;
@@ -3564,22 +3564,22 @@ void populate_level (int monstertype)
 			    break;
 			case 8:
 			    monsterid = DENEBIAN;
-			    break;	/* denebian slime devil */
+			    break;	// denebian slime devil
 			case 9:
 			    monsterid = CROC;
-			    break;	/* giant crocodile */
+			    break;	// giant crocodile
 			case 10:
 			    monsterid = TESLA;
-			    break;	/* tesla monster */
+			    break;	// tesla monster
 			case 11:
 			    monsterid = SHADOW;
-			    break;	/* shadow spirit */
+			    break;	// shadow spirit
 			case 12:
 			    monsterid = BOGTHING;
-			    break;	/* bogthing */
+			    break;	// bogthing
 			case 13:
 			    monsterid = WATER_ELEM;
-			    break;	/* water elemental */
+			    break;	// water elemental
 			case 14:
 			    monsterid = TRITON;
 			    break;
@@ -3588,30 +3588,30 @@ void populate_level (int monstertype)
 			    break;
 			default:
 			    monsterid = RANDOM;
-			    break;	/* whatever seems good */
+			    break;	// whatever seems good
 		    }
 		break;
 	    case E_ASTRAL:
-		if (random_range (2))	/* random astral creatures */
+		if (random_range (2))	// random astral creatures
 		    switch (random_range (12)) {
 			case 0:
 			    monsterid = THOUGHTFORM;
 			    break;
 			case 1:
 			    monsterid = FUZZY;
-			    break;	/* astral fuzzy */
+			    break;	// astral fuzzy
 			case 2:
 			    monsterid = BAN_SIDHE;
 			    break;
 			case 3:
 			    monsterid = GRUE;
-			    break;	/* astral grue */
+			    break;	// astral grue
 			case 4:
 			    monsterid = SHADOW;
-			    break;	/* shadow spirit */
+			    break;	// shadow spirit
 			case 5:
 			    monsterid = ASTRAL_VAMP;
-			    break;	/* astral vampire */
+			    break;	// astral vampire
 			case 6:
 			    monsterid = MANABURST;
 			    break;
@@ -3620,59 +3620,59 @@ void populate_level (int monstertype)
 			    break;
 			case 8:
 			    monsterid = ILL_FIEND;
-			    break;	/* illusory fiend */
+			    break;	// illusory fiend
 			case 9:
 			    monsterid = MIRRORMAST;
-			    break;	/* mirror master */
+			    break;	// mirror master
 			case 10:
 			    monsterid = ELDER_GRUE;
-			    break;	/* elder etheric grue */
+			    break;	// elder etheric grue
 			case 11:
 			    monsterid = SHADOW_SLAY;
-			    break;	/* shadow slayer */
-		} else if (random_range (2) && (Level->depth == 1))	/* plane of earth */
-		    monsterid = EARTH_ELEM;	/* earth elemental */
-		else if (random_range (2) && (Level->depth == 2))	/* plane of air */
-		    monsterid = AIR_ELEM;	/* air elemental */
-		else if (random_range (2) && (Level->depth == 3))	/* plane of water */
-		    monsterid = WATER_ELEM;	/* water elemental */
-		else if (random_range (2) && (Level->depth == 4))	/* plane of fire */
-		    monsterid = FIRE_ELEM;	/* fire elemental */
-		else if (random_range (2) && (Level->depth == 5))	/* deep astral */
+			    break;	// shadow slayer
+		} else if (random_range (2) && (Level->depth == 1))	// plane of earth
+		    monsterid = EARTH_ELEM;	// earth elemental
+		else if (random_range (2) && (Level->depth == 2))	// plane of air
+		    monsterid = AIR_ELEM;	// air elemental
+		else if (random_range (2) && (Level->depth == 3))	// plane of water
+		    monsterid = WATER_ELEM;	// water elemental
+		else if (random_range (2) && (Level->depth == 4))	// plane of fire
+		    monsterid = FIRE_ELEM;	// fire elemental
+		else if (random_range (2) && (Level->depth == 5))	// deep astral
 		    switch (random_range (12)) {
 			case 0:
 			    monsterid = NIGHT_GAUNT;
 			    break;
 			case 1:
 			    monsterid = SERV_LAW;
-			    break;	/* servant of law */
+			    break;	// servant of law
 			case 2:
 			    monsterid = SERV_CHAOS;
-			    break;	/* servant of chaos */
+			    break;	// servant of chaos
 			case 3:
 			    monsterid = FROST_DEMON;
-			    break;	/* lesser frost demon */
+			    break;	// lesser frost demon
 			case 4:
 			    monsterid = OUTER_DEMON;
-			    break;	/* outer circle demon */
+			    break;	// outer circle demon
 			case 5:
 			    monsterid = DEMON_SERP;
-			    break;	/* demon serpent */
+			    break;	// demon serpent
 			case 6:
 			    monsterid = ANGEL;
 			    break;
 			case 7:
 			    monsterid = INNER_DEMON;
-			    break;	/* inner circle demon */
+			    break;	// inner circle demon
 			case 8:
 			    monsterid = FDEMON_L;
-			    break;	/* frost demon lord */
+			    break;	// frost demon lord
 			case 9:
 			    monsterid = HIGH_ANGEL;
 			    break;
 			case 10:
 			    monsterid = DEMON_PRINCE;
-			    break;	/* prime circle demon */
+			    break;	// prime circle demon
 			case 11:
 			    monsterid = ARCHANGEL;
 			    break;
@@ -3685,7 +3685,7 @@ void populate_level (int monstertype)
 			monsterid = random_range (ML10 - ML4) + ML4;
 		    while (Monsters[monsterid].uniqueness != COMMON);
 		} else
-		    switch (random_range (Level->depth / 2 + 2)) {	/* evil & fire creatures */
+		    switch (random_range (Level->depth / 2 + 2)) {	// evil & fire creatures
 			case 0:
 			    monsterid = HAUNT;
 			    break;
@@ -3776,8 +3776,8 @@ void populate_level (int monstertype)
 		break;
 	}
 
-	assert (RANDOM == -1);	/* WDT: the following test slightly assumes
-				 * this. */
+	assert (RANDOM == -1);	// WDT: the following test slightly assumes
+				// this.
 	if (monsterid > RANDOM)
 	    Level->site[i][j].creature = make_creature (monsterid);
 	else
@@ -3806,7 +3806,7 @@ void populate_level (int monstertype)
     }
 }
 
-/* Add a wandering monster possibly */
+// Add a wandering monster possibly
 void wandercheck (void)
 {
     int x, y;
@@ -3820,7 +3820,7 @@ void wandercheck (void)
     }
 }
 
-/* call make_creature and place created monster on Level->mlist and Level */
+// call make_creature and place created monster on Level->mlist and Level
 void make_site_monster (int i, int j, int mid)
 {
     pml ml = ((pml) checkmalloc (sizeof (mltype)));
@@ -3836,9 +3836,9 @@ void make_site_monster (int i, int j, int mid)
     Level->mlist = ml;
 }
 
-/* make and return an appropriate monster for the level and depth*/
-/* called by populate_level, doesn't actually add to mlist for some reason*/
-/* eventually to be more intelligent */
+// make and return an appropriate monster for the level and depth
+// called by populate_level, doesn't actually add to mlist for some reason
+// eventually to be more intelligent
 pmt m_create (int x, int y, int kind, int level)
 {
     pmt newmonster;
@@ -3886,7 +3886,7 @@ pmt m_create (int x, int y, int kind, int level)
     while (Monsters[mid].uniqueness != COMMON);
     newmonster = make_creature (mid);
 
-    /* no duplicates of unique monsters */
+    // no duplicates of unique monsters
     if (kind == WANDERING)
 	m_status_set (newmonster, WANDERING);
     newmonster->x = x;
@@ -3894,8 +3894,8 @@ pmt m_create (int x, int y, int kind, int level)
     return (newmonster);
 }
 
-/* make creature # mid, totally random if mid == -1 */
-/* make creature allocates space for the creature */
+// make creature # mid, totally random if mid == -1
+// make creature allocates space for the creature
 pmt make_creature (int mid)
 {
     pmt newmonster = ((pmt) checkmalloc (sizeof (montype)));
@@ -3906,7 +3906,7 @@ pmt make_creature (int mid)
 	mid = random_range (ML9);
     *newmonster = Monsters[mid];
     if ((mid == ANGEL) || (mid == HIGH_ANGEL) || (mid == ARCHANGEL)) {
-	/* aux1 field of an angel is its deity */
+	// aux1 field of an angel is its deity
 	if (Current_Environment == E_TEMPLE)
 	    newmonster->aux1 = Country[LastCountryLocX][LastCountryLocY].aux;
 	else
@@ -3934,13 +3934,13 @@ pmt make_creature (int mid)
 	}
 	newmonster->monstring = salloc (Str3);
     } else if (mid == ZERO_NPC || mid == WEREHUMAN) {
-	/* generic 0th level human, or a were-human */
+	// generic 0th level human, or a were-human
 	newmonster->monstring = mantype ();
 	strcpy (Str1, "dead ");
 	strcat (Str1, newmonster->monstring);
 	newmonster->corpsestr = salloc (Str1);
     } else if ((newmonster->monchar & 0xff) == '!') {
-	/* the nymph/satyr and incubus/succubus */
+	// the nymph/satyr and incubus/succubus
 	if (Player.preference == 'f' || (Player.preference != 'm' && random_range (2))) {
 	    newmonster->monchar = 'n' | CLR (RED);
 	    newmonster->monstring = "nymph";
@@ -3986,12 +3986,12 @@ pmt make_creature (int mid)
     return (newmonster);
 }
 
-/* drop treasures randomly onto level */
+// drop treasures randomly onto level
 void stock_level (void)
 {
     int i, j, k, numtreasures = 2 * random_range (difficulty () / 4) + 4;
 
-    /* put cash anywhere, including walls, put other treasures only on floor */
+    // put cash anywhere, including walls, put other treasures only on floor
     for (k = 0; k < numtreasures + 10; k++) {
 	do {
 	    i = random_range (WIDTH);
@@ -4004,7 +4004,7 @@ void stock_level (void)
 	Level->site[i][j].things->thing = ((pob) checkmalloc (sizeof (objtype)));
 	make_cash (Level->site[i][j].things->thing, difficulty ());
 	Level->site[i][j].things->next = NULL;
-	/* caves have more random cash strewn around */
+	// caves have more random cash strewn around
 	if (Current_Dungeon == E_CAVES) {
 	    i = random_range (WIDTH);
 	    j = random_range (LENGTH);
@@ -4022,7 +4022,7 @@ void stock_level (void)
     }
 }
 
-/* make a new object (of at most level itemlevel) at site i,j on level*/
+// make a new object (of at most level itemlevel) at site i,j on level
 static void make_site_treasure (int i, int j, int itemlevel)
 {
     pol tmp = ((pol) checkmalloc (sizeof (oltype)));
@@ -4031,7 +4031,7 @@ static void make_site_treasure (int i, int j, int itemlevel)
     Level->site[i][j].things = tmp;
 }
 
-/* make a specific new object at site i,j on level*/
+// make a specific new object at site i,j on level
 static void make_specific_treasure (int i, int j, int iid)
 {
     pol tmp;
@@ -4044,10 +4044,10 @@ static void make_specific_treasure (int i, int j, int iid)
     Level->site[i][j].things = tmp;
 }
 
-/* returns a "level of difficulty" based on current environment
-   and depth in dungeon. Is somewhat arbitrary. value between 1 and 10.
-   May not actually represent real difficulty, but instead level
-   of items, monsters encountered.    */
+// returns a "level of difficulty" based on current environment
+// and depth in dungeon. Is somewhat arbitrary. value between 1 and 10.
+// May not actually represent real difficulty, but instead level
+// of items, monsters encountered.
 int difficulty (void)
 {
     int depth = 1;
@@ -4097,7 +4097,7 @@ int difficulty (void)
     }
 }
 
-/* the bank; can be broken into (!) */
+// the bank; can be broken into (!)
 void l_bank (void)
 {
     int done = FALSE, valid = FALSE;
@@ -4470,9 +4470,9 @@ void statue_random (int x, int y)
 	    if ((Current_Environment == Current_Dungeon) || (Current_Environment == E_CITY)) {
 		print1 ("You hear the whirr of some mechanism.");
 		print2 ("The statue glides smoothly into the floor!");
-		/* WDT HACK: I shouldn't be making this choice on a level
-		 * where no stairs can be (or perhaps I should, and I should
-		 * implement a bonus level!). */
+		// WDT HACK: I shouldn't be making this choice on a level
+		// where no stairs can be (or perhaps I should, and I should
+		// implement a bonus level!).
 		Level->site[x][y].locchar = STAIRS_DOWN;
 		Level->site[x][y].p_locf = L_NO_OP;
 		lset (x, y, CHANGED | STOPS);
@@ -4487,7 +4487,7 @@ void statue_random (int x, int y)
 	    print1 ("A strange radiation emanates from the statue!");
 	    dispel (-1);
 	    break;
-	case 8:		/* I think this is particularly evil. Heh heh. */
+	case 8:		// I think this is particularly evil. Heh heh.
 	    if (Player.possessions[O_WEAPON_HAND] != NULL) {
 		print1 ("Your weapon sinks deeply into the statue and is sucked away!");
 		item = Player.possessions[O_WEAPON_HAND];
@@ -4692,7 +4692,7 @@ void l_commandant (void)
 	else {
 	    Player.cash -= num * 5;
 	    food = ((pob) checkmalloc (sizeof (objtype)));
-	    *food = Objects[FOODID + 0];	/* food ration */
+	    *food = Objects[FOODID + 0];	// food ration
 	    food->number = num;
 	    if (num == 1)
 		print2 ("There you go, mac! One Lyzzard Bucket, coming up.");
@@ -4852,7 +4852,7 @@ void l_tavern (void)
 		    Player.status[POISONED] = 0;
 		    Player.status[DISEASED] = 0;
 		    Player.food = 40;
-		    /* reduce temporary stat gains to max stat levels */
+		    // reduce temporary stat gains to max stat levels
 		    toggle_item_use (TRUE);
 		    Player.str = min (Player.str, Player.maxstr);
 		    Player.con = min (Player.con, Player.maxcon);
@@ -5099,7 +5099,7 @@ void l_pawn_shop (void)
 	    if (Pawnitems[0] != NULL) {
 		if (Objects[Pawnitems[0]->id].uniqueness > UNIQUE_UNMADE)
 		    Objects[Pawnitems[0]->id].uniqueness = UNIQUE_UNMADE;
-		/* could turn up anywhere, really :) */
+		// could turn up anywhere, really :)
 		free ((char *) Pawnitems[0]);
 		Pawnitems[0] = NULL;
 	    }
@@ -5413,8 +5413,8 @@ void pacify_guards (void)
     pml ml;
 
     for (ml = Level->mlist; ml != NULL; ml = ml->next)
-	if ((ml->m->id == GUARD) ||	/*guard */
-	    ((ml->m->id == HISCORE_NPC) && (ml->m->aux2 == 15))) {	/* justiciar */
+	if ((ml->m->id == GUARD) ||
+	    ((ml->m->id == HISCORE_NPC) && (ml->m->aux2 == 15))) {	// justiciar
 	    m_status_reset (ml->m, HOSTILE);
 	    ml->m->specialf = M_NO_OP;
 	    if (ml->m->id == GUARD && ml->m->hp > 0 && ml->m->aux1 > 0) {
@@ -5432,7 +5432,7 @@ void pacify_guards (void)
 	    }
 	}
     if (Current_Environment == E_CITY)
-	Level->site[40][60].p_locf = L_ORDER;	/* undoes action in alert_guards */
+	Level->site[40][60].p_locf = L_ORDER;	// undoes action in alert_guards
 }
 
 void send_to_jail (void)
@@ -5762,7 +5762,7 @@ void l_brothel (void)
 			Player.status[DISEASED] = 0;
 			Player.status[POISONED] = 0;
 			Player.hp = Player.maxhp;
-			/* reduce temporary stat gains to max stat levels */
+			// reduce temporary stat gains to max stat levels
 			toggle_item_use (TRUE);
 			Player.str = min (Player.str, Player.maxstr);
 			Player.con = min (Player.con, Player.maxcon);
@@ -5772,7 +5772,7 @@ void l_brothel (void)
 			Player.pow = min (Player.pow, Player.maxpow);
 			toggle_item_use (FALSE);
 			if (Player.preference == 'n')
-			    Player.iq++;	/* whatever :-) */
+			    Player.iq++;	// whatever :-)
 			else
 			    Player.con++;
 			gain_experience (100);
@@ -5814,7 +5814,7 @@ void l_brothel (void)
     }
 }
 
-/* if signp is true, always print message, otherwise do so only sometimes */
+// if signp is true, always print message, otherwise do so only sometimes
 void sign_print (int x, int y, int signp)
 {
     if ((Level->site[x][y].p_locf >= CITYSITEBASE) && (Level->site[x][y].p_locf < CITYSITEBASE + NUMCITYSITES))

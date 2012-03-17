@@ -123,7 +123,7 @@ static int orbcheck(int element);
 
 //----------------------------------------------------------------------
 
-/* make a random new object, returning pointer */
+// make a random new object, returning pointer
 pob create_object (int itemlevel)
 {
     pob new;
@@ -157,13 +157,11 @@ pob create_object (int itemlevel)
 	    make_ring (new, -1);
 	else
 	    make_artifact (new, -1);
-	/* not ok if object is too good for level, or if unique and already made */
-	/* 1/100 chance of finding object if too good for level */
-	ok = ((new->uniqueness < UNIQUE_MADE) && ((new->level < itemlevel + random_range (3))
-						  || (random_range (100) == 23)));
-	if (!ok) {
-	    free ((char *) new);
-	}
+	// not ok if object is too good for level, or if unique and already made
+	// 1/100 chance of finding object if too good for level
+	ok = ((new->uniqueness < UNIQUE_MADE) && ((new->level < itemlevel + random_range (3)) || (random_range (100) == 23)));
+	if (!ok)
+	    free ((char* ) new);
     }
     if (new->uniqueness == UNIQUE_UNMADE)
 	Objects[new->id].uniqueness = UNIQUE_MADE;
@@ -173,7 +171,7 @@ pob create_object (int itemlevel)
 void make_cash (pob new, int level)
 {
     *new = Objects[CASHID];
-    new->basevalue = random_range (level * level + 10) + 1;	/* aux is AU value */
+    new->basevalue = random_range (level * level + 10) + 1;	// aux is AU value
     new->objstr = cashstr ();
     new->cursestr = new->truename = new->objstr;
 }
@@ -199,11 +197,11 @@ void make_corpse (pob new, struct monster *m)
 	new->aux = 6;
     } else if (m_statusp (m, POISONOUS))
 	new->usef = I_POISON_FOOD;
-    /* Special corpse-eating effects */
+    // Special corpse-eating effects
     else
 	switch (m->id) {
-	    case TSETSE:	/*tse tse fly */
-	    case TORPOR:	/*torpor beast */
+	    case TSETSE:	// tse tse fly
+	    case TORPOR:	// torpor beast
 		new->usef = I_SLEEP_SELF;
 		break;
 	    case NASTY:
@@ -212,10 +210,10 @@ void make_corpse (pob new, struct monster *m)
 	    case BLIPPER:
 		new->usef = I_TELEPORT;
 		break;
-	    case EYE:		/* floating eye -- it's traditional.... */
+	    case EYE:		// floating eye -- it's traditional....
 		new->usef = I_CLAIRVOYANCE;
 		break;
-	    case FUZZY:	/*astral fuzzy */
+	    case FUZZY:		// astral fuzzy
 		new->usef = I_DISPLACE;
 		break;
 	    case SERV_LAW:
@@ -224,7 +222,7 @@ void make_corpse (pob new, struct monster *m)
 	    case SERV_CHAOS:
 		new->usef = I_LAW;
 		break;
-	    case ASTRAL_VAMP:	/* astral vampire */
+	    case ASTRAL_VAMP:	// astral vampire
 		new->usef = I_ENCHANT;
 		break;
 	    case MANABURST:
@@ -233,7 +231,7 @@ void make_corpse (pob new, struct monster *m)
 	    case RAKSHASA:
 		new->usef = I_TRUESIGHT;
 		break;
-	    case COMA:		/*coma beast */
+	    case COMA:		// coma beast
 		new->usef = I_ALERT;
 		break;
 	}
@@ -268,7 +266,7 @@ void make_scroll (pob new, int id)
     if (id == -1)
 	id = random_range (NUMSCROLLS);
     *new = Objects[SCROLLID + id];
-    /* if a scroll of spells, aux is the spell id in Spells */
+    // if a scroll of spells, aux is the spell id in Spells
     if (new->id == SCROLLID + 1) {
 	new->aux = random_range (NUMSPELLS);
     }
@@ -288,7 +286,7 @@ void make_weapon (pob new, int id)
     if (id == -1)
 	id = random_range (NUMWEAPONS);
     *new = Objects[WEAPONID + id];
-    if ((id == 28) || (id == 29))	/* bolt or arrow */
+    if ((id == 28) || (id == 29))	// bolt or arrow
 	new->number = random_range (20) + 1;
     if (new->blessing == 0)
 	new->blessing = itemblessing ();
@@ -369,25 +367,24 @@ void make_artifact (pob new, int id)
     *new = Objects[ARTIFACTID + id];
 }
 
-/* this function is used to shuffle the id numbers of scrolls, potions, etc */
-/* taken from Knuth 2 */
+// this function is used to shuffle the id numbers of scrolls, potions, etc
+// taken from Knuth 2
 void shuffle (int ids[], int number)
 {
     int top, swap, with;
-
     for (top = 0; top < number; top++)
 	ids[top] = top;
     for (top = number - 1; top >= 0; top--) {
 	swap = ids[top];
-	with = random_range (top + 1);	/* from  0 to top, inclusive */
+	with = random_range (top + 1);	// from  0 to top, inclusive
 	ids[top] = ids[with];
 	ids[with] = swap;
     }
 }
 
-/* item name functions */
+// item name functions
 
-char *scrollname (int id)
+char* scrollname (int id)
 {
     switch (scroll_ids[id]) {
 	case 0:
@@ -454,7 +451,7 @@ char *scrollname (int id)
     }
 }
 
-static char *grotname (void)
+static char* grotname (void)
 {
     switch (random_range (20)) {
 	case 0:
@@ -501,7 +498,7 @@ static char *grotname (void)
     }
 }
 
-char *potionname (int id)
+char* potionname (int id)
 {
     switch (potion_ids[id]) {
 	case 0:
@@ -548,7 +545,7 @@ char *potionname (int id)
     }
 }
 
-char *stickname (int id)
+char* stickname (int id)
 {
     switch (stick_ids[id]) {
 	case 0:
@@ -595,7 +592,7 @@ char *stickname (int id)
     }
 }
 
-char *ringname (int id)
+char* ringname (int id)
 {
     switch (ring_ids[id]) {
 	case 0:
@@ -644,7 +641,7 @@ char *ringname (int id)
     }
 }
 
-char *cloakname (int id)
+char* cloakname (int id)
 {
     switch (cloak_ids[id]) {
 	case 0:
@@ -693,7 +690,7 @@ char *cloakname (int id)
     }
 }
 
-char *bootname (int id)
+char* bootname (int id)
 {
     switch (boot_ids[id]) {
 	case 0:
@@ -745,7 +742,6 @@ char *bootname (int id)
 static int itemplus (void)
 {
     int p = 0;
-
     while (random_range (2) == 0)
 	p++;
     return (p);
@@ -789,8 +785,7 @@ int twohandedp (int id)
     }
 }
 
-/* general item functions */
-
+// general item functions
 static void i_no_op (pob o UNUSED)
 {
 }
@@ -799,8 +794,7 @@ static void i_nothing (pob o UNUSED)
 {
 }
 
-/*  scroll functions */
-
+//  scroll functions
 static void i_knowledge (pob o)
 {
     if (o->blessing > -1)
@@ -873,7 +867,7 @@ static void i_flux (pob o)
     flux (o->blessing);
 }
 
-/* enchantment */
+// enchantment
 static void i_enchant (pob o)
 {
     if (o->blessing > -1)
@@ -881,7 +875,7 @@ static void i_enchant (pob o)
     enchant (o->blessing < 0 ? -1 - o->plus : o->plus + 1);
 }
 
-/* scroll of clairvoyance */
+// scroll of clairvoyance
 static void i_clairvoyance (struct object *o)
 {
     if (o->blessing > -1)
@@ -899,7 +893,7 @@ static void i_acquire (pob o)
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
     blessing = o->blessing;
-    *o = Objects[SCROLLID + 0];	/* blank out the scroll */
+    *o = Objects[SCROLLID + 0];	// blank out the scroll
     acquire (blessing);
 }
 
@@ -919,23 +913,23 @@ static void i_spells (pob o)
     learnspell (o->blessing);
 }
 
-/* scroll of blessing */
+// scroll of blessing
 static void i_bless (pob o)
 {
     Objects[o->id].known = 1;
     bless (o->blessing);
 }
 
-/* scroll of wishing */
+// scroll of wishing
 static void i_wish (pob o)
 {
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
     wish (o->blessing);
-    *o = Objects[SCROLLID + 0];	/* blank out the scroll */
+    *o = Objects[SCROLLID + 0];	// blank out the scroll
 }
 
-/* scroll of displacement */
+// scroll of displacement
 static void i_displace (pob o)
 {
     if (o->blessing > -1)
@@ -943,7 +937,7 @@ static void i_displace (pob o)
     displace (o->blessing);
 }
 
-/* scroll of deflection */
+// scroll of deflection
 static void i_deflect (pob o)
 {
     if (o->blessing > -1)
@@ -951,7 +945,7 @@ static void i_deflect (pob o)
     deflection (o->blessing);
 }
 
-/* scroll of identification */
+// scroll of identification
 static void i_id (pob o)
 {
     if (o->blessing > -1)
@@ -959,9 +953,9 @@ static void i_id (pob o)
     identify (o->blessing);
 }
 
-/* potion functions */
+// potion functions
 
-/* potion of healing */
+// potion of healing
 static void i_heal (pob o)
 {
     if (o->blessing > -1) {
@@ -971,7 +965,7 @@ static void i_heal (pob o)
 	heal (-1 - abs (o->plus));
 }
 
-/* potion of monster detection */
+// potion of monster detection
 static void i_mondet (pob o)
 {
     if (o->blessing > -1)
@@ -979,7 +973,7 @@ static void i_mondet (pob o)
     mondet (o->blessing);
 }
 
-/* potion of object detection */
+// potion of object detection
 static void i_objdet (pob o)
 {
 
@@ -988,7 +982,7 @@ static void i_objdet (pob o)
     objdet (o->blessing);
 }
 
-/* potion of neutralize poison */
+// potion of neutralize poison
 static void i_neutralize_poison (pob o)
 {
     if (o->blessing > -1) {
@@ -999,14 +993,14 @@ static void i_neutralize_poison (pob o)
 	p_poison (random_range (20) + 5);
 }
 
-/* potion of sleep */
+// potion of sleep
 static void i_sleep_self (pob o)
 {
     sleep_player (6);
     Objects[o->id].known = 1;
 }
 
-/* potion of speed */
+// potion of speed
 static void i_speed (pob o)
 {
     if (o->blessing > -1)
@@ -1014,7 +1008,7 @@ static void i_speed (pob o)
     haste (o->blessing);
 }
 
-/* potion of restoration */
+// potion of restoration
 static void i_restore (pob o)
 {
     if (o->blessing > -1)
@@ -1063,7 +1057,7 @@ static void i_regenerate (pob o)
     regenerate (o->blessing);
 }
 
-/* boots functions */
+// boots functions
 static void i_perm_speed (pob o)
 {
     if (o->blessing > -1) {
@@ -1095,7 +1089,7 @@ static void i_perm_speed (pob o)
     }
 }
 
-/* cloak functions */
+// cloak functions
 static void i_perm_displace (pob o)
 {
     if (o->blessing > -1) {
@@ -1134,7 +1128,7 @@ static void i_perm_negimmune (pob o)
 	level_drain (abs (o->blessing), "cursed cloak of level drain");
 }
 
-/* food functions */
+// food functions
 
 static void i_food (pob o UNUSED)
 {
@@ -1312,7 +1306,7 @@ static void i_fear_resist (pob o)
     }
 }
 
-/* use a thieves pick */
+// use a thieves pick
 static void i_pick (pob o)
 {
     int dir;
@@ -1349,7 +1343,7 @@ static void i_pick (pob o)
     }
 }
 
-/* use a magic key*/
+// use a magic key
 static void i_key (pob o)
 {
     int dir;
@@ -1382,9 +1376,9 @@ static void i_key (pob o)
 
 static void i_corpse (pob o)
 {
-    /* WDT HACK: there are some comments in this function which need
-     * to be backed up with assert(). */
-    /* object's charge holds the former monster id */
+    // WDT HACK: there are some comments in this function which need
+    // to be backed up with assert().
+    // object's charge holds the former monster id
     switch (o->charge) {
 	case MEND_PRIEST:
 	case ITIN_MERCH:
@@ -1399,7 +1393,7 @@ static void i_corpse (pob o)
 	case GENIN:
 	case MAST_THIEF:
 	case CHUNIN:
-	case JONIN:		/* cannibalism */
+	case JONIN:		// cannibalism
 	    mprint ("Yechh! How could you! You didn't even cook him, first!");
 	    if (Player.alignment > 0)
 		Player.food = 25;
@@ -1407,15 +1401,15 @@ static void i_corpse (pob o)
 	    Player.alignment -= 10;
 	    foodcheck ();
 	    break;
-	case FNORD:		/* fnord */
+	case FNORD:		// fnord
 	    mprint ("You feel illuminated!");
 	    Player.iq++;
 	    break;
-	case DENEBIAN:		/* denebian slime devil */
+	case DENEBIAN:		// denebian slime devil
 	    mprint ("I don't believe this. You ate Denebian Slime?");
 	    mprint ("You deserve a horrible wasting death, uncurable by any means!");
 	    break;
-	case DRAGONETTE:	/* can't get here... i_usef changed to I_FOOD */
+	case DRAGONETTE:	// can't get here... i_usef changed to I_FOOD
 	    mprint ("Those dragon-steaks were fantastic!");
 	    Player.food = 24;
 	    foodcheck ();
@@ -1437,30 +1431,30 @@ static void i_corpse (pob o)
 	    mprint ("You ATE a unicorn's horn?!?!?");
 	    Player.immunity[POISON] = 1000;
 	    break;
-	case HORNET:		/* can't get here... i_usef changed to I_POISON_FOOD */
+	case HORNET:		// can't get here... i_usef changed to I_POISON_FOOD
 	case GRUNT:
-	case TSETSE:		/* can't get here... i_usef changed to I_SLEEP_SELF */
+	case TSETSE:		// can't get here... i_usef changed to I_SLEEP_SELF
 	case AGGRAVATOR:
-	case BLIPPER:		/* can't get here... i_usef changed to I_TELEPORT */
+	case BLIPPER:		// can't get here... i_usef changed to I_TELEPORT
 	case GOBLIN:
 	case GEEK:
-	case NIGHT_GAUNT:	/* can't get here... i_usef changed to I_POISON_FOOD */
+	case NIGHT_GAUNT:	// can't get here... i_usef changed to I_POISON_FOOD
 	case TOVE:
 	case TASMANIAN:
-	case JUBJUB:		/* can't get here... i_usef changed to I_FOOD */
+	case JUBJUB:		// can't get here... i_usef changed to I_FOOD
 	case CATEAGLE:
 	    mprint ("Well, you forced it down. Not much nutrition, though.");
 	    Player.food++;
 	    foodcheck ();
 	    break;
 	case SEWER_RAT:
-	case PHANTASTICON:	/* can't get here... i_usef changed to I_POISON_FOOD */
-	case EYE:		/* can't get here... i_usef changed to I_CLAIRVOYANCE */
-	case NASTY:		/* can't get here... i_usef changed to I_INVISIBLE */
+	case PHANTASTICON:	// can't get here... i_usef changed to I_POISON_FOOD
+	case EYE:		// can't get here... i_usef changed to I_CLAIRVOYANCE
+	case NASTY:		// can't get here... i_usef changed to I_INVISIBLE
 	case CATOBLEPAS:
-	case HAUNT:		/* can't get here... i_usef changed to I_POISON_FOOD */
+	case HAUNT:		// can't get here... i_usef changed to I_POISON_FOOD
 	case ROUS:
-	case DEATHSTAR:	/* can't get here... i_usef changed to I_POISON_FOOD */
+	case DEATHSTAR:	// can't get here... i_usef changed to I_POISON_FOOD
 	case EATER:
 	    mprint ("Oh, yuck. The 'food' seems to be tainted.");
 	    mprint ("You feel very sick. You throw up.");
@@ -1674,7 +1668,7 @@ static void i_raise_portcullis (pob o)
     conform_lost_objects (1, o);
 }
 
-/* ring functions */
+// ring functions
 static void i_perm_knowledge (pob o)
 {
     if (o->known < 1)
@@ -1775,7 +1769,7 @@ static void i_perm_regenerate (pob o)
     }
 }
 
-/* armor functions */
+// armor functions
 
 static void i_normal_armor (pob o)
 {
@@ -1841,7 +1835,7 @@ static void i_perm_breathing (pob o)
     }
 }
 
-/* weapons functions */
+// weapons functions
 
 void weapon_acidwhip (int dmgmod, pob o UNUSED, struct monster *m)
 {
@@ -1910,7 +1904,7 @@ void weapon_lightsabre (int dmgmod UNUSED, pob o, struct monster *m)
 	p_damage (100, UNSTOPPABLE, "fumbling with a lightsabre");
 	o->known = 1;
     } else {
-	/* test prevents confusing immunity messages.... */
+	// test prevents confusing immunity messages....
 	if (!m_immunityp (m, NORMAL_DAMAGE)) {
 	    mprint ("Vzzzzmmm!");
 	    m_damage (m, 20, NORMAL_DAMAGE);
@@ -1931,19 +1925,19 @@ void weapon_tangle (int dmgmod, pob o UNUSED, struct monster *m)
     p_hit (m, Player.dmg + dmgmod, NORMAL_DAMAGE);
 }
 
-/* if wielding a bow, add bow damage to arrow damage */
+// if wielding a bow, add bow damage to arrow damage
 void weapon_arrow (int dmgmod, pob o, struct monster *m)
 {
-    if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPONID + 26))	/* ie, using a bow */
+    if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPONID + 26))	// ie, using a bow
 	p_hit (m, Player.dmg + o->plus + o->dmg + dmgmod, NORMAL_DAMAGE);
     else
 	p_hit (m, o->plus + o->dmg + dmgmod, NORMAL_DAMAGE);
 }
 
-/* if wielding a crossbow, add bow damage to arrow damage */
+// if wielding a crossbow, add bow damage to arrow damage
 void weapon_bolt (int dmgmod, pob o, struct monster *m)
 {
-    if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPONID + 27) &&	/*ie using a crossbow */
+    if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPONID + 27) &&	// ie using a crossbow
 	(Player.possessions[O_WEAPON_HAND]->aux == LOADED)) {
 	p_hit (m, Player.dmg + o->plus + o->dmg + dmgmod, NORMAL_DAMAGE);
 	Player.possessions[O_WEAPON_HAND]->aux = UNLOADED;
@@ -1965,7 +1959,7 @@ void weapon_normal_hit (int dmgmod, pob o UNUSED, struct monster *m)
     p_hit (m, Player.dmg + dmgmod, NORMAL_DAMAGE);
 }
 
-/* will be updated eventually */
+// will be updated eventually
 void weapon_bare_hands (int dmgmod, struct monster *m)
 {
     p_hit (m, Player.dmg + dmgmod, NORMAL_DAMAGE);
@@ -2115,7 +2109,7 @@ static void i_desecrate (pob o)
 	sanctify (-1);
 }
 
-/* shield functions */
+// shield functions
 static void i_normal_shield (pob o)
 {
     if (o->used)
@@ -2152,7 +2146,7 @@ static void i_perm_deflect (pob o)
     }
 }
 
-/* amulet of the planes */
+// amulet of the planes
 static void i_planes (pob o UNUSED)
 {
     if (Player.mana < 1)
@@ -2166,17 +2160,16 @@ static void i_planes (pob o UNUSED)
     }
 }
 
-/* the sceptre of high magic */
+// the sceptre of high magic
 static void i_sceptre (pob o UNUSED)
 {
     if (HiMagicUse == Date)
 	print1 ("The Sceptre makes a sort of dull 'thut' noise.");
     else if (Current_Environment == E_CIRCLE || Current_Environment == E_ASTRAL) {
-	HiMagicUse = Date;	/* WDT: this looks like it's a good place to use
-				 * the batteries. */
+	HiMagicUse = Date;	// WDT: this looks like it's a good place to use the batteries.
 	print1 ("The Sceptre warps strangely for a second, and then subsides.");
-	morewait ();
-	print2 ("You smell ozone.");	/* WDT: explain the battery use. */
+	morewait();
+	print2 ("You smell ozone.");	// WDT: explain the battery use.
     } else {
 	HiMagicUse = Date;
 	print1 ("With a shriek of tearing aether, a magic portal appears!");
@@ -2189,7 +2182,7 @@ static void i_sceptre (pob o UNUSED)
     }
 }
 
-/* the star gem */
+// the star gem
 static void i_stargem (pob o)
 {
     if (StarGemUse == Date) {
@@ -2197,7 +2190,7 @@ static void i_stargem (pob o)
 	print2 ("'You have used me overmuch.'");
 	print3 ("and it vanishes a puff of regret.");
 	Objects[o->id].uniqueness = UNIQUE_UNMADE;
-	/* it's now out there, somewhere */
+	// it's now out there, somewhere
 	dispose_lost_objects (1, o);
     } else {
 	StarGemUse = Date;
@@ -2230,7 +2223,7 @@ static void i_stargem (pob o)
     }
 }
 
-/* wand of fear */
+// wand of fear
 static void i_fear (pob o)
 {
     int x = Player.x, y = Player.y;
@@ -2306,7 +2299,7 @@ static void i_symbol (pob o)
     int i;
     if (!o->known)
 	print1 ("Nothing seems to happen.");
-    /* if o->charge != 17, then symbol was stolen from own high priest! */
+    // if o->charge != 17, then symbol was stolen from own high priest!
     else if ((o->aux != Player.patron) || (o->charge != 17)) {
 	print1 ("You invoke the deity...");
 	print2 ("...who for some reason seems rather annoyed at you...");
@@ -2476,7 +2469,7 @@ static void i_life (pob o)
     dispose_lost_objects (1, o);
 }
 
-/* f = fire, w = water, e = earth, a = air, m = mastery */
+// f = fire, w = water, e = earth, a = air, m = mastery
 static int orbcheck (int element)
 {
     char response;
@@ -2497,7 +2490,7 @@ static int orbcheck (int element)
     return (response == element);
 }
 
-/* orb functions */
+// orb functions
 static void i_orbfire (pob o)
 {
     if (!orbcheck ('f')) {
@@ -2554,7 +2547,7 @@ static void i_orbearth (pob o)
 		    dispose_lost_objects (Player.possessions[i]->number, Player.possessions[i]);
 	    for (i = 0; i < MAXPACK; i++)
 		if (Player.pack[i] != NULL) {
-		    free ((char *) Player.pack[i]);
+		    free ((char* ) Player.pack[i]);
 		    Player.pack[i] = NULL;
 		}
 	    Player.packptr = 0;
@@ -2582,7 +2575,7 @@ static void i_orbair (pob o)
 	o->known = 1;
     } else {
 	print1 ("The Orb of Air flashes blue!");
-	Spells[S_LBALL].known = TRUE;	/* lball */
+	Spells[S_LBALL].known = TRUE;	// lball
 	gain_experience (10000);
 	print2 ("You feel airy!");
 	Player.immunity[ELECTRICITY] += 100;
@@ -2653,9 +2646,9 @@ static void i_dispel (pob o)
     dispel ((o->blessing > -1) ? o->blessing + random_range (3) : o->blessing);
 }
 
-/* stick functions */
+// stick functions
 
-/* wand of apportation */
+// wand of apportation
 static void i_apport (pob o)
 {
     o->known = max (1, o->known);
@@ -2663,7 +2656,7 @@ static void i_apport (pob o)
     apport (o->blessing);
 }
 
-/* staff of firebolts */
+// staff of firebolts
 static void i_firebolt (pob o)
 {
     int x = Player.x, y = Player.y;
@@ -2703,7 +2696,7 @@ static void i_disrupt (pob o)
     disrupt (x, y, 100);
 }
 
-/* staff of lightning bolts */
+// staff of lightning bolts
 static void i_lbolt (pob o)
 {
     int x = Player.x, y = Player.y;
@@ -2717,7 +2710,7 @@ static void i_lbolt (pob o)
     lbolt (Player.x, Player.y, x, y, Player.dex * 2 + Player.level, 75);
 }
 
-/* wand of magic missiles */
+// wand of magic missiles
 static void i_missile (pob o)
 {
     int x = Player.x, y = Player.y;
@@ -2731,7 +2724,7 @@ static void i_missile (pob o)
     nbolt (Player.x, Player.y, x, y, Player.dex * 2 + Player.level, 20);
 }
 
-/* wand of fire balls */
+// wand of fire balls
 static void i_fireball (pob o)
 {
     int x = Player.x, y = Player.y;
@@ -2745,7 +2738,7 @@ static void i_fireball (pob o)
     fball (Player.x, Player.y, x, y, 35);
 }
 
-/* wand of snowballs */
+// wand of snowballs
 static void i_snowball (pob o)
 {
     int x = Player.x, y = Player.y;
@@ -2759,7 +2752,7 @@ static void i_snowball (pob o)
     snowball (Player.x, Player.y, x, y, 20);
 }
 
-/* wand of lightning balls */
+// wand of lightning balls
 static void i_lball (pob o)
 {
     int x = Player.x, y = Player.y;
@@ -2773,7 +2766,7 @@ static void i_lball (pob o)
     lball (Player.x, Player.y, x, y, 50);
 }
 
-/* staff of sleep */
+// staff of sleep
 static void i_sleep_other (pob o)
 {
     Objects[o->id].known = 1;
@@ -2781,8 +2774,8 @@ static void i_sleep_other (pob o)
     sleep_monster (o->blessing);
 }
 
-/* rod of summoning */
-/* rod of summoning now always summons as if cursed */
+// rod of summoning
+// rod of summoning now always summons as if cursed
 static void i_summon (pob o)
 {
     Objects[o->id].known = 1;
@@ -2817,7 +2810,7 @@ void item_use (struct object *o)
 	    i_nothing (o);
 	    break;
 
-	    /* scrolls */
+	    // scrolls
 	case I_SPELLS:
 	    i_spells (o);
 	    break;
@@ -2882,7 +2875,7 @@ void item_use (struct object *o)
 	    i_deflect (o);
 	    break;
 
-	    /* potion functions */
+	    // potion functions
 	case I_HEAL:
 	    i_heal (o);
 	    break;
@@ -2935,7 +2928,7 @@ void item_use (struct object *o)
 	    i_cure (o);
 	    break;
 
-	    /* stick functions */
+	    // stick functions
 	case I_FIREBOLT:
 	    i_firebolt (o);
 	    break;
@@ -2982,7 +2975,7 @@ void item_use (struct object *o)
 	    i_fear (o);
 	    break;
 
-	    /* food functions */
+	    // food functions
 	case I_FOOD:
 	    i_food (o);
 	    break;
@@ -3008,7 +3001,7 @@ void item_use (struct object *o)
 	    i_pepper_food (o);
 	    break;
 
-	    /* boots functions */
+	    // boots functions
 	case I_PERM_SPEED:
 	    i_perm_speed (o);
 	    break;
@@ -3022,7 +3015,7 @@ void item_use (struct object *o)
 	    i_perm_agility (o);
 	    break;
 
-	    /* artifact functions */
+	    // artifact functions
 	case I_SCEPTRE:
 	    i_sceptre (o);
 	    break;
@@ -3078,7 +3071,7 @@ void item_use (struct object *o)
 	    i_juggernaut (o);
 	    break;
 
-	    /* cloak functions */
+	    // cloak functions
 	case I_PERM_DISPLACE:
 	    i_perm_displace (o);
 	    break;
@@ -3098,7 +3091,7 @@ void item_use (struct object *o)
 	    i_perm_truesight (o);
 	    break;
 
-	    /* ring functions */
+	    // ring functions
 	case I_PERM_BURDEN:
 	    i_perm_burden (o);
 	    break;
@@ -3121,7 +3114,7 @@ void item_use (struct object *o)
 	    i_perm_knowledge (o);
 	    break;
 
-	    /* armor functions */
+	    // armor functions
 	case I_NORMAL_ARMOR:
 	    i_normal_armor (o);
 	    break;
@@ -3135,7 +3128,7 @@ void item_use (struct object *o)
 	    i_perm_breathing (o);
 	    break;
 
-	    /* weapons functions */
+	    // weapons functions
 	case I_NORMAL_WEAPON:
 	    i_normal_weapon (o);
 	    break;
@@ -3158,7 +3151,7 @@ void item_use (struct object *o)
 	    i_victrix (o);
 	    break;
 
-	    /* thing functions */
+	    // thing functions
 	case I_PICK:
 	    i_pick (o);
 	    break;
@@ -3175,7 +3168,7 @@ void item_use (struct object *o)
 	    i_raise_portcullis (o);
 	    break;
 
-	    /* shield functions */
+	    // shield functions
 	case I_NORMAL_SHIELD:
 	    i_normal_shield (o);
 	    break;

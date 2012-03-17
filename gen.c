@@ -24,7 +24,7 @@ static void straggle_corridor(int fx, int fy, int tx, int ty, Symbol loc, char r
 
 //----------------------------------------------------------------------
 
-/* Deallocate current dungeon */
+// Deallocate current dungeon
 void free_dungeon (void)
 {
     while (Dungeon != NULL) {
@@ -34,7 +34,7 @@ void free_dungeon (void)
     }
 }
 
-/* erase the level w/o deallocating it*/
+// erase the level w/o deallocating it
 void clear_level (struct level *dungeon_level)
 {
     int i, j;
@@ -62,17 +62,16 @@ void clear_level (struct level *dungeon_level)
     }
 }
 
-/* Looks for level tolevel in current dungeon which is named by
-Dungeon, which may be NULL. If the level is found, and rewrite_level
-is FALSE, and the level has already been generated, nothing happens
-beyond Level being set correctly. Otherwise the level is recreated
-from scratch */
-
+// Looks for level tolevel in current dungeon which is named by
+// Dungeon, which may be NULL. If the level is found, and rewrite_level
+// is FALSE, and the level has already been generated, nothing happens
+// beyond Level being set correctly. Otherwise the level is recreated
+// from scratch
 void change_level (int fromlevel, int tolevel, int rewrite_level)
 {
     struct level *thislevel = NULL;
     Player.sx = -1;
-    Player.sy = -1;		/* sanctuary effect dispelled */
+    Player.sy = -1;		// sanctuary effect dispelled
     thislevel = findlevel (Dungeon, tolevel);
     deepest[Current_Environment] = max (deepest[Current_Environment], tolevel);
     if (thislevel == NULL) {
@@ -137,13 +136,12 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
     show_screen ();
     screencheck (Player.y);
     drawvision (Player.x, Player.y);
-    /* synchronize with player on level change */
+    // synchronize with player on level change
     Player.click = (Tick + 1) % 60;
     roomcheck ();
 }
 
-/* tries to find the level of depth levelnum in dungeon; if can't find
-   it returns NULL */
+// tries to find the level of depth levelnum in dungeon; if can't find it returns NULL
 static plv findlevel (struct level* dungeon, char levelnum)
 {
     if (dungeon == NULL)
@@ -159,9 +157,7 @@ static plv findlevel (struct level* dungeon, char levelnum)
     }
 }
 
-/* keep going in one orthogonal direction or another until we hit our */
-/* destination */
-
+// keep going in one orthogonal direction or another until we hit our destination
 static void straggle_corridor (int fx, int fy, int tx, int ty, Symbol loc, char rsi)
 {
     int dx, dy;
@@ -200,7 +196,7 @@ static void makedoor (int x, int y)
 	lset (x, y, STOPS);
     }
     Level->site[x][y].p_locf = L_NO_OP;
-    /* prevents water corridors from being instant death in sewers */
+    // prevents water corridors from being instant death in sewers
 }
 
 static void corridor_crawl (int* fx, int* fy, int sx, int sy, int n, Symbol loc, char rsi)
@@ -431,8 +427,8 @@ char *roomname (int ri)
     return (Str4);
 }
 
-/* puts the player on the first set of stairs from the apt level */
-/* if can't find them, just drops player anywhere.... */
+// puts the player on the first set of stairs from the apt level
+// if can't find them, just drops player anywhere....
 static void find_stairs (char fromlevel, char tolevel)
 {
     int i, j, found = FALSE;
@@ -467,8 +463,8 @@ void install_traps (void)
 		Level->site[i][j].p_locf = TRAP_BASE + random_range (NUMTRAPS);
 }
 
-/* x, y, is top left corner, l is length of side, rsi is room string index */
-/* baux is so all rooms will have a key field. */
+// x, y, is top left corner, l is length of side, rsi is room string index
+// baux is so all rooms will have a key field.
 static void build_square_room (int x, int y, int l, char rsi, int baux)
 {
     int i, j;
@@ -523,7 +519,7 @@ void cavern_level (void)
 	    findspace (&tx, &ty, -1);
 	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
 	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GOBLIN_KING));	/* goblin king */
+	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GOBLIN_KING));	// goblin king
 	    Level->mlist->m->x = tx;
 	    Level->mlist->m->y = ty;
 	}
@@ -532,7 +528,7 @@ void cavern_level (void)
 	    findspace (&tx, &ty, -1);
 	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
 	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	/* The dark emp */
+	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	// The dark emp
 	    Level->mlist->m->x = tx;
 	    Level->mlist->m->y = ty;
 	}
@@ -571,7 +567,7 @@ void sewer_level (void)
 	    findspace (&tx, &ty, -1);
 	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
 	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GREAT_WYRM));	/* The Great Wyrm */
+	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GREAT_WYRM));	// The Great Wyrm
 	    Level->mlist->m->x = tx;
 	    Level->mlist->m->y = ty;
 	}
@@ -671,15 +667,14 @@ void install_specials (void)
     }
 }
 
-/* For each level, there should be one stairway going up and one down. 
-fromlevel determines whether the player is placed on the up or the down
-staircase. The aux value is currently unused elsewhere, but is set 
-to the destination level. */
-
+// For each level, there should be one stairway going up and one down. 
+// fromlevel determines whether the player is placed on the up or the down
+// staircase. The aux value is currently unused elsewhere, but is set 
+// to the destination level.
 void make_stairs (int fromlevel)
 {
     int i, j;
-    /* no stairway out of astral */
+    // no stairway out of astral
     if (Current_Environment != E_ASTRAL) {
 	findspace (&i, &j, -1);
 	Level->site[i][j].locchar = STAIRS_UP;
@@ -702,8 +697,7 @@ void make_stairs (int fromlevel)
     }
 }
 
-/* tactical map generating functions */
-
+// tactical map generating functions
 void make_country_screen (int terrain)
 {
     int i, j;
@@ -798,12 +792,13 @@ static void make_road (void)
 {
     int x, y;
     make_general_map ("\"\"~4....");
-    for (x = WIDTH / 2 - 3; x <= WIDTH / 2 + 3; x++)
+    for (x = WIDTH / 2 - 3; x <= WIDTH / 2 + 3; x++) {
 	for (y = 0; y < LENGTH; y++) {
 	    Level->site[x][y].locchar = Level->site[x][y].showchar = FLOOR;
 	    if (y != 0 && y != LENGTH - 1)
 		Level->site[x][y].p_locf = L_NO_OP;
 	}
+    }
 }
 
 static void make_forest (void)
@@ -860,10 +855,9 @@ static void make_swamp (void)
     make_general_map ("~~\".");
 }
 
-/* builds a room. Then, for each successive room, sends off at least one
-corridor which is guaranteed to connect up to another room, thus guaranteeing
-fully connected level. */
-
+// builds a room. Then, for each successive room, sends off at least one
+// corridor which is guaranteed to connect up to another room, thus guaranteeing
+// fully connected level.
 void room_level (void)
 {
     int i, fx, fy, tx, ty, t, l, e;
@@ -900,10 +894,10 @@ void room_level (void)
 	    rsi = ROOMBASE + random_range (NUMROOMNAMES);
 	build_room (l, t, e, rsi, i);
 
-	/* corridor which is guaranteed to connect */
+	// corridor which is guaranteed to connect
 	findspace (&tx, &ty, i);
 
-	/* figure out where to start corridor from */
+	// figure out where to start corridor from
 	if ((ty <= t) && (tx <= l + e)) {
 	    fx = l + 1 + random_range (e - 1);
 	    fy = t;
@@ -920,7 +914,7 @@ void room_level (void)
 
 	room_corridor (fx, fy, tx, ty, i);
 
-	/* corridor which may not go anywhere */
+	// corridor which may not go anywhere
 	if (random_range (2)) {
 	    findspace (&tx, &ty, i);
 	    if ((ty <= t) && (tx <= l + e)) {
@@ -945,7 +939,7 @@ void room_level (void)
 	    findspace (&tx, &ty, -1);
 	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
 	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GREAT_WYRM));	/* The Great Wyrm */
+	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GREAT_WYRM));	// The Great Wyrm
 	    Level->mlist->m->x = tx;
 	    Level->mlist->m->y = ty;
 	}
@@ -960,15 +954,15 @@ void room_level (void)
 	    findspace (&tx, &ty, -1);
 	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
 	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	/* The demon emp */
+	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	// The demon emp
 	    Level->mlist->m->x = tx;
 	    Level->mlist->m->y = ty;
 	}
     }
 }
 
-/* goes from f to t unless it hits a site which is not a wall and doesn't
-   have buildaux field == baux */
+// goes from f to t unless it hits a site which is not a wall and doesn't
+// have buildaux field == baux
 static void room_corridor (int fx, int fy, int tx, int ty, int baux)
 {
     int dx, dy, continuing = TRUE;
@@ -1052,16 +1046,16 @@ void maze_level (void)
 	switch (Level->depth) {
 	    case 1:
 		mid = LORD_EARTH;
-		break;		/* Elemental Lord of Earth */
+		break;
 	    case 2:
 		mid = LORD_AIR;
-		break;		/* Elemental Lord of Air */
+		break;
 	    case 3:
 		mid = LORD_WATER;
-		break;		/* Elemental Lord of Water */
+		break;
 	    case 4:
 		mid = LORD_FIRE;
-		break;		/* Elemental Lord of Fire */
+		break;
 	}
 	if (Level->depth == 5) {
 	    findspace (&tx, &ty, -1);
@@ -1081,14 +1075,14 @@ void maze_level (void)
 	    findspace (&tx, &ty, -1);
 	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
 	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	/* The demon emp */
+	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	// The demon emp
 	    Level->mlist->m->x = tx;
 	    Level->mlist->m->y = ty;
 	}
     }
 }
 
-/* keep drawing corridors recursively for 2^5 endpoints */
+// keep drawing corridors recursively for 2^5 endpoints
 static void maze_corridor (int fx, int fy, int tx, int ty, int rsi, int num)
 {
     if (num < 6) {

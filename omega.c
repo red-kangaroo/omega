@@ -13,87 +13,87 @@ static void fix_phantom(struct monster *m);
 
 //----------------------------------------------------------------------
 
-/* most globals originate in omega.c */
+// most globals originate in omega.c
 
-char *Omegalib;			/* contains the path to the library files */
+char *Omegalib;			// contains the path to the library files
 
-/* Objects and Monsters are allocated and initialized in init.c */
+// Objects and Monsters are allocated and initialized in init.c
 
-/* one of each spell */
+// one of each spell
 struct spell Spells[NUMSPELLS + 1];
 
-/* locations of city sites [0] - found, [1] - x, [2] - y */
+// locations of city sites [0] - found, [1] - x, [2] - y
 int CitySiteList[NUMCITYSITES][3];
 
-/* Currently defined in caps since it is now a variable, was a constant */
+// Currently defined in caps since it is now a variable, was a constant
 int LENGTH = MAXLENGTH;
 int WIDTH = MAXWIDTH;
 
-long GameStatus = 0L;		/* Game Status bit vector */
-int ScreenLength = 0;		/* How large is level window */
-struct player Player;		/* the player */
-struct terrain Country[MAXWIDTH][MAXLENGTH];	/* The countryside */
-struct level *City = NULL;	/* The city of Rampart */
-struct level *TempLevel = NULL;	/* Place holder */
-struct level *Level = NULL;	/* Pointer to current Level */
-struct level *Dungeon = NULL;	/* Pointer to current Dungeon */
-int Villagenum = 0;		/* Current Village number */
-int ScreenOffset = 0;		/* Offset of displayed screen to level */
-int MaxDungeonLevels = 0;	/* Deepest level allowed in dungeon */
-int Current_Dungeon = -1;	/* What is Dungeon now */
-int Current_Environment = E_CITY;	/* Which environment are we in */
-int Last_Environment = E_COUNTRYSIDE;	/* Which environment were we in */
-int Dirs[2][9];			/* 9 xy directions */
-char Cmd = 's';			/* last player command */
-int Command_Duration = 0;	/* how long does current command take */
-struct monster *Arena_Monster = NULL;	/* Opponent in arena */
-int Arena_Opponent = 0;		/* case label of opponent in l_arena() */
-int Arena_Victory = 0;		/* did player win in arena? */
-int Imprisonment = 0;		/* amount of time spent in jail */
-int Precipitation = 0;		/* Hours of rain, snow, etc */
-int Lunarity = 0;		/* Effect of the moon on character */
-int Phase = 0;			/* Phase of the moon */
-int Date = 0;			/* Starting date */
-int Pawndate = 0;		/* Pawn Shop item generation date */
+long GameStatus = 0L;		// Game Status bit vector
+int ScreenLength = 0;		// How large is level window
+struct player Player;		// the player
+struct terrain Country[MAXWIDTH][MAXLENGTH];	// The countryside
+struct level *City = NULL;	// The city of Rampart
+struct level *TempLevel = NULL;	// Place holder
+struct level *Level = NULL;	// Pointer to current Level
+struct level *Dungeon = NULL;	// Pointer to current Dungeon
+int Villagenum = 0;		// Current Village number
+int ScreenOffset = 0;		// Offset of displayed screen to level
+int MaxDungeonLevels = 0;	// Deepest level allowed in dungeon
+int Current_Dungeon = -1;	// What is Dungeon now
+int Current_Environment = E_CITY;	// Which environment are we in
+int Last_Environment = E_COUNTRYSIDE;	// Which environment were we in
+int Dirs[2][9];			// 9 xy directions
+char Cmd = 's';			// last player command
+int Command_Duration = 0;	// how long does current command take
+struct monster *Arena_Monster = NULL;	// Opponent in arena
+int Arena_Opponent = 0;		// case label of opponent in l_arena()
+int Arena_Victory = 0;		// did player win in arena?
+int Imprisonment = 0;		// amount of time spent in jail
+int Precipitation = 0;		// Hours of rain, snow, etc
+int Lunarity = 0;		// Effect of the moon on character
+int Phase = 0;			// Phase of the moon
+int Date = 0;			// Starting date
+int Pawndate = 0;		// Pawn Shop item generation date
 pob Pawnitems[PAWNITEMS] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
-/* items in pawn shop */
-int SymbolUseHour = -1;		/* holy symbol use marker */
-int ViewHour = -1;		/* crystal ball use marker */
-int ZapHour = -1;		/* staff of enchantment use marker */
-int HelmHour = -1;		/* helm of teleportation use marker */
-int Constriction = 0;		/* Dragonlord Attack State */
-int Blessing = FALSE;		/* Altar Blessing State */
-int LastDay = -1;		/* DPW date of dole */
-int RitualHour = -1;		/* last use of ritual magic */
-int RitualRoom = -1;		/* last room of ritual magic */
-int Lawstone = 0;		/* magic stone counter */
-int Chaostone = 0;		/* magic stone counter */
-int Mindstone = 0;		/* magic stone counter */
-int Searchnum = 1;		/* number of times to search on 's' */
-int Behavior;			/* Player NPC behavior */
-int Verbosity = VERBOSE;	/* verbosity level */
-long Time = 0;			/* turn number */
-int Tick = 0;			/* 10 a turn; action coordinator */
-char Stringbuffer[STRING_BUFFER_SIZE][80];	/* last strings printed */
-long Gymcredit = 0;		/* credit at rampart gym */
-int Spellsleft = 0;		/* research allowance at college */
-int StarGemUse = 0;		/* last date of star gem use */
-int HiMagicUse = 0;		/* last date of high magic use */
-int HiMagic = 0;		/* current level for l_throne */
-long Balance = 0;		/* bank account */
-long FixedPoints = 0;		/* points are frozen after adepthood */
-int LastTownLocX = 0;		/* previous position in village or city */
-int LastTownLocY = 0;		/* previous position in village or city */
-int LastCountryLocX = 0;	/* previous position in countryside */
-int LastCountryLocY = 0;	/* previous position in countryside */
-char Password[64];		/* autoteller password */
+// items in pawn shop
+int SymbolUseHour = -1;		// holy symbol use marker
+int ViewHour = -1;		// crystal ball use marker
+int ZapHour = -1;		// staff of enchantment use marker
+int HelmHour = -1;		// helm of teleportation use marker
+int Constriction = 0;		// Dragonlord Attack State
+int Blessing = FALSE;		// Altar Blessing State
+int LastDay = -1;		// DPW date of dole
+int RitualHour = -1;		// last use of ritual magic
+int RitualRoom = -1;		// last room of ritual magic
+int Lawstone = 0;		// magic stone counter
+int Chaostone = 0;		// magic stone counter
+int Mindstone = 0;		// magic stone counter
+int Searchnum = 1;		// number of times to search on 's'
+int Behavior;			// Player NPC behavior
+int Verbosity = VERBOSE;	// verbosity level
+long Time = 0;			// turn number
+int Tick = 0;			// 10 a turn; action coordinator
+char Stringbuffer[STRING_BUFFER_SIZE][80];	// last strings printed
+long Gymcredit = 0;		// credit at rampart gym
+int Spellsleft = 0;		// research allowance at college
+int StarGemUse = 0;		// last date of star gem use
+int HiMagicUse = 0;		// last date of high magic use
+int HiMagic = 0;		// current level for l_throne
+long Balance = 0;		// bank account
+long FixedPoints = 0;		// points are frozen after adepthood
+int LastTownLocX = 0;		// previous position in village or city
+int LastTownLocY = 0;		// previous position in village or city
+int LastCountryLocX = 0;	// previous position in countryside
+int LastCountryLocY = 0;	// previous position in countryside
+char Password[64];		// autoteller password
 char Str1[STRING_LEN], Str2[STRING_LEN], Str3[STRING_LEN], Str4[STRING_LEN];
-   /* Some string space, random uses */
+   // Some string space, random uses
 
-pol Condoitems = NULL;		/* Items in condo */
+pol Condoitems = NULL;		// Items in condo
 
-/* high score names, levels, behavior */
+// high score names, levels, behavior
 int Shadowlordbehavior, Archmagebehavior, Primebehavior, Commandantbehavior;
 int Championbehavior, Priestbehavior[7], Hibehavior, Dukebehavior;
 int Chaoslordbehavior, Lawlordbehavior, Justiciarbehavior;
@@ -105,7 +105,7 @@ int Championlevel, Priestlevel[7], Hilevel, Justiciarlevel;
 long Hiscore = 0L;
 int Chaoslordlevel = 0, Lawlordlevel = 0, Chaos = 0, Law = 0;
 
-/* New globals which used to be statics */
+// New globals which used to be statics
 int twiddle = FALSE;
 int saved = FALSE;
 int onewithchaos = FALSE;
@@ -120,13 +120,13 @@ int cloak_ids[30];
 int boot_ids[30];
 
 int deepest[E_MAX + 1];
-int level_seed[E_MAX + 1];	/* random number seed that generated level */
+int level_seed[E_MAX + 1];	// random number seed that generated level
 
 static void signalexit (int sig);
 
-/* This may be implementation dependent */
-/* environment is the environment about to be generated, or -1 for the first */
-/* time, or -2 if we want to restore the random number point */
+// This may be implementation dependent
+// environment is the environment about to be generated, or -1 for the first
+// time, or -2 if we want to restore the random number point
 void initrand (int environment, int level)
 {
     static int store;
@@ -134,7 +134,7 @@ void initrand (int environment, int level)
 
     if (environment >= 0)
 	store = rand();
-    /* Pseudo Random Seed */
+    // Pseudo Random Seed
     if (environment == E_RANDOM)
 	seed = (int) time (NULL);
     else if (environment == E_RESTORE)
@@ -167,7 +167,7 @@ int main (int argc, char *argv[])
     int continuing;
     int count;
 
-    /* always catch ^c and hang-up signals */
+    // always catch ^c and hang-up signals
 
     signal (SIGINT, (__sighandler_t) quit);
     signal (SIGHUP, signalsave);
@@ -182,11 +182,11 @@ int main (int argc, char *argv[])
 
     Omegalib = OMEGALIB;
 
-    /* if filecheck is 0, some necessary data files are missing */
+    // if filecheck is 0, some necessary data files are missing
     if (filecheck () == 0)
 	exit (0);
 
-    /* all kinds of initialization */
+    // all kinds of initialization
     initgraf ();
     initdirs ();
     initrand (E_RANDOM, 0);
@@ -198,11 +198,11 @@ int main (int argc, char *argv[])
     omega_title ();
     showscores ();
 
-    /* game restore attempts to restore game if there is an argument */
+    // game restore attempts to restore game if there is an argument
     continuing = game_restore (argc, argv);
 
-    /* monsters initialized in game_restore if game is being restored */
-    /* items initialized in game_restore if game is being restored */
+    // monsters initialized in game_restore if game is being restored
+    // items initialized in game_restore if game is being restored
     if (!continuing) {
 	inititem (TRUE);
 	Date = random_range (360);
@@ -228,7 +228,7 @@ int main (int argc, char *argv[])
 
     screencheck (Player.y);
 
-    /* game cycle */
+    // game cycle
     if (!continuing)
 	time_clock (TRUE);
     while (TRUE) {
@@ -249,7 +249,7 @@ static void signalexit (int sig UNUSED)
     mprint ("Want to try and save the game?");
     reply = ynq ();
     if (reply == 'y')
-	save (FALSE, TRUE);	/* don't compress, force save */
+	save (FALSE, TRUE);	// don't compress, force save
     else if (reply == EOF)
 	signalsave (0);
     mprint ("Bye!");
@@ -257,7 +257,7 @@ static void signalexit (int sig UNUSED)
     exit (0);
 }
 
-/* Start up game with new dungeons; start with player in city */
+// Start up game with new dungeons; start with player in city
 static void init_world (void)
 {
     int env, i;
@@ -278,7 +278,7 @@ static void init_world (void)
     print1 ("You pass through the massive gates of Rampart, the city.");
 }
 
-/* set variable item names */
+// set variable item names
 void inititem (int reset)
 {
     int i;
@@ -307,11 +307,9 @@ void inititem (int reset)
 	Objects[RINGID + i].objstr = ringname (i);
 }
 
-/* This function coordinates monsters and player actions, as well as
-random events. Each tick is a second. There are therefore 60 ticks to
-the minute and 60 minutes to the hour.
-*/
-
+// This function coordinates monsters and player actions, as well as
+// random events. Each tick is a second. There are therefore 60 ticks to
+// the minute and 60 minutes to the hour.
 void time_clock (int reset)
 {
     int env;
@@ -319,7 +317,7 @@ void time_clock (int reset)
 
     if (++Tick > 60) {
 	Tick = 0;
-	minute_status_check ();	/* see about some player statuses each minute */
+	minute_status_check ();	// see about some player statuses each minute
 	if (++Time % 10 == 0)
 	    tenminute_check ();
     }
@@ -340,11 +338,11 @@ void time_clock (int reset)
 	Player.click = (Player.click + Command_Duration) % 60;
     }
 
-    /* klugy but what the heck. w/o this line, if the player caused
-       a change-environment to the country, the monsters on the old Level
-       will still act, causing all kinds of anomalies and core dumps,
-       intermittently. However, any other environment change will reset
-       Level appropriately, so only have to check for countryside */
+    // klugy but what the heck. w/o this line, if the player caused
+    // a change-environment to the country, the monsters on the old Level
+    // will still act, causing all kinds of anomalies and core dumps,
+    // intermittently. However, any other environment change will reset
+    // Level appropriately, so only have to check for countryside
 
     if (Current_Environment != E_COUNTRYSIDE) {
 
@@ -352,7 +350,7 @@ void time_clock (int reset)
 	ml = *prev;
 	while (ml)
 	    if (ml->m->hp > 0) {
-		/* following is a hack until I discover source of phantom monsters */
+		// following is a hack until I discover source of phantom monsters
 		if (Level->site[ml->m->x][ml->m->y].creature != ml->m)
 		    fix_phantom (ml->m);
 		if (Tick == ml->m->click) {
@@ -373,7 +371,7 @@ void time_clock (int reset)
     }
 }
 
-/* remedies occasional defective monsters */
+// remedies occasional defective monsters
 static void fix_phantom (struct monster *m)
 {
     if (Level->site[m->x][m->y].creature == NULL) {

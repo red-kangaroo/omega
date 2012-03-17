@@ -31,12 +31,12 @@ static int take_from_pack (int slot, int display);
 
 //----------------------------------------------------------------------
 
-/* drops money, heh heh */
+// drops money, heh heh
 void drop_money (void)
 {
     pob money;
 
-    /* WDT HACK!  Let me guess -- this is yet another memory leak, right? */
+    // WDT HACK!  Let me guess -- this is yet another memory leak, right?
     money = detach_money ();
     if (money != NULL) {
 	if (Current_Environment == E_CITY) {
@@ -48,8 +48,8 @@ void drop_money (void)
 	setgamestatus (SKIP_MONSTERS);
 }
 
-/* returns some money from player back into "money" item.
-   for giving and dropping money */
+// returns some money from player back into "money" item.
+// for giving and dropping money
 static pob detach_money (void)
 {
     long c;
@@ -64,7 +64,7 @@ static pob detach_money (void)
     return (cash);
 }
 
-/* gets a legal amount of money or ABORT */
+// gets a legal amount of money or ABORT
 long get_money (long limit)
 {
     long c;
@@ -77,9 +77,9 @@ long get_money (long limit)
 	return (c);
 }
 
-/* pick up from some location x,y */
-/* Lift entire itemlist off ground, pass it to inventory control, which
-   may drop things back onto the now null ground */
+// pick up from some location x,y
+// Lift entire itemlist off ground, pass it to inventory control, which
+// may drop things back onto the now null ground
 void pickup_at (int x, int y)
 {
     pol ol = Level->site[x][y].things;
@@ -111,18 +111,17 @@ void pickup_at (int x, int y)
     }
 }
 
-/* WDT -- convert from a char (keypress) to an item index in
- * player inventory */
-/* Item identifiers, in this case the letters of the alphabet minus
- * any letters already used for commands.  Yes, there are more here
- * than could be needed, but I don't want to short myself for later.
- */
+// WDT -- convert from a char (keypress) to an item index in
+// player inventory
+// Item identifiers, in this case the letters of the alphabet minus
+// any letters already used for commands.  Yes, there are more here
+// than could be needed, but I don't want to short myself for later.
 signed char inventory_keymap[] = "-abcfghimnoqruvwyz";
 static int key_to_index (int key)
 {
     int i;
-    assert (MAXITEMS > 0);	/* must have room for an item, or this loop will
-				 * die! */
+    assert (MAXITEMS > 0);	// must have room for an item, or this loop will
+				// die!
 
     for (i = 0; i < MAXITEMS; i++) {
 	if (key == inventory_keymap[i])
@@ -136,8 +135,8 @@ signed char index_to_key (int i)
     return (i < MAXITEMS ? inventory_keymap[i] : '-');
 }
 
-/* criteria for being able to put some item in some slot */
-/* WDT -- why on earth does the 'slottable' function print stuff???? */
+// criteria for being able to put some item in some slot
+// WDT -- why on earth does the 'slottable' function print stuff????
 static int aux_slottable (pob o, int slot)
 {
     int ok = TRUE;
@@ -167,8 +166,8 @@ static int aux_slottable (pob o, int slot)
     return (ok);
 }
 
-/* put all of o on objlist at x,y on Level->depth */
-/* Not necessarily dropped by character; just dropped... */
+// put all of o on objlist at x,y on Level->depth
+// Not necessarily dropped by character; just dropped...
 void drop_at (int x, int y, pob o)
 {
     pol tmp;
@@ -188,7 +187,7 @@ void drop_at (int x, int y, pob o)
     }
 }
 
-/* put n of o on objlist at x,y on Level->depth */
+// put n of o on objlist at x,y on Level->depth
 void p_drop_at (int x, int y, int n, pob o)
 {
     pol tmp;
@@ -209,7 +208,7 @@ void p_drop_at (int x, int y, int n, pob o)
     }
 }
 
-/* returns a string for identified items */
+// returns a string for identified items
 char *itemid (pob obj)
 {
     char tstr[80];
@@ -283,7 +282,7 @@ char *cashstr (void)
 	return ("orichalc pieces");
 }
 
-/* return an object's plus as a string */
+// return an object's plus as a string
 static void setplustr (pob obj, char *pstr)
 {
     pstr[0] = ' ';
@@ -298,7 +297,7 @@ static void setplustr (pob obj, char *pstr)
     }
 }
 
-/* return an object's number as a string */
+// return an object's number as a string
 static void setnumstr (pob obj, char *nstr)
 {
     if (obj->number < 2)
@@ -318,7 +317,7 @@ static void setnumstr (pob obj, char *nstr)
 	strcpy (nstr, "lots of ");
 }
 
-/* return object with charges */
+// return object with charges
 static void setchargestr (pob obj, char *cstr)
 {
     cstr[0] = ' ';
@@ -355,7 +354,7 @@ void give_money (struct monster *m)
 
 void givemonster (struct monster *m, struct object *o)
 {
-    /* special case -- give gem to LawBringer */
+    // special case -- give gem to LawBringer
     if ((m->id == LAWBRINGER) && (o->id == ARTIFACTID + 21)) {
 	clearmsg ();
 	print1 ("The LawBringer accepts the gem reverently.");
@@ -374,7 +373,7 @@ void givemonster (struct monster *m, struct object *o)
 	Player.pow = Player.maxpow = Player.pow * 2;
 	gain_experience (2000);
 	setgamestatus (GAVE_STARGEM);
-	/* WDT HACK!!!  Where else would this ever get freed?? */
+	// WDT HACK!!!  Where else would this ever get freed??
 	free (o);
     } else {
 	if (m->uniqueness == COMMON) {
@@ -400,7 +399,7 @@ void givemonster (struct monster *m, struct object *o)
 	    }
 	} else if (m_statusp (m, HUNGRY)) {
 
-	    if (((m->id == HORSE) && (o->id == FOODID + 15)) ||	/* grain */
+	    if (((m->id == HORSE) && (o->id == FOODID + 15)) ||	// grain
 		((m->id != HORSE) && ((o->usef == I_FOOD) || (o->usef == I_POISON_FOOD)))) {
 		strcat (Str3, " wolfs down your food ... ");
 		print1 (Str3);
@@ -429,15 +428,14 @@ void givemonster (struct monster *m, struct object *o)
     }
 }
 
-/* will clear all, not just one of an object. */
+// will clear all, not just one of an object.
 void conform_lost_object (pob obj)
 {
     if (obj != NULL)
 	conform_lost_objects (obj->number, obj);
 }
 
-/* removes n of object from inventory; frees object if appropriate. */
-
+// removes n of object from inventory; frees object if appropriate.
 void dispose_lost_objects (int n, pob obj)
 {
     int i, conformed = FALSE, subtracted = FALSE;
@@ -462,8 +460,8 @@ void dispose_lost_objects (int n, pob obj)
 	free ((char *) obj);
 }
 
-/* removes n of object from inventory without freeing object.
-   Removes all instances of pointer (might be 2 handed weapon, etc) */
+// removes n of object from inventory without freeing object.
+// Removes all instances of pointer (might be 2 handed weapon, etc)
 void conform_lost_objects (int n, pob obj)
 {
     int i, conformed = FALSE, subtracted = FALSE;
@@ -484,7 +482,7 @@ void conform_lost_objects (int n, pob obj)
 	    }
 }
 
-/* clears unused possession */
+// clears unused possession
 void conform_unused_object (pob obj)
 {
     if (obj->used) {
@@ -494,14 +492,13 @@ void conform_unused_object (pob obj)
     calc_melee ();
 }
 
-/* select an item from inventory */
-/* if itype is NULL_ITEM, any kind of item is acceptable.
-   if itype is CASH, any kind of item or '$' (cash) is acceptable.
-   if itype is FOOD, CORPSE or FOOD is acceptable, but only FOOD is
-listed in the possibilities.
-   if itype is any other object type (eg SCROLL, POTION, etc.), only
-that type of item is acceptable or is listed */
-
+// select an item from inventory
+// if itype is NULL_ITEM, any kind of item is acceptable.
+// if itype is CASH, any kind of item or '$' (cash) is acceptable.
+// if itype is FOOD, CORPSE or FOOD is acceptable, but only FOOD is
+// listed in the possibilities.
+// if itype is any other object type (eg SCROLL, POTION, etc.), only
+// that type of item is acceptable or is listed
 int getitem (Symbol itype)
 {
     char invstr[64];
@@ -561,7 +558,7 @@ int getitem (Symbol itype)
     }
 }
 
-/* formerly add_item_to_pack */
+// formerly add_item_to_pack
 void gain_item (struct object *o)
 {
     if (o->uniqueness == UNIQUE_MADE)
@@ -582,7 +579,7 @@ void gain_item (struct object *o)
     }
 }
 
-/* inserts the item at the start of the pack array */
+// inserts the item at the start of the pack array
 static void push_pack (pob o)
 {
     int i;
@@ -592,7 +589,7 @@ static void push_pack (pob o)
     Player.packptr++;
 }
 
-/* Adds item to pack list */
+// Adds item to pack list
 static void add_to_pack (pob o)
 {
     if (Player.packptr >= MAXPACK) {
@@ -604,7 +601,7 @@ static void add_to_pack (pob o)
     }
 }
 
-/* Adds item to pack list, maybe going into inventory mode if pack is full */
+// Adds item to pack list, maybe going into inventory mode if pack is full
 static int get_to_pack (pob o)
 {
     if (Player.packptr >= MAXPACK) {
@@ -623,7 +620,7 @@ static int pack_item_cost (int ii)
     return (ii > 20 ? 17 : (ii > 15 ? 7 : 2));
 }
 
-/* WDT -- 'response' must be an index into the pack. */
+// WDT -- 'response' must be an index into the pack.
 static void use_pack_item (int response, int slot)
 {
     pob item;
@@ -660,8 +657,8 @@ static void use_pack_item (int response, int slot)
     }
 }
 
-/* WDT HACK!  This ought to be in scr.c, along with its companion.  However,
- * right now it's only used in the function directly below. */
+// WDT HACK!  This ought to be in scr.c, along with its companion.  However,
+// right now it's only used in the function directly below.
 static int aux_display_pack (int start_item, int slot)
 {
     int i = start_item, items;
@@ -698,8 +695,8 @@ static int aux_display_pack (int start_item, int slot)
     return i;
 }
 
-/* takes something from pack, puts to slot, 
-or to 'up-in-air', one of which at least must be empty */
+// takes something from pack, puts to slot, 
+// or to 'up-in-air', one of which at least must be empty
 static int aux_take_from_pack (int slot)
 {
     char response, pack_item, last_item;
@@ -725,7 +722,7 @@ static int aux_take_from_pack (int slot)
 		print1 ("Enter pack slot letter, + or - to see more, or ESCAPE to quit.");
 	    response = mcigetc ();
 	    if (response == '?') {
-		/* WDT HACK -- display some help instead. */
+		// WDT HACK -- display some help instead.
 		print1 ("Help not implemented (sorry).");
 		morewait ();
 		ok = FALSE;
@@ -736,9 +733,9 @@ static int aux_take_from_pack (int slot)
 		    pack_item = last_item;
 		ok = FALSE;
 	    } else if (response == '-') {
-		/* WDT HACK: this _should_ make us page up.  Sadly,
-		 * I have no way of calculating how much I'll be paging up.
-		 * This is fixable, but I have no idea how much work... */
+		// WDT HACK: this _should_ make us page up.  Sadly,
+		// I have no way of calculating how much I'll be paging up.
+		// This is fixable, but I have no idea how much work...
 		pack_item = 0;
 		ok = FALSE;
 	    } else {
@@ -756,8 +753,8 @@ static int aux_take_from_pack (int slot)
     return slot;
 }
 
-/* takes something from pack, puts to slot, 
-or to 'up-in-air', one of which at least must be empty */
+// takes something from pack, puts to slot, 
+// or to 'up-in-air', one of which at least must be empty
 static int aux_top_take_from_pack (int slot, int display)
 {
     char response;
@@ -816,12 +813,11 @@ void do_inventory_control (void)
     }
 }
 
-/* inventory_control assumes a few setup things have been done,
-   like displaying the slots, loading the O_UP_IN_AIR item, etc.
-
-   Each action uses up a little time. If only inspection actions
-   are taken, no time is used up. */
-
+// inventory_control assumes a few setup things have been done,
+// like displaying the slots, loading the O_UP_IN_AIR item, etc.
+//
+// Each action uses up a little time. If only inspection actions
+// are taken, no time is used up.
 void inventory_control (void)
 {
     int slot = 0, done = FALSE;
@@ -838,7 +834,7 @@ void inventory_control (void)
 
 	switch (response) {
 	    case 12:
-	    case 18:		/* ^l, ^r */
+	    case 18:		// ^l, ^r
 		display_possessions ();
 		break;
 	    case 'd':
@@ -976,8 +972,7 @@ void inventory_control (void)
     xredraw ();
 }
 
-/* same as inventory_control, but only uses msg window for i/o*/
-
+// same as inventory_control, but only uses msg window for i/o
 void top_inventory_control (void)
 {
     int slot = 0, done = FALSE, usedmenu = FALSE;
@@ -1105,7 +1100,7 @@ void top_inventory_control (void)
 	xredraw ();
 }
 
-/* Let the user select a slot. */
+// Let the user select a slot.
 static int get_inventory_slot (void)
 {
     signed char response;
@@ -1121,7 +1116,7 @@ static int get_inventory_slot (void)
     return response;
 }
 
-/* returns some number between 0 and o->number */
+// returns some number between 0 and o->number
 static int get_item_number (pob o)
 {
     int n = 0;
@@ -1185,9 +1180,9 @@ static void put_to_pack (int slot)
     }
 }
 
-/* splits num off of item to make newitem which is returned */
-/* something else (conform_lost_objects) has to reduce the actual
-   number value of item and Player.itemweight */
+// splits num off of item to make newitem which is returned
+// something else (conform_lost_objects) has to reduce the actual
+// number value of item and Player.itemweight
 pob split_item (int num, pob item)
 {
     pob newitem = NULL;
@@ -1196,17 +1191,16 @@ pob split_item (int num, pob item)
 	*newitem = *item;
 	if (num <= item->number)
 	    newitem->number = num;
-	/* else num > item->number, so return newitem with number = item->number */
-	newitem->used = FALSE;	/* whether the original item was used or not */
+	// else num > item->number, so return newitem with number = item->number
+	newitem->used = FALSE;	// whether the original item was used or not
     }
     return (newitem);
 }
 
-/* Trades contents of "up in air" slot with selected slot. One or both
-may be null. If both slots are 'objequal' merges two groups into one
-in the selected slot. If one slot is null and the number of the other
-is greater than one, requests how many to move. */
-
+// Trades contents of "up in air" slot with selected slot. One or both
+// may be null. If both slots are 'objequal' merges two groups into one
+// in the selected slot. If one slot is null and the number of the other
+// is greater than one, requests how many to move.
 static void switch_to_slot (int slot)
 {
     pob oslot = Player.possessions[slot];
@@ -1215,13 +1209,12 @@ static void switch_to_slot (int slot)
     int slotnull, airnull, num = 1, trade = FALSE, put = FALSE, take = FALSE, merge = FALSE;
     int s2h = FALSE, a2h = FALSE;
 
-    /* ie, is cursed and in use */
+    // ie, is cursed and in use
     if (slot == O_UP_IN_AIR)
 	print3 ("This action makes no sense!");
     else if (cursed (oslot) == TRUE + TRUE)
 	print3 ("The object in that slot is cursed -- you can't get rid of it!");
     else {
-
 	slotnull = (oslot == NULL);
 	airnull = (oair == NULL);
 
@@ -1231,9 +1224,9 @@ static void switch_to_slot (int slot)
 	if (!airnull)
 	    a2h = (twohandedp (oair->id) && ((slot == O_READY_HAND) || (slot == O_WEAPON_HAND)));
 
-	/* figure out which action to take */
+	// figure out which action to take
 
-	/* merge if both are same kind of object */
+	// merge if both are same kind of object
 	merge = objequal (oslot, oair);
 
 	take = ((!merge) && (!slotnull) && airnull);
@@ -1244,11 +1237,8 @@ static void switch_to_slot (int slot)
 
 	if (merge)
 	    merge_item (slot);
-
 	else if (put) {
-
-	    /* deal with a 2-handed weapon */
-	    if (a2h) {
+	    if (a2h) { // deal with a 2-handed weapon
 		if (Player.possessions[O_READY_HAND] == NULL)
 		    Player.possessions[O_READY_HAND] = oair;
 		if (Player.possessions[O_WEAPON_HAND] == NULL)
@@ -1264,9 +1254,7 @@ static void switch_to_slot (int slot)
 		    pack_extra_items (oair);
 	    }
 	    Player.possessions[O_UP_IN_AIR] = NULL;
-	}
-
-	else if (take) {
+	} else if (take) {
 	    num = get_item_number (oslot);
 	    if (num > 0) {
 		otemp = split_item (num, oslot);
@@ -1279,11 +1267,8 @@ static void switch_to_slot (int slot)
 		if (Player.possessions[O_WEAPON_HAND] == oslot)
 		    Player.possessions[O_WEAPON_HAND] = NULL;
 	    }
-	}
-
-	else if (trade) {
-
-	    /* first remove item from slot */
+	} else if (trade) {
+	    // first remove item from slot
 	    num = oslot->number;
 	    conform_lost_objects (oslot->number, oslot);
 	    oslot->number = num;
@@ -1317,16 +1302,15 @@ static void switch_to_slot (int slot)
     }
 }
 
-/* merges the up-in-air items into the selected items */
-
+// merges the up-in-air items into the selected items
 static void merge_item (int slot)
 {
     Player.possessions[slot]->number += Player.possessions[O_UP_IN_AIR]->number;
     Player.possessions[O_UP_IN_AIR] = NULL;
 }
 
-/* are two objects equal except for their number field? */
-/* returns false if either object is null */
+// are two objects equal except for their number field?
+// returns false if either object is null
 static int objequal (struct object *o, struct object *p)
 {
     if ((o == NULL) || (p == NULL))
@@ -1337,7 +1321,7 @@ static int objequal (struct object *o, struct object *p)
 
 }
 
-/* criteria for being able to put some item in some slot */
+// criteria for being able to put some item in some slot
 static int slottable (pob o, int slot)
 {
     int ok = TRUE;
@@ -1372,21 +1356,18 @@ static int slottable (pob o, int slot)
     return (ok);
 }
 
-/* ->;WDT HACK: this is bad factoring.  I want to use this, but it's
- * printing SILLY stuff out. */
-/* whether or not an item o can be used in a slot. Assumes o can in
-   fact be placed in the slot. */
+// ->;WDT HACK: this is bad factoring.  I want to use this, but it's
+// printing SILLY stuff out whether or not an item o can be used in a
+// slot. Assumes o can in fact be placed in the slot.
 static int item_useable (pob o, int slot)
 {
-    /* don't have to check the object in the first if since only armor
-       can go in armor slot, cloak in cloak slot, etc */
-
+    // don't have to check the object in the first if since only armor
+    // can go in armor slot, cloak in cloak slot, etc
     if ((slot == O_ARMOR) || (slot == O_CLOAK) || (slot == O_SHIELD) || (slot == O_BOOTS) || (slot >= O_RING1))
 	return (TRUE);
 
-    /* weapon is useable if it is put in weapon hand or if it is two-handed
-       and put in either hand when the other also holds the weapon */
-
+    // weapon is useable if it is put in weapon hand or if it is two-handed
+    // and put in either hand when the other also holds the weapon
     else if ((o->objchar == WEAPON) || (o->objchar == MISSILEWEAPON)) {
 	if (twohandedp (o->id) && ((slot == O_READY_HAND) || (slot == O_WEAPON_HAND))) {
 	    if (Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND]) {
@@ -1405,54 +1386,60 @@ static int item_useable (pob o, int slot)
 	return (FALSE);
 }
 
-/* returns FALSE if not cursed, TRUE if cursed but not used,
-   TRUE + TRUE if cursed and used */
+// returns FALSE if not cursed, TRUE if cursed but not used, TRUE + TRUE if cursed and used
 int cursed (pob obj)
 {
     return ((obj == NULL) ? FALSE : ((obj->blessing < 0) ? (obj->used == TRUE) + TRUE : FALSE));
 }
 
-/* returns true if item with id and charge is found in pack or in
-   inventory slot. charge is used to differentiate
-   corpses instead of aux, which is their food value. */
+// returns true if item with id and charge is found in pack or in
+// inventory slot. charge is used to differentiate
+// corpses instead of aux, which is their food value.
 int find_item (pob * o, int id, int chargeval)
 {
     int i, found = FALSE;
     *o = NULL;
-    for (i = 1; ((i < MAXITEMS) && (!found)); i++)
-	if (Player.possessions[i] != NULL)
+    for (i = 1; ((i < MAXITEMS) && (!found)); i++) {
+	if (Player.possessions[i] != NULL) {
 	    if ((Player.possessions[i]->id == id) && ((chargeval == -1) || (Player.possessions[i]->charge == chargeval))) {
 		*o = Player.possessions[i];
 		found = TRUE;
 	    }
-    if (!found)
-	for (i = 0; ((i < Player.packptr) && (!found)); i++)
-	    if (Player.pack[i] != NULL)
+	}
+    }
+    if (!found) {
+	for (i = 0; ((i < Player.packptr) && (!found)); i++) {
+	    if (Player.pack[i] != NULL) {
 		if ((Player.pack[i]->id == id) && ((chargeval == -1) || (Player.pack[i]->charge == chargeval))) {
 		    *o = Player.pack[i];
 		    found = TRUE;
 		}
+	    }
+	}
+    }
     return (found);
 }
 
-/* returns true if item with id and charge is found in pack or in
-   inventory slot. Destroys item. charge is used to differentiate
-   corpses instead of aux, which is their food value. */
+// returns true if item with id and charge is found in pack or in
+// inventory slot. Destroys item. charge is used to differentiate
+// corpses instead of aux, which is their food value.
 int find_and_remove_item (int id, int chargeval)
 {
     int i, found = FALSE;
     pob o = NULL;
 
-    for (i = 1; ((i < MAXITEMS) && (!found)); i++)
-	if (Player.possessions[i] != NULL)
+    for (i = 1; ((i < MAXITEMS) && (!found)); i++) {
+	if (Player.possessions[i] != NULL) {
 	    if ((Player.possessions[i]->id == id) && ((chargeval == -1) || (Player.possessions[i]->charge == chargeval))) {
 		o = Player.possessions[i];
 		conform_lost_objects (1, o);
 		found = TRUE;
 	    }
-    if (!found)
-	for (i = 0; ((i < Player.packptr) && (!found)); i++)
-	    if (Player.pack[i] != NULL)
+	}
+    }
+    if (!found) {
+	for (i = 0; ((i < Player.packptr) && (!found)); i++) {
+	    if (Player.pack[i] != NULL) {
 		if ((Player.pack[i]->id == id) && ((chargeval == -1) || (Player.pack[i]->charge == chargeval))) {
 		    Player.pack[i]->number--;
 		    if (Player.pack[i]->number == 0) {
@@ -1461,6 +1448,9 @@ int find_and_remove_item (int id, int chargeval)
 		    }
 		    found = TRUE;
 		}
+	    }
+	}
+    }
     fixpack ();
     return (found);
 }
@@ -1485,7 +1475,7 @@ void lose_all_items (void)
     morewait ();
 }
 
-/* prevents people from wielding 3 short swords, etc. */
+// prevents people from wielding 3 short swords, etc.
 static void pack_extra_items (pob item)
 {
     pob extra = ((pob) checkmalloc (sizeof (objtype)));
@@ -1507,7 +1497,7 @@ static void pack_extra_items (pob item)
     calc_melee ();
 }
 
-/* makes sure Player.pack is OK, (used after sale from pack) */
+// makes sure Player.pack is OK, (used after sale from pack)
 void fixpack (void)
 {
     pob tpack[MAXPACK];
@@ -1522,8 +1512,7 @@ void fixpack (void)
     Player.packptr = tctr;
 }
 
-/* show slots, with appropriate additional displays if two-handed weapons */
-/* are involved */
+// show slots, with appropriate additional displays if two-handed weapons are involved
 static void show_inventory_slot (int slotnum, int topline)
 {
     if (!topline)

@@ -11,7 +11,7 @@ static void make_hp(pob o);
 
 //----------------------------------------------------------------------
 
-/* prayer occurs at altars, hence name of function */
+// prayer occurs at altars, hence name of function
 void l_altar (void)
 {
     int i, deity;
@@ -492,7 +492,7 @@ static void make_hp (pob o)
 	    break;
     }
     o->known = 2;
-    o->charge = 17;		/* random hack to convey bit that symbol is functional */
+    o->charge = 17;		// random hack to convey bit that symbol is functional
     morewait ();
     if (Player.patron == DRUID)
 	print1 ("Your deity raises you to the post of ArchDruid!");

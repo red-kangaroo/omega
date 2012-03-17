@@ -128,7 +128,7 @@ static void lock_score_file (void)
     strcpy (Str1, Omegalib);
     strcat (Str1, "omega.hi.lock");
     do {
-	lock = open (Str1, O_CREAT | O_EXCL, 0600);	/* create lock file */
+	lock = open (Str1, O_CREAT | O_EXCL, 0600);	// create lock file
 	if (lock < 0 && errno == EEXIST) {
 	    lockfile = fopen (Str1, "rb");
 	    if (lockfile) {
@@ -139,11 +139,11 @@ static void lock_score_file (void)
 		lastpid = thispid;
 	    }
 	    attempts++;
-	    if (attempts > 10)	/* assume that lock file has been abandoned */
-		unlink (Str1);	/* so we unlink it ourselves - ugly...  */
+	    if (attempts > 10)	// assume that lock file has been abandoned
+		unlink (Str1);	// so we unlink it ourselves - ugly...
 	    else
 		sleep (2);
-	} else if (lock < 0)	/* oops - something very wrong */
+	} else if (lock < 0)	// oops - something very wrong
 	    return;
     } while (lock < 0);
     sprintf (Str1, "%d", getpid ());
@@ -233,8 +233,8 @@ void showscores (void)
     clear_screen ();
 }
 
-/* Writes a new high-score file, with the nominated npc as whatever it is */
-/* in this particular game, but the others as they appear in the file. */
+// Writes a new high-score file, with the nominated npc as whatever it is
+// in this particular game, but the others as they appear in the file.
 void save_hiscore_npc (int npc)
 {
     FILE *infile, *outfile;
@@ -414,8 +414,8 @@ static const char* optional_file_list[] = {
     "scroll2.txt", "scroll3.txt", "scroll4.txt", NULL
 };
 
-/* Checks existence of omega data files */
-/* Returns 1 if OK, 0 if impossible to run, -1 if possible but not OK */
+// Checks existence of omega data files
+// Returns 1 if OK, 0 if impossible to run, -1 if possible but not OK
 int filecheck (void)
 {
     int impossible = FALSE, badbutpossible = FALSE;
@@ -459,7 +459,7 @@ int filecheck (void)
 	return (1);
 }
 
-/* display a file given a string name of file */
+// display a file given a string name of file
 void displayfile (char *filestr)
 {
     FILE *fd = checkfopen (filestr, "r");
@@ -491,7 +491,7 @@ void displayfile (char *filestr)
     fclose (fd);
 }
 
-/* display a file given a string name of file */
+// display a file given a string name of file
 static void displaycryptfile (char *filestr)
 {
     FILE *fd = checkfopen (filestr, "rb");
@@ -526,7 +526,7 @@ static void displaycryptfile (char *filestr)
     fclose (fd);
 }
 
-/* copy a file given a string name of file */
+// copy a file given a string name of file
 void copyfile (char *srcstr)
 {
     char deststr[80];

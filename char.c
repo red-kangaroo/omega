@@ -13,7 +13,7 @@ static void omegan_character_stats(void);
 
 //----------------------------------------------------------------------
 
-/* set player to begin with */
+// set player to begin with
 void initplayer (void)
 {
     const char* lname = getlogin();
@@ -21,7 +21,7 @@ void initplayer (void)
 	lname = "player";
     strcpy (Player.name, lname);
     if (Player.name[0] >= 'a' && Player.name[0] <= 'z')
-	Player.name[0] += 'A' - 'a';	/* capitalise 1st letter */
+	Player.name[0] += 'A' - 'a';	// capitalise 1st letter
     Player.itemweight = 0;
     Player.food = 36;
     Player.packptr = 0;
@@ -57,7 +57,7 @@ void initplayer (void)
 	    fread ((char *) &Verbosity, sizeof (char), 1, fd);
 	    strcpy (Player.name, lname);
 	    if (Player.name[0] >= 'a' && Player.name[0] <= 'z')
-		Player.name[0] += 'A' - 'a';	/* capitalise 1st letter */
+		Player.name[0] += 'A' - 'a';	// capitalise 1st letter
 	}
 	fclose (fd);
     }
@@ -73,7 +73,7 @@ void initplayer (void)
     Player.click = 1;
     strcpy (Player.meleestr, "CCBC");
     calc_melee ();
-    ScreenOffset = -1000;	/* to force a redraw */
+    ScreenOffset = -1000;	// to force a redraw
 }
 
 static FILE* omegarc_check (void)
@@ -134,24 +134,23 @@ long calcmana (void)
     return (Player.pow * (long) (Player.level + 1));
 }
 
-/*  npcbehavior digits 1234
-
-4 : alignment (LAWFUL,CHAOTIC, or NEUTRAL)
-3 : primary combat action (melee,missile,spell,thief,flight,1..5)
-2 : competence at 4 (0..9, 0 = incompetent, 9 = masterful)
-1 : conversation mode
-
-status : 1 = dead, 2 = saved, 3 = retired, 4 = still playing
-*/
+//  npcbehavior digits 1234
+//
+// 4 : alignment (LAWFUL,CHAOTIC, or NEUTRAL)
+// 3 : primary combat action (melee,missile,spell,thief,flight,1..5)
+// 2 : competence at 4 (0..9, 0 = incompetent, 9 = masterful)
+// 1 : conversation mode
+// 
+// status : 1 = dead, 2 = saved, 3 = retired, 4 = still playing
 int fixnpc (int status)
 {
     int npcbehavior = 0;
     char response;
-    if (status == 1) {		/* player is dead, all undead are chaotic */
+    if (status == 1) {		// player is dead, all undead are chaotic
 	npcbehavior += CHAOTIC;
-	npcbehavior += 10;	/* melee */
+	npcbehavior += 10;	// melee
 	npcbehavior += 100 * min (9, ((int) (Player.level / 3)));
-	npcbehavior += 1000;	/* threaten */
+	npcbehavior += 1000;	// threaten
     } else if (Behavior >= 0)
 	npcbehavior = Behavior;
     else {
@@ -200,31 +199,31 @@ int fixnpc (int status)
     return (npcbehavior);
 }
 
-/* estimates on a 0..9 scale how good a player is at something */
+// estimates on a 0..9 scale how good a player is at something
 static int competence_check (int attack)
 {
     int ability = 0;
     switch (attack) {
-	case 1:		/* melee */
+	case 1:		// melee
 	    ability += statmod (Player.str);
-	case 2:		/* missle */
+	case 2:		// missle
 	    ability += statmod (Player.dex);
 	    ability += Player.rank[LEGION];
 	    ability += ((int) (Player.dmg / 10) - 1);
 	    break;
-	case 3:		/* spellcasting */
+	case 3:		// spellcasting
 	    ability += statmod (Player.iq);
 	    ability += statmod (Player.pow);
 	    ability += Player.rank[CIRCLE];
 	    ability += Player.rank[COLLEGE];
 	    ability += Player.rank[PRIEST];
 	    break;
-	case 4:		/* thieving */
+	case 4:		// thieving
 	    ability += statmod (Player.dex);
 	    ability += statmod (Player.agi);
 	    ability += Player.rank[THIEVES];
 	    break;
-	case 5:		/* escape */
+	case 5:		// escape
 	    ability += 2 * statmod (Player.agi);
 	    break;
     }
@@ -509,7 +508,7 @@ static void user_character_stats (void)
     print1 ("Are you sexually interested in males or females? [mf] ");
     do
 	Player.preference = (char) mcigetc ();
-    while ((Player.preference != 'm') && (Player.preference != 'f') && (Player.preference != 'y') && (Player.preference != 'n'));	/* :-) */
+    while ((Player.preference != 'm') && (Player.preference != 'f') && (Player.preference != 'y') && (Player.preference != 'n'));	// :-)
 }
 
 static void omegan_character_stats (void)
@@ -534,10 +533,10 @@ static void omegan_character_stats (void)
     print1 ("Please enter your character's name: ");
     strcpy (Player.name, msgscanstring ());
     if (Player.name[0] >= 'a' && Player.name[0] <= 'z')
-	Player.name[0] += 'A' - 'a';	/* capitalise 1st letter */
+	Player.name[0] += 'A' - 'a';	// capitalise 1st letter
     print1 ("Is your character sexually interested in males or females? [mf] ");
     do
 	Player.preference = (char) mcigetc ();
-    while ((Player.preference != 'm') && (Player.preference != 'f') && (Player.preference != 'y') && (Player.preference != 'n'));	/* :-) */
+    while ((Player.preference != 'm') && (Player.preference != 'f') && (Player.preference != 'y') && (Player.preference != 'n'));	// :-)
 
 }

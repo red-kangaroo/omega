@@ -21,16 +21,15 @@ static int save_player(FILE *fd);
 
 //----------------------------------------------------------------------
 
-/*Various functions for doing game saves and restores */
-/*The game remembers various player information, the city level,
-the country level, and the last or current dungeon level */
+// Various functions for doing game saves and restores
+// The game remembers various player information, the city level,
+// the country level, and the last or current dungeon level
 
-/**************** SAVE FUNCTIONS */
+//*************** SAVE FUNCTIONS
 
-/* Checks to see if save file already exists.
-   Checks to see if save file can be opened for write.
-   The player, the city level, and the current dungeon level are saved.
-*/
+// Checks to see if save file already exists.
+// Checks to see if save file can be opened for write.
+// The player, the city level, and the current dungeon level are saved.
 
 int save_game (char *savestr)
 {
@@ -71,10 +70,10 @@ int save_game (char *savestr)
 
 	print1 ("Saving Game....");
 
-	/* write the version number */
+	// write the version number
 	i = VERSION;
 	fwrite ((char *) &i, sizeof (int), 1, fd);
-	/* write game id to save file */
+	// write game id to save file
 
 	writeok &= save_player (fd);
 	writeok &= save_country (fd);
@@ -93,7 +92,7 @@ int save_game (char *savestr)
 	    if (current != Level)
 		writeok &= save_level (fd, current);
 	if (levelToSave)
-	    writeok &= save_level (fd, Level);	/* put current level last */
+	    writeok &= save_level (fd, Level);	// put current level last
 	fclose (fd);
 	if (writeok)
 	    print1 ("Game Saved.");
@@ -105,8 +104,8 @@ int save_game (char *savestr)
     return (writeok);
 }
 
-/* saves game on SIGHUP */
-/* no longer tries to compress, which hangs */
+// saves game on SIGHUP
+// no longer tries to compress, which hangs
 void signalsave (int sig UNUSED)
 {
     save_game ("omega.sav");
@@ -116,14 +115,14 @@ void signalsave (int sig UNUSED)
     exit (0);
 }
 
-/* also saves some globals like Level->depth... */
+// also saves some globals like Level->depth...
 
 static int save_player (FILE* fd)
 {
     int i;
     int ok = 1;
 
-    /* Save random global state information */
+    // Save random global state information
 
     Player.click = (Tick + 1) % 60;
     ok &= (fwrite ((char *) &Player, sizeof (Player), 1, fd) > 0);
@@ -175,7 +174,7 @@ static int save_player (FILE* fd)
     ok &= (fwrite ((char *) &ZapHour, sizeof (ZapHour), 1, fd) > 0);
     ok &= (fwrite ((char *) &RitualRoom, sizeof (RitualRoom), 1, fd) > 0);
 
-    /* stuff which used to be statics */
+    // stuff which used to be statics
     ok &= (fwrite ((char *) &twiddle, sizeof (twiddle), 1, fd) > 0);
     ok &= (fwrite ((char *) &saved, sizeof (saved), 1, fd) > 0);
     ok &= (fwrite ((char *) &onewithchaos, sizeof (onewithchaos), 1, fd) > 0);
@@ -191,7 +190,7 @@ static int save_player (FILE* fd)
     ok &= (fwrite ((char *) deepest, sizeof (int), E_MAX + 1, fd) > 0);
     ok &= (fwrite ((char *) level_seed, sizeof (int), E_MAX + 1, fd) > 0);
 
-    /* Save player possessions */
+    // Save player possessions
 
     if (Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND])
 	Player.possessions[O_READY_HAND] = NULL;
@@ -202,10 +201,10 @@ static int save_player (FILE* fd)
     for (i = 0; i < PAWNITEMS; i++)
 	ok &= save_item (fd, Pawnitems[i]);
 
-    /* Save items in condo vault */
+    // Save items in condo vault
     ok &= save_itemlist (fd, Condoitems);
 
-    /* Save player item knowledge */
+    // Save player item knowledge
     for (i = 0; i < TOTALITEMS; i++) {
 	ok &= (fwrite ((char *) &(Objects[i].known), sizeof (Objects[i].known), 1, fd) > 0);
 	ok &= (fwrite ((char *) &(Objects[i].uniqueness), sizeof (Objects[i].uniqueness), 1, fd) > 0);
@@ -213,7 +212,7 @@ static int save_player (FILE* fd)
     return ok;
 }
 
-/* Save whatever is pointed to by level */
+// Save whatever is pointed to by level
 static int save_level (FILE* fd, plv level)
 {
     unsigned i, j, run;
@@ -226,8 +225,8 @@ static int save_level (FILE* fd, plv level)
     ok &= (fwrite ((char *) &level->environment, sizeof (int), 1, fd) > 0);
     for (j = 0; j < MAXLENGTH; j++)
 	for (i = 0; i < MAXWIDTH; i++)
-	    if (level->site[i][j].lstatus & CHANGED) {	/* this loc has been changed */
-		for (run = i + 1; run < MAXWIDTH &&	/* find how many in a row */
+	    if (level->site[i][j].lstatus & CHANGED) {	// this loc has been changed
+		for (run = i + 1; run < MAXWIDTH &&	// find how many in a row
 		     level->site[run][j].lstatus & CHANGED; run++);
 		ok &= (fwrite ((char *) &i, sizeof (int), 1, fd) > 0);
 		ok &= (fwrite ((char *) &j, sizeof (int), 1, fd) > 0);
@@ -236,8 +235,8 @@ static int save_level (FILE* fd, plv level)
 		    ok &= (fwrite ((char *) &level->site[i][j], sizeof (struct location), 1, fd) > 0);
 	    }
     ok &= (fwrite ((char *) &i, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((char *) &j, sizeof (int), 1, fd) > 0);	/* signify end */
-    /* since we don't mark the 'seen' bits as CHANGED, need to save a bitmask */
+    ok &= (fwrite ((char *) &j, sizeof (int), 1, fd) > 0);	// signify end
+    // since we don't mark the 'seen' bits as CHANGED, need to save a bitmask
     run = 8 * sizeof (long int);
     mask = 0;
     for (j = 0; j < MAXLENGTH; j++)
@@ -263,7 +262,7 @@ static int save_level (FILE* fd, plv level)
 		ok &= save_itemlist (fd, level->site[i][j].things);
 	    }
     ok &= (fwrite ((char *) &i, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((char *) &j, sizeof (int), 1, fd) > 0);	/* signify end */
+    ok &= (fwrite ((char *) &j, sizeof (int), 1, fd) > 0);	// signify end
     return ok;
 }
 
@@ -274,14 +273,14 @@ static int save_monsters (FILE* fd, pml ml)
     int ok = 1;
     unsigned char type;
 
-    /* First count monsters */
+    // First count monsters
     for (tml = ml; tml != NULL; tml = tml->next)
 	if (tml->m->hp > 0)
 	    nummonsters++;
 
     ok &= (fwrite ((char *) &nummonsters, sizeof (int), 1, fd) > 0);
 
-    /* Now save monsters */
+    // Now save monsters
     for (tml = ml; tml != NULL; tml = tml->next) {
 	if (tml->m->hp > 0) {
 	    ok &= (fwrite ((char *) tml->m, sizeof (montype), 1, fd) > 0);
@@ -296,21 +295,21 @@ static int save_monsters (FILE* fd, pml ml)
 		    ok &= (fprintf (fd, "%s\n", tml->m->monstring) >= 0);
 		if (type & 2)
 		    ok &= (fprintf (fd, "%s\n", tml->m->corpsestr) >= 0);
-		/* WDT: line moved from here... */
+		// WDT: line moved from here...
 	    }
-	    /* else it'll be reloaded from the hiscore file on restore */
-	    /* WDT: to here.  This bug fix is Sheldon Simm's suggestion
-	     * to fix the well-known 'Star Gem' bug; it should allow the
-	     * possessions of hiscore NPCs to be restored from the savefile.
-	     * See also the complementary change in restore_monsters. */
+	    // else it'll be reloaded from the hiscore file on restore
+	    // WDT: to here.  This bug fix is Sheldon Simm's suggestion
+	    // to fix the well-known 'Star Gem' bug; it should allow the
+	    // possessions of hiscore NPCs to be restored from the savefile.
+	    // See also the complementary change in restore_monsters.
 	    ok &= save_itemlist (fd, tml->m->possessions);
 	}
     }
     return ok;
 }
 
-/* Save o unless it's null, then save a special flag byte instead */
-/* Use other values of flag byte to indicate what strings are saved */
+// Save o unless it's null, then save a special flag byte instead
+// Use other values of flag byte to indicate what strings are saved
 static int save_item (FILE* fd, pob o)
 {
     int ok = 1;
@@ -369,7 +368,7 @@ static int save_country (FILE* fd)
 	    }
     ok &= (fwrite ((char *) &i, sizeof (int), 1, fd) > 0);
     ok &= (fwrite ((char *) &j, sizeof (int), 1, fd) > 0);
-    /* since we don't mark the 'seen' bits as CHANGED, need to save a bitmask */
+    // since we don't mark the 'seen' bits as CHANGED, need to save a bitmask
     run = 8 * sizeof (long int);
     mask = 0;
     for (i = 0; i < MAXWIDTH; i++)
@@ -389,7 +388,7 @@ static int save_country (FILE* fd)
     return ok;
 }
 
-/* returns TRUE if the given version can be restored by this version */
+// returns TRUE if the given version can be restored by this version
 static int ok_outdated (int ver)
 {
     switch (ver) {
@@ -409,14 +408,13 @@ static int ok_outdated (int ver)
     }
 }
 
-/* read player data, city level, dungeon level,
-   check on validity of save file, etc.
-   return TRUE if game restored, FALSE otherwise */
-
+// read player data, city level, dungeon level,
+// check on validity of save file, etc.
+// return TRUE if game restored, FALSE otherwise
 int restore_game (char *savestr)
 {
     int i, ver;
-    if (access (savestr, F_OK | R_OK | W_OK) == -1) {	/* access uses real uid */
+    if (access (savestr, F_OK | R_OK | W_OK) == -1) {	// access uses real uid
 	print1 ("Unable to access save file: ");
 	nprint1 (savestr);
 	morewait ();
@@ -449,7 +447,7 @@ int restore_game (char *savestr)
 	}
 	restore_player (fd, ver);
 	restore_country (fd, ver);
-	restore_level (fd, ver);	/* the city level */
+	restore_level (fd, ver);	// the city level
 	fread ((char *) &i, sizeof (int), 1, fd);
 	for (; i > 0; i--) {
 	    restore_level (fd, ver);
@@ -460,7 +458,7 @@ int restore_game (char *savestr)
 	    if (Current_Environment == E_CITY)
 		Level = City;
 	}
-	/* this disgusting kludge because LENGTH and WIDTH are globals... */
+	// this disgusting kludge because LENGTH and WIDTH are globals...
 	WIDTH = 64;
 	switch (Current_Environment) {
 	    case E_COURT:
@@ -485,7 +483,7 @@ int restore_game (char *savestr)
 	}
 	fclose (fd);
 	print3 ("Restoration complete.");
-	ScreenOffset = -1000;	/* to force a redraw */
+	ScreenOffset = -1000;	// to force a redraw
 	setgamestatus (SKIP_MONSTERS);
 	return (TRUE);
     }
@@ -560,7 +558,7 @@ static void restore_player (FILE* fd, int ver)
     fread ((char *) &ZapHour, sizeof (ZapHour), 1, fd);
     fread ((char *) &RitualRoom, sizeof (RitualRoom), 1, fd);
 
-    /* stuff which used to be statics */
+    // stuff which used to be statics
     fread ((char *) &twiddle, sizeof (twiddle), 1, fd);
     fread ((char *) &saved, sizeof (saved), 1, fd);
     fread ((char *) &onewithchaos, sizeof (onewithchaos), 1, fd);
@@ -576,7 +574,7 @@ static void restore_player (FILE* fd, int ver)
     fread ((char *) deepest, sizeof (int), E_MAX + 1, fd);
     fread ((char *) level_seed, sizeof (int), E_MAX + 1, fd);
 
-    /* Set up the strings for the id's */
+    // Set up the strings for the id's
     inititem (FALSE);
 
     for (i = 0; i < MAXITEMS; i++)
@@ -597,8 +595,8 @@ static void restore_player (FILE* fd, int ver)
     }
 }
 
-/* Restore an item, the first byte tells us if it's NULL, and what strings */
-/* have been saved as different from the typical */
+// Restore an item, the first byte tells us if it's NULL, and what strings
+// have been saved as different from the typical
 static pob restore_item (FILE* fd, int ver UNUSED)
 {
     char tempstr[80];
@@ -736,7 +734,7 @@ static void restore_level (FILE* fd, int ver)
 	    print3 ("This dungeon not implemented!");
 	    break;
     }
-    if (Level->depth > 0) {	/* dungeon... */
+    if (Level->depth > 0) {	// dungeon...
 	install_traps ();
 	install_specials ();
 	make_stairs (-1);
@@ -892,13 +890,13 @@ static void restore_monsters (FILE* fd, plv level, int ver)
 		ml->m->corpsestr = salloc (tempstr);
 	    } else
 		ml->m->corpsestr = Monsters[ml->m->id].corpsestr;
-	    /* WDT: As suggested by Sheldon Simms, I'm moving this line... */
+	    // WDT: As suggested by Sheldon Simms, I'm moving this line...
 	    if (ver <= 80)
 		ml->m->possessions = restore_itemlist (fd, ver);
 	    ml->m->meleestr = Monsters[ml->m->id].meleestr;
 	}
-	/* WDT: ...to here, so that all creatures will have their stuff
-	 * restored to them.  Savefile versioning added by David Given. */
+	// WDT: ...to here, so that all creatures will have their stuff
+	// restored to them.  Savefile versioning added by David Given.
 	if (ver > 80)
 	    ml->m->possessions = restore_itemlist (fd, ver);
 	level->site[ml->m->x][ml->m->y].creature = ml->m;
@@ -934,4 +932,3 @@ static void restore_country (FILE* fd, int ver UNUSED)
 	    run--;
 	}
 }
-

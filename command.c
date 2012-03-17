@@ -41,7 +41,7 @@ static void frobgamestatus(void);
 
 //----------------------------------------------------------------------
 
-/* deal with a new player command in dungeon or city mode*/
+// deal with a new player command in dungeon or city mode
 void p_process (void)
 {
     static int searchval = 0;
@@ -68,38 +68,38 @@ void p_process (void)
 	    case ' ':
 	    case 13:
 		setgamestatus (SKIP_MONSTERS);
-		break;		/*no op on space or return */
+		break;		// no op on space or return
 	    case 6:
 		abortshadowform ();
-		break;		/* ^f */
+		break;		// ^f
 	    case 7:
 		wizard ();
-		break;		/* ^g */
+		break;		// ^g
 	    case 9:
 		display_pack ();
 		morewait ();
 		xredraw ();
-		break;		/* ^i */
+		break;		// ^i
 	    case 11:
 		if (gamestatusp (CHEATED))
 		    frobgamestatus ();
 	    case 12:
 		xredraw ();
 		setgamestatus (SKIP_MONSTERS);
-		break;		/* ^l */
+		break;		// ^l
 	    case 16:
 		bufferprint ();
 		setgamestatus (SKIP_MONSTERS);
-		break;		/* ^p */
+		break;		// ^p
 	    case 18:
 		redraw ();
 		setgamestatus (SKIP_MONSTERS);
-		break;		/* ^r */
+		break;		// ^r
 	    case 23:
 		if (gamestatusp (CHEATED))
 		    drawscreen ();
-		break;		/* ^w */
-	    case 24:		/* ^x */
+		break;		// ^w
+	    case 24:		// ^x
 		if (gamestatusp (CHEATED) || Player.rank[ADEPT])
 		    wish (1);
 		Command_Duration = 5;
@@ -210,7 +210,7 @@ void p_process (void)
 		break;
 	    case 'P':
 		show_license ();
-		break;		/* actually show_license is in file.c */
+		break;		// actually show_license is in file.c
 	    case 'Q':
 		quit ();
 		break;
@@ -298,7 +298,7 @@ void p_process (void)
 		Command_Duration = Player.speed * 5 / 5;
 		break;
 	    case '5':
-		setgamestatus (SKIP_MONSTERS);	/* don't do anything; a dummy turn */
+		setgamestatus (SKIP_MONSTERS);	// don't do anything; a dummy turn
 		Cmd = mgetc ();
 		while ((Cmd != ESCAPE) && ((Cmd < '1') || (Cmd > '9') || (Cmd == '5'))) {
 		    print3 ("Run in keypad direction [ESCAPE to abort]: ");
@@ -366,7 +366,7 @@ void p_process (void)
     screencheck (Player.y);
 }
 
-/* deal with a new player command in countryside mode */
+// deal with a new player command in countryside mode
 void p_country_process (void)
 {
     int no_op;
@@ -383,27 +383,27 @@ void p_country_process (void)
 		break;
 	    case 7:
 		wizard ();
-		break;		/* ^g */
+		break;		// ^g
 	    case 12:
 		xredraw ();
 		no_op = TRUE;
-		break;		/* ^l */
+		break;		// ^l
 	    case 16:
 		bufferprint ();
 		no_op = TRUE;
-		break;		/* ^p */
+		break;		// ^p
 	    case 18:
 		redraw ();
 		no_op = TRUE;
-		break;		/* ^r */
+		break;		// ^r
 	    case 23:
 		if (gamestatusp (CHEATED))
 		    drawscreen ();
-		break;		/* ^w */
+		break;		// ^w
 	    case 24:
 		if (gamestatusp (CHEATED) || Player.rank[ADEPT])
 		    wish (1);
-		break;		/* ^x */
+		break;		// ^x
 	    case 'd':
 		drop ();
 		break;
@@ -439,7 +439,7 @@ void p_country_process (void)
 		break;
 	    case 'P':
 		show_license ();
-		break;		/* actually show_license is in file.c */
+		break;		// actually show_license is in file.c
 	    case 'Q':
 		quit ();
 		break;
@@ -504,7 +504,7 @@ void p_country_process (void)
     screencheck (Player.y);
 }
 
-/* no op a turn.... */
+// no op a turn....
 static void rest (void)
 {
     if (random_range (20) == 1) {
@@ -544,7 +544,7 @@ static void rest (void)
     }
 }
 
-/* read a scroll, book, tome, etc. */
+// read a scroll, book, tome, etc.
 static void peruse (void)
 {
     int iidx;
@@ -655,7 +655,7 @@ static void eat (void)
     foodcheck ();
 }
 
-/* search all adjacent spots for secrecy */
+// search all adjacent spots for secrecy
 static void search (int *searchval)
 {
     int i;
@@ -672,7 +672,7 @@ static void search (int *searchval)
     }
 }
 
-/* pick up a thing where the player is */
+// pick up a thing where the player is
 void pickup (void)
 {
     if (Level->site[Player.x][Player.y].things == NULL)
@@ -713,7 +713,7 @@ void drop (void)
     calc_melee ();
 }
 
-/* talk to the animals -- learn their languages.... */
+// talk to the animals -- learn their languages....
 static void talk (void)
 {
     int dx, dy, iidx = 0;
@@ -768,7 +768,7 @@ static void talk (void)
     xredraw ();
 }
 
-/* try to deactivate a trap */
+// try to deactivate a trap
 static void disarm (void)
 {
     int x, y, iidx = 0;
@@ -851,7 +851,7 @@ static void disarm (void)
     }
 }
 
-/* is it more blessed to give, or receive? */
+// is it more blessed to give, or receive?
 static void give (void)
 {
     int iidx;
@@ -891,11 +891,11 @@ static void give (void)
 		print2 ("Given: ");
 		nprint2 (itemid (obj));
 		morewait ();
-		/* WDT bug fix: I moved the print above the givemonster
-		 * call.  If that turns out looking ugly, I should change it to
-		 * a sprintf or strcat.  At any rate, it was wrong before because
-		 * it was accessing an object which had already been freed as part
-		 * of givemonster. */
+		// WDT bug fix: I moved the print above the givemonster
+		// call.  If that turns out looking ugly, I should change it to
+		// a sprintf or strcat.  At any rate, it was wrong before because
+		// it was accessing an object which had already been freed as part
+		// of givemonster.
 		givemonster (m, obj);
 		calc_melee ();
 	    } else {
@@ -906,7 +906,7 @@ static void give (void)
     }
 }
 
-/* zap a wand, of course */
+// zap a wand, of course
 static void zapwand (void)
 {
     int iidx;
@@ -936,7 +936,7 @@ static void zapwand (void)
     }
 }
 
-/* cast a spell */
+// cast a spell
 static void magic (void)
 {
     int iidx, pwrdrain;
@@ -968,7 +968,7 @@ static void magic (void)
     dataprint ();
 }
 
-/* go upstairs ('<' command) */
+// go upstairs ('<' command)
 static void upstairs (void)
 {
     if (Level->site[Player.x][Player.y].locchar != STAIRS_UP)
@@ -991,7 +991,7 @@ static void upstairs (void)
     setgamestatus (SKIP_MONSTERS);
 }
 
-/* go downstairs ('>' command) */
+// go downstairs ('>' command)
 static void downstairs (void)
 {
     if (Level->site[Player.x][Player.y].locchar != STAIRS_DOWN)
@@ -1013,8 +1013,8 @@ static void downstairs (void)
     setgamestatus (SKIP_MONSTERS);
 }
 
-/* set various player options */
-/* have to redefine in odefs for next full recompile */
+// set various player options
+// have to redefine in odefs for next full recompile
 void setoptions (void)
 {
     int slot = 1, to, done = FALSE;
@@ -1036,7 +1036,7 @@ void setoptions (void)
 	    case '>':
 	    case KEY_DOWN:
 		to = slot + 1;
-		if (to == 8)	/* COMPRESS_OPTION */
+		if (to == 8)	// COMPRESS_OPTION
 		    to = 9;
 		slot = move_slot (slot, to, NUMOPTIONS + 1);
 		break;
@@ -1044,7 +1044,7 @@ void setoptions (void)
 	    case '<':
 	    case KEY_UP:
 		to = slot - 1;
-		if (to == 8)	/* COMPRESS_OPTION */
+		if (to == 8)	// COMPRESS_OPTION
 		    to = 7;
 		if (to > 0)
 		    slot = move_slot (slot, to, NUMOPTIONS + 1);
@@ -1112,7 +1112,7 @@ void setoptions (void)
     xredraw ();
 }
 
-/* name an item */
+// name an item
 static void callitem (void)
 {
     int iidx;
@@ -1140,7 +1140,7 @@ static void callitem (void)
     }
 }
 
-/* open a door */
+// open a door
 static void opendoor (void)
 {
     int dir;
@@ -1179,7 +1179,7 @@ static void opendoor (void)
     }
 }
 
-/* Try to destroy some location */
+// Try to destroy some location
 static void bash_location (void)
 {
     int dir;
@@ -1215,7 +1215,7 @@ static void bash_location (void)
 		Player.y = oy;
 		p_damage (3, UNSTOPPABLE, "silliness");
 		p_movefunction (Level->site[Player.x][Player.y].p_locf);
-		setgamestatus (SKIP_MONSTERS);	/* monsters are surprised... */
+		setgamestatus (SKIP_MONSTERS);	// monsters are surprised...
 	    } else if (Level->site[ox][oy].locchar == CLOSED_DOOR) {
 		if (loc_statusp (ox, oy, SECRET)) {
 		    print1 ("You found a secret door!");
@@ -1230,7 +1230,7 @@ static void bash_location (void)
 			Level->site[ox][oy].locchar = FLOOR;
 			lset (ox, oy, CHANGED);
 			p_movefunction (Level->site[Player.x][Player.y].p_locf);
-			setgamestatus (SKIP_MONSTERS);	/* monsters are surprised... */
+			setgamestatus (SKIP_MONSTERS);	// monsters are surprised...
 		    } else {
 			print1 ("Crash! The door holds.");
 			if (random_range (30) > Player.str)
@@ -1245,7 +1245,7 @@ static void bash_location (void)
 		    Level->site[ox][oy].locchar = OPEN_DOOR;
 		    lset (ox, oy, CHANGED);
 		    p_movefunction (Level->site[Player.x][Player.y].p_locf);
-		    setgamestatus (SKIP_MONSTERS);	/* monsters are surprised... */
+		    setgamestatus (SKIP_MONSTERS);	// monsters are surprised...
 		}
 	    } else if (Level->site[ox][oy].locchar == STATUE) {
 		statue_random (ox, oy);
@@ -1307,7 +1307,7 @@ static void bash_location (void)
     }
 }
 
-/* attempt destroy an item */
+// attempt destroy an item
 void bash_item (void)
 {
     int item;
@@ -1340,8 +1340,8 @@ void bash_item (void)
     }
 }
 
-/* guess what this does */
-/* if force is true, exiting due to some problem - don't bomb out */
+// guess what this does
+// if force is true, exiting due to some problem - don't bomb out
 void save (int compress, int force)
 {
     char fname[100];
@@ -1409,10 +1409,10 @@ void save (int compress, int force)
 	if (ynq2 () == 'y')
 	    save (compress, force);
     }
-    setgamestatus (SKIP_MONSTERS);	/* if we get here, we failed to save */
+    setgamestatus (SKIP_MONSTERS);	// if we get here, we failed to save
 }
 
-/* close a door */
+// close a door
 static void closedoor (void)
 {
     int dir;
@@ -1439,7 +1439,7 @@ static void closedoor (void)
     }
 }
 
-/* handle a h,j,k,l, etc. */
+// handle a h,j,k,l, etc.
 static void moveplayer (int dx, int dy)
 {
     if (p_moveable (Player.x + dx, Player.y + dy)) {
@@ -1463,8 +1463,8 @@ static void moveplayer (int dx, int dy)
 	    Player.y += dy;
 	    p_movefunction (Level->site[Player.x][Player.y].p_locf);
 
-	    /* causes moves to take effectively 30 seconds in town without
-	       monsters being sped up compared to player */
+	    // causes moves to take effectively 30 seconds in town without
+	    // monsters being sped up compared to player
 	    if ((Current_Environment == E_CITY) || (Current_Environment == E_VILLAGE)) {
 		twiddle = !twiddle;
 		if (twiddle) {
@@ -1476,9 +1476,8 @@ static void moveplayer (int dx, int dy)
 		}
 	    }
 
-	    /* this test protects against player entering countryside and still
-	       having effects from being on the Level, a kluge, but hey,... */
-
+	    // this test protects against player entering countryside and still
+	    // having effects from being on the Level, a kluge, but hey,...
 	    if (Current_Environment != E_COUNTRYSIDE) {
 		if (gamestatusp (FAST_MOVE))
 		    if ((Level->site[Player.x][Player.y].things != NULL) || (optionp (RUNSTOP) && loc_statusp (Player.x, Player.y, STOPS)))
@@ -1493,7 +1492,7 @@ static void moveplayer (int dx, int dy)
     }
 }
 
-/* handle a h,j,k,l, etc. */
+// handle a h,j,k,l, etc.
 static void movepincountry (int dx, int dy)
 {
     int i, takestime = TRUE;
@@ -1570,7 +1569,7 @@ static void movepincountry (int dx, int dy)
     }
 }
 
-/* look at some spot */
+// look at some spot
 static void examine (void)
 {
     pol ol;
@@ -1578,12 +1577,11 @@ static void examine (void)
 
     clearmsg ();
 
-    /* WDT HACK: I'm not sure I buy that one shouldn't be able to examine
-     * when one is blind.  However, the 'right' way to do it is certainly
-     * too difficult (I would expect to be able to examine only the items
-     * I actually recall).  So, for now I'll use David Given's compromise.
-     * 12/30/98
-     */
+    // WDT HACK: I'm not sure I buy that one shouldn't be able to examine
+    // when one is blind.  However, the 'right' way to do it is certainly
+    // too difficult (I would expect to be able to examine only the items
+    // I actually recall).  So, for now I'll use David Given's compromise.
+    // 12/30/98
     if (Player.status[BLINDED] > 0) {
 	mprint ("You're blind - you can't examine things.");
 	return;
@@ -1815,7 +1813,7 @@ static void fire (void)
 	print3 ("Can't fire money at something!");
     else if (cursed (Player.possessions[ii]) && Player.possessions[ii]->used)
 	print3 ("You can't seem to get rid of it!");
-    /* load a crossbow */
+    // load a crossbow
     else if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPONID + 27) && (Player.possessions[O_WEAPON_HAND]->aux != LOADED) && (Player.possessions[ii]->id == WEAPONID + 29)) {
 	mprint ("You crank back the crossbow and load a bolt.");
 	Player.possessions[O_WEAPON_HAND]->aux = LOADED;
@@ -1834,7 +1832,7 @@ static void fire (void)
 	    do_object_los (obj->objchar, &x1, &y1, x2, y2);
 	    if ((m = Level->site[x1][y1].creature) != NULL) {
 		if (obj->dmg == 0) {
-		    if (m->treasure > 0) {	/* the monster can have treasure/objects */
+		    if (m->treasure > 0) {	// the monster can have treasure/objects
 			mprint ("Your gift is caught!");
 			givemonster (m, split_item (1, obj));
 			conform_lost_objects (1, obj);
@@ -1851,7 +1849,7 @@ static void fire (void)
 		    p_drop_at (x1, y1, 1, obj);
 		    resetgamestatus (SUPPRESS_PRINTING);
 		    conform_lost_objects (1, obj);
-		} else if (hitp (Player.hit, m->ac)) {	/* ok already, hit the damn thing */
+		} else if (hitp (Player.hit, m->ac)) {	// ok already, hit the damn thing
 		    weapon_use (2 * statmod (Player.str), obj, m);
 		    if ((obj->id == WEAPONID + 28 || obj->id == WEAPONID + 29) && !random_range (4))
 			dispose_lost_objects (1, obj);
@@ -1894,8 +1892,7 @@ void quit (void)
 	resetgamestatus (SKIP_MONSTERS);
 }
 
-/* rest in 10 second segments so if woken up by monster won't
-die automatically.... */
+// rest in 10 second segments so if woken up by monster won't die automatically....
 static void nap (void)
 {
     static int naptime;
@@ -2078,7 +2075,7 @@ static void wizard (void)
     }
 }
 
-/* Jump, that is */
+// Jump, that is
 static void vault (void)
 {
     int x = Player.x, y = Player.y, jumper = 0;
@@ -2122,11 +2119,11 @@ static void vault (void)
     }
 }
 
-/* Sets sequence of combat maneuvers. */
+// Sets sequence of combat maneuvers.
 static void tacoptions (void)
 {
     int actionsleft, done, place;
-    char defatt, *attstr, *defstr;	/* for the default setting */
+    char defatt, *attstr, *defstr;	// for the default setting
     int draw_again = 1;
 
     setgamestatus (SKIP_MONSTERS);
@@ -2268,7 +2265,7 @@ static void tacoptions (void)
 		menuprint ("? for help, ! for default, backspace to start again,\n");
 		menuprint (" RETURN to save sequence\n\n");
 		for (place = 0; place < maneuvers (); place++)
-		    if (place & 1) {	/* every 2nd time around */
+		    if (place & 1) {	// every 2nd time around
 			Player.meleestr[place * 2] = 'B';
 			Player.meleestr[(place * 2) + 1] = 'C';
 			menuprint (defstr);
@@ -2289,13 +2286,13 @@ static void tacoptions (void)
 		done = TRUE;
 		break;
 	}
-	/*    if (actionsleft < 1) morewait(); */
+	//    if (actionsleft < 1) morewait();
     } while (!done);
     xredraw ();
     Player.meleestr[place] = 0;
 }
 
-/* Do the Artful Dodger trick */
+// Do the Artful Dodger trick
 static void pickpocket (void)
 {
     int dx, dy, ii = 0;

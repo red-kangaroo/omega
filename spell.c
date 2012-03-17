@@ -169,7 +169,7 @@ static void s_hero (void)
     hero (0);
 }
 
-/* spell takes longer and longer to work deeper into dungeon */
+// spell takes longer and longer to work deeper into dungeon
 static void s_return (void)
 {
     mprint ("You hear a whine as your spell begins to charge up.");
@@ -213,8 +213,7 @@ static void s_fear (void)
     inflict_fear (x, y);
 }
 
-/* Has all kinds of effects in different circumstances.
-   Eventually will be more interesting */
+// Has all kinds of effects in different circumstances. Eventually will be more interesting.
 static void s_ritual (void)
 {
     pob symbol;
@@ -251,7 +250,7 @@ static void s_ritual (void)
 	setgamestatus (SKIP_PLAYER);
 	time_clock (FALSE);
 	RitualHour = hour ();
-	/* set of random conditions for different ritual effects */
+	// set of random conditions for different ritual effects
 	if (Current_Environment == E_CITY) {
 	    mprint ("Flowing waves of mystical light congeal all around you.");
 	    mprint ("'Like wow, man! Colors!'");
@@ -263,7 +262,7 @@ static void s_ritual (void)
 	    else {
 		RitualRoom = roomno;
 		switch (RitualRoom) {
-		    case ROOMBASE + 9:	/* ransacked treasure chamber */
+		    case ROOMBASE + 9:	// ransacked treasure chamber
 			mprint ("Your spell sets off frenetic growth all around you!");
 			for (i = 0; i < 8; i++) {
 			    Level->site[Player.x + Dirs[0][i]][Player.y + Dirs[1][i]].locchar = HEDGE;
@@ -271,15 +270,15 @@ static void s_ritual (void)
 			    lset (Player.x + Dirs[0][i], Player.y + Dirs[1][i], CHANGED);
 			}
 			break;
-		    case ROOMBASE + 13:	/* harem */
-		    case ROOMBASE + 22:	/* boudoir */
+		    case ROOMBASE + 13:	// harem
+		    case ROOMBASE + 22:	// boudoir
 			mprint ("A secret panel opens next to the bed....");
 			if (random_range (2))
-			    summon (0, INCUBUS);	/* succubus/incubus */
+			    summon (0, INCUBUS);	// succubus/incubus
 			else
-			    summon (0, SATYR);	/* satyr/nymph */
+			    summon (0, SATYR);	// satyr/nymph
 			break;
-		    case ROOMBASE + 26:	/*shrine to high magic */
+		    case ROOMBASE + 26:	// shrine to high magic
 			mprint ("A storm of mana coaelesces around you.");
 			mprint ("You are buffeted by bursts of random magic.");
 			p_damage (random_range (Player.pow), UNSTOPPABLE, "high magic");
@@ -306,17 +305,17 @@ static void s_ritual (void)
 			}
 			lset (Player.x, Player.y, CHANGED);
 			break;
-		    case ROOMBASE + 27:	/* magician's lab */
+		    case ROOMBASE + 27:	// magician's lab
 			mprint ("Your magical activity sets off a latent spell in the lab!");
 			cast_spell (random_range (NUMSPELLS));
 			break;
-		    case ROOMBASE + 28:	/* pentagram room */
+		    case ROOMBASE + 28:	// pentagram room
 			mprint ("A smoky form begins to coalesce....");
 			summon (-1, -1);
 			mprint ("Fortunately, it seems confined to the pentagram.");
 			m_status_reset (Level->mlist->m, MOBILE);
 			break;
-		    case ROOMBASE + 29:	/* blue omega room */
+		    case ROOMBASE + 29:	// blue omega room
 			mprint ("The Lords of Destiny look upon you....");
 			if (Player.level > 10) {
 			    mprint ("A curtain of blue flames leaps up from the omega.");
@@ -421,7 +420,7 @@ static void s_polymorph (void)
     polymorph (0);
 }
 
-/* lball spell */
+// lball spell
 static void s_lball (void)
 {
     int x = Player.x, y = Player.y;
@@ -444,7 +443,7 @@ static void s_mondet (void)
     mondet (1);
 }
 
-/* select a spell to cast */
+// select a spell to cast
 int getspell (void)
 {
     int spell = ABORT - 1;
@@ -810,7 +809,7 @@ void cast_spell (int spell)
     }
 }
 
-static char *spell_names[] = {	/* alphabetical listing */
+static char *spell_names[] = {	// alphabetical listing
     "accuracy", "alertness", "apportation", "ball lightning", "blessing",
     "breathing", "clairvoyance", "curing", "desecration", "disintegrate",
     "dispelling", "disrupt", "enchantment", "energy drain", "fear", "firebolt",
@@ -821,7 +820,7 @@ static char *spell_names[] = {	/* alphabetical listing */
     "summoning", "teleport", "the warp", "true sight", "wishing"
 };
 
-static const int spell_ids[] = {	/* in the same order as spell_names[] */
+static const int spell_ids[] = {	// in the same order as spell_names[]
     S_ACCURACY, S_ALERT, S_APPORT, S_LBALL, S_BLESS, S_BREATHE, S_CLAIRVOYANCE,
     S_CURE, S_DESECRATE, S_DISINTEGRATE, S_DISPEL, S_DISRUPT, S_ENCHANT, S_DRAIN,
     S_FEAR, S_FIREBOLT, S_HASTE, S_HEAL, S_HELLFIRE, S_HERO, S_IDENTIFY,
@@ -919,7 +918,7 @@ static int spellparse (void)
 	    nprint2 (prefix + pos - 1);
 	    first = f;
 	    last = l;
-	    if (first == last && !found) {	/* unique name */
+	    if (first == last && !found) {	// unique name
 		found = 1;
 		nprint2 (spell_names[first] + pos);
 	    }

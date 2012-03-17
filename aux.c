@@ -19,7 +19,7 @@ static void default_maneuvers(void);
 
 //----------------------------------------------------------------------
 
-/* check to see if too much tunneling has been done in this level */
+// check to see if too much tunneling has been done in this level
 void tunnelcheck (void)
 {
     if ((Level->depth == 0 && Current_Environment != E_DLAIR) || Current_Environment == E_ASTRAL)
@@ -60,7 +60,7 @@ void tunnelcheck (void)
     }
 }
 
-/* displays a room's name */
+// displays a room's name
 void showroom (int i)
 {
     strcpy (Str1, "");
@@ -156,8 +156,8 @@ int player_on_sanctuary (void)
     }
 }
 
-/* check a move attempt, maybe attack something, return TRUE if ok to move. */
-/* x y is the proposed place to move to */
+// check a move attempt, maybe attack something, return TRUE if ok to move.
+// x y is the proposed place to move to
 int p_moveable (int x, int y)
 {
     setgamestatus (SKIP_MONSTERS);
@@ -194,7 +194,7 @@ int p_moveable (int x, int y)
     } else if (optionp (CONFIRM)) {
 	if ((Level->site[x][y].locchar == HEDGE) || (Level->site[x][y].locchar == LAVA) || (Level->site[x][y].locchar == FIRE) || (Level->site[x][y].locchar == WHIRLWIND) || (Level->site[x][y].locchar == ABYSS) || (Level->site[x][y].locchar == VOID_CHAR)
 	    || (Level->site[x][y].locchar == WATER) || (Level->site[x][y].locchar == RUBBLE) || (Level->site[x][y].locchar == LIFT) || (Level->site[x][y].locchar == TRAP)) {
-	    /* horses WILL go into water... */
+	    // horses WILL go into water...
 	    if (gamestatusp (MOUNTED)) {
 		if (Level->site[x][y].locchar != WATER || Level->site[x][y].p_locf != L_WATER) {
 		    print1 ("You can't convince your steed to continue.");
@@ -217,7 +217,7 @@ int p_moveable (int x, int y)
     }
 }
 
-/* check a move attempt in the countryside */
+// check a move attempt in the countryside
 int p_country_moveable (int x, int y)
 {
     if (!inbounds (x, y))
@@ -231,7 +231,7 @@ int p_country_moveable (int x, int y)
 	return (TRUE);
 }
 
-/* search once particular spot */
+// search once particular spot
 void searchat (int x, int y)
 {
     int i;
@@ -259,8 +259,8 @@ void searchat (int x, int y)
     }
 }
 
-/* This is to be called whenever anything might change player performance in
-   melee, such as changing weapon, statistics, etc. */
+// This is to be called whenever anything might change player performance in
+// melee, such as changing weapon, statistics, etc.
 void calc_melee (void)
 {
     calc_weight ();
@@ -310,21 +310,20 @@ void calc_melee (void)
 	Player.dmg += 10;
     }
 
-    /* weapon */
-    /* have to check for used since it could be a 2h weapon just carried
-       in one hand */
+    // weapon
+    // have to check for used since it could be a 2h weapon just carried in one hand
     if (Player.possessions[O_WEAPON_HAND] != NULL)
 	if (Player.possessions[O_WEAPON_HAND]->used && ((Player.possessions[O_WEAPON_HAND]->objchar == WEAPON) || (Player.possessions[O_WEAPON_HAND]->objchar == MISSILEWEAPON))) {
 	    Player.hit += Player.possessions[O_WEAPON_HAND]->hit + Player.possessions[O_WEAPON_HAND]->plus;
 	    Player.dmg += Player.possessions[O_WEAPON_HAND]->dmg + Player.possessions[O_WEAPON_HAND]->plus;
 	}
 
-    /* shield or defensive weapon */
+    // shield or defensive weapon
     if (Player.possessions[O_SHIELD] != NULL) {
 	Player.defense += Player.possessions[O_SHIELD]->aux + Player.possessions[O_SHIELD]->plus;
     }
 
-    /* armor */
+    // armor
     if (Player.possessions[O_ARMOR] != NULL) {
 	Player.absorption += Player.possessions[O_ARMOR]->dmg;
 	Player.defense += Player.possessions[O_ARMOR]->plus - Player.possessions[O_ARMOR]->aux;
@@ -337,7 +336,7 @@ void calc_melee (void)
     dataprint ();
 }
 
-/* player attacks monster m */
+// player attacks monster m
 void fight_monster (struct monster *m)
 {
     int hitmod = 0;
@@ -368,7 +367,7 @@ void fight_monster (struct monster *m)
 	    hitmod -= (Player.level / 2);
 
 	if (!m->attacked)
-	    Player.alignment -= 2;	/* chaotic action */
+	    Player.alignment -= 2;	// chaotic action
 	m_status_set (m, AWAKE);
 	m_status_set (m, HOSTILE);
 	m->attacked = TRUE;
@@ -378,10 +377,10 @@ void fight_monster (struct monster *m)
     }
 }
 
-/* Attempt to break an object o */
+// Attempt to break an object o
 int damage_item (pob o)
 {
-    /* special case -- break star gem */
+    // special case -- break star gem
     if (o->id == ARTIFACTID + 21) {
 	print1 ("The Star Gem shatters into a million glistening shards....");
 	if (Current_Environment == E_STARPEAK) {
@@ -406,11 +405,11 @@ int damage_item (pob o)
 	    print2 ("with a muted giggle.");
 	    dispose_lost_objects (1, o);
 	    Objects[o->id].uniqueness = UNIQUE_UNMADE;
-	    /* WDT HACK: the above is correct only if UNIQUE_UNMADE means that
-	     * the artifact hasn't been generated yet.  (Clearly, Omega is a
-	     * little buggy in that regard with respect to artifacts in general
-	     * -- it's almost trivial to force two identical artefacts to be
-	     * generated right now.) */
+	    // WDT HACK: the above is correct only if UNIQUE_UNMADE means that
+	    // the artifact hasn't been generated yet.  (Clearly, Omega is a
+	    // little buggy in that regard with respect to artifacts in general
+	    // -- it's almost trivial to force two identical artefacts to be
+	    // generated right now.)
 	}
 	return 1;
     } else {
@@ -425,7 +424,7 @@ int damage_item (pob o)
 		    nprint1 (" Fzzz... Out of Power... Oh well...");
 		else {
 		    nprint1 (" Ka-Blamm!!!");
-		    /* general case. Some sticks will eventually do special things */
+		    // general case. Some sticks will eventually do special things
 		    morewait ();
 		    manastorm (Player.x, Player.y, o->charge * o->level * 10);
 		    dispose_lost_objects (1, o);
@@ -467,7 +466,7 @@ int damage_item (pob o)
     }
 }
 
-/* do dmg points of damage of type dtype, from source fromstring */
+// do dmg points of damage of type dtype, from source fromstring
 void p_damage (int dmg, int dtype, char *fromstring)
 {
     if (!p_immune (dtype)) {
@@ -486,7 +485,7 @@ void p_damage (int dmg, int dtype, char *fromstring)
     dataprint ();
 }
 
-/* game over, you lose! */
+// game over, you lose!
 void p_death (char *fromstring)
 {
     Player.hp = -1;
@@ -497,7 +496,7 @@ void p_death (char *fromstring)
     exit (0);
 }
 
-/* move the cursor around, like for firing a wand, sets x and y to target */
+// move the cursor around, like for firing a wand, sets x and y to target
 void setspot (int *x, int *y)
 {
     char c = ' ';
@@ -552,7 +551,7 @@ void setspot (int *x, int *y)
     screencheck (Player.y);
 }
 
-/* get a direction: return index into Dirs array corresponding to direction */
+// get a direction: return index into Dirs array corresponding to direction
 int getdir (void)
 {
     while (1) {
@@ -598,7 +597,7 @@ int getdir (void)
     }
 }
 
-/* functions describes monster m's state for examine function */
+// functions describes monster m's state for examine function
 char *mstatus_string (struct monster *m)
 {
     if (m_statusp (m, M_INVISIBLE) && !Player.status[TRUESIGHT])
@@ -630,7 +629,7 @@ char *mstatus_string (struct monster *m)
     return (Str2);
 }
 
-/* for the examine function */
+// for the examine function
 void describe_player (void)
 {
     if (Player.hp < (Player.maxhp / 5))
@@ -652,13 +651,13 @@ void describe_player (void)
 	nprint1 (" (riding a horse.)");
 }
 
-/* access to player experience... */
-/* share out experience among guild memberships */
+// access to player experience...
+// share out experience among guild memberships
 void gain_experience (int amount)
 {
     int i, count = 0, share;
     Player.xp += (long) amount;
-    gain_level ();		/* actually, check to see if should gain level */
+    gain_level ();		// actually, check to see if should gain level
     for (i = 0; i < NUMRANKS; i++)
 	if (Player.guildxp[i] > 0)
 	    count++;
@@ -668,9 +667,9 @@ void gain_experience (int amount)
 	    Player.guildxp[i] += share;
 }
 
-/* try to hit a monster in an adjacent space. If there are none
-   return FALSE. Note if you're berserk you get to attack ALL
-   adjacent monsters! */
+// try to hit a monster in an adjacent space. If there are none
+// return FALSE. Note if you're berserk you get to attack ALL
+// adjacent monsters!
 int goberserk (void)
 {
     int wentberserk = FALSE, i;
@@ -687,7 +686,7 @@ int goberserk (void)
     return (wentberserk);
 }
 
-/* identifies a trap for examine() by its aux value */
+// identifies a trap for examine() by its aux value
 char *trapid (int trapno)
 {
     switch (trapno) {
@@ -722,7 +721,7 @@ char *trapid (int trapno)
     }
 }
 
-/* checks current food status of player, every hour, and when food is eaten */
+// checks current food status of player, every hour, and when food is eaten
 void foodcheck (void)
 {
     if (Player.food > 48) {
@@ -751,7 +750,7 @@ void foodcheck (void)
     showflags ();
 }
 
-/* see whether room should be illuminated */
+// see whether room should be illuminated
 void roomcheck (void)
 {
     static int oldroomno = -1;
@@ -771,7 +770,7 @@ void roomcheck (void)
     }
 }
 
-/* ask for mercy */
+// ask for mercy
 void surrender (struct monster *m)
 {
     int i;
@@ -825,7 +824,7 @@ void surrender (struct monster *m)
 	    nprint2 (".");
 	    morewait ();
 	    givemonster (m, Player.possessions[bestitem]);
-	    morewait ();	/* msgs come from givemonster */
+	    morewait ();	// msgs come from givemonster
 	    conform_unused_object (Player.possessions[bestitem]);
 	    Player.possessions[bestitem] = NULL;
 	}
@@ -854,7 +853,7 @@ void surrender (struct monster *m)
     dataprint ();
 }
 
-/* threaten a monster */
+// threaten a monster
 void threaten (struct monster *m)
 {
     char response;
@@ -913,7 +912,7 @@ void threaten (struct monster *m)
     }
 }
 
-/* name of the player's experience level */
+// name of the player's experience level
 char* levelname (int level)
 {
     switch (level) {
@@ -999,19 +998,19 @@ char* levelname (int level)
     return (Str3);
 }
 
-/* Player stats like str, agi, etc give modifications to various abilities
-   chances to do things, etc. Positive is good, negative bad. */
+// Player stats like str, agi, etc give modifications to various abilities
+// chances to do things, etc. Positive is good, negative bad.
 int statmod (int stat)
 {
     return ((stat - 10) / 2);
 }
 
-/* effects of hitting */
+// effects of hitting
 void p_hit (struct monster *m, int dmg, int dtype)
 {
     int dmult;
 
-    /* chance for critical hit..., 3/10 */
+    // chance for critical hit..., 3/10
     switch (random_range (10)) {
 	case 0:
 	    if (random_range (100) < Player.level) {
@@ -1066,10 +1065,10 @@ void p_hit (struct monster *m, int dmg, int dtype)
 	mprint ("It laughs at the injury and fights on!");
 }
 
-/* and effects of missing */
+// and effects of missing
 static void player_miss (struct monster *m, int dtype)
 {
-    if (random_range (30) == 1)	/* fumble 1 in 30 */
+    if (random_range (30) == 1)	// fumble 1 in 30
 	p_fumble (dtype);
     else {
 	if (Verbosity != TERSE) {
@@ -1100,7 +1099,7 @@ static void player_miss (struct monster *m, int dtype)
     }
 }
 
-/* oh nooooo, a fumble.... */
+// oh nooooo, a fumble....
 static void p_fumble (int dtype)
 {
     mprint ("Ooops! You fumbled....");
@@ -1125,7 +1124,7 @@ static void p_fumble (int dtype)
     }
 }
 
-/* try to drop a weapon (from fumbling) */
+// try to drop a weapon (from fumbling)
 static void drop_weapon (void)
 {
     if (Player.possessions[O_WEAPON_HAND] != NULL) {
@@ -1139,7 +1138,7 @@ static void drop_weapon (void)
 	mprint ("You feel fortunate.");
 }
 
-/* try to break a weapon (from fumbling) */
+// try to break a weapon (from fumbling)
 static void break_weapon (void)
 {
     if (Player.possessions[O_WEAPON_HAND] != NULL) {
@@ -1152,7 +1151,7 @@ static void break_weapon (void)
     }
 }
 
-/* hooray */
+// hooray
 void p_win (void)
 {
     morewait ();
@@ -1164,8 +1163,8 @@ void p_win (void)
     exit (0);
 }
 
-/* handle a h,j,k,l, etc., to change x and y by dx and dy */
-/* for targeting in dungeon */
+// handle a h,j,k,l, etc., to change x and y by dx and dy
+// for targeting in dungeon
 static void movecursor (int *x, int *y, int dx, int dy)
 {
     if (inbounds (*x + dx, *y + dy)) {
@@ -1176,15 +1175,15 @@ static void movecursor (int *x, int *y, int dx, int dy)
     omshowcursor (*x, *y);
 }
 
-/* is Player immune to damage type dtype */
+// is Player immune to damage type dtype
 int p_immune (int dtype)
 {
     return (Player.immunity[dtype] > 0);
 }
 
-/* deal with each possible stati -- values are per move */
-/* this function is executed every move */
-/* A value over 1000 indicates a permanent effect */
+// deal with each possible stati -- values are per move
+// this function is executed every move
+// A value over 1000 indicates a permanent effect
 void minute_status_check (void)
 {
     int i;
@@ -1277,10 +1276,10 @@ void minute_status_check (void)
 
 }
 
-/* effect of gamma ray radiation... */
+// effect of gamma ray radiation...
 void moon_check (void)
 {
-    /* 24 day lunar cycle */
+    // 24 day lunar cycle
     Phase = (Phase + 1) % 24;
     phaseprint ();
     Lunarity = 0;
@@ -1294,13 +1293,13 @@ void moon_check (void)
 
 }
 
-/* check 1/hour for torch to burn out if used */
+// check 1/hour for torch to burn out if used
 void torch_check (void)
 {
     int i;
     for (i = O_READY_HAND; i <= O_WEAPON_HAND; i++) {
 	if (Player.possessions[i] != NULL)
-	    if ((Player.possessions[i]->id == THINGID + 8) &&	/*torch */
+	    if ((Player.possessions[i]->id == THINGID + 8) &&	// torch
 		(Player.possessions[i]->aux > 0)) {
 		Player.possessions[i]->aux--;
 		if (Player.possessions[i]->aux == 0) {
@@ -1318,8 +1317,8 @@ void torch_check (void)
     }
 }
 
-/* values are in multiples of ten minutes */
-/* values over 1000 indicate a permanent effect */
+// values are in multiples of ten minutes
+// values over 1000 indicate a permanent effect
 void tenminute_status_check (void)
 {
     if ((Player.status[SHADOWFORM] > 0) && (Player.status[SHADOWFORM] < 1000)) {
@@ -1426,7 +1425,7 @@ void tenminute_status_check (void)
     dataprint ();
 }
 
-/* Increase in level at appropriate experience gain */
+// Increase in level at appropriate experience gain
 static void gain_level (void)
 {
     int gained = FALSE;
@@ -1443,17 +1442,17 @@ static void gain_level (void)
 	print2 ("You are now ");
 	nprint2 (getarticle (levelname (Player.level)));
 	nprint2 (levelname (Player.level));
-	hp_gain = random_range (Player.con) + 1;	/* start fix 12/30/98 */
+	hp_gain = random_range (Player.con) + 1;	// start fix 12/30/98
 	if (Player.hp < Player.maxhp)
 	    Player.hp += hp_gain * Player.hp / Player.maxhp;
 	else if (Player.hp < Player.maxhp + hp_gain)
 	    Player.hp = Player.maxhp + hp_gain;
-	/* else leave current hp alone */
+	// else leave current hp alone
 	Player.maxhp += hp_gain;
 	Player.maxmana = calcmana ();
-	/* If the character was given a bonus, let him keep it.  Otherwise
-	 * recharge him. */
-	Player.mana = max (Player.mana, Player.maxmana);	/* end fix 12/30/98 */
+	// If the character was given a bonus, let him keep it.  Otherwise
+	// recharge him.
+	Player.mana = max (Player.mana, Player.maxmana);	// end fix 12/30/98
 	morewait ();
     }
     if (gained)
@@ -1461,7 +1460,7 @@ static void gain_level (void)
     calc_melee ();
 }
 
-/* experience requirements */
+// experience requirements
 static long expval (int plevel)
 {
     switch (plevel) {
@@ -1492,7 +1491,7 @@ static long expval (int plevel)
     }
 }
 
-/* If an item is unidentified, it isn't worth much to those who would buy it */
+// If an item is unidentified, it isn't worth much to those who would buy it
 long item_value (pob item)
 {
     if (item->known == 0) {
@@ -1509,7 +1508,7 @@ long item_value (pob item)
 	return (true_item_value (item));
 }
 
-/* figures value based on item base-value, charge, plus, and blessing */
+// figures value based on item base-value, charge, plus, and blessing
 long true_item_value (pob item)
 {
     long value = item->basevalue;
@@ -1529,7 +1528,7 @@ long true_item_value (pob item)
     }
 }
 
-/* kill off player if he isn't got the "breathing" status */
+// kill off player if he isn't got the "breathing" status
 void p_drown (void)
 {
     int attempts = 3, i;
@@ -1590,10 +1589,10 @@ void p_drown (void)
     return;
 }
 
-/* the effect of some weapon on monster m, with dmgmod a bonus to damage */
+// the effect of some weapon on monster m, with dmgmod a bonus to damage
 void weapon_use (int dmgmod, pob weapon, struct monster *m)
 {
-    int aux = (weapon == NULL ? -2 : weapon->aux);	/* bare hands */
+    int aux = (weapon == NULL ? -2 : weapon->aux);	// bare hands
     switch (aux) {
 	case -2:
 	    weapon_bare_hands (dmgmod, m);
@@ -1644,7 +1643,7 @@ void weapon_use (int dmgmod, pob weapon, struct monster *m)
     }
 }
 
-/* for printing actions in printactions above */
+// for printing actions in printactions above
 char *actionlocstr (int dir)
 {
     switch (dir) {
@@ -1664,7 +1663,7 @@ char *actionlocstr (int dir)
     return (Str3);
 }
 
-/* execute player combat actions versus monster m */
+// execute player combat actions versus monster m
 static void tacplayer (struct monster *m)
 {
     for (unsigned i = 0; i < strlen (Player.meleestr); i += 2) {
@@ -1718,7 +1717,7 @@ static void tacplayer (struct monster *m)
     }
 }
 
-/* checks to see if player hits with hitmod vs. monster m at location hitloc */
+// checks to see if player hits with hitmod vs. monster m at location hitloc
 static int player_hit (int hitmod, int hitloc, struct monster *m)
 {
     int blocks = FALSE, goodblocks = 0, hit;
@@ -1756,10 +1755,9 @@ static int player_hit (int hitmod, int hitloc, struct monster *m)
     }
 }
 
-/* This function is used to undo all items temporarily, should
-always be used in pairs with on being TRUE and FALSE, and may cause
-anomalous stats and item-usage if used indiscriminately */
-
+// This function is used to undo all items temporarily, should
+// always be used in pairs with on being TRUE and FALSE, and may cause
+// anomalous stats and item-usage if used indiscriminately
 void toggle_item_use (int on)
 {
     static int used[MAXITEMS];
@@ -1824,14 +1822,14 @@ void enter_site (int site)
     }
 }
 
-/* Switches context dungeon/countryside/city, etc */
+// Switches context dungeon/countryside/city, etc
 void change_environment (int new_environment)
 {
     int i, emerging = FALSE;
 
     Player.sx = -1;
-    Player.sy = -1;		/* reset sanctuary if there was one */
-    resetgamestatus (LOST);	/* in case the player gets lost _on_ a site */
+    Player.sy = -1;		// reset sanctuary if there was one
+    resetgamestatus (LOST);	// in case the player gets lost _on_ a site
 
     resetgamestatus (FAST_MOVE);
 
@@ -2006,7 +2004,7 @@ void change_environment (int new_environment)
 	    WIDTH = 64;
 	    LENGTH = 16;
 	    if (!emerging) {
-		/* different villages per different locations */
+		// different villages per different locations
 		switch (Country[Player.x][Player.y].aux) {
 		    case 1:
 			Player.x = 0;
@@ -2204,7 +2202,7 @@ void change_environment (int new_environment)
 	terrain_check (FALSE);
 }
 
-/* check every ten minutes */
+// check every ten minutes
 void tenminute_check (void)
 {
     if (Time % 60 == 0)
@@ -2221,15 +2219,14 @@ void tenminute_check (void)
     }
 }
 
-/* hourly check is same as ten_minutely check except food is also
-   checked, and since time moves in hours out of doors, also
-   outdoors_random_event is possible */
-
+// hourly check is same as ten_minutely check except food is also
+// checked, and since time moves in hours out of doors, also
+// outdoors_random_event is possible
 void hourly_check (void)
 {
     Player.food--;
     foodcheck ();
-    if (hour () == 0) {		/* midnight, a new day */
+    if (hour () == 0) {		// midnight, a new day
 	moon_check ();
 	Date++;
     }
@@ -2303,7 +2300,7 @@ static void indoors_random_event (void)
 	    morewait ();
 	    ol = ((pol) checkmalloc (sizeof (oltype)));
 	    ol->thing = create_object (difficulty ());
-	    assert (ol->thing);	/* WDT I want to make sure... */
+	    assert (ol->thing);	// WDT I want to make sure...
 	    ol->next = Level->site[Player.x][Player.y].things;
 	    Level->site[Player.x][Player.y].things = ol;
 	    pickup ();
@@ -2578,8 +2575,8 @@ char getlocation (void)
     return (c - 'a' + 'A');
 }
 
-/* chance for player to resist magic somehow */
-/* hostile_magic ranges in power from 0 (weak) to 10 (strong) */
+// chance for player to resist magic somehow
+// hostile_magic ranges in power from 0 (weak) to 10 (strong)
 int magic_resist (int hostile_magic)
 {
     if ((Player.rank[COLLEGE] + Player.rank[CIRCLE] > 0) && (Player.level / 2 + random_range (20) > hostile_magic + random_range (20))) {
@@ -3016,7 +3013,7 @@ char *countryid (int terrain)
     return (Str1);
 }
 
-static char *sitenames[] = {	/* alphabetical listing */
+static char *sitenames[] = {	// alphabetical listing
     "alchemist", "arena", "armorer", "bank", "brothel", "casino", "castle",
     "city gates", "collegium magii", "condo", "department of public works",
     "diner", "explorers' club", "fast food", "gymnasium", "healer", "hospice",
@@ -3024,7 +3021,7 @@ static char *sitenames[] = {	/* alphabetical listing */
     "pawn shop", "sorcerors' guild ", "tavern", "temple", "thieves' guild"
 };
 
-static int sitenums[] = {	/* the order matches sitenames[] */
+static int sitenums[] = {	// the order matches sitenames[]
     L_ALCHEMIST, L_ARENA, L_ARMORER, L_BANK, L_BROTHEL, L_CASINO, L_CASTLE,
     L_COUNTRYSIDE, L_COLLEGE, L_CONDO, L_DPW, L_DINER, L_CLUB, L_COMMANDANT,
     L_GYM, L_HEALER, L_CHARITY, L_CRAP, L_LIBRARY, L_MERC_GUILD, L_ORACLE,
@@ -3110,7 +3107,7 @@ int parsecitysite (void)
 	    nprint2 (prefix + pos - 1);
 	    first = f;
 	    last = l;
-	    if (first == last && !found) {	/* unique name */
+	    if (first == last && !found) {	// unique name
 		found = 1;
 		nprint2 (sitenames[first] + pos);
 	    }
@@ -3125,7 +3122,7 @@ int parsecitysite (void)
     }
 }
 
-/* are there hostile monsters within 2 moves? */
+// are there hostile monsters within 2 moves?
 int hostilemonstersnear (void)
 {
     int i, j, hostile = FALSE;
@@ -3139,8 +3136,8 @@ int hostilemonstersnear (void)
     return (hostile);
 }
 
-/* random effects from some of stones in villages */
-/* if alignment of stone is alignment of player, gets done sooner */
+// random effects from some of stones in villages
+// if alignment of stone is alignment of player, gets done sooner
 int stonecheck (int alignment)
 {
     int *stone, match = FALSE, cycle = FALSE, i;
@@ -3338,7 +3335,7 @@ void alert_guards (void)
     pml ml;
     int suppress = 0;
     for (ml = Level->mlist; ml != NULL; ml = ml->next)
-	if (((ml->m->id == GUARD) || ((ml->m->id == HISCORE_NPC) && (ml->m->aux2 == 15))) &&	/*justiciar */
+	if (((ml->m->id == GUARD) || ((ml->m->id == HISCORE_NPC) && (ml->m->aux2 == 15))) &&	// justiciar
 	    (ml->m->hp > 0)) {
 	    foundguard = TRUE;
 	    m_status_set (ml->m, AWAKE);
@@ -3347,7 +3344,7 @@ void alert_guards (void)
     if (foundguard) {
 	mprint ("You hear a whistle and the sound of running feet!");
 	if (Current_Environment == E_CITY)
-	    Level->site[40][60].p_locf = L_NO_OP;	/* pacify_guards restores this */
+	    Level->site[40][60].p_locf = L_NO_OP;	// pacify_guards restores this
     }
     if ((!foundguard) && (Current_Environment == E_CITY) && !gamestatusp (DESTROYED_ORDER)) {
 	suppress = gamestatusp (SUPPRESS_PRINTING);
@@ -3388,7 +3385,7 @@ void alert_guards (void)
 	resetgamestatus (SUPPRESS_PRINTING);
 }
 
-/* can only occur when player is in city, so OK to use Level */
+// can only occur when player is in city, so OK to use Level
 static void destroy_order (void)
 {
     int i, j;
@@ -3434,7 +3431,7 @@ int maneuvers (void)
     return (m);
 }
 
-/* for when haste runs out, etc. */
+// for when haste runs out, etc.
 static void default_maneuvers (void)
 {
     int i;

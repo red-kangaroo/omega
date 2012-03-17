@@ -43,7 +43,7 @@ static void stationcheck(void);
 
 //----------------------------------------------------------------------
 
-/* various miscellaneous location functions */
+// various miscellaneous location functions
 static void l_water (void)
 {
     if (!gamestatusp (MOUNTED)) {
@@ -277,7 +277,7 @@ static void l_lift (void)
 	}
 	if (response == 'u' && Level->depth - levelnum < 1) {
 	    int lDepth = levelnum - Level->depth;
-	    change_environment (E_COUNTRYSIDE);	/* "you return to the countryside." */
+	    change_environment (E_COUNTRYSIDE);	// "you return to the countryside."
 	    if (lDepth > 0) {
 		nprint1 ("..");
 		print2 ("...and keep going up!  You hang in mid air...");
@@ -377,7 +377,7 @@ static void l_tactical_exit (void)
 	if (ynq1 () != 'y')
 	    return;
     }
-    /* Free up monsters and items, and the level */
+    // Free up monsters and items, and the level
     free_level (Level);
     Level = NULL;
     if ((Current_Environment == E_TEMPLE) || (Current_Environment == E_TACTICAL_MAP))
@@ -401,7 +401,7 @@ static void l_rubble (void)
     }
 }
 
-/* Drops all portcullises in 5 moves */
+// Drops all portcullises in 5 moves
 void l_portcullis_trap (void)
 {
     int i, j, slam = FALSE;
@@ -426,7 +426,7 @@ void l_portcullis_trap (void)
 	print3 ("You hear heavy walls slamming down!");
 }
 
-/* drops every portcullis on level, then kills itself and all similar traps. */
+// drops every portcullis on level, then kills itself and all similar traps.
 static void l_drop_every_portcullis (void)
 {
     int i, j, slam = FALSE;
@@ -686,11 +686,10 @@ static void stationcheck (void)
     }
 }
 
-/* To survive the void, the other four stations must be visited first,
-   to activate the void, then something (Death's scythe, possibly) 
-   must be thrown in to satiate the void, then all other items must
-   be dropped, then the void must be entered. */
-
+// To survive the void, the other four stations must be visited first,
+// to activate the void, then something (Death's scythe, possibly) 
+// must be thrown in to satiate the void, then all other items must
+// be dropped, then the void must be entered.
 static void l_void_station (void)
 {
     int i, something = FALSE;
@@ -739,7 +738,7 @@ static void l_void_station (void)
 		Player.rank[ADEPT] = 1;
 		setgamestatus (COMPLETED_CHALLENGE);
 		FixedPoints = calc_points ();
-		/* set so change_environment puts player in correct temple! */
+		// set so change_environment puts player in correct temple!
 		Player.x = 49;
 		Player.y = 59;
 		print2 ("You find yourself back in the Temple of Destiny.");
@@ -1160,11 +1159,11 @@ static void l_mindstone (void)
 
 void p_movefunction (int movef)
 {
-    /* loc functs above traps should be activated whether levitating or not */
+    // loc functs above traps should be activated whether levitating or not
     drawvision (Player.x, Player.y);
     sign_print (Player.x, Player.y, FALSE);
     if (Player.status[SHADOWFORM])
-	switch (movef) {	/* player in shadow form is unable to do most things */
+	switch (movef) {	// player in shadow form is unable to do most things
 	    case L_CHAOS:
 		l_chaos ();
 		break;
@@ -1255,11 +1254,10 @@ void p_movefunction (int movef)
 	    case L_VOID_STATION:
 		l_void_station ();
 		break;
-    } else if ((!Player.status[LEVITATING]) || gamestatusp (MOUNTED) || (Cmd == '@') ||	/* @ command activates all effects under player */
+    } else if ((!Player.status[LEVITATING]) || gamestatusp (MOUNTED) || (Cmd == '@') ||	// @ command activates all effects under player
 	       (movef < LEVITATION_AVOIDANCE)) {
 
-	switch (movef) {
-		/* miscellaneous */
+	switch (movef) { // miscellaneous
 	    case L_NO_OP:
 		l_no_op ();
 		break;
@@ -1359,7 +1357,7 @@ void p_movefunction (int movef)
 		l_trap_abyss ();
 		break;
 
-		/*door functions */
+		// door functions
 	    case L_BANK:
 		l_bank ();
 		break;
@@ -1505,7 +1503,7 @@ void p_movefunction (int movef)
 		l_mindstone ();
 		break;
 
-		/* challenge functions */
+		// challenge functions
 	    case L_ADEPT:
 		l_adept ();
 		break;
@@ -1544,14 +1542,14 @@ void p_movefunction (int movef)
     }
 }
 
-/* execute some move function for a monster */
+// execute some move function for a monster
 void m_movefunction (struct monster *m, int movef)
 {
-    /* loc functs above traps should be activated whether levitating or not */
+    // loc functs above traps should be activated whether levitating or not
     if (!m_statusp (m, FLYING) && !m_statusp (m, INTANGIBLE))
 	switch (movef) {
 
-		/* miscellaneous */
+		// miscellaneous
 	    case L_NO_OP:
 		m_no_op (m);
 		break;

@@ -12,7 +12,7 @@ static int spaceok(int i, int j, int baux);
 
 //----------------------------------------------------------------------
 
-/* x and y on level? */
+// x and y on level?
 int inbounds (int x, int y)
 {
     return ((x >= 0) && (y >= 0) && (x < WIDTH) && (y < LENGTH));
@@ -23,7 +23,7 @@ int random_range (int k)
     return (k == 0 ? 0 : rand() % (unsigned)k);
 }
 
-/* modify absolute y coord relative to which part of level we are on */
+// modify absolute y coord relative to which part of level we are on
 int screenmod (int y)
 {
     return (y - ScreenOffset);
@@ -34,7 +34,7 @@ int offscreen (int y)
     return ((y < 0) || (y < ScreenOffset) || (y > ScreenOffset + ScreenLength - 1) || (y > LENGTH));
 }
 
-/* always hit on a natural 0; never hit on a natural 19 */
+// always hit on a natural 0; never hit on a natural 19
 int hitp (int hit, int ac)
 {
     int roll = random_range (20);
@@ -46,13 +46,13 @@ int hitp (int hit, int ac)
 	return ((roll < (hit - ac)) ? TRUE : FALSE);
 }
 
-/* number of moves from x1,y1 to x2,y2 */
+// number of moves from x1,y1 to x2,y2
 int distance (int x1, int y1, int x2, int y2)
 {
     return (max (abs (x2 - x1), abs (y2 - y1)));
 }
 
-/* can you shoot, or move monsters through a spot? */
+// can you shoot, or move monsters through a spot?
 int unblocked (int x, int y)
 {
     if ((!inbounds (x, y)) || (Level->site[x][y].creature != NULL) || (Level->site[x][y].locchar == WALL) || (Level->site[x][y].locchar == PORTCULLIS) || (Level->site[x][y].locchar == STATUE) || (Level->site[x][y].locchar == HEDGE)
@@ -62,7 +62,7 @@ int unblocked (int x, int y)
 	return (TRUE);
 }
 
-/* do monsters want to move through a spot */
+// do monsters want to move through a spot
 int m_unblocked (struct monster *m, int x, int y)
 {
     if ((!inbounds (x, y)) || ((x == Player.x) && (y == Player.y)))
@@ -79,8 +79,8 @@ int m_unblocked (struct monster *m, int x, int y)
 		lset (x, y, CHANGED);
 	    } else
 		mprint ("You hear a door creak open, and then close again.");
-	    /* smart monsters would close secret doors behind them if the */
-	    /* player didn't see them using it */
+	    // smart monsters would close secret doors behind them if the
+	    // player didn't see them using it
 	    return (TRUE);
 	} else
 	    return (m_statusp (m, INTANGIBLE));
@@ -113,7 +113,7 @@ int m_unblocked (struct monster *m, int x, int y)
 	return (TRUE);
 }
 
-/* can you see through a spot? */
+// can you see through a spot?
 int view_unblocked (int x, int y)
 {
     if (!inbounds (x, y))
@@ -124,7 +124,7 @@ int view_unblocked (int x, int y)
 	return (TRUE);
 }
 
-/* 8 moves in Dirs */
+// 8 moves in Dirs
 void initdirs (void)
 {
     Dirs[0][0] = 1;
@@ -147,9 +147,9 @@ void initdirs (void)
     Dirs[1][8] = 0;
 }
 
-/* do_los moves pyx along a lineofsight from x1 to x2 */
-/* x1 and x2 are pointers because as a side effect they are changed */
-/* to the final location of the pyx */
+// do_los moves pyx along a lineofsight from x1 to x2
+// x1 and x2 are pointers because as a side effect they are changed
+// to the final location of the pyx
 void do_los (int pyx, int *x1, int *y1, int x2, int y2)
 {
     int dx, dy, ox, oy;
@@ -180,7 +180,7 @@ void do_los (int pyx, int *x1, int *y1, int x2, int y2)
 	step = abs (y2 - *y1);
 	delta = 2 * abs (x2 - *x1);
     }
-    if (major == -1)		/* x1,y2 already == x2,y2 */
+    if (major == -1)		// x1,y2 already == x2,y2
 	return;
     error = 0;
     do {
@@ -189,7 +189,7 @@ void do_los (int pyx, int *x1, int *y1, int x2, int y2)
 	*x1 += Dirs[0][major];
 	*y1 += Dirs[1][major];
 	error += delta;
-	if (error > step) {	/* don't need to check that minor >= 0 */
+	if (error > step) {	// don't need to check that minor >= 0
 	    *x1 += Dirs[0][minor];
 	    *y1 += Dirs[1][minor];
 	    error -= 2 * step;
@@ -210,8 +210,7 @@ void do_los (int pyx, int *x1, int *y1, int x2, int y2)
     levelrefresh ();
 }
 
-/* This is the same as do_los, except we stop before hitting nonliving
-obstructions */
+// This is the same as do_los, except we stop before hitting nonliving obstructions
 void do_object_los (int pyx, int *x1, int *y1, int x2, int y2)
 {
     int dx, dy, ox, oy;
@@ -242,7 +241,7 @@ void do_object_los (int pyx, int *x1, int *y1, int x2, int y2)
 	step = abs (y2 - *y1);
 	delta = 2 * abs (x2 - *x1);
     }
-    if (major == -1)		/* x1,y2 already == x2,y2 */
+    if (major == -1)		// x1,y2 already == x2,y2
 	return;
     error = 0;
     do {
@@ -251,7 +250,7 @@ void do_object_los (int pyx, int *x1, int *y1, int x2, int y2)
 	*x1 += Dirs[0][major];
 	*y1 += Dirs[1][major];
 	error += delta;
-	if (error > step) {	/* don't need to check that minor >= 0 */
+	if (error > step) {	// don't need to check that minor >= 0
 	    *x1 += Dirs[0][minor];
 	    *y1 += Dirs[1][minor];
 	    error -= 2 * step;
@@ -278,7 +277,7 @@ void do_object_los (int pyx, int *x1, int *y1, int x2, int y2)
     levelrefresh ();
 }
 
-/* los_p checks to see whether there is an unblocked los from x1,y1 to x2,y2 */
+// los_p checks to see whether there is an unblocked los from x1,y1 to x2,y2
 int los_p (int x1, int y1, int x2, int y2)
 {
     int dx, dy;
@@ -309,14 +308,14 @@ int los_p (int x1, int y1, int x2, int y2)
 	step = abs (y2 - y1);
 	delta = 2 * abs (x2 - x1);
     }
-    if (major == -1)		/* x1,y2 already == x2,y2 */
+    if (major == -1)		// x1,y2 already == x2,y2
 	return TRUE;
     error = 0;
     do {
 	x1 += Dirs[0][major];
 	y1 += Dirs[1][major];
 	error += delta;
-	if (error > step) {	/* don't need to check that minor >= 0 */
+	if (error > step) {	// don't need to check that minor >= 0
 	    x1 += Dirs[0][minor];
 	    y1 += Dirs[1][minor];
 	    error -= 2 * step;
@@ -332,7 +331,7 @@ int los_p (int x1, int y1, int x2, int y2)
     return ((x1 == x2) && (y1 == y2));
 }
 
-/* view_los_p sees through monsters */
+// view_los_p sees through monsters
 int view_los_p (int x1, int y1, int x2, int y2)
 {
     int dx, dy;
@@ -363,7 +362,7 @@ int view_los_p (int x1, int y1, int x2, int y2)
 	step = abs (y2 - y1);
 	delta = 2 * abs (x2 - x1);
     }
-    if (major == -1)		/* x1,y2 already == x2,y2 */
+    if (major == -1)		// x1,y2 already == x2,y2
 	return TRUE;
     error = 0;
     do {
@@ -438,19 +437,19 @@ long calc_points (void)
     return (points);
 }
 
-/* returns the 24 hour clock hour */
+// returns the 24 hour clock hour
 int hour (void)
 {
     return ((int) (((Time + 720) / 60) % 24));
 }
 
-/* returns 0, 10, 20, 30, 40, or 50 */
+// returns 0, 10, 20, 30, 40, or 50
 int showminute (void)
 {
     return ((int) ((Time % 60) / 10) * 10);
 }
 
-/* returns the 12 hour clock hour */
+// returns the 12 hour clock hour
 int showhour (void)
 {
     int showtime;
@@ -461,7 +460,7 @@ int showhour (void)
     return (showtime);
 }
 
-/* nighttime is defined from 9 PM to 6AM */
+// nighttime is defined from 9 PM to 6AM
 int nighttime (void)
 {
     return ((hour () > 20) || (hour () < 7));
@@ -532,10 +531,10 @@ char *month (void)
     }
 }
 
-/* WDT: code for the following two functions contributed by Sheldon 
- * Simms. */
-/* finds floor space on level with buildaux not equal to baux,
-sets x,y there. There must *be* floor space somewhere on level.... */
+// WDT: code for the following two functions contributed by Sheldon 
+// Simms.
+// finds floor space on level with buildaux not equal to baux,
+// sets x,y there. There must *be* floor space somewhere on level....
 static int spaceok (int i, int j, int baux)
 {
     return ((Level->site[i][j].locchar == FLOOR) && (Level->site[i][j].creature == NULL) && (!loc_statusp (i, j, SECRET)) && (Level->site[i][j].buildaux != baux));
@@ -599,7 +598,7 @@ int confirmation (void)
     return (ynq () == 'y');
 }
 
-/* is character c a member of string s */
+// is character c a member of string s
 int strmem (int c, char *s)
 {
     int i, found = FALSE;
@@ -624,7 +623,7 @@ void calc_weight (void)
     dataprint ();
 }
 
-/* returns true if its ok to get rid of a level */
+// returns true if its ok to get rid of a level
 int ok_to_free (plv level)
 {
     if (level == NULL)
@@ -656,7 +655,7 @@ static void free_mons_and_objs (pml mlist)
     }
 }
 
-/* Free up monsters and items on a level*/
+// Free up monsters and items on a level
 void free_level (plv level)
 {
     int i, j;
@@ -671,8 +670,8 @@ void free_level (plv level)
     free (level);
 }
 
-/* malloc function that checks its return value - if NULL, tries to free */
-/* some memory... */
+// malloc function that checks its return value - if NULL, tries to free
+// some memory...
 void *checkmalloc (unsigned int bytes)
 {
     void *ptr = malloc (bytes);
@@ -702,7 +701,7 @@ void *checkmalloc (unsigned int bytes)
     }
 }
 
-/* alloc just enough string space for str, strcpy, and return pointer */
+// alloc just enough string space for str, strcpy, and return pointer
 char *salloc (char *str)
 {
     char *s = checkmalloc ((unsigned) (strlen (str) + 1));
@@ -719,7 +718,7 @@ char cryptkey (char *fname)
     return (key & 0xff);
 }
 
-/* there are various ways for the player to receive one of these hints */
+// there are various ways for the player to receive one of these hints
 void hint (void)
 {
     switch (random_range (96)) {
@@ -1014,7 +1013,7 @@ void hint (void)
     }
 }
 
-/* for when a deity teaches spells to a devotee */
+// for when a deity teaches spells to a devotee
 void learnclericalspells (int deity, int level)
 {
     mprint ("With your new clerical rank comes knowledge of magic...");
@@ -1110,7 +1109,7 @@ void learnclericalspells (int deity, int level)
     }
 }
 
-/* for the use of the casino slot machine */
+// for the use of the casino slot machine
 char *slotstr (int num)
 {
     switch (num) {
@@ -1138,7 +1137,7 @@ char *slotstr (int num)
     return "Error - you should never see this...";
 }
 
-/* random names for various uses */
+// random names for various uses
 char *nameprint (void)
 {
     switch (random_range (40)) {
@@ -1266,7 +1265,7 @@ char *nameprint (void)
     return (Str3);
 }
 
-/* returns english string equivalent of number */
+// returns english string equivalent of number
 char *wordnum (int num)
 {
     switch (num) {

@@ -1,8 +1,8 @@
 #include "glob.h"
 
-/* various traps */
+// various traps
 
-/* note special function on different levels */
+// note special function on different levels
 void l_trap_siren (void)
 {
     pml ml;
@@ -25,7 +25,7 @@ void l_trap_siren (void)
 	print1 ("Nobody answers the alarm.");
     else {
 	if (Current_Environment == E_CIRCLE) {
-	    summon (-1, DEMON_PRINCE);	/* prime circle demon */
+	    summon (-1, DEMON_PRINCE);	// prime circle demon
 	    summon (-1, DEMON_PRINCE);
 	    summon (-1, DEMON_PRINCE);
 	}
