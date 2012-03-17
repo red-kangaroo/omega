@@ -1,5 +1,6 @@
 #pragma once
 #include "config.h"
+#include <curses.h>
 
 //--------------------------USER DEFINITIONS--------------------------
 
@@ -329,51 +330,82 @@
 #define SECRET 4
 #define STOPS 8
 #define CHANGED 16
-// room string id
-// for use in roomname()
-#define NUMROOMNAMES 30
-// normal room name indices start after the RS_ constants
-#define ROOMBASE 39
-#define RS_COURT 38
-#define RS_ZORCH 37
-#define RS_CIRCLE 36
-#define RS_MAGIC_ISLE 35
-#define RS_STARPEAK 34
-#define RS_VOLCANO 33
-#define RS_HIGHASTRAL 32
-#define RS_FIREPLANE 31
-#define RS_AIRPLANE 30
-#define RS_WATERPLANE 29
-#define RS_EARTHPLANE 28
-#define RS_LOWERASTRAL 27
-#define RS_CLOSET 26
-#define RS_SECRETPASSAGE 25
-#define RS_DININGROOM 24
-#define RS_BATHROOM 23
-#define RS_BEDROOM 22
-#define RS_KITCHEN 21
-#define RS_DROWNED_SEWER 20
-#define RS_DRAINED_SEWER 19
-#define RS_SEWER_DUCT 18
-#define RS_ARENA 17
-#define RS_COUNTRYSIDE 16
-#define RS_DRUID 15
-#define RS_HECATE 14
-#define RS_ATHENA 13
-#define RS_SET 12
-#define RS_ODIN 11
-#define RS_DESTINY 10
-#define RS_ADEPT 9
-#define RS_WYRM 8
-#define RS_OCEAN 7
-#define RS_PONDS 6
-#define RS_DRAGONLORD 5
-#define RS_GOBLINKING 4
-#define RS_CAVERN 3
-#define RS_CORRIDOR 2
-#define RS_WALLSPACE 1
 
-#include <curses.h>
+// room string id for use in roomname()
+enum ERoomName {
+    RS_EMPTY,
+    RS_WALLSPACE,
+    RS_CORRIDOR,
+    RS_CAVERN,
+    RS_GOBLINKING,
+    RS_DRAGONLORD,
+    RS_PONDS,
+    RS_OCEAN,
+    RS_WYRM,
+    RS_ADEPT,
+    RS_DESTINY,
+    RS_ODIN,
+    RS_SET,
+    RS_ATHENA,
+    RS_HECATE,
+    RS_DRUID,
+    RS_COUNTRYSIDE,
+    RS_ARENA,
+    RS_SEWER_DUCT,
+    RS_DRAINED_SEWER,
+    RS_DROWNED_SEWER,
+    RS_KITCHEN,
+    RS_BEDROOM,
+    RS_BATHROOM,
+    RS_DININGROOM,
+    RS_SECRETPASSAGE,
+    RS_CLOSET,
+    RS_LOWERASTRAL,
+    RS_EARTHPLANE,
+    RS_WATERPLANE,
+    RS_AIRPLANE,
+    RS_FIREPLANE,
+    RS_HIGHASTRAL,
+    RS_VOLCANO,
+    RS_STARPEAK,
+    RS_MAGIC_ISLE,
+    RS_CIRCLE,
+    RS_ZORCH,
+    RS_COURT,
+    RS_ROOMBASE,
+    RS_GARDEROBE = RS_ROOMBASE,
+    RS_DUNGEON_CELL,
+    RS_TILED_CHAMBER,
+    RS_CRYSTAL_CAVERN,
+    RS_MASTER_BEDROOM,
+    RS_STOREROOM,
+    RS_CHARRED_ROOM,
+    RS_MARBLE_HALL,
+    RS_EERIE_CAVE,
+    RS_TREASURE_CHAMBER,
+    RS_SMOKED_ROOM,
+    RS_APARTMENT,
+    RS_ANTECHAMBER,
+    RS_HAREM,
+    RS_MULTIPURPOSE,
+    RS_STALACTITES,
+    RS_GREENHOUSE,
+    RS_WATERCLOSET,
+    RS_STUDY,
+    RS_LIVING_ROOM,
+    RS_DEN,
+    RS_ABATOIR,
+    RS_BOUDOIR,
+    RS_STAR_CHAMBER,
+    RS_MANMADE_CAVERN,
+    RS_SEWER_CONTROL_ROOM,
+    RS_HIGH_MAGIC_SHRINE,
+    RS_MAGIC_LABORATORY,
+    RS_PENTAGRAM_ROOM,
+    RS_OMEGA_ROOM,
+    RS_ROOMLAST,
+    NUMROOMNAMES = RS_ROOMBASE-RS_ROOMLAST
+};
 
 #define COL_FG_BLINK A_BLINK
 

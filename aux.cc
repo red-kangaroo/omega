@@ -757,12 +757,13 @@ void roomcheck (void)
     static plv oldlevel = NULL;
     int roomno = Level->site[Player.x][Player.y].roomnumber;
 
-    if ((roomno == RS_CAVERN) || (roomno == RS_SEWER_DUCT) || (roomno == RS_KITCHEN) || (roomno == RS_BATHROOM) || (roomno == RS_BEDROOM) || (roomno == RS_DININGROOM) || (roomno == RS_CLOSET) || (roomno > ROOMBASE))
+    if ((roomno == RS_CAVERN) || (roomno == RS_SEWER_DUCT) || (roomno == RS_KITCHEN) || (roomno == RS_BATHROOM) || (roomno == RS_BEDROOM) || (roomno == RS_DININGROOM) || (roomno == RS_CLOSET) || (roomno > RS_ROOMBASE)) {
 	if ((!loc_statusp (Player.x, Player.y, LIT)) && (!Player.status[BLINDED]) && (Player.status[ILLUMINATION] || (difficulty() < 6))) {
 	    showroom (Level->site[Player.x][Player.y].roomnumber);
 	    spreadroomlight (Player.x, Player.y, roomno);
 	    levelrefresh();
 	}
+    }
     if ((oldroomno != roomno) || (oldlevel != Level)) {
 	showroom (roomno);
 	oldroomno = roomno;

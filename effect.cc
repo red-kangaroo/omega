@@ -2420,27 +2420,18 @@ void shadowform (void)
 void illuminate (int blessing)
 {
     int r = Level->site[Player.x][Player.y].roomnumber;
-    if (blessing > -1) {
-	if (r > ROOMBASE) {
-	    if (loc_statusp (Player.x, Player.y, LIT))
-		mprint ("A glow surrounds you.");
-	    else {
-		mprint ("The room lights up!");
-		Player.status[ILLUMINATION] += blessing + 3;
-		spreadroomlight (Player.x, Player.y, Level->site[Player.x][Player.y].roomnumber);
-	    }
-	} else
-	    mprint ("You see a faint glimmer of light which quickly fades.");
-    } else {
-	if (r > ROOMBASE) {
-	    if (!loc_statusp (Player.x, Player.y, LIT))
-		mprint ("Nothing much happens.");
-	    else {
-		mprint ("The room darkens!");
-		spreadroomdark (Player.x, Player.y, Level->site[Player.x][Player.y].roomnumber);
-	    }
-	} else
-	    mprint ("The gloom thickens for a moment.");
+    if (r < RS_ROOMBASE)
+	mprint (blessing >= 0 ? "You see a faint glimmer of light which quickly fades." : "The gloom thickens for a moment.");
+    else if (loc_statusp (Player.x, Player.y, LIT))
+	mprint (blessing >= 0 ? "A glow surrounds you." : "Nothing much happens.");
+    else {
+	mprint (blessing >= 0 ? "The room lights up!" : "The room darkens!");
+	if (blessing < 0)
+	    spreadroomdark (Player.x, Player.y, Level->site[Player.x][Player.y].roomnumber);
+	else {
+	    Player.status[ILLUMINATION] += blessing + 3;
+	    spreadroomlight (Player.x, Player.y, Level->site[Player.x][Player.y].roomnumber);
+	}
     }
 }
 

@@ -262,7 +262,7 @@ static void s_ritual (void)
 	    else {
 		RitualRoom = roomno;
 		switch (RitualRoom) {
-		    case ROOMBASE + 9:	// ransacked treasure chamber
+		    case RS_TREASURE_CHAMBER:
 			mprint ("Your spell sets off frenetic growth all around you!");
 			for (i = 0; i < 8; i++) {
 			    Level->site[Player.x + Dirs[0][i]][Player.y + Dirs[1][i]].locchar = HEDGE;
@@ -270,15 +270,12 @@ static void s_ritual (void)
 			    lset (Player.x + Dirs[0][i], Player.y + Dirs[1][i], CHANGED);
 			}
 			break;
-		    case ROOMBASE + 13:	// harem
-		    case ROOMBASE + 22:	// boudoir
+		    case RS_HAREM:
+		    case RS_BOUDOIR:
 			mprint ("A secret panel opens next to the bed....");
-			if (random_range (2))
-			    summon (0, INCUBUS);	// succubus/incubus
-			else
-			    summon (0, SATYR);	// satyr/nymph
+			summon (0, random_range(2) ? INCUBUS : SATYR);
 			break;
-		    case ROOMBASE + 26:	// shrine to high magic
+		    case RS_HIGH_MAGIC_SHRINE:
 			mprint ("A storm of mana coaelesces around you.");
 			mprint ("You are buffeted by bursts of random magic.");
 			p_damage (random_range (Player.pow), UNSTOPPABLE, "high magic");
@@ -289,15 +286,15 @@ static void s_ritual (void)
 			    mprint ("The mana fades away to nothingness.");
 			x = Player.x;
 			y = Player.y;
-			while (x >= 0 && Level->site[x - 1][y].roomnumber == ROOMBASE + 26)
+			while (x >= 0 && Level->site[x - 1][y].roomnumber == RS_HIGH_MAGIC_SHRINE)
 			    x--;
-			while (y >= 0 && Level->site[x][y - 1].roomnumber == ROOMBASE + 26)
+			while (y >= 0 && Level->site[x][y - 1].roomnumber == RS_HIGH_MAGIC_SHRINE)
 			    y--;
-			for (i = 0; Level->site[x][y].roomnumber == ROOMBASE + 26;) {
+			for (i = 0; Level->site[x][y].roomnumber == RS_HIGH_MAGIC_SHRINE;) {
 			    Level->site[x][y].roomnumber = RS_ZORCH;
 			    x++;
 			    i++;
-			    if (Level->site[x][y].roomnumber != ROOMBASE + 26) {
+			    if (Level->site[x][y].roomnumber != RS_HIGH_MAGIC_SHRINE) {
 				x -= i;
 				i = 0;
 				y++;
@@ -305,17 +302,17 @@ static void s_ritual (void)
 			}
 			lset (Player.x, Player.y, CHANGED);
 			break;
-		    case ROOMBASE + 27:	// magician's lab
+		    case RS_MAGIC_LABORATORY:
 			mprint ("Your magical activity sets off a latent spell in the lab!");
 			cast_spell (random_range (NUMSPELLS));
 			break;
-		    case ROOMBASE + 28:	// pentagram room
+		    case RS_PENTAGRAM_ROOM:
 			mprint ("A smoky form begins to coalesce....");
 			summon (-1, -1);
 			mprint ("Fortunately, it seems confined to the pentagram.");
 			m_status_reset (Level->mlist->m, MOBILE);
 			break;
-		    case ROOMBASE + 29:	// blue omega room
+		    case RS_OMEGA_ROOM:
 			mprint ("The Lords of Destiny look upon you....");
 			if (Player.level > 10) {
 			    mprint ("A curtain of blue flames leaps up from the omega.");

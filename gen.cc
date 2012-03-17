@@ -330,94 +330,95 @@ const char* roomname (int ri)
 	case RS_WALLSPACE:
 	    strcpy (Str4, "A niche hollowed out of the wall.");
 	    break;
-	case ROOMBASE + 0:
+
+	case RS_GARDEROBE:
 	    strcpy (Str4, "An abandoned garderobe.");
 	    break;
-	case ROOMBASE + 1:
+	case RS_DUNGEON_CELL:
 	    strcpy (Str4, "A dungeon cell.");
 	    break;
-	case ROOMBASE + 2:
+	case RS_TILED_CHAMBER:
 	    strcpy (Str4, "A tiled chamber.");
 	    break;
-	case ROOMBASE + 3:
+	case RS_CRYSTAL_CAVERN:
 	    strcpy (Str4, "A crystal cavern.");
 	    break;
-	case ROOMBASE + 4:
+	case RS_MASTER_BEDROOM:
 	    strcpy (Str4, "Someone's bedroom.");
 	    break;
-	case ROOMBASE + 5:
+	case RS_STOREROOM:
 	    strcpy (Str4, "An old storeroom.");
 	    break;
-	case ROOMBASE + 6:
+	case RS_CHARRED_ROOM:
 	    strcpy (Str4, "A room with charred walls.");
 	    break;
-	case ROOMBASE + 7:
+	case RS_MARBLE_HALL:
 	    strcpy (Str4, "A marble hall.");
 	    break;
-	case ROOMBASE + 8:
+	case RS_EERIE_CAVE:
 	    strcpy (Str4, "An eerie cave.");
 	    break;
-	case ROOMBASE + 9:
+	case RS_TREASURE_CHAMBER:
 	    strcpy (Str4, "A ransacked treasure-chamber.");
 	    break;
-	case ROOMBASE + 10:
+	case RS_SMOKED_ROOM:
 	    strcpy (Str4, "A smoke-filled room.");
 	    break;
-	case ROOMBASE + 11:
+	case RS_APARTMENT:
 	    strcpy (Str4, "A well-appointed apartment.");
 	    break;
-	case ROOMBASE + 12:
+	case RS_ANTECHAMBER:
 	    strcpy (Str4, "An antechamber.");
 	    break;
-	case ROOMBASE + 13:
+	case RS_HAREM:
 	    strcpy (Str4, "An unoccupied harem.");
 	    break;
-	case ROOMBASE + 14:
+	case RS_MULTIPURPOSE:
 	    strcpy (Str4, "A multi-purpose room.");
 	    break;
-	case ROOMBASE + 15:
+	case RS_STALACTITES:
 	    strcpy (Str4, "A room filled with stalactites.");
 	    break;
-	case ROOMBASE + 16:
+	case RS_GREENHOUSE:
 	    strcpy (Str4, "An underground greenhouse.");
 	    break;
-	case ROOMBASE + 17:
+	case RS_WATERCLOSET:
 	    strcpy (Str4, "A water closet.");
 	    break;
-	case ROOMBASE + 18:
+	case RS_STUDY:
 	    strcpy (Str4, "A study.");
 	    break;
-	case ROOMBASE + 19:
+	case RS_LIVING_ROOM:
 	    strcpy (Str4, "A living room.");
 	    break;
-	case ROOMBASE + 20:
+	case RS_DEN:
 	    strcpy (Str4, "A comfortable den.");
 	    break;
-	case ROOMBASE + 21:
+	case RS_ABATOIR:
 	    strcpy (Str4, "An abatoir.");
 	    break;
-	case ROOMBASE + 22:
+	case RS_BOUDOIR:
 	    strcpy (Str4, "A boudoir.");
 	    break;
-	case ROOMBASE + 23:
+	case RS_STAR_CHAMBER:
 	    strcpy (Str4, "A star chamber.");
 	    break;
-	case ROOMBASE + 24:
+	case RS_MANMADE_CAVERN:
 	    strcpy (Str4, "A manmade cavern.");
 	    break;
-	case ROOMBASE + 25:
+	case RS_SEWER_CONTROL_ROOM:
 	    strcpy (Str4, "A sewer control room");
 	    break;
-	case ROOMBASE + 26:
+	case RS_HIGH_MAGIC_SHRINE:
 	    strcpy (Str4, "A shrine to High Magic");
 	    break;
-	case ROOMBASE + 27:
+	case RS_MAGIC_LABORATORY:
 	    strcpy (Str4, "A magic laboratory");
 	    break;
-	case ROOMBASE + 28:
+	case RS_PENTAGRAM_ROOM:
 	    strcpy (Str4, "A room with inscribed pentagram");
 	    break;
-	case ROOMBASE + 29:
+	case RS_OMEGA_ROOM:
 	    strcpy (Str4, "A chamber with a blue crystal omega dais");
 	    break;
 	default:
@@ -861,7 +862,6 @@ static void make_swamp (void)
 void room_level (void)
 {
     int i, fx, fy, tx, ty, t, l, e;
-    char rsi;
 
     Level->numrooms = random_range (8) + 9;
 
@@ -870,13 +870,9 @@ void room_level (void)
 	l = random_range (WIDTH - 10) + 1;
 	e = 4 + random_range (5);
     } while ((Level->site[l][t].roomnumber != RS_WALLSPACE) || (Level->site[l + e][t].roomnumber != RS_WALLSPACE) || (Level->site[l][t + e].roomnumber != RS_WALLSPACE) || (Level->site[l + e][t + e].roomnumber != RS_WALLSPACE));
-    if (Current_Dungeon == E_SEWERS) {
-	if (random_range (2))
-	    rsi = ROOMBASE + 25;
-	else
-	    rsi = ROOMBASE + random_range (NUMROOMNAMES);
-    } else
-	rsi = ROOMBASE + random_range (NUMROOMNAMES);
+    char rsi = RS_ROOMBASE + random_range (NUMROOMNAMES);
+    if (Current_Dungeon == E_SEWERS && random_range (2))
+	rsi = RS_SEWER_CONTROL_ROOM;
     build_room (l, t, e, rsi, 1);
 
     for (i = 2; i <= Level->numrooms; i++) {
@@ -885,13 +881,9 @@ void room_level (void)
 	    l = random_range (WIDTH - 10) + 1;
 	    e = 4 + random_range (5);
 	} while ((Level->site[l][t].roomnumber != RS_WALLSPACE) || (Level->site[l + e][t].roomnumber != RS_WALLSPACE) || (Level->site[l][t + e].roomnumber != RS_WALLSPACE) || (Level->site[l + e][t + e].roomnumber != RS_WALLSPACE));
-	if (Current_Dungeon == E_SEWERS) {
-	    if (random_range (2))
-		rsi = ROOMBASE + 25;
-	    else
-		rsi = ROOMBASE + random_range (NUMROOMNAMES);
-	} else
-	    rsi = ROOMBASE + random_range (NUMROOMNAMES);
+	rsi = RS_ROOMBASE + random_range (NUMROOMNAMES);
+	if (Current_Dungeon == E_SEWERS && random_range (2))
+	    rsi = RS_SEWER_CONTROL_ROOM;
 	build_room (l, t, e, rsi, i);
 
 	// corridor which is guaranteed to connect
