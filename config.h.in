@@ -9,3 +9,16 @@
 #define @PKG_UNAME@_VERSTRING	"@PKG_VERSTR@"
 // Define to the address where bug reports for this package should be sent.
 #define @PKG_UNAME@_BUGREPORT	"@PKG_BUGREPORT@"
+
+// Location of the game data files
+#define OMEGALIB		"./lib/"
+
+// Define to 1 if using ucc
+#define HAVE_STL_H 1
+
+#if HAVE_STL_H
+    #include <stl.h>
+#endif
+#if UC_VERSION < 0x100
+    #error "ucc version 1.0 or later required to compile this package"
+#endif

@@ -61,7 +61,7 @@ int save_game (const char* savestr)
 	print1 ("Saving Game....");
 
 	// write the version number
-	i = VERSION;
+	i = OMEGA_VERSION;
 	fwrite ((const char*) &i, sizeof (int), 1, fd);
 	// write game id to save file
 
@@ -424,7 +424,7 @@ int restore_game (const char* savestr)
 
 	fread ((char*) &ver, sizeof (int), 1, fd);
 
-	if (VERSION != ver && !ok_outdated (ver)) {
+	if (OMEGA_VERSION != ver && !ok_outdated (ver)) {
 	    fclose (fd);
 	    clearmsg();
 	    mprint (" Sorry, I can't restore an outdated save file!");

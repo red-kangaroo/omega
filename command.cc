@@ -1789,7 +1789,7 @@ static void help (void)
 static void version (void)
 {
     setgamestatus (SKIP_MONSTERS);
-    print3 (VERSIONSTRING);
+    print3 (OMEGA_NAME " " OMEGA_VERSTRING);
 }
 
 static void fire (void)

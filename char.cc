@@ -47,7 +47,7 @@ void initplayer (void)
     if ((fd = omegarc_check()) != NULL) {
 	int i;
 	fread ((char*) &i, sizeof (int), 1, fd);
-	if (i != VERSION) {
+	if (i != OMEGA_VERSION) {
 	    print1 ("Out of date .omegarc! Make another!");
 	    morewait();
 	} else {
@@ -112,7 +112,7 @@ static void initstats (void)
 
 static void save_omegarc (void)
 {
-    int i = VERSION;
+    int i = OMEGA_VERSION;
     FILE *fd;
     sprintf (Str1, "%s/.omegarc", getenv ("HOME"));
     fd = fopen (Str1, "w");

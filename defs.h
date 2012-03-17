@@ -2,28 +2,6 @@
 #include "config.h"
 #include <curses.h>
 
-//--------------------------USER DEFINITIONS--------------------------
-
-// OMEGALIB is where all the data files reside. 
-// Note the final / is necessary.
-// msdos note: \ is the C string escape character, so you need \\ in the
-// path given in OMEGALIB
-// This might usually be "/usr/games/lib/omegalib/", for unix,
-// or something like "c:\\games\\omega\\omegalib\\" for msdos
-
-#define OMEGALIB "./lib/"
-
-// set WIZARD to maintainers's username
-
-#define WIZARD "wtanksle"
-
-//---------------------------SYSTEM DEFINITIONS---------------------------
-
-// Don't change anything from here on (unless you know what you're doing)
-#define VERSION 90
-#define VERSIONSTRING "omega version 0.90"
-
-#define SYSV 1
 #define VACANT 0
 #define ABORT -1
 #define CASHVALUE -2
