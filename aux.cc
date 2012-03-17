@@ -1300,8 +1300,7 @@ void torch_check (void)
     int i;
     for (i = O_READY_HAND; i <= O_WEAPON_HAND; i++) {
 	if (Player.possessions[i] != NULL)
-	    if ((Player.possessions[i]->id == THINGID + 8) &&	// torch
-		(Player.possessions[i]->aux > 0)) {
+	    if ((Player.possessions[i]->id == THING_TORCH) && (Player.possessions[i]->aux > 0)) {
 		Player.possessions[i]->aux--;
 		if (Player.possessions[i]->aux == 0) {
 		    mprint ("Your torch goes out!!!");

@@ -42,7 +42,7 @@ void load_arena (void)
     FILE *fd;
 
     pob openerBox = (pob) checkmalloc (sizeof (objtype));
-    *openerBox = Objects[THINGID + 0];
+    *openerBox = Objects[THING_DOOR_OPENER];
 
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
@@ -2162,7 +2162,7 @@ void l_thieves_guild (void)
     if (!nighttime())
 	print2 ("There aren't any thieves around in the daytime.");
     else {
-	if ((Player.rank[THIEVES] == TMASTER) && (Player.level > Shadowlordlevel) && find_and_remove_item (THINGID + 16, -1)) {
+	if ((Player.rank[THIEVES] == TMASTER) && (Player.level > Shadowlordlevel) && find_and_remove_item (THING_JUSTICIAR_BADGE, -1)) {
 	    print2 ("You nicked the Justiciar's Badge!");
 	    morewait();
 	    print1 ("The Badge is put in a place of honor in the Guild Hall.");
@@ -2229,7 +2229,7 @@ void l_thieves_guild (void)
 			    morewait();
 			    Spells[S_OBJ_DET].known = TRUE;
 			    lockpick = ((pob) checkmalloc (sizeof (objtype)));
-			    *lockpick = Objects[THINGID + 2];	// lock pick
+			    *lockpick = Objects[THING_LOCKPICK];
 			    gain_item (lockpick);
 			    Player.cash -= dues;
 			    dataprint();
@@ -4340,7 +4340,7 @@ void l_club (void)
 		hinthour = hour();
 	    }
 	} else if (response == 's') {
-	    buyfromstock (THINGID + 7, 2);
+	    buyfromstock (THING_KEY, 2);
 	    xredraw();
 	} else if (response == ESCAPE)
 	    print2 ("Be seeing you, old chap!");
@@ -5570,7 +5570,7 @@ void l_trifid (void)
 	damage += Level->depth / 2 + 1;
 	print2 ("Razor-edged vines covered in suckers attach themselves to you.");
 	morewait();
-	if (find_and_remove_item (THINGID + 6, -1)) {
+	if (find_and_remove_item (THING_SALT_WATER, -1)) {
 	    print1 ("Thinking fast, you toss salt water on the trifid...");
 	    print2 ("The trifid disintegrates with a frustrated sigh.");
 	    Level->site[Player.x][Player.y].locchar = FLOOR;

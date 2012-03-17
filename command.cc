@@ -796,31 +796,31 @@ static void disarm (void)
 		    o = ((pob) checkmalloc (sizeof (objtype)));
 		    switch (Level->site[x][y].p_locf) {
 			case L_TRAP_DART:
-			    *o = Objects[THINGID + 17];
-			    break;
-			case L_TRAP_DISINTEGRATE:
-			    *o = Objects[THINGID + 23];
-			    break;
-			case L_TRAP_SLEEP_GAS:
-			    *o = Objects[THINGID + 22];
-			    break;
-			case L_TRAP_TELEPORT:
-			    *o = Objects[THINGID + 21];
-			    break;
-			case L_TRAP_ABYSS:
-			    *o = Objects[THINGID + 24];
-			    break;
-			case L_TRAP_FIRE:
-			    *o = Objects[THINGID + 20];
-			    break;
-			case L_TRAP_SNARE:
-			    *o = Objects[THINGID + 19];
+			    *o = Objects[THING_DART_TRAP_COMPONENT];
 			    break;
 			case L_TRAP_ACID:
-			    *o = Objects[THINGID + 18];
+			    *o = Objects[THING_ACID_TRAP_COMPONENT];
+			    break;
+			case L_TRAP_SNARE:
+			    *o = Objects[THING_SNARE_TRAP_COMPONENT];
+			    break;
+			case L_TRAP_FIRE:
+			    *o = Objects[THING_FIRE_TRAP_COMPONENT];
+			    break;
+			case L_TRAP_TELEPORT:
+			    *o = Objects[THING_TELEPORT_TRAP_COMPONENT];
+			    break;
+			case L_TRAP_SLEEP_GAS:
+			    *o = Objects[THING_SLEEP_TRAP_COMPONENT];
+			    break;
+			case L_TRAP_DISINTEGRATE:
+			    *o = Objects[THING_DISINTEGRATE_TRAP_COMPONENT];
+			    break;
+			case L_TRAP_ABYSS:
+			    *o = Objects[THING_ABYSS_TRAP_COMPONENT];
 			    break;
 			case L_TRAP_MANADRAIN:
-			    *o = Objects[THINGID + 25];
+			    *o = Objects[THING_MANADRAIN_TRAP_COMPONENT];
 			    break;
 			default:
 			    free (o);

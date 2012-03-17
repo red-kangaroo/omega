@@ -2415,7 +2415,7 @@ void m_death (struct monster *m)
 			Player.alignment -= 100;
 			if (!gamestatusp (DESTROYED_ORDER)) {
 			    curr = Level->site[m->x][m->y].things;
-			    while (curr && curr->thing->id != THINGID + 16) {
+			    while (curr && curr->thing->id != THING_JUSTICIAR_BADGE) {
 				prev = curr;
 				curr = curr->next;
 			    }
@@ -2907,7 +2907,7 @@ void make_hiscore_npc (pmt npc, int npcid)
 	case 15:
 	    strcpy (Str2, Justiciar);
 	    determine_npc_behavior (npc, Justiciarlevel, Justiciarbehavior);
-	    st = THINGID + 16;	// badge
+	    st = THING_JUSTICIAR_BADGE;
 	    npc->talkf = M_TALK_GUARD;
 	    npc->specialf = M_SP_WHISTLEBLOWER;
 	    m_status_reset (npc, WANDERING);

@@ -629,7 +629,7 @@ static void l_earth_station (void)
 {
     pob o;
     print1 ("The tendrilled mass reaches out for you from the muddy ooze.");
-    if (find_item (&o, THINGID + 6, -1))
+    if (find_item (&o, THING_SALT_WATER, -1))
 	print2 ("A splash of salt water does nothing to dissuade the vines.");
     morewait();
     print1 ("Enter the overgrown mire? [yn] ");
