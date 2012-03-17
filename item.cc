@@ -267,9 +267,8 @@ void make_scroll (pob o, int id)
 	id = random_range (NUMSCROLLS);
     *o = Objects[SCROLLID + id];
     // if a scroll of spells, aux is the spell id in Spells
-    if (o->id == SCROLLID + 1) {
+    if (o->id == SCROLL_SPELLS)
 	o->aux = random_range (NUMSPELLS);
-    }
 }
 
 void make_potion (pob o, int id)
@@ -603,7 +602,6 @@ const char* ringname (int id)
 	    return "mithril ring with a red gem";
 	case 3:
 	    return "platinum ring";
-	    break;
 	case 4:
 	    return "gold dragon's head ring";
 	case 5:
@@ -893,7 +891,7 @@ static void i_acquire (pob o)
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
     blessing = o->blessing;
-    *o = Objects[SCROLLID + 0];	// blank out the scroll
+    *o = Objects[SCROLL_BLANK];
     acquire (blessing);
 }
 
@@ -926,7 +924,7 @@ static void i_wish (pob o)
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
     wish (o->blessing);
-    *o = Objects[SCROLLID + 0];	// blank out the scroll
+    *o = Objects[SCROLL_BLANK];
 }
 
 // scroll of displacement

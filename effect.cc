@@ -1661,14 +1661,14 @@ void learnspell (int blessing)
 	for (i = NUMSPELLS; ((i > -1) && (!done)); i--)
 	    if (Spells[i].known) {
 		done = TRUE;
-		Objects[SCROLLID + 1].known = TRUE;
+		Objects[SCROLL_SPELLS].known = TRUE;
 		mprint ("You feel forgetful.");
 		Spells[i].known = FALSE;
 	    }
 	if (i == ABORT)
 	    mprint ("You feel fortunate.");
     } else {
-	Objects[SCROLLID + 1].known = TRUE;
+	Objects[SCROLL_SPELLS].known = TRUE;
 	spell = random_range (NUMSPELLS);
 	print1 ("Spell Research");
 	if ((random_range (4 * Spells[spell].powerdrain) + Spells[spell].powerdrain) < (4 * Player.iq + 8 * Player.level)) {

@@ -4680,7 +4680,7 @@ void l_commandant (void)
 	else {
 	    Player.cash -= num * 5;
 	    food = ((pob) checkmalloc (sizeof (objtype)));
-	    *food = Objects[FOODID + 0];	// food ration
+	    *food = Objects[FOOD_RATION];
 	    food->number = num;
 	    if (num == 1)
 		print2 ("There you go, mac! One Lyzzard Bucket, coming up.");

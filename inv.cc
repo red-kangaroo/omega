@@ -399,7 +399,7 @@ void givemonster (struct monster *m, struct object *o)
 	    }
 	} else if (m_statusp (m, HUNGRY)) {
 
-	    if (((m->id == HORSE) && (o->id == FOODID + 15)) ||	// grain
+	    if (((m->id == HORSE) && (o->id == FOOD_GRAIN)) ||	// grain
 		((m->id != HORSE) && ((o->usef == I_FOOD) || (o->usef == I_POISON_FOOD)))) {
 		strcat (Str3, " wolfs down your food ... ");
 		print1 (Str3);

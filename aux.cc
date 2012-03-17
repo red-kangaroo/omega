@@ -2373,7 +2373,7 @@ static void outdoors_random_event (void)
 	    mprint ("Using your herbalist lore you cook a cake of lembas....");
 	    morewait();
 	    ob = ((pob) checkmalloc (sizeof (objtype)));
-	    *ob = Objects[FOODID + 1];
+	    *ob = Objects[FOOD_LEMBAS];
 	    gain_item (ob);
 	    break;
 	case 3:
