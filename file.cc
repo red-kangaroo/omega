@@ -142,7 +142,7 @@ static void lock_score_file (void)
 	    if (attempts > 10)	// assume that lock file has been abandoned
 		unlink (Str1);	// so we unlink it ourselves - ugly...
 	    else
-		sleep (2);
+		napms (2000);
 	} else if (lock < 0)	// oops - something very wrong
 	    return;
     } while (lock < 0);

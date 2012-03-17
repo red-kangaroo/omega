@@ -215,7 +215,7 @@ void checkclear (void)
 	morewait();
 	wclear (Msg1w);
 	wclear (Msg2w);
-	wrefresh (Msg1w);
+	wnoutrefresh (Msg1w);
 	wrefresh (Msg2w);
     }
 }
@@ -227,8 +227,8 @@ void clearmsg (void)
     wclear (Msg2w);
     wclear (Msg3w);
     Msgw = Msg1w;
-    wrefresh (Msg1w);
-    wrefresh (Msg2w);
+    wnoutrefresh (Msg1w);
+    wnoutrefresh (Msg2w);
     wrefresh (Msg3w);
 }
 
@@ -243,7 +243,7 @@ void clearmsg1 (void)
     wclear (Msg1w);
     wclear (Msg2w);
     Msgw = Msg1w;
-    wrefresh (Msg1w);
+    wnoutrefresh (Msg1w);
     wrefresh (Msg2w);
 }
 
@@ -335,7 +335,7 @@ void mprint (const char* s)
 		morewait();
 		wclear (Msg1w);
 		wclear (Msg2w);
-		wrefresh (Msg2w);
+		wnoutrefresh (Msg2w);
 		Msgw = Msg1w;
 	    }
 	} else if (x > 0)
@@ -443,10 +443,6 @@ void initgraf (void)
 
     clear();
     touchwin (stdscr);
-//  omega_title();
-//  clear();
-//  touchwin(stdscr);
-    //  refresh();*//* DG
 }
 
 static int lastx = -1, lasty = -1;
@@ -757,13 +753,6 @@ void dataprint (void)
     wrefresh (Dataw);
 }
 
-// redraw everything currently displayed
-void redraw (void)
-{
-    touchwin (curscr);
-    wrefresh (curscr);
-}
-
 // redraw each permanent window
 void xredraw (void)
 {
@@ -777,15 +766,15 @@ void xredraw (void)
     touchwin (Morew);
     touchwin (Phasew);
     touchwin (Comwin);
-    wrefresh (Msgw);
-    wrefresh (Msg3w);
-    wrefresh (Levelw);
-    wrefresh (Timew);
-    wrefresh (Flagw);
-    wrefresh (Dataw);
-    wrefresh (Locw);
-    wrefresh (Morew);
-    wrefresh (Phasew);
+    wnoutrefresh (Msgw);
+    wnoutrefresh (Msg3w);
+    wnoutrefresh (Levelw);
+    wnoutrefresh (Timew);
+    wnoutrefresh (Flagw);
+    wnoutrefresh (Dataw);
+    wnoutrefresh (Locw);
+    wnoutrefresh (Morew);
+    wnoutrefresh (Phasew);
     wrefresh (Comwin);
 }
 
@@ -883,10 +872,10 @@ void draw_explosion (Symbol pyx, int x, int y)
     for (j = 0; j < 3; j++) {
 	for (i = 0; i < 9; i++)
 	    plotchar (pyx, x + Dirs[0][i], y + Dirs[1][i]);
-	usleep (150000);
+	napms (150);
 	for (i = 0; i < 9; i++)
 	    plotchar (SPACE, x + Dirs[0][i], y + Dirs[1][i]);
-	usleep (150000);
+	napms (150);
     }
     for (i = 0; i < 9; i++)
 	plotspot (x + Dirs[0][i], y + Dirs[1][i], TRUE);
@@ -1215,7 +1204,7 @@ void drawomega (void)
 	printw ("\n                       *   ***                ***   *");
 	printw ("\n                        ****                    ****");
 	refresh();
-	usleep (200000);
+	napms (200);
 	move (1, 1);
 	if (optionp (SHOW_COLOUR))
 	    wattrset (stdscr, CHARATTR (CLR (CYAN)));
@@ -1234,7 +1223,7 @@ void drawomega (void)
 	printw ("\n                       +   +++                +++   +");
 	printw ("\n                        ++++                    ++++");
 	refresh();
-	usleep (200000);
+	napms (200);
 	move (1, 1);
 	if (optionp (SHOW_COLOUR))
 	    wattrset (stdscr, CHARATTR (CLR (BLUE)));
@@ -1253,7 +1242,7 @@ void drawomega (void)
 	printw ("\n                       .   ...                ...   .");
 	printw ("\n                        ....                    ....");
 	refresh();
-	usleep (200000);
+	napms (200);
     }
     wattrset (stdscr, CHARATTR (CLR (WHITE)));
 }
@@ -1419,15 +1408,6 @@ int move_slot (int oldslot, int newslot, int maxslot)
 	return (oldslot);
 }
 
-void colour_on (void)
-{
-}
-
-void colour_off (void)
-{
-    wattrset (Levelw, CHARATTR (CLR (WHITE)));
-}
-
 void display_option_slot (int slot)
 {
     hide_line (slot);
@@ -1495,22 +1475,22 @@ void display_options (void)
 // nya ha ha ha ha haaaa....
 void deathprint (void)
 {
-    mgetc();
     waddch (Msgw, 'D');
     wrefresh (Msgw);
+    napms (200);
     mgetc();
     waddch (Msgw, 'e');
     wrefresh (Msgw);
-    mgetc();
+    napms (200);
     waddch (Msgw, 'a');
     wrefresh (Msgw);
-    mgetc();
+    napms (200);
     waddch (Msgw, 't');
     wrefresh (Msgw);
-    mgetc();
+    napms (200);
     waddch (Msgw, 'h');
     wrefresh (Msgw);
-    mgetc();
+    napms (200);
 }
 
 void clear_if_necessary (void)
@@ -1556,7 +1536,7 @@ void bufferprint (void)
     int i = bufferpos - 1, c, finished = 0;
     clearmsg();
     wprintw (Msg1w, "^p for previous message, ^n for next, anything else to quit.");
-    wrefresh (Msg1w);
+    wnoutrefresh (Msg1w);
     do {
 	if (i >= STRING_BUFFER_SIZE)
 	    i = 0;

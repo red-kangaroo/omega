@@ -4151,27 +4151,27 @@ void l_bank (void)
 		    } else {
 			Player.alignment -= 5;
 			menuclear();
-			sleep (4);
+			napms (1000);
 			menuprint ("^@^@^@^@^@00AD1203BC0F0000FFFFFFFFFFFF\n");
 			menuprint ("Interrupt in _get_space. Illegal Character.\n");
 			showmenu();
-			sleep (4);
+			napms (3000);
 			menuprint ("Aborting _police_alert.....\n");
 			menuprint ("Attempting reboot.....\n");
 			showmenu();
-			sleep (4);
+			napms (3000);
 			menuprint ("Warning: Illegal shmop at _count_cash.\n");
 			menuprint ("Warning: Command Buffer NOT CLEARED\n");
 			showmenu();
-			sleep (4);
+			napms (3000);
 			menuprint ("Reboot Complete. Execution Continuing.\n");
 			menuprint ("Withdrawing: 4294967297 Au.\n");
 			menuprint ("Warning: Arithmetic Overflow in _withdraw\n");
 			showmenu();
-			sleep (4);
+			napms (3000);
 			menuprint ("Yo mama. Core dumped.\n");
 			showmenu();
-			sleep (4);
+			napms (3000);
 			xredraw();
 			clearmsg();
 			print1 ("The cash machine begins to spew gold pieces!");
@@ -4556,10 +4556,7 @@ void l_casino (void)
 		    Player.cash -= 100;
 		    dataprint();
 		    for (i = 0; i < 20; i++) {
-			if (i == 19)
-			    sleep (1);
-			else
-			    usleep (250000);
+			napms (i == 19 ? 1000 : 250);
 			a = random_range (10);
 			b = random_range (10);
 			c = random_range (10);
@@ -4620,10 +4617,7 @@ void l_casino (void)
 		    while ((response != 'r') && (response != 'b'));
 		    match = (response == 'r' ? 0 : 1);
 		    for (i = 0; i < 20; i++) {
-			if (i == 19)
-			    sleep (1);
-			else
-			    usleep (250000);
+			napms (i == 19 ? 1000 : 250);
 			a = random_range (37);
 			b = a % 2;
 			if (a == 0)

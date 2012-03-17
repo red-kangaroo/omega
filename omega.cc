@@ -220,11 +220,6 @@ int main (int argc, const char* argv[])
     else
 	terrain_check (FALSE);
 
-    if (optionp (SHOW_COLOUR))
-	colour_on();
-    else
-	colour_off();
-
     screencheck (Player.y);
 
     // game cycle

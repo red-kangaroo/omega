@@ -204,7 +204,7 @@ void do_los (int pyx, int *x1, int *y1, int x2, int y2)
 	Level->site[*x1][*y1].showchar = pyx;
 	plotchar (pyx, *x1, *y1);
 	plotspot (ox, oy, TRUE);
-	usleep (50000);
+	napms (50);
     } while ((*x1 != x2 || *y1 != y2) && !blocked);
     plotspot (*x1, *y1, TRUE);
     levelrefresh();
@@ -266,7 +266,7 @@ void do_object_los (int pyx, int *x1, int *y1, int x2, int y2)
 	if (unblocked (*x1, *y1)) {
 	    plotchar (pyx, *x1, *y1);
 	    Level->site[*x1][*y1].showchar = pyx;
-	    usleep (50000);
+	    napms (50);
 	}
     } while ((*x1 != x2 || *y1 != y2) && !blocked);
     if (Level->site[*x1][*y1].creature == NULL && blocked) {

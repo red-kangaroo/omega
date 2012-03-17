@@ -92,7 +92,7 @@ void p_process (void)
 		setgamestatus (SKIP_MONSTERS);
 		break;		// ^p
 	    case 18:
-		redraw();
+		xredraw();
 		setgamestatus (SKIP_MONSTERS);
 		break;		// ^r
 	    case 23:
@@ -393,7 +393,7 @@ void p_country_process (void)
 		no_op = TRUE;
 		break;		// ^p
 	    case 18:
-		redraw();
+		xredraw();
 		no_op = TRUE;
 		break;		// ^r
 	    case 23:
@@ -1105,10 +1105,6 @@ void setoptions (void)
 	display_option_slot (slot);
 	move_slot (slot, slot, NUMOPTIONS + 1);
     } while (!done);
-    if (optionp (SHOW_COLOUR))
-	colour_on();
-    else
-	colour_off();
     xredraw();
 }
 
@@ -1394,7 +1390,6 @@ void save (int compress, int force)
 	if (ok) {
 	    if (save_game (fname)) {
 		print3 ("Bye!");
-		sleep (2);
 		endgraf();
 		exit (0);
 	    } else

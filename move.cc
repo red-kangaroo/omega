@@ -507,7 +507,7 @@ static void l_void (void)
     while (Player.hp > 0) {
 	Time += 60;
 	hourly_check();
-	usleep (250000);
+	napms (250);
     }
 }
 
@@ -701,7 +701,7 @@ static void l_void_station (void)
 	    while (Player.hp > 0) {
 		Time += 60;
 		hourly_check();
-		usleep (250000);
+		napms (250);
 	    }
 	} else {
 	    print1 ("You enter the void.");
