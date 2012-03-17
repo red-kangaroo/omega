@@ -1,7 +1,5 @@
 #pragma once
 
-/* abyss.c */
-void load_abyss(void);
 /* aux.c */
 void tunnelcheck(void);
 void showroom(int i);
@@ -58,10 +56,6 @@ int maneuvers(void);
 void initplayer(void);
 long calcmana(void);
 int fixnpc(int status);
-/* city.c */
-void load_city(int populate);
-void resurrect_guards(void);
-void repair_jail(void);
 /* command.c */
 void p_process(void);
 void p_country_process(void);
@@ -73,12 +67,6 @@ void save(int compress, int force);
 void quit(void);
 void rename_player(void);
 void dismount_steed(void);
-/* country.c */
-void load_country(void);
-void load_dlair(int empty, int populate);
-void load_speak(int empty, int populate);
-void load_misle(int empty, int populate);
-void load_temple(int deity, int populate);
 /* effect.c */
 void accuracy(int blessing);
 void acid_cloud(void);
@@ -147,9 +135,66 @@ void truesight(int blessing);
 void warp(int blessing);
 void wish(int blessing);
 /* env.c */
+int difficulty(void);
+void l_adept(void);
+void l_alchemist(void);
+void l_arena(void);
+void l_armorer(void);
+void l_bank(void);
+void l_brothel(void);
+void l_cartographer(void);
+void l_casino(void);
+void l_castle(void);
+void l_charity(void);
+void l_club(void);
+void l_college(void);
+void l_commandant(void);
+void l_condo(void);
+void l_countryside(void);
+void l_crap(void);
+void l_diner(void);
+void l_dpw(void);
+void l_gym(void);
+void l_healer(void);
+void l_house(void);
+void l_hovel(void);
+void l_library(void);
+void l_mansion(void);
+void l_merc_guild(void);
+void l_oracle(void);
+void l_order(void);
+void l_pawn_shop(void);
+void l_safe(void);
+void l_sorcerors(void);
+void l_statue_wake(void);
+void l_tavern(void);
+void l_thieves_guild(void);
+void l_trifid(void);
+void l_vault(void);
+void load_abyss(void);
 void load_arena(void);
 void load_circle(int populate);
+void load_city(int populate);
+void load_country(void);
 void load_court(int populate);
+void load_dlair(int empty, int populate);
+void load_house(int kind, int populate);
+void load_misle(int empty, int populate);
+void load_speak(int empty, int populate);
+void load_temple(int deity, int populate);
+void load_village(int villagenum, int populate);
+pmt m_create(int x, int y, int kind, int level);
+void make_country_monsters(int terrain);
+pmt make_creature(int mid);
+void make_site_monster(int i, int j, int mid);
+void pacify_guards(void);
+void populate_level(int monstertype);
+void resurrect_guards(void);
+void send_to_jail(void);
+void sign_print(int x, int y, int signp);
+void statue_random(int x, int y);
+void stock_level(void);
+void wandercheck(void);
 /* file.c */
 FILE *checkfopen(char *filestring, char *optionstring);
 int filecheck(void);
@@ -182,16 +227,6 @@ void maze_level(void);
 void room_level(void);
 char* roomname(int ri);
 void sewer_level(void);
-/* guild.c */
-void l_arena(void);
-void l_castle(void);
-void l_college(void);
-void l_merc_guild(void);
-void l_order(void);
-void l_sorcerors(void);
-void l_thieves_guild(void);
-/* house.c */
-void load_house(int kind, int populate);
 /* inv.c */
 char* cashstr(void);
 void conform_lost_object(pob obj);
@@ -258,17 +293,6 @@ void weapon_scythe(int dmgmod, pob o, struct monster *m);
 void weapon_tangle(int dmgmod, pob o, struct monster *m);
 void weapon_victrix(int dmgmod, pob o, struct monster *m);
 void weapon_vorpal(int dmgmod, pob o, struct monster *m);
-/* lev.c */
-int difficulty(void);
-pmt m_create(int x, int y, int kind, int level);
-void make_country_monsters(int terrain);
-pmt make_creature(int mid);
-void make_site_monster(int i, int j, int mid);
-void make_site_treasure(int i, int j, int itemlevel);
-void make_specific_treasure(int i, int j, int iid);
-void populate_level(int monstertype);
-void stock_level(void);
-void wandercheck(void);
 /* mon.c */
 void determine_npc_behavior(pmt npc, int level, int behavior);
 void m_abyss(struct monster *m);
@@ -312,6 +336,7 @@ void p_movefunction(int movef);
 /* omega.c */
 void inititem(int reset);
 void initrand(int environment, int level);
+void time_clock(int reset);
 /* priest.c */
 void l_altar(void);
 /* save.c */
@@ -399,46 +424,11 @@ void xredraw(void);
 int ynq(void);
 int ynq1(void);
 int ynq2(void);
-/* site.c */
-void l_adept(void);
-void l_alchemist(void);
-void l_armorer(void);
-void l_bank(void);
-void l_brothel(void);
-void l_cartographer(void);
-void l_casino(void);
-void l_charity(void);
-void l_club(void);
-void l_commandant(void);
-void l_condo(void);
-void l_countryside(void);
-void l_crap(void);
-void l_diner(void);
-void l_dpw(void);
-void l_gym(void);
-void l_healer(void);
-void l_house(void);
-void l_hovel(void);
-void l_library(void);
-void l_mansion(void);
-void l_oracle(void);
-void l_pawn_shop(void);
-void l_safe(void);
-void l_statue_wake(void);
-void l_tavern(void);
-void l_trifid(void);
-void l_vault(void);
-void pacify_guards(void);
-void send_to_jail(void);
-void sign_print(int x, int y, int signp);
-void statue_random(int x, int y);
 /* spell.c */
 void cast_spell(int spell);
 int getspell(void);
 void initspells(void);
 char* spellid(int id);
-/* time.c */
-void time_clock(int reset);
 /* trap.c */
 void l_trap_abyss(void);
 void l_trap_acid(void);
@@ -492,5 +482,3 @@ int unblocked(int x, int y);
 int view_los_p(int x1, int y1, int x2, int y2);
 int view_unblocked(int x, int y);
 char* wordnum(int num);
-/* village.c */
-void load_village(int villagenum, int populate);
