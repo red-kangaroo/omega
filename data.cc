@@ -1,4 +1,5 @@
 #include "defs.h"
+#include "glob.h"
 
 //----------------------------------------------------------------------
 //{{{ Objects
@@ -228,7 +229,7 @@ struct object Objects[TOTALITEMS] = {
 //}}}-------------------------------------------------------------------
 //{{{ Monsters
 
-struct monster Monsters[NUMMONSTERS] = {
+const struct monster Monsters[NUMMONSTERS] = {
 //    inv  aux1     x click      hp      ac   sense    lev    sleep     xpv     value   thing
 //    attack  aux2     y     id     hit     dmg    wake  speed   treas     weight  transf
     {NULL, 0, 0, 0, 0, 0, 0,  0,  1,  1, 10,  2,  4,  1, 0,  1,  50, 0,   1,    1,  1, -1, -1, COMMON, M_TALK_STUPID, M_MOVE_FLUTTER, M_MELEE_NORMAL, M_NO_OP, M_NO_OP, MOBILE | HOSTILE | FLYING | POISONOUS, 0, 'h' | CLR (YELLOW), "hornet", "dead hornet", "AXAX"},
