@@ -9,10 +9,10 @@
 
 //----------------------------------------------------------------------
 
-static int bufferappend(char *s);
+static int bufferappend(const char* s);
 static void blankoutspot(int i, int j);
 static void blotspot(int i, int j);
-static void buffercycle(char *s);
+static void buffercycle(const char* s);
 static void dobackspace(void);
 static void drawplayer(void);
 static void hide_line(int i);
@@ -212,7 +212,7 @@ void checkclear (void)
 {
     int y1 = getcury (Msg1w), y2 = getcury (Msg2w);
     if ((y1 != 0) || (y2 != 0)) {
-	morewait ();
+	morewait();
 	wclear (Msg1w);
 	wclear (Msg2w);
 	wrefresh (Msg1w);
@@ -254,7 +254,7 @@ void erase_level (void)
 }
 
 // direct print to first msg line
-void print1 (char *s)
+void print1 (const char* s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
 	buffercycle (s);
@@ -265,7 +265,7 @@ void print1 (char *s)
 }
 
 // for run on-messages -- print1 clears first....
-void nprint1 (char *s)
+void nprint1 (const char* s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
 	if (bufferappend (s)) {
@@ -276,7 +276,7 @@ void nprint1 (char *s)
 }
 
 // direct print to second msg line
-void print2 (char *s)
+void print2 (const char* s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
 	buffercycle (s);
@@ -287,7 +287,7 @@ void print2 (char *s)
 }
 
 // for run on-messages -- print2 clears first....
-void nprint2 (char *s)
+void nprint2 (const char* s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
 	if (bufferappend (s)) {
@@ -299,7 +299,7 @@ void nprint2 (char *s)
 
 // msg line 3 is not part of the region that mprint or printm can reach
 // typical use of print3 is for "you can't do that" type error messages
-void print3 (char *s)
+void print3 (const char* s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
 	buffercycle (s);
@@ -310,7 +310,7 @@ void print3 (char *s)
 }
 
 // for run on-messages -- print3 clears first....
-void nprint3 (char *s)
+void nprint3 (const char* s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
 	if (bufferappend (s)) {
@@ -322,7 +322,7 @@ void nprint3 (char *s)
 
 // prints wherever cursor is in window, but checks to see if
 // it should morewait and clear window
-void mprint (char *s)
+void mprint (const char* s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
 	int x = getcurx (Msgw);
@@ -332,7 +332,7 @@ void mprint (char *s)
 		wclear (Msg2w);
 		Msgw = Msg2w;
 	    } else {
-		morewait ();
+		morewait();
 		wclear (Msg1w);
 		wclear (Msg2w);
 		wrefresh (Msg2w);
@@ -350,10 +350,10 @@ void mprint (char *s)
 
 void omega_title (void)
 {
-    showmotd ();
-    clear ();
+    showmotd();
+    clear();
     touchwin (stdscr);
-    refresh ();
+    refresh();
     //  showscores();*//* DG
 }
 
@@ -398,9 +398,9 @@ static void clrgen_init (void)
 void initgraf (void)
 {
     int i;
-    initscr ();
-    start_color ();
-    clrgen_init ();
+    initscr();
+    start_color();
+    clrgen_init();
     curs_set (0);
     if (LINES < 24 || COLS < 80) {
 	printf ("Minimum Screen Size: 24 Lines by 80 Columns.");
@@ -438,10 +438,10 @@ void initgraf (void)
     Comwin = newwin (8, 15, 14, 65);
     scrollok (Comwin, 0);
 
-    noecho ();
-    crmode ();
+    noecho();
+    crmode();
 
-    clear ();
+    clear();
     touchwin (stdscr);
 //  omega_title();
 //  clear();
@@ -496,7 +496,7 @@ void drawvision (int x, int y)
 	if (Player.status[BLINDED]) {
 	    drawspot (oldx, oldy);
 	    drawspot (x, y);
-	    drawplayer ();
+	    drawplayer();
 	} else {
 	    if (Player.status[ILLUMINATION] > 0) {
 		for (i = -2; i < 3; i++)
@@ -510,7 +510,7 @@ void drawvision (int x, int y)
 			if (inbounds (x + i, y + j))
 			    dodrawspot (x + i, y + j);
 	    }
-	    drawplayer ();
+	    drawplayer();
 	    drawmonsters (FALSE);	// erase all monsters
 	    drawmonsters (TRUE);	// draw those now visible
 	}
@@ -531,7 +531,7 @@ void drawvision (int x, int y)
 			waddch (Levelw, (c & 0xff));
 		    }
 		}
-	drawplayer ();
+	drawplayer();
 	omshowcursor (Player.x, Player.y);
     }
 }
@@ -726,13 +726,13 @@ void commanderror (void)
 void timeprint (void)
 {
     wclear (Timew);
-    wprintw (Timew, "%d:%d", showhour (), showminute ());
-    if (showminute () == 0)
+    wprintw (Timew, "%d:%d", showhour(), showminute());
+    if (showminute() == 0)
 	waddch (Timew, '0');
-    wprintw (Timew, hour () > 11 ? " PM \n" : " AM \n");
-    wprintw (Timew, month ());
-    wprintw (Timew, " the %d", day ());
-    wprintw (Timew, ordinal (day ()));
+    wprintw (Timew, hour() > 11 ? " PM \n" : " AM \n");
+    wprintw (Timew, month());
+    wprintw (Timew, " the %d", day());
+    wprintw (Timew, ordinal (day()));
     wrefresh (Timew);
 }
 
@@ -841,11 +841,11 @@ void menuclear (void)
     wrefresh (Menuw);
 }
 
-void menuprint (char *s)
+void menuprint (const char* s)
 {
     if (getcury(Menuw) >= ScreenLength - 2) {
 	wrefresh (Menuw);
-	morewait ();
+	morewait();
 	wclear (Menuw);
 	touchwin (Menuw);
     }
@@ -859,10 +859,10 @@ void showmenu (void)
 
 void endgraf (void)
 {
-    clear ();
+    clear();
     touchwin (stdscr);
-    refresh ();
-    endwin ();
+    refresh();
+    endwin();
 }
 
 void plotchar (Symbol pyx, int x, int y)
@@ -893,19 +893,19 @@ void draw_explosion (Symbol pyx, int x, int y)
     wrefresh (Levelw);
 }
 
-char *msgscanstring (void)
+const char* msgscanstring (void)
 {
     static char instring[80], byte = 'x';
     int i = 0;
 
     instring[0] = 0;
     curs_set (1);
-    byte = mgetc ();
+    byte = mgetc();
     while (byte != '\n') {
 	if ((byte == 8) || (byte == 127)) {	// ^h or delete
 	    if (i > 0) {
 		i--;
-		dobackspace ();
+		dobackspace();
 	    }
 	    instring[i] = 0;
 	} else {
@@ -915,13 +915,13 @@ char *msgscanstring (void)
 	    i++;
 	    instring[i] = 0;
 	}
-	byte = mgetc ();
+	byte = mgetc();
     }
     curs_set (0);
     return (instring);
 }
 
-void locprint (char *s)
+void locprint (const char* s)
 {
     wclear (Locw);
     wprintw (Locw, s);
@@ -943,7 +943,7 @@ void drawscreen (void)
     if (Current_Environment == E_CITY)
 	for (i = 0; i < NUMCITYSITES; i++)
 	    CitySiteList[i][0] = 1;
-    show_screen ();
+    show_screen();
 }
 
 //selects a number up to range
@@ -957,11 +957,11 @@ int getnumber (int range)
 	return (1);
     else {
 	while (!done) {
-	    clearmsg ();
+	    clearmsg();
 	    wprintw (Msg1w, "How many? Change with < or >, ESCAPE to select:");
 	    mnumprint (value);
 	    do
-		atom = mcigetc ();
+		atom = mcigetc();
 	    while ((atom != '<') && (atom != '>') && (atom != ESCAPE));
 	    if ((atom == '>') && (value < range))
 		value++;
@@ -985,7 +985,7 @@ long parsenum (void)
 
     curs_set (1);
     while ((byte != ESCAPE) && (byte != '\n')) {
-	byte = mgetc ();
+	byte = mgetc();
 	if ((byte == BACKSPACE) || (byte == DELETE)) {
 	    if (place > -1) {
 		number[place] = 0;
@@ -1016,31 +1016,31 @@ long parsenum (void)
     }
 }
 
-void display_death (char *source)
+void display_death (const char* source)
 {
-    clear ();
+    clear();
     touchwin (stdscr);
     printw ("\n\n\n\n");
     printw ("Requiescat In Pace, ");
     printw (Player.name);
-    printw (" (%ld points)", calc_points ());
+    printw (" (%ld points)", calc_points());
     strcpy (Str4, "Killed by ");
     strcat (Str4, source);
     printw ("\n");
     printw (Str4);
     printw (".");
     printw ("\n\n\n\n\nHit 'c' to continue.");
-    refresh ();
+    refresh();
     while (wgetch (stdscr) != 'c');
-    clear ();
+    clear();
     touchwin (stdscr);
-    refresh ();
+    refresh();
     extendlog (Str4, DEAD);
 }
 
 void display_win (void)
 {
-    clear ();
+    clear();
     touchwin (stdscr);
     printw ("\n\n\n\n");
     printw (Player.name);
@@ -1049,14 +1049,14 @@ void display_win (void)
 	strcpy (Str4, "A total master of omega");
     } else {
 	strcpy (Str4, "retired a winner");
-	printw (" triumphed in omega with %ld points!", calc_points ());
+	printw (" triumphed in omega with %ld points!", calc_points());
     }
     printw ("\n\n\n\n\nHit 'c' to continue.");
-    refresh ();
+    refresh();
     while (wgetch (stdscr) != 'c');
-    clear ();
+    clear();
     touchwin (stdscr);
-    refresh ();
+    refresh();
     if (Player.rank[ADEPT])
 	extendlog (Str4, BIGWIN);
     else
@@ -1065,35 +1065,35 @@ void display_win (void)
 
 void display_quit (void)
 {
-    clear ();
+    clear();
     touchwin (stdscr);
     printw ("\n\n\n\n");
     printw (Player.name);
     strcpy (Str4, "A quitter.");
-    printw (" wimped out with %ld points!", calc_points ());
+    printw (" wimped out with %ld points!", calc_points());
     printw ("\n\n\n\n\nHit 'c' to continue.");
-    refresh ();
+    refresh();
     while (wgetch (stdscr) != 'c');
-    clear ();
+    clear();
     touchwin (stdscr);
-    refresh ();
+    refresh();
     extendlog (Str4, QUIT);
 }
 
 void display_bigwin (void)
 {
-    clear ();
+    clear();
     touchwin (stdscr);
     printw ("\n\n\n\n");
     printw (Player.name);
     strcpy (Str4, "retired, an Adept of Omega.");
     printw (" retired, an Adept of Omega with %ld points!", FixedPoints);
     printw ("\n\n\n\n\nHit 'c' to continue.");
-    refresh ();
+    refresh();
     while (wgetch (stdscr) != 'c');
-    clear ();
+    clear();
     touchwin (stdscr);
-    refresh ();
+    refresh();
     extendlog (Str4, BIGWIN);
 }
 
@@ -1119,7 +1119,7 @@ void menunumprint (int n)
 {
     if (getcury(Menuw) >= ScreenLength - 2) {
 	wrefresh (Menuw);
-	morewait ();
+	morewait();
 	wclear (Menuw);
 	touchwin (Menuw);
     }
@@ -1130,7 +1130,7 @@ void menulongprint (long n)
 {
     if (getcury(Menuw) >= ScreenLength - 2) {
 	wrefresh (Menuw);
-	morewait ();
+	morewait();
 	wclear (Menuw);
 	touchwin (Menuw);
     }
@@ -1152,7 +1152,7 @@ static void dobackspace (void)
 
 void showflags (void)
 {
-    phaseprint ();
+    phaseprint();
     wclear (Flagw);
     if (Player.food < 0)
 	wprintw (Flagw, "Starving\n");
@@ -1194,7 +1194,7 @@ void showflags (void)
 void drawomega (void)
 {
     int i;
-    clear ();
+    clear();
     touchwin (stdscr);
     for (i = 0; i < 7; i++) {
 	move (1, 1);
@@ -1214,7 +1214,7 @@ void drawomega (void)
 	printw ("\n                            **                 **");
 	printw ("\n                       *   ***                ***   *");
 	printw ("\n                        ****                    ****");
-	refresh ();
+	refresh();
 	usleep (200000);
 	move (1, 1);
 	if (optionp (SHOW_COLOUR))
@@ -1233,7 +1233,7 @@ void drawomega (void)
 	printw ("\n                            ++                 ++");
 	printw ("\n                       +   +++                +++   +");
 	printw ("\n                        ++++                    ++++");
-	refresh ();
+	refresh();
 	usleep (200000);
 	move (1, 1);
 	if (optionp (SHOW_COLOUR))
@@ -1252,7 +1252,7 @@ void drawomega (void)
 	printw ("\n                            ..                 ..");
 	printw ("\n                       .   ...                ...   .");
 	printw ("\n                        ....                    ....");
-	refresh ();
+	refresh();
 	usleep (200000);
     }
     wattrset (stdscr, CHARATTR (CLR (WHITE)));
@@ -1264,11 +1264,11 @@ void screencheck (int y)
 {
     if (((y - ScreenOffset) < (ScreenLength / 8)) || ((y - ScreenOffset) > (7 * ScreenLength / 8))) {
 	ScreenOffset = y - (ScreenLength / 2);
-	show_screen ();
+	show_screen();
 	if (Current_Environment != E_COUNTRYSIDE)
 	    drawmonsters (TRUE);
 	if (!offscreen (Player.y))
-	    drawplayer ();
+	    drawplayer();
     }
 }
 
@@ -1313,13 +1313,13 @@ void display_pack (void)
     if (Player.packptr < 1)
 	print3 ("Pack is empty.");
     else {
-	menuclear ();
+	menuclear();
 	menuprint ("Items in Pack:\n");
 	for (i = 0; i < Player.packptr; i++) {
 	    sprintf (Str1, "  %c: %s\n", i + 'A', itemid (Player.pack[i]));
 	    menuprint (Str1);
 	}
-	showmenu ();
+	showmenu();
     }
 }
 
@@ -1486,7 +1486,7 @@ void display_option_slot (int slot)
 void display_options (void)
 {
     int i;
-    menuclear ();
+    menuclear();
     hide_line (0);
     for (i = 1; i <= NUMOPTIONS; i++)
 	display_option_slot (i);
@@ -1495,22 +1495,22 @@ void display_options (void)
 // nya ha ha ha ha haaaa....
 void deathprint (void)
 {
-    mgetc ();
+    mgetc();
     waddch (Msgw, 'D');
     wrefresh (Msgw);
-    mgetc ();
+    mgetc();
     waddch (Msgw, 'e');
     wrefresh (Msgw);
-    mgetc ();
+    mgetc();
     waddch (Msgw, 'a');
     wrefresh (Msgw);
-    mgetc ();
+    mgetc();
     waddch (Msgw, 't');
     wrefresh (Msgw);
-    mgetc ();
+    mgetc();
     waddch (Msgw, 'h');
     wrefresh (Msgw);
-    mgetc ();
+    mgetc();
 }
 
 void clear_if_necessary (void)
@@ -1531,14 +1531,14 @@ void clear_if_necessary (void)
 
 static int bufferpos = 0;
 
-static void buffercycle (char *s)
+static void buffercycle (const char* s)
 {
     strcpy (Stringbuffer[bufferpos++], s);
     if (bufferpos >= STRING_BUFFER_SIZE)
 	bufferpos = 0;
 }
 
-static int bufferappend (char *s)
+static int bufferappend (const char* s)
 {
     int pos = bufferpos - 1;
 
@@ -1554,7 +1554,7 @@ static int bufferappend (char *s)
 void bufferprint (void)
 {
     int i = bufferpos - 1, c, finished = 0;
-    clearmsg ();
+    clearmsg();
     wprintw (Msg1w, "^p for previous message, ^n for next, anything else to quit.");
     wrefresh (Msg1w);
     do {
@@ -1565,7 +1565,7 @@ void bufferprint (void)
 	wclear (Msg2w);
 	wprintw (Msg2w, Stringbuffer[i]);
 	wrefresh (Msg2w);
-	c = mgetc ();
+	c = mgetc();
 	if (c == 16)		// ^p
 	    i--;
 	else if (c == 14)	// ^n
@@ -1573,13 +1573,13 @@ void bufferprint (void)
 	else
 	    finished = 1;
     } while (!finished);
-    clearmsg ();
+    clearmsg();
     omshowcursor (Player.x, Player.y);
 }
 
 void clear_screen (void)
 {
-    clear ();
+    clear();
     touchwin (stdscr);
-    refresh ();
+    refresh();
 }

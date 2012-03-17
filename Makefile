@@ -3,8 +3,8 @@
 ################ Source files ##########################################
 
 EXE	:= ${NAME}
-SRCS	:= $(wildcard *.c)
-OBJS	:= $(addprefix $O,$(SRCS:.c=.o))
+SRCS	:= $(wildcard *.cc)
+OBJS	:= $(addprefix $O,$(SRCS:.cc=.o))
 
 ################ Compilation ###########################################
 
@@ -27,10 +27,10 @@ tools/decrypt:	$Otools/decrypt.o
 	@echo "Linking $@ ..."
 	@${CXX} ${LDFLAGS} -o $@ $<
 
-$O%.o:	%.c
+$O%.o:	%.cc
 	@echo "    Compiling $< ..."
 	@[ -d $(dir $@) ] || mkdir -p $(dir $@)
-	@${CXX} ${CXXFLAGS} -MMD -MT "$(<:.c=.s) $@" -o $@ -c $<
+	@${CXX} ${CXXFLAGS} -MMD -MT "$(<:.cc=.s) $@" -o $@ -c $<
 
 %.s:	%.c
 	@echo "    Compiling $< to assembly ..."

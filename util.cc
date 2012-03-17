@@ -207,7 +207,7 @@ void do_los (int pyx, int *x1, int *y1, int x2, int y2)
 	usleep (50000);
     } while ((*x1 != x2 || *y1 != y2) && !blocked);
     plotspot (*x1, *y1, TRUE);
-    levelrefresh ();
+    levelrefresh();
 }
 
 // This is the same as do_los, except we stop before hitting nonliving obstructions
@@ -274,7 +274,7 @@ void do_object_los (int pyx, int *x1, int *y1, int x2, int y2)
 	*y1 = oy;
     }
     plotspot (*x1, *y1, TRUE);
-    levelrefresh ();
+    levelrefresh();
 }
 
 // los_p checks to see whether there is an unblocked los from x1,y1 to x2,y2
@@ -453,20 +453,20 @@ int showminute (void)
 int showhour (void)
 {
     int showtime;
-    if ((hour () == 0) || (hour () == 12))
+    if ((hour() == 0) || (hour() == 12))
 	showtime = 12;
     else
-	showtime = (hour () % 12);
+	showtime = (hour() % 12);
     return (showtime);
 }
 
 // nighttime is defined from 9 PM to 6AM
 int nighttime (void)
 {
-    return ((hour () > 20) || (hour () < 7));
+    return ((hour() > 20) || (hour() < 7));
 }
 
-char *getarticle (char *str)
+const char* getarticle (const char* str)
 {
     if ((str[0] == 'a') || (str[0] == 'A') || (str[0] == 'e') || (str[0] == 'E') || (str[0] == 'i') || (str[0] == 'I') || (str[0] == 'o') || (str[0] == 'O') || (str[0] == 'u') || (str[0] == 'U')
 	|| (((str[0] == 'h') || (str[0] == 'H')) && ((str[1] == 'i') || (str[1] == 'e'))))
@@ -480,7 +480,7 @@ int day (void)
     return ((Date % 30) + 1);
 }
 
-char *ordinal (int number)
+const char* ordinal (int number)
 {
     if ((number == 11) || (number == 12) || (number == 13))
 	return ("th");
@@ -497,7 +497,7 @@ char *ordinal (int number)
 	}
 }
 
-char *month (void)
+const char* month (void)
 {
     switch ((Date % 360) / 30) {
 	case 0:
@@ -595,11 +595,11 @@ int confirmation (void)
 	    mprint ("Confirm that, would you? [yn] ");
 	    break;
     }
-    return (ynq () == 'y');
+    return (ynq() == 'y');
 }
 
 // is character c a member of string s
-int strmem (int c, char *s)
+int strmem (int c, const char* s)
 {
     int i, found = FALSE;
     for (i = 0; ((i < (int)strlen (s)) && (!found)); i++)
@@ -620,7 +620,7 @@ void calc_weight (void)
 	if (Player.pack[i] != NULL)
 	    weight += Player.pack[i]->weight * Player.pack[i]->number;
     Player.itemweight = weight;
-    dataprint ();
+    dataprint();
 }
 
 // returns true if its ok to get rid of a level
@@ -672,7 +672,7 @@ void free_level (plv level)
 
 // malloc function that checks its return value - if NULL, tries to free
 // some memory...
-void *checkmalloc (unsigned int bytes)
+void* checkmalloc (unsigned int bytes)
 {
     void *ptr = malloc (bytes);
     struct level *curr, **prev, **oldest;
@@ -694,26 +694,25 @@ void *checkmalloc (unsigned int bytes)
 	return ptr;
     else {
 	print1 ("Out of memory!  Saving and quitting.");
-	morewait ();
+	morewait();
 	save (FALSE, TRUE);
-	endgraf ();
+	endgraf();
 	exit (0);
     }
 }
 
 // alloc just enough string space for str, strcpy, and return pointer
-char *salloc (char *str)
+char* salloc (const char* str)
 {
-    char *s = checkmalloc ((unsigned) (strlen (str) + 1));
+    char* s = (char*) checkmalloc ((unsigned) (strlen (str) + 1));
     strcpy (s, str);
     return (s);
 }
 
-char cryptkey (char *fname)
+char cryptkey (const char* fname)
 {
-    int pos, key = 0;
-
-    for (pos = 0; fname[pos]; pos++)
+    int key = 0;
+    for (int pos = 0; fname[pos]; pos++)
 	key += 3 * (fname[pos] - ' ');
     return (key & 0xff);
 }
@@ -1110,7 +1109,7 @@ void learnclericalspells (int deity, int level)
 }
 
 // for the use of the casino slot machine
-char *slotstr (int num)
+const char* slotstr (int num)
 {
     switch (num) {
 	case 0:
@@ -1138,7 +1137,7 @@ char *slotstr (int num)
 }
 
 // random names for various uses
-char *nameprint (void)
+const char* nameprint (void)
 {
     switch (random_range (40)) {
 	case 0:
@@ -1266,7 +1265,7 @@ char *nameprint (void)
 }
 
 // returns english string equivalent of number
-char *wordnum (int num)
+const char* wordnum (int num)
 {
     switch (num) {
 	case 0:

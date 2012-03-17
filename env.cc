@@ -675,7 +675,7 @@ void load_city (int populate)
 		    break;
 		default:
 		    printf ("\nOops... missed a case: '%c'   \n", site);
-		    morewait ();
+		    morewait();
 	    }
 
 	    if (loc_statusp (i, j, SEEN)) {
@@ -1169,7 +1169,7 @@ void load_dlair (int empty, int populate)
 
     if (empty) {
 	mprint ("The Lair is now devoid of inhabitants and treasure.");
-	morewait ();
+	morewait();
     }
 
     if (!populate)
@@ -1286,7 +1286,7 @@ void load_speak (int empty, int populate)
 
     if (empty) {
 	mprint ("The peak is now devoid of inhabitants and treasure.");
-	morewait ();
+	morewait();
     }
 
     if (!populate)
@@ -1404,7 +1404,7 @@ void load_misle (int empty, int populate)
 
     if (empty) {
 	mprint ("The isle is now devoid of inhabitants and treasure.");
-	morewait ();
+	morewait();
     }
 
     if (!populate)
@@ -1651,26 +1651,26 @@ void l_merc_guild (void)
     pob newitem;
 
     print1 ("Legion of Destiny, Mercenary Guild, Inc.");
-    if (nighttime ())
+    if (nighttime())
 	print2 ("The barracks are under curfew right now.");
     else {
 	print2 ("You enter Legion HQ, ");
 	if (Player.rank[LEGION] == COMMANDANT) {
 	    nprint2 ("Your aide follows you to the staff room.");
-	    morewait ();
-	    clearmsg ();
+	    morewait();
+	    clearmsg();
 	}
 	if (Player.rank[LEGION] > 0) {
 	    nprint2 ("and report to your commander.");
-	    morewait ();
+	    morewait();
 	}
 	switch (Player.rank[LEGION]) {
 	    case 0:
 		nprint2 ("and see the Recruiting Centurion.");
-		morewait ();
+		morewait();
 		print2 ("Do you wish to join the Legion? [yn] ");
-		if (ynq2 () == 'y') {
-		    clearmsg ();
+		if (ynq2() == 'y') {
+		    clearmsg();
 		    if (Player.rank[ARENA] > 0) {
 			print1 ("The Centurion checks your record, and gets angry:");
 			print2 ("'The legion don't need any Arena Jocks. Git!'");
@@ -1685,18 +1685,18 @@ void l_merc_guild (void)
 			print2 ("Your strength is too low to pass the physical!");
 		    } else {
 			print1 ("You are tested for strength and stamina...");
-			morewait ();
+			morewait();
 			nprint1 (" and you pass!");
 			print2 ("Commandant ");
 			nprint2 (Commandant);
 			nprint2 (" shakes your hand.");
-			morewait ();
+			morewait();
 			print2 ("The Legion pays you a 500Au induction fee.");
-			morewait ();
+			morewait();
 			print1 ("You are also issued a shortsword and leather.");
 			print2 ("You are now a Legionaire.");
-			morewait ();
-			clearmsg ();
+			morewait();
+			clearmsg();
 			newitem = ((pob) checkmalloc (sizeof (objtype)));
 			*newitem = Objects[WEAPONID + 1];	// shortsword
 			gain_item (newitem);
@@ -1719,26 +1719,26 @@ void l_merc_guild (void)
 	    case COLONEL:
 		if ((Player.level > Commandantlevel) && find_and_remove_item (CORPSEID, DEMON_EMP)) {
 		    print1 ("You liberated the Demon Emperor's Regalia!");
-		    morewait ();
-		    clearmsg ();
+		    morewait();
+		    clearmsg();
 		    print1 ("The Legion is assembled in salute to you!");
 		    print2 ("The Regalia is held high for all to see and admire.");
-		    morewait ();
-		    clearmsg ();
+		    morewait();
+		    clearmsg();
 		    print1 ("Commandant ");
 		    nprint1 (Commandant);
 		    nprint1 (" promotes you to replace him,");
 		    print2 ("and announces his own overdue retirement.");
-		    morewait ();
-		    clearmsg ();
+		    morewait();
+		    clearmsg();
 		    print1 ("You are the new Commandant of the Legion!");
 		    print2 ("The Emperor's Regalia is sold for a ridiculous sum.");
 		    strcpy (Commandant, Player.name);
 		    Commandantlevel = Player.level;
-		    morewait ();
+		    morewait();
 		    Commandantbehavior = fixnpc (4);
 		    save_hiscore_npc (8);
-		    clearmsg ();
+		    clearmsg();
 		    print1 ("You now know the Spell of Regeneration.");
 		    Spells[S_REGENERATE].known = TRUE;
 		    Player.rank[LEGION] = COMMANDANT;
@@ -1749,30 +1749,30 @@ void l_merc_guild (void)
 		    print2 ("Your training is complete. You get top salary.");
 		    Player.cash += 20000;
 		} else if (Player.level <= Commandantlevel) {
-		    clearmsg ();
+		    clearmsg();
 		    print1 ("Your CO expresses satisfaction with your progress.");
 		    print2 ("But your service record does not yet permit promotion.");
 		} else {
-		    clearmsg ();
+		    clearmsg();
 		    print1 ("Why do you come empty handed?");
 		    print2 ("You must return with the Regalia of the Demon Emperor!");
 		}
 		break;
 	    case FORCE_LEADER:
-		clearmsg ();
+		clearmsg();
 		print1 ("Your CO expresses satisfaction with your progress.");
 		if (Player.guildxp[LEGION] < 4000)
 		    print2 ("But your service record does not yet permit promotion.");
 		else {
 		    print2 ("You have been promoted to Legion Colonel!");
-		    morewait ();
+		    morewait();
 		    print1 ("Your next promotion is contingent on the return of");
 		    print2 ("the Regalia of the Demon Emperor.");
-		    morewait ();
+		    morewait();
 		    print1 ("The Demon Emperor holds court at the base of a volcano");
 		    print2 ("to the far south, in the heart of a swamp.");
-		    morewait ();
-		    clearmsg ();
+		    morewait();
+		    clearmsg();
 		    print1 ("You have been taught the spell of heroism!");
 		    Spells[S_HERO].known = TRUE;
 		    Player.rank[LEGION] = COLONEL;
@@ -1785,7 +1785,7 @@ void l_merc_guild (void)
 		}
 		break;
 	    case CENTURION:
-		clearmsg ();
+		clearmsg();
 		print1 ("Your CO expresses satisfaction with your progress.");
 		if (Player.guildxp[LEGION] < 1500)
 		    print2 ("But your service record does not yet permit promotion.");
@@ -1794,21 +1794,21 @@ void l_merc_guild (void)
 		    Player.rank[LEGION] = FORCE_LEADER;
 		    Player.maxstr++;
 		    Player.str++;
-		    morewait ();
-		    clearmsg ();
+		    morewait();
+		    clearmsg();
 		    print1 ("You receive more training, and bonus pay.");
 		    Player.cash += 5000;
 		}
 		break;
 	    case LEGIONAIRE:
-		clearmsg ();
+		clearmsg();
 		print1 ("Your CO expresses satisfaction with your progress.");
 		if (Player.guildxp[LEGION] < 400)
 		    print2 ("But your service record does not yet permit promotion.");
 		else {
 		    print2 ("You are promoted to Legion Centurion!");
-		    morewait ();
-		    clearmsg ();
+		    morewait();
+		    clearmsg();
 		    print1 ("You get advanced training, and a higher salary.");
 		    Player.rank[LEGION] = CENTURION;
 		    Player.maxcon++;
@@ -1834,19 +1834,19 @@ void l_castle (void)
 	    print2 ("His Grace, ");
 	    nprint2 (Duke);
 	    nprint2 ("-- Duke of Rampart! <fanfare>");
-	    morewait ();
-	    clearmsg ();
+	    morewait();
+	    clearmsg();
 	}
 	if (Player.rank[NOBILITY] == 0) {
 	    print1 ("Well, sirrah, wouldst embark on a quest? [yn] ");
-	    if (ynq1 () == 'y') {
+	    if (ynq1() == 'y') {
 		print2 ("Splendid. Bring me the head of the Goblin King.");
 		Player.rank[NOBILITY] = COMMONER;
 	    } else {
 		print1 ("You scoundrel! Guards! Take this blackguard away!");
-		morewait ();
+		morewait();
 		p_damage (25, UNSTOPPABLE, "castle guards for lese majeste");
-		send_to_jail ();
+		send_to_jail();
 	    }
 	} else if (Player.rank[NOBILITY] == COMMONER) {
 	    if (find_and_remove_item (CORPSEID, GOBLIN_KING)) {
@@ -1854,11 +1854,11 @@ void l_castle (void)
 		Player.rank[NOBILITY] = ESQUIRE;
 		gain_experience (100);
 		print2 ("Now that you have proved yourself true, another quest!");
-		morewait ();
+		morewait();
 		print1 ("Bring to me a Holy Defender!");
 		print2 ("One is said to be in the possession of the Great Wyrm");
-		morewait ();
-		clearmsg ();
+		morewait();
+		clearmsg();
 		print1 ("in the depths of the sewers below the city.");
 	    } else
 		print2 ("Do not return until you achieve the quest, caitiff!");
@@ -1868,7 +1868,7 @@ void l_castle (void)
 		Player.rank[NOBILITY] = KNIGHT;
 		gain_experience (1000);
 		print2 ("If thou wouldst please me further...");
-		morewait ();
+		morewait();
 		print1 ("Bring me a suit of dragonscale armor.");
 		print2 ("You might have to kill a dragon to get one....");
 	    } else
@@ -1879,10 +1879,10 @@ void l_castle (void)
 		print2 ("Here are letters patent to a peerage!");
 		Player.rank[NOBILITY] = LORD;
 		gain_experience (10000);
-		morewait ();
+		morewait();
 		print1 ("If you would do me a final service...");
 		print2 ("I require the Orb of Mastery. If you would be so kind...");
-		morewait ();
+		morewait();
 		print1 ("By the way, you might find the Orb in the possession");
 		print2 ("Of the Elemental Master on the Astral Plane");
 	    } else
@@ -1891,13 +1891,13 @@ void l_castle (void)
 	    if (find_item (&o, ARTIFACTID + 0, -1)) {
 		print1 ("My sincerest thanks, my lord.");
 		print2 ("You have proved yourself a true paragon of chivalry");
-		morewait ();
+		morewait();
 		print1 ("I abdicate the Duchy in your favor....");
 		print2 ("Oh, you can keep the Orb, by the way....");
 		Player.rank[NOBILITY] = DUKE;
 		gain_experience (10000);
 		strcpy (Duke, Player.name);
-		morewait ();
+		morewait();
 		Dukebehavior = fixnpc (4);
 		save_hiscore_npc (12);
 		for (y = 52; y < 63; y++)
@@ -1927,17 +1927,16 @@ void l_arena (void)
     char response;
     pob newitem;
     int i, prize, monsterlevel;
-    char *melee = NULL;
 
     print1 ("Rampart Coliseum");
     if (Player.rank[ARENA] == 0) {
 	print2 ("Enter the games, or Register as a Gladiator? [e,r,ESCAPE] ");
 	do
-	    response = (char) mcigetc ();
+	    response = (char) mcigetc();
 	while ((response != 'e') && (response != 'r') && (response != ESCAPE));
     } else {
 	print2 ("Enter the games? [yn] ");
-	response = ynq2 ();
+	response = ynq2();
 	if (response == 'y')
 	    response = 'e';
 	else
@@ -1957,8 +1956,8 @@ void l_arena (void)
 	else {
 	    print1 ("Ok, yer now an Arena Trainee.");
 	    print2 ("Here's a wooden sword, and a shield");
-	    morewait ();
-	    clearmsg ();
+	    morewait();
+	    clearmsg();
 	    newitem = ((pob) checkmalloc (sizeof (objtype)));
 	    *newitem = Objects[WEAPONID + 17];	// club
 	    gain_item (newitem);
@@ -1967,14 +1966,14 @@ void l_arena (void)
 	    gain_item (newitem);
 	    Player.rank[ARENA] = TRAINEE;
 	    Arena_Opponent = 3;
-	    morewait ();
-	    clearmsg ();
+	    morewait();
+	    clearmsg();
 	    print1 ("You've got 5000Au credit at the Gym.");
 	    Gymcredit += 5000;
 	}
     } else if (response == 'e') {
 	print1 ("OK, we're arranging a match....");
-	morewait ();
+	morewait();
 	Arena_Monster = ((pmt) checkmalloc (sizeof (montype)));
 	Arena_Victory = FALSE;
 	switch (Arena_Opponent) {
@@ -2042,10 +2041,7 @@ void l_arena (void)
 		    Arena_Monster->dmg = 100 + Championlevel * 2;
 		    Arena_Monster->xpv = Championlevel * Championlevel * 5;
 		    Arena_Monster->speed = 3;
-		    melee = Arena_Monster->meleestr = (char *) checkmalloc (30 * sizeof (char));
-		    strcpy (Arena_Monster->meleestr, "");
-		    for (i = 0; i < Championlevel / 5; i++)
-			strcat (Arena_Monster->meleestr, "L?R?");
+		    Arena_Monster->meleestr = m_melee_str(Championlevel/5);
 		    m_status_set (Arena_Monster, MOBILE);
 		    m_status_set (Arena_Monster, HOSTILE);
 		} else {
@@ -2058,7 +2054,7 @@ void l_arena (void)
 	}
 	monsterlevel = Arena_Monster->level;
 	if (Arena_Monster->level != 20) {
-	    strcpy (Str1, nameprint ());
+	    strcpy (Str1, nameprint());
 	    strcat (Str1, " the ");
 	    strcat (Str1, Arena_Monster->monstring);
 	    Arena_Monster->monstring = salloc (Str1);
@@ -2071,8 +2067,8 @@ void l_arena (void)
 	print2 (Arena_Monster->monstring);
 	Arena_Monster->attacked = TRUE;
 	m_status_set (Arena_Monster, HOSTILE);
-	morewait ();
-	clearmsg ();
+	morewait();
+	clearmsg();
 	change_environment (E_ARENA);
 	print1 ("Let the battle begin....");
 
@@ -2097,14 +2093,12 @@ void l_arena (void)
 	// problem. -DAG
 	// free(corpse);
 
-	if (melee)
-	    free (melee);
 	if (!Arena_Victory) {
 	    print1 ("The crowd boos your craven behavior!!!");
 	    if (Player.rank[ARENA] > 0) {
 		print2 ("You are thrown out of the Gladiator's Guild!");
-		morewait ();
-		clearmsg ();
+		morewait();
+		clearmsg();
 		if (Gymcredit > 0)
 		    print1 ("Your credit at the gym is cut off!");
 		Gymcredit = 0;
@@ -2119,11 +2113,11 @@ void l_arena (void)
 		    Championlevel = Player.level;
 		    strcpy (Champion, Player.name);
 		    Player.rank[ARENA] = 5;
-		    morewait ();
+		    morewait();
 		    Championbehavior = fixnpc (4);
 		    save_hiscore_npc (11);
 		    print1 ("You are awarded the Champion's Spear: Victrix!");
-		    morewait ();
+		    morewait();
 		    newitem = ((pob) checkmalloc (sizeof (objtype)));
 		    *newitem = Objects[WEAPONID + 35];
 		    gain_item (newitem);
@@ -2131,11 +2125,11 @@ void l_arena (void)
 		} else {
 		    print1 ("As you are not an official gladiator,");
 		    nprint1 ("you are not made Champion.");
-		    morewait ();
+		    morewait();
 		}
 	    }
-	    morewait ();
-	    clearmsg ();
+	    morewait();
+	    clearmsg();
 	    print1 ("Good fight! ");
 	    nprint1 ("Your prize is: ");
 	    prize = max (25, monsterlevel * 50);
@@ -2147,16 +2141,16 @@ void l_arena (void)
 	    if ((Player.rank[ARENA] < 4) && (Arena_Opponent > 5) && (Arena_Opponent % 3 == 0)) {
 		if (Player.rank[ARENA] > 0) {
 		    Player.rank[ARENA]++;
-		    morewait ();
+		    morewait();
 		    print1 ("You've been promoted to a stronger class!");
 		    print2 ("You are also entitled to additional training.");
 		    Gymcredit += Arena_Opponent * 1000;
 		}
 	    }
 	}
-	xredraw ();
+	xredraw();
     } else
-	clearmsg ();
+	clearmsg();
 }
 
 void l_thieves_guild (void)
@@ -2165,26 +2159,26 @@ void l_thieves_guild (void)
     char c, action;
     pob lockpick;
     print1 ("You have penetrated to the Lair of the Thieves' Guild.");
-    if (!nighttime ())
+    if (!nighttime())
 	print2 ("There aren't any thieves around in the daytime.");
     else {
 	if ((Player.rank[THIEVES] == TMASTER) && (Player.level > Shadowlordlevel) && find_and_remove_item (THINGID + 16, -1)) {
 	    print2 ("You nicked the Justiciar's Badge!");
-	    morewait ();
+	    morewait();
 	    print1 ("The Badge is put in a place of honor in the Guild Hall.");
 	    print2 ("You are now the Shadowlord of the Thieves' Guild!");
-	    morewait ();
+	    morewait();
 	    print1 ("Who says there's no honor among thieves?");
 	    strcpy (Shadowlord, Player.name);
 	    Shadowlordlevel = Player.level;
-	    morewait ();
+	    morewait();
 	    Shadowlordbehavior = fixnpc (4);
 	    save_hiscore_npc (7);
-	    clearmsg ();
+	    clearmsg();
 	    print1 ("You learn the Spell of Shadowform.");
 	    Spells[S_SHADOWFORM].known = TRUE;
-	    morewait ();
-	    clearmsg ();
+	    morewait();
+	    clearmsg();
 	    Player.rank[THIEVES] = SHADOWLORD;
 	    Player.maxagi += 2;
 	    Player.maxdex += 2;
@@ -2192,7 +2186,7 @@ void l_thieves_guild (void)
 	    Player.dex += 2;
 	}
 	while (!done) {
-	    menuclear ();
+	    menuclear();
 	    if (Player.rank[THIEVES] == 0)
 		menuprint ("a: Join the Thieves' Guild.\n");
 	    else
@@ -2201,8 +2195,8 @@ void l_thieves_guild (void)
 	    if (Player.rank[THIEVES] > 0)
 		menuprint ("d: Fence an item.\n");
 	    menuprint ("ESCAPE: Leave this Den of Iniquity.");
-	    showmenu ();
-	    action = mgetc ();
+	    showmenu();
+	    action = mgetc();
 	    if (action == ESCAPE)
 		done = TRUE;
 	    else if (action == 'a') {
@@ -2215,11 +2209,11 @@ void l_thieves_guild (void)
 		    dues += dues * (12 - Player.dex) / 9;
 		    dues += Player.alignment * 5;
 		    dues = max (100, dues);
-		    clearmsg ();
+		    clearmsg();
 		    mprint ("Dues are");
 		    mnumprint (dues);
 		    mprint (" Au. Pay it? [yn] ");
-		    if (ynq1 () == 'y') {
+		    if (ynq1() == 'y') {
 			if (Player.cash < dues) {
 			    print1 ("You can't cheat the Thieves' Guild!");
 			    print2 ("... but the Thieves' Guild can cheat you....");
@@ -2228,17 +2222,17 @@ void l_thieves_guild (void)
 			    print1 ("Shadowlord ");
 			    nprint1 (Shadowlord);
 			    print2 ("enters your name into the roll of the Guild.");
-			    morewait ();
-			    clearmsg ();
+			    morewait();
+			    clearmsg();
 			    print1 ("As a special bonus, you get a free lockpick.");
 			    print2 ("You are taught the spell of Object Detection.");
-			    morewait ();
+			    morewait();
 			    Spells[S_OBJ_DET].known = TRUE;
 			    lockpick = ((pob) checkmalloc (sizeof (objtype)));
 			    *lockpick = Objects[THINGID + 2];	// lock pick
 			    gain_item (lockpick);
 			    Player.cash -= dues;
-			    dataprint ();
+			    dataprint();
 			    Player.guildxp[THIEVES] = 1;
 			    Player.rank[THIEVES] = TMEMBER;
 			    Player.maxdex++;
@@ -2264,11 +2258,11 @@ void l_thieves_guild (void)
 		    else {
 			print1 ("You are now a Master Thief of the Guild!");
 			print2 ("You are taught the Spell of Apportation.");
-			morewait ();
+			morewait();
 			print1 ("To advance to the next level you must return with");
 			print2 ("the badge of the Justiciar (cursed be his name).");
-			morewait ();
-			clearmsg ();
+			morewait();
+			clearmsg();
 			print1 ("The Justiciar's office is just south of the gaol.");
 			Spells[S_APPORT].known = TRUE;
 			Player.rank[THIEVES] = TMASTER;
@@ -2309,12 +2303,12 @@ void l_thieves_guild (void)
 		    print1 ("The fee is 5Au per item.");
 		}
 		print2 ("Identify one item, or all possessions? [ip] ");
-		if ((char) mcigetc () == 'i') {
+		if ((char) mcigetc() == 'i') {
 		    if (Player.cash < fee)
 			print2 ("Try again when you have the cash.");
 		    else {
 			Player.cash -= fee;
-			dataprint ();
+			dataprint();
 			identify (0);
 		    }
 		} else {
@@ -2327,16 +2321,16 @@ void l_thieves_guild (void)
 			if (Player.pack[i] != NULL)
 			    if (Player.pack[i]->known < 2)
 				count++;
-		    clearmsg ();
+		    clearmsg();
 		    print1 ("The fee will be: ");
 		    mnumprint (max (count * fee, fee));
 		    nprint1 ("Au. Pay it? [yn] ");
-		    if (ynq1 () == 'y') {
+		    if (ynq1() == 'y') {
 			if (Player.cash < max (count * fee, fee))
 			    print2 ("Try again when you have the cash.");
 			else {
 			    Player.cash -= max (count * fee, fee);
-			    dataprint ();
+			    dataprint();
 			    identify (1);
 			}
 		    }
@@ -2346,18 +2340,18 @@ void l_thieves_guild (void)
 		    print2 ("Fence? Who said anything about a fence?");
 		else {
 		    print1 ("Fence one item or go through pack? [ip] ");
-		    if ((char) mcigetc () == 'i') {
+		    if ((char) mcigetc() == 'i') {
 			i = getitem (NULL_ITEM);
 			if ((i == ABORT) || (Player.possessions[i] == NULL))
 			    print2 ("Huh, Is this some kind of set-up?");
 			else if (Player.possessions[i]->blessing < 0)
 			    print2 ("I don't want to buy a cursed item!");
 			else {
-			    clearmsg ();
+			    clearmsg();
 			    print1 ("I'll give you ");
 			    mlongprint (2 * item_value (Player.possessions[i]) / 3);
 			    nprint1 ("Au each. OK? [yn] ");
-			    if (ynq1 () == 'y') {
+			    if (ynq1() == 'y') {
 				number = getnumber (Player.possessions[i]->number);
 				if ((number >= Player.possessions[i]->number) && Player.possessions[i]->used) {
 				    Player.possessions[i]->used = FALSE;
@@ -2368,20 +2362,20 @@ void l_thieves_guild (void)
 				if (Objects[Player.possessions[i]->id].uniqueness > UNIQUE_UNMADE)
 				    Objects[Player.possessions[i]->id].uniqueness = UNIQUE_UNMADE;
 				dispose_lost_objects (number, Player.possessions[i]);
-				dataprint ();
+				dataprint();
 			    } else
 				print2 ("Hey, gimme a break, it was a fair price!");
 			}
 		    } else {
 			for (i = 0; i < Player.packptr; i++) {
 			    if (Player.pack[i]->blessing > -1) {
-				clearmsg ();
+				clearmsg();
 				print1 ("Sell ");
 				nprint1 (itemid (Player.pack[i]));
 				nprint1 (" for ");
 				mlongprint (2 * item_value (Player.pack[i]) / 3);
 				nprint1 ("Au each? [ynq] ");
-				if ((c = ynq1 ()) == 'y') {
+				if ((c = ynq1()) == 'y') {
 				    number = getnumber (Player.pack[i]->number);
 				    Player.cash += 2 * number * item_value (Player.pack[i]) / 3;
 				    Player.pack[i]->number -= number;
@@ -2389,21 +2383,21 @@ void l_thieves_guild (void)
 					// Fenced an artifact?  You just might see it again.
 					if (Objects[Player.pack[i]->id].uniqueness > UNIQUE_UNMADE)
 					    Objects[Player.pack[i]->id].uniqueness = UNIQUE_UNMADE;
-					free ((char *) Player.pack[i]);
+					free (Player.pack[i]);
 					Player.pack[i] = NULL;
 				    }
-				    dataprint ();
+				    dataprint();
 				} else if (c == 'q')
 				    break;
 			    }
 			}
-			fixpack ();
+			fixpack();
 		    }
 		}
 	    }
 	}
     }
-    xredraw ();
+    xredraw();
 }
 
 void l_college (void)
@@ -2411,17 +2405,17 @@ void l_college (void)
     char action;
     int done = FALSE, enrolled = FALSE;
     print1 ("The Collegium Magii. Founded 16937, AOF.");
-    if (nighttime ())
+    if (nighttime())
 	print2 ("The Registration desk is closed at night....");
     else {
 	while (!done) {
 	    if ((Player.rank[COLLEGE] == MAGE) && (Player.level > Archmagelevel) && find_and_remove_item (CORPSEID, EATER)) {
 		print1 ("You brought back the heart of the Eater of Magic!");
-		morewait ();
+		morewait();
 		print1 ("The Heart is sent to the labs for analysis.");
 		print2 ("The Board of Trustees appoints you Archmage!");
-		morewait ();
-		clearmsg ();
+		morewait();
+		clearmsg();
 		strcpy (Archmage, Player.name);
 		Archmagelevel = Player.level;
 		Player.rank[COLLEGE] = ARCHMAGE;
@@ -2429,18 +2423,18 @@ void l_college (void)
 		Player.iq += 5;
 		Player.maxpow += 5;
 		Player.pow += 5;
-		morewait ();
+		morewait();
 		Archmagebehavior = fixnpc (4);
 		save_hiscore_npc (9);
 	    }
-	    menuclear ();
+	    menuclear();
 	    menuprint ("May we help you?\n\n");
 	    menuprint ("a: Enroll in the College.\n");
 	    menuprint ("b: Raise your College rank.\n");
 	    menuprint ("c: Do spell research.\n");
 	    menuprint ("ESCAPE: Leave these hallowed halls.\n");
-	    showmenu ();
-	    action = mgetc ();
+	    showmenu();
+	    action = mgetc();
 	    if (action == ESCAPE)
 		done = TRUE;
 	    else if (action == 'a') {
@@ -2453,18 +2447,18 @@ void l_college (void)
 		else {
 		    if (Player.iq > 17) {
 			print2 ("You are given a scholarship!");
-			morewait ();
+			morewait();
 			enrolled = TRUE;
 		    } else {
 			print1 ("Tuition is 1000Au. ");
 			nprint1 ("Pay it? [yn] ");
-			if (ynq1 () == 'y') {
+			if (ynq1() == 'y') {
 			    if (Player.cash < 1000)
 				print2 ("You don't have the funds!");
 			    else {
 				Player.cash -= 1000;
 				enrolled = TRUE;
-				dataprint ();
+				dataprint();
 			    }
 			}
 		    }
@@ -2473,7 +2467,7 @@ void l_college (void)
 			nprint1 (Archmage);
 			nprint1 (" greets you and congratulates you on your acceptance.");
 			print2 ("You are now enrolled in the Collegium Magii!");
-			morewait ();
+			morewait();
 			print1 ("You are now a Novice.");
 			print2 ("You may research 1 spell, for your intro class.");
 			Spellsleft = 1;
@@ -2502,11 +2496,11 @@ void l_college (void)
 			print1 ("You are now a Mage of the Collegium Magii!");
 			print2 ("You may research 6 spells for postdoctoral research.");
 			Spellsleft += 6;
-			morewait ();
+			morewait();
 			print1 ("To become Archmage, you must return with the");
 			print2 ("heart of the Eater of Magic");
-			morewait ();
-			clearmsg ();
+			morewait();
+			clearmsg();
 			print1 ("The Eater may be found on a desert isle somewhere.");
 			Player.rank[COLLEGE] = MAGE;
 			Player.maxiq += 2;
@@ -2520,8 +2514,8 @@ void l_college (void)
 		    else {
 			print1 ("You are now a Preceptor of the Collegium Magii!");
 			print2 ("You are taught the basics of ritual magic.");
-			morewait ();
-			clearmsg ();
+			morewait();
+			clearmsg();
 			print1 ("Your position allows you to research 4 spells.");
 			Spellsleft += 4;
 			Spells[S_RITUAL].known = TRUE;
@@ -2537,8 +2531,8 @@ void l_college (void)
 		    else {
 			print1 ("You are now a Student at the Collegium Magii!");
 			print2 ("You are taught the spell of identification.");
-			morewait ();
-			clearmsg ();
+			morewait();
+			clearmsg();
 			print1 ("Thesis research credit is 2 spells.");
 			Spellsleft += 2;
 			Spells[S_IDENTIFY].known = TRUE;
@@ -2550,22 +2544,22 @@ void l_college (void)
 		    }
 		}
 	    } else if (action == 'c') {
-		clearmsg ();
+		clearmsg();
 		if (Spellsleft > 0) {
 		    print1 ("Research permitted: ");
 		    mnumprint (Spellsleft);
 		    nprint1 (" Spells.");
-		    morewait ();
+		    morewait();
 		}
 		if (Spellsleft < 1) {
 		    print1 ("Extracurricular Lab fee: 2000 Au. ");
 		    nprint1 ("Pay it? [yn] ");
-		    if (ynq1 () == 'y') {
+		    if (ynq1() == 'y') {
 			if (Player.cash < 2000)
 			    print1 ("Try again when you have the cash.");
 			else {
 			    Player.cash -= 2000;
-			    dataprint ();
+			    dataprint();
 			    Spellsleft = 1;
 			}
 		    }
@@ -2577,7 +2571,7 @@ void l_college (void)
 	    }
 	}
     }
-    xredraw ();
+    xredraw();
 }
 
 void l_sorcerors (void)
@@ -2589,36 +2583,36 @@ void l_sorcerors (void)
     if (Player.rank[CIRCLE] == -1) {
 	print2 ("Fool! Didn't we tell you to go away?");
 	Player.mana = 0;
-	dataprint ();
+	dataprint();
     } else
 	while (!done) {
 	    if ((Player.rank[CIRCLE] == HIGHSORCEROR) && (Player.level > Primelevel) && find_and_remove_item (CORPSEID, LAWBRINGER)) {
 		print2 ("You obtained the Crown of the Lawgiver!");
-		morewait ();
+		morewait();
 		print1 ("The Crown is ritually sacrificed to the Lords of Chaos.");
 		print2 ("You are now the Prime Sorceror of the Inner Circle!");
 		strcpy (Prime, Player.name);
 		Primelevel = Player.level;
-		morewait ();
+		morewait();
 		Primebehavior = fixnpc (4);
 		save_hiscore_npc (10);
-		clearmsg ();
+		clearmsg();
 		print1 ("You learn the Spell of Disintegration!");
-		morewait ();
-		clearmsg ();
+		morewait();
+		clearmsg();
 		Spells[S_DISINTEGRATE].known = TRUE;
 		Player.rank[CIRCLE] = PRIME;
 		Player.maxpow += 10;
 		Player.pow += 10;
 	    }
-	    menuclear ();
+	    menuclear();
 	    menuprint ("May we help you?\n\n");
 	    menuprint ("a: Become an Initiate of the Circle.\n");
 	    menuprint ("b: Raise your rank in the Circle.\n");
 	    menuprint ("c: Restore mana points\n");
 	    menuprint ("ESCAPE: Leave these Chambers of Power.\n");
-	    showmenu ();
-	    action = mgetc ();
+	    showmenu();
+	    action = mgetc();
 	    if (action == ESCAPE)
 		done = TRUE;
 	    else if (action == 'a') {
@@ -2632,24 +2626,24 @@ void l_sorcerors (void)
 		    fee += Player.alignment * 100;
 		    fee += fee * (12 - Player.pow) / 9;
 		    fee = max (100, fee);
-		    clearmsg ();
+		    clearmsg();
 		    mprint ("For you, there is an initiation fee of");
 		    mnumprint (fee);
 		    mprint (" Au.");
 		    print2 ("Pay it? [yn] ");
-		    if (ynq2 () == 'y') {
+		    if (ynq2() == 'y') {
 			if (Player.cash < fee)
 			    print3 ("Try again when you have the cash!");
 			else {
 			    print1 ("Prime Sorceror ");
 			    nprint1 (Prime);
 			    print2 ("conducts your initiation into the circle of novices.");
-			    morewait ();
-			    clearmsg ();
+			    morewait();
+			    clearmsg();
 			    print1 ("You learn the Spell of Magic Missiles.");
 			    Spells[S_MISSILE].known = TRUE;
 			    Player.cash -= fee;
-			    dataprint ();
+			    dataprint();
 			    Player.rank[CIRCLE] = INITIATE;
 			    Player.guildxp[CIRCLE] = 1;
 			    Player.maxpow++;
@@ -2664,16 +2658,16 @@ void l_sorcerors (void)
 		    print1 ("Ahh! You have grown too lawful!!!");
 		    print2 ("You are hereby blackballed from the Circle!");
 		    Player.rank[CIRCLE] = -1;
-		    morewait ();
-		    clearmsg ();
+		    morewait();
+		    clearmsg();
 		    print1 ("A pox upon thee!");
 		    if (!Player.immunity[INFECTION])
 			Player.status[DISEASED] += 100;
 		    print2 ("And a curse on your possessions!");
-		    morewait ();
-		    clearmsg ();
+		    morewait();
+		    clearmsg();
 		    acquire (-1);
-		    clearmsg ();
+		    clearmsg();
 		    enchant (-1);
 		    bless (-1);
 		    print3 ("Die, false sorceror!");
@@ -2692,8 +2686,8 @@ void l_sorcerors (void)
 		    else {
 			print1 ("You are now a High Sorceror of the Inner Circle!");
 			print2 ("You learn the Spell of Disruption!");
-			morewait ();
-			clearmsg ();
+			morewait();
+			clearmsg();
 			print1 ("To advance you must return with the LawBringer's Crown!");
 			print2 ("The LawBringer resides on Star Peak.");
 			Spells[S_DISRUPT].known = TRUE;
@@ -2729,19 +2723,19 @@ void l_sorcerors (void)
 		fee = Player.level * 100;
 		if (Player.rank[CIRCLE])
 		    fee = fee / 2;
-		clearmsg ();
+		clearmsg();
 		print1 ("That will be: ");
 		mnumprint (fee);
 		nprint1 ("Au. Pay it? [yn] ");
-		if (ynq1 () == 'y') {
+		if (ynq1() == 'y') {
 		    if (Player.cash < fee)
 			print2 ("Begone, deadbeat, or face the wrath of the Circle!");
 		    else {
 			Player.cash -= fee;
-			total = calcmana ();
+			total = calcmana();
 			while (Player.mana < total) {
 			    Player.mana++;
-			    dataprint ();
+			    dataprint();
 			}
 			print2 ("Have a sorcerous day, now!");
 		    }
@@ -2749,7 +2743,7 @@ void l_sorcerors (void)
 		    print2 ("Be seeing you!");
 	    }
 	}
-    xredraw ();
+    xredraw();
 }
 
 void l_order (void)
@@ -2757,10 +2751,10 @@ void l_order (void)
     pob newitem;
     pml ml;
     print1 ("The Headquarters of the Order of Paladins.");
-    morewait ();
+    morewait();
     if ((Player.rank[ORDER] == PALADIN) && (Player.level > Justiciarlevel) && gamestatusp (GAVE_STARGEM) && Player.alignment > 300) {
 	print1 ("You have succeeded in your quest!");
-	morewait ();
+	morewait();
 	print1 ("The previous Justiciar steps down in your favor.");
 	print2 ("You are now the Justiciar of Rampart and the Order!");
 	strcpy (Justiciar, Player.name);
@@ -2772,17 +2766,17 @@ void l_order (void)
 	    ml->m->hp = -1;	// signals "death" -- no credit to player, though
 	}
 	Justiciarlevel = Player.level;
-	morewait ();
+	morewait();
 	Justiciarbehavior = fixnpc (4);
 	save_hiscore_npc (15);
-	clearmsg ();
+	clearmsg();
 	print1 ("You are awarded a blessed shield of deflection!");
-	morewait ();
+	morewait();
 	newitem = ((pob) checkmalloc (sizeof (objtype)));
 	*newitem = Objects[SHIELDID + 7];	// shield of deflection
 	newitem->blessing = 9;
 	gain_item (newitem);
-	morewait ();
+	morewait();
 	Player.rank[ORDER] = JUSTICIAR;
 	Player.maxstr += 5;
 	Player.str += 5;
@@ -2793,9 +2787,9 @@ void l_order (void)
 	if (Player.rank[ORDER] > 0) {
 	    print1 ("You have been tainted by chaos!");
 	    print2 ("You are stripped of your rank in the Order!");
-	    morewait ();
+	    morewait();
 	    Player.rank[ORDER] = -1;
-	    send_to_jail ();
+	    send_to_jail();
 	} else
 	    print1 ("Get thee hence, minion of chaos!");
     } else if (Player.rank[ORDER] == -1)
@@ -2807,15 +2801,15 @@ void l_order (void)
 	    print1 ("Go back to your barracks, mercenary!");
 	else {
 	    print1 ("Dost thou wish to join our Order? [yn] ");
-	    if (ynq1 () == 'y') {
+	    if (ynq1() == 'y') {
 		print1 ("Justiciar ");
 		nprint1 (Justiciar);
 		nprint1 (" welcomes you to the Order.");
 		print2 ("'Mayest thou always follow the sublime path of Law.'");
-		morewait ();
+		morewait();
 		print1 ("You are now a Gallant in the Order.");
 		print2 ("You are given a horse and a blessed spear.");
-		morewait ();
+		morewait();
 		Player.rank[ORDER] = GALLANT;
 		Player.guildxp[ORDER] = 1;
 		setgamestatus (MOUNTED);
@@ -2833,16 +2827,16 @@ void l_order (void)
 	    print2 ("You are given a new steed.");
 	    setgamestatus (MOUNTED);
 	}
-	morewait ();
-	clearmsg ();
+	morewait();
+	clearmsg();
 	if ((Player.hp < Player.maxhp) || (Player.status[DISEASED]) || (Player.status[POISONED]))
 	    print1 ("Your wounds are treated by a medic.");
 	cleanse (0);
 	Player.hp = Player.maxhp;
 	Player.food = 40;
 	print2 ("You get a hot meal from the refectory.");
-	morewait ();
-	clearmsg ();
+	morewait();
+	clearmsg();
 	if (Player.rank[ORDER] == PALADIN) {
 	    if (Player.level <= Justiciarlevel)
 		print2 ("You are not experienced enough to advance.");
@@ -2858,23 +2852,23 @@ void l_order (void)
 	    else {
 		print1 ("You are made a Paladin of the Order!");
 		print2 ("You learn the Spell of Heroism and get Mithril Plate!");
-		morewait ();
+		morewait();
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
 		*newitem = Objects[ARMORID + 11];	// mithril plate armor
 		newitem->blessing = 9;
 		newitem->known = 2;
 		gain_item (newitem);
-		morewait ();
-		clearmsg ();
+		morewait();
+		clearmsg();
 		print1 ("To advance you must rescue the Star Gem and return it");
 		print2 ("to its owner, the LawBringer, who resides on Star Peak.");
-		morewait ();
+		morewait();
 		print1 ("The Star Gem was stolen by the cursed Prime Sorceror,");
 		print2 ("whose headquarters may be found beyond the Astral Plane.");
-		morewait ();
+		morewait();
 		print1 ("The Oracle will send you to the Astral Plane if you");
 		print2 ("prove yourself worthy to her.");
-		morewait ();
+		morewait();
 		Spells[S_HERO].known = TRUE;
 		Player.rank[ORDER] = PALADIN;
 	    }
@@ -2887,8 +2881,8 @@ void l_order (void)
 		Player.rank[ORDER] = CHEVALIER;
 		print1 ("You are made a Chevalier of the Order!");
 		print2 ("You are given a Mace of Disruption!");
-		morewait ();
-		clearmsg ();
+		morewait();
+		clearmsg();
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
 		*newitem = Objects[WEAPONID + 25];	// mace of disruption
 		newitem->known = 2;
@@ -2902,11 +2896,11 @@ void l_order (void)
 	    else {
 		print1 ("You are made a Guardian of the Order of Paladins!");
 		print2 ("You are given a Holy Hand Grenade (of Antioch).");
-		morewait ();
+		morewait();
 		print1 ("You hear a nasal monotone in the distance....");
 		print2 ("'...and the number of thy counting shall be 3...'");
-		morewait ();
-		clearmsg ();
+		morewait();
+		clearmsg();
 		Player.rank[ORDER] = GUARDIAN;
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
 		*newitem = Objects[ARTIFACTID + 7];	// holy hand grenade.
@@ -2927,7 +2921,7 @@ void load_house (int kind, int populate)
     FILE *fd;
 
     TempLevel = Level;
-    initrand (Current_Environment, Player.x + Player.y + hour () * 10);
+    initrand (Current_Environment, Player.x + Player.y + hour() * 10);
     if (ok_to_free (TempLevel)) {
 	free_level (TempLevel);
 	TempLevel = NULL;
@@ -3112,7 +3106,7 @@ static void make_house_npc (int i, int j)
     ml->next = Level->mlist;
     Level->mlist = ml;
     m_status_set (ml->m, HOSTILE);
-    if (nighttime ())
+    if (nighttime())
 	m_status_reset (ml->m, AWAKE);
     else
 	m_status_set (ml->m, AWAKE);
@@ -3138,7 +3132,7 @@ static void make_mansion_npc (int i, int j)
     ml->next = Level->mlist;
     Level->mlist = ml;
     m_status_set (ml->m, HOSTILE);
-    if (nighttime ())
+    if (nighttime())
 	m_status_reset (ml->m, AWAKE);
     else
 	m_status_set (ml->m, AWAKE);
@@ -3480,7 +3474,7 @@ void make_country_monsters (int terrain)
 	tml = ((pml) checkmalloc (sizeof (mltype)));
 	tml->m = ((pmt) checkmalloc (sizeof (montype)));
 	if (monsters == NULL)
-	    tml->m = m_create (random_range (WIDTH), random_range (LENGTH), TRUE, difficulty ());
+	    tml->m = m_create (random_range (WIDTH), random_range (LENGTH), TRUE, difficulty());
 	else {
 	    tml->m = make_creature (*(monsters + random_range (10)));
 	    tml->m->x = random_range (WIDTH);
@@ -3507,7 +3501,7 @@ void make_country_monsters (int terrain)
 void populate_level (int monstertype)
 {
     pml head, tml;
-    int i, j, k, monsterid = RANDOM, nummonsters = (random_range (difficulty () / 3) + 1) * 3 + 8;
+    int i, j, k, monsterid = RANDOM, nummonsters = (random_range (difficulty() / 3) + 1) * 3 + 8;
 
     if (monstertype == E_CASTLE)
 	nummonsters += 10;
@@ -3759,11 +3753,11 @@ void populate_level (int monstertype)
 		break;
 	    case E_CASTLE:
 		if (random_range (4) == 1) {
-		    if (difficulty () < 5)
+		    if (difficulty() < 5)
 			monsterid = ENCHANTOR;
-		    else if (difficulty () < 6)
+		    else if (difficulty() < 6)
 			monsterid = NECROMANCER;
-		    else if (difficulty () < 8)
+		    else if (difficulty() < 8)
 			monsterid = FIRE_ELEM;
 		    else
 			monsterid = THAUMATURGIST;
@@ -3781,7 +3775,7 @@ void populate_level (int monstertype)
 	if (monsterid > RANDOM)
 	    Level->site[i][j].creature = make_creature (monsterid);
 	else
-	    Level->site[i][j].creature = m_create (i, j, TRUE, difficulty ());
+	    Level->site[i][j].creature = m_create (i, j, TRUE, difficulty());
 
 	Level->site[i][j].creature->x = i;
 	Level->site[i][j].creature->y = j;
@@ -3811,11 +3805,11 @@ void wandercheck (void)
 {
     int x, y;
     pml tml;
-    if (random_range (MaxDungeonLevels) < difficulty ()) {
+    if (random_range (MaxDungeonLevels) < difficulty()) {
 	findspace (&x, &y, -1);
 	tml = ((pml) checkmalloc (sizeof (mltype)));
 	tml->next = Level->mlist;
-	tml->m = Level->site[x][y].creature = m_create (x, y, WANDERING, difficulty ());
+	tml->m = Level->site[x][y].creature = m_create (x, y, WANDERING, difficulty());
 	Level->mlist = tml;
     }
 }
@@ -3828,7 +3822,7 @@ void make_site_monster (int i, int j, int mid)
     if (mid > -1)
 	Level->site[i][j].creature = (m = make_creature (mid));
     else
-	Level->site[i][j].creature = (m = m_create (i, j, WANDERING, difficulty ()));
+	Level->site[i][j].creature = (m = m_create (i, j, WANDERING, difficulty()));
     m->x = i;
     m->y = j;
     ml->m = m;
@@ -3935,7 +3929,7 @@ pmt make_creature (int mid)
 	newmonster->monstring = salloc (Str3);
     } else if (mid == ZERO_NPC || mid == WEREHUMAN) {
 	// generic 0th level human, or a were-human
-	newmonster->monstring = mantype ();
+	newmonster->monstring = mantype();
 	strcpy (Str1, "dead ");
 	strcat (Str1, newmonster->monstring);
 	newmonster->corpsestr = salloc (Str1);
@@ -3989,7 +3983,7 @@ pmt make_creature (int mid)
 // drop treasures randomly onto level
 void stock_level (void)
 {
-    int i, j, k, numtreasures = 2 * random_range (difficulty () / 4) + 4;
+    int i, j, k, numtreasures = 2 * random_range (difficulty() / 4) + 4;
 
     // put cash anywhere, including walls, put other treasures only on floor
     for (k = 0; k < numtreasures + 10; k++) {
@@ -3997,12 +3991,12 @@ void stock_level (void)
 	    i = random_range (WIDTH);
 	    j = random_range (LENGTH);
 	} while (Level->site[i][j].locchar != FLOOR);
-	make_site_treasure (i, j, difficulty ());
+	make_site_treasure (i, j, difficulty());
 	i = random_range (WIDTH);
 	j = random_range (LENGTH);
 	Level->site[i][j].things = ((pol) checkmalloc (sizeof (oltype)));
 	Level->site[i][j].things->thing = ((pob) checkmalloc (sizeof (objtype)));
-	make_cash (Level->site[i][j].things->thing, difficulty ());
+	make_cash (Level->site[i][j].things->thing, difficulty());
 	Level->site[i][j].things->next = NULL;
 	// caves have more random cash strewn around
 	if (Current_Dungeon == E_CAVES) {
@@ -4010,13 +4004,13 @@ void stock_level (void)
 	    j = random_range (LENGTH);
 	    Level->site[i][j].things = ((pol) checkmalloc (sizeof (oltype)));
 	    Level->site[i][j].things->thing = ((pob) checkmalloc (sizeof (objtype)));
-	    make_cash (Level->site[i][j].things->thing, difficulty ());
+	    make_cash (Level->site[i][j].things->thing, difficulty());
 	    Level->site[i][j].things->next = NULL;
 	    i = random_range (WIDTH);
 	    j = random_range (LENGTH);
 	    Level->site[i][j].things = ((pol) checkmalloc (sizeof (oltype)));
 	    Level->site[i][j].things->thing = ((pob) checkmalloc (sizeof (objtype)));
-	    make_cash (Level->site[i][j].things->thing, difficulty ());
+	    make_cash (Level->site[i][j].things->thing, difficulty());
 	    Level->site[i][j].things->next = NULL;
 	}
     }
@@ -4110,16 +4104,16 @@ void l_bank (void)
 	print2 ("You see a damaged autoteller.");
     else {
 	print2 ("The proximity sensor activates the autoteller as you approach.");
-	morewait ();
-	clearmsg ();
+	morewait();
+	clearmsg();
 	while (!done) {
 	    print1 ("Current Balance: ");
 	    mlongprint (Balance);
 	    nprint1 ("Au. ");
 	    nprint1 (" Enter command (? for help) > ");
-	    response = mgetc ();
+	    response = mgetc();
 	    if (response == '?') {
-		menuclear ();
+		menuclear();
 		menuprint ("?: This List.\n");
 		if (strcmp (Password, "") == 0)
 		    menuprint ("O: Open an account.\n");
@@ -4129,57 +4123,57 @@ void l_bank (void)
 		    menuprint ("W: Withdraw\n");
 		}
 		menuprint ("X: eXit\n");
-		showmenu ();
-		morewait ();
-		xredraw ();
+		showmenu();
+		morewait();
+		xredraw();
 		continue;
 	    } else if ((response == 'P') && (strcmp (Password, "") != 0)) {
-		clearmsg ();
+		clearmsg();
 		print1 ("Password: ");
-		strcpy (passwd, msgscanstring ());
+		strcpy (passwd, msgscanstring());
 		valid = (strcmp (passwd, Password) == 0);
 		if (!valid) {
 		    done = TRUE;
-		    menuclear ();
+		    menuclear();
 		    menuprint ("Alert! Alert! Invalid Password!\n");
 		    menuprint ("The police are being summoned!\n");
 		    menuprint ("Please wait for the police to arrive....\n\n");
 		    menuprint ("----Hit space bar to continue----\n");
-		    showmenu ();
-		    response = menugetc ();
+		    showmenu();
+		    response = menugetc();
 		    if (response == ' ') {
 			Player.alignment += 5;
-			xredraw ();
+			xredraw();
 			print1 ("Ah ha! Trying to rob the bank, eh?");
 			print2 ("Take him away, boys!");
-			morewait ();
-			send_to_jail ();
+			morewait();
+			send_to_jail();
 		    } else {
 			Player.alignment -= 5;
-			menuclear ();
+			menuclear();
 			sleep (4);
 			menuprint ("^@^@^@^@^@00AD1203BC0F0000FFFFFFFFFFFF\n");
 			menuprint ("Interrupt in _get_space. Illegal Character.\n");
-			showmenu ();
+			showmenu();
 			sleep (4);
 			menuprint ("Aborting _police_alert.....\n");
 			menuprint ("Attempting reboot.....\n");
-			showmenu ();
+			showmenu();
 			sleep (4);
 			menuprint ("Warning: Illegal shmop at _count_cash.\n");
 			menuprint ("Warning: Command Buffer NOT CLEARED\n");
-			showmenu ();
+			showmenu();
 			sleep (4);
 			menuprint ("Reboot Complete. Execution Continuing.\n");
 			menuprint ("Withdrawing: 4294967297 Au.\n");
 			menuprint ("Warning: Arithmetic Overflow in _withdraw\n");
-			showmenu ();
+			showmenu();
 			sleep (4);
 			menuprint ("Yo mama. Core dumped.\n");
-			showmenu ();
+			showmenu();
 			sleep (4);
-			xredraw ();
-			clearmsg ();
+			xredraw();
+			clearmsg();
 			print1 ("The cash machine begins to spew gold pieces!");
 			print2 ("You pick up your entire balance and then some!");
 			Player.cash += Balance + 1000 + random_range (3000);
@@ -4189,7 +4183,7 @@ void l_bank (void)
 		} else
 		    print2 ("Password accepted. Working.");
 	    } else if ((response == 'D') && valid) {
-		clearmsg ();
+		clearmsg();
 		print1 ("Amount: ");
 		amount = get_money (Player.cash);
 		if (amount < 1)
@@ -4202,7 +4196,7 @@ void l_bank (void)
 		    Player.cash -= amount;
 		}
 	    } else if ((response == 'W') && valid) {
-		clearmsg ();
+		clearmsg();
 		print1 ("Amount: ");
 		amount = get_money (Balance);
 		if (amount < 1)
@@ -4215,14 +4209,14 @@ void l_bank (void)
 		    Player.cash += amount;
 		}
 	    } else if (response == 'X') {
-		clearmsg ();
+		clearmsg();
 		print1 ("Bye!");
 		done = TRUE;
 	    } else if ((response == 'O') && (strcmp (Password, "") == 0)) {
-		clearmsg ();
+		clearmsg();
 		print1 ("Opening new account.");
 		nprint1 (" Please enter new password: ");
-		strcpy (Password, msgscanstring ());
+		strcpy (Password, msgscanstring());
 		if (strcmp (Password, "") == 0) {
 		    print3 ("Illegal to use null password -- aborted.");
 		    done = TRUE;
@@ -4232,25 +4226,25 @@ void l_bank (void)
 		}
 	    } else
 		print3 (" Illegal command.");
-	    dataprint ();
+	    dataprint();
 	}
     }
-    xredraw ();
+    xredraw();
 }
 
 void l_armorer (void)
 {
     int done = FALSE;
     char action;
-    if (hour () == 12)
+    if (hour() == 12)
 	print3 ("Unfortunately, this is Julie's lunch hour -- try again later.");
-    else if (nighttime ())
+    else if (nighttime())
 	print3 ("It seems that Julie keeps regular business hours.");
     else {
 	while (!done) {
-	    clearmsg ();
+	    clearmsg();
 	    print1 ("Julie's: Buy Armor, Weapons, or Leave [a,w,ESCAPE] ");
-	    action = mgetc ();
+	    action = mgetc();
 	    if (action == ESCAPE)
 		done = TRUE;
 	    else if (action == 'a')
@@ -4259,7 +4253,7 @@ void l_armorer (void)
 		buyfromstock (WEAPONID, 23);
 	}
     }
-    xredraw ();
+    xredraw();
 }
 
 static void buyfromstock (int base, int numitems)
@@ -4269,7 +4263,7 @@ static void buyfromstock (int base, int numitems)
     pob newitem;
 
     print2 ("Purchase which item? [ESCAPE to quit] ");
-    menuclear ();
+    menuclear();
     for (i = 0; i < numitems; i++) {
 	strcpy (Str4, " :");
 	Str4[0] = i + 'a';
@@ -4277,30 +4271,30 @@ static void buyfromstock (int base, int numitems)
 	menuprint (Str4);
 	menuprint ("\n");
     }
-    showmenu ();
+    showmenu();
     item = ' ';
     while ((item != ESCAPE) && ((item < 'a') || (item >= 'a' + numitems)))
-	item = mgetc ();
+	item = mgetc();
     if (item != ESCAPE) {
 	i = item - 'a';
 	newitem = ((pob) checkmalloc (sizeof (objtype)));
 	*newitem = Objects[base + i];
 	newitem->known = 2;
-	clearmsg ();
+	clearmsg();
 	print1 ("I can let you have it for ");
 	mlongprint (2 * true_item_value (newitem));
 	nprint1 ("Au. Buy it? [yn] ");
-	if (ynq1 () == 'y') {
+	if (ynq1() == 'y') {
 	    if (Player.cash < 2 * true_item_value (newitem)) {
 		print2 ("Why not try again some time you have the cash?");
-		free ((char *) newitem);
+		free (newitem);
 	    } else {
 		Player.cash -= 2 * true_item_value (newitem);
-		dataprint ();
+		dataprint();
 		gain_item (newitem);
 	    }
 	} else
-	    free ((char *) newitem);
+	    free (newitem);
     }
 }
 
@@ -4315,14 +4309,14 @@ void l_club (void)
 	    print3 ("Only reknowned adventurers need apply.");
 	else {
 	    print2 ("Dues are 100Au. Pay it? [yn] ");
-	    if (ynq2 () == 'y') {
+	    if (ynq2() == 'y') {
 		if (Player.cash < 100)
 		    print3 ("Beat it, or we'll blackball you!");
 		else {
 		    print1 ("Welcome to the club! You are taught the spell of Return.");
 		    print2 ("When cast on the first level of a dungeon it");
-		    morewait ();
-		    clearmsg ();
+		    morewait();
+		    clearmsg();
 		    print1 ("will transport you down to the lowest level");
 		    print2 ("you have explored, and vice versa.");
 		    Spells[S_RETURN].known = TRUE;
@@ -4335,19 +4329,19 @@ void l_club (void)
     } else {
 	print2 ("Shop at the club store or listen for rumors [sl] ");
 	do
-	    response = (char) mcigetc ();
+	    response = (char) mcigetc();
 	while ((response != 's') && (response != 'l') && (response != ESCAPE));
 	if (response == 'l') {
-	    if (hinthour == hour ())
+	    if (hinthour == hour())
 		print2 ("You don't hear anything useful.");
 	    else {
 		print1 ("You overhear a conversation....");
-		hint ();
-		hinthour = hour ();
+		hint();
+		hinthour = hour();
 	    }
 	} else if (response == 's') {
 	    buyfromstock (THINGID + 7, 2);
-	    xredraw ();
+	    xredraw();
 	} else if (response == ESCAPE)
 	    print2 ("Be seeing you, old chap!");
     }
@@ -4359,7 +4353,7 @@ void l_gym (void)
 {
     int done = TRUE;
     int trained = 0;
-    clearmsg ();
+    clearmsg();
     do {
 	print1 ("The Rampart Gymnasium");
 	if ((Gymcredit > 0) || (Player.rank[ARENA])) {
@@ -4368,15 +4362,15 @@ void l_gym (void)
 	    nprint1 ("Au.");
 	}
 	done = FALSE;
-	menuclear ();
+	menuclear();
 	menuprint ("Train for 2000 Au. Choose:\n");
 	menuprint ("\na: work out in the weight room");
 	menuprint ("\nb: use our gymnastics equipment");
 	menuprint ("\nc: take our new anaerobics course");
 	menuprint ("\nd: enroll in dance lessons.");
 	menuprint ("\nESCAPE: Leave this place.");
-	showmenu ();
-	switch (mgetc ()) {
+	showmenu();
+	switch (mgetc()) {
 	    case 'a':
 		gymtrain (&(Player.maxstr), &(Player.str));
 		break;
@@ -4390,7 +4384,7 @@ void l_gym (void)
 		gymtrain (&(Player.maxagi), &(Player.agi));
 		break;
 	    case ESCAPE:
-		clearmsg ();
+		clearmsg();
 		if (trained == 0)
 		    print1 ("Well, it's your body you're depriving!");
 		else if (trained < 3)
@@ -4405,24 +4399,24 @@ void l_gym (void)
 	}
 	trained++;
     } while (!done);
-    xredraw ();
-    calc_melee ();
+    xredraw();
+    calc_melee();
 }
 
 void l_healer (void)
 {
     print1 ("Rampart Healers. Member RMA.");
-    morewait ();
-    clearmsg ();
+    morewait();
+    clearmsg();
     print1 ("a: Heal injuries (50 crowns)");
     print2 ("b: Cure disease (250 crowns)");
     print3 ("ESCAPE: Leave these antiseptic alcoves.");
-    switch ((char) mcigetc ()) {
+    switch ((char) mcigetc()) {
 	case 'a':
-	    healforpay ();
+	    healforpay();
 	    break;
 	case 'b':
-	    cureforpay ();
+	    cureforpay();
 	    break;
 	default:
 	    print3 ("OK, but suppose you have Acute Satyriasis?");
@@ -4434,9 +4428,9 @@ void statue_random (int x, int y)
 {
     pob item;
     int i, j;
-    switch (random_range (difficulty () + 3) - 1) {
+    switch (random_range (difficulty() + 3) - 1) {
 	default:
-	    l_statue_wake ();
+	    l_statue_wake();
 	    break;
 	case 0:
 	    print1 ("The statue crumbles with a clatter of gravel.");
@@ -4454,17 +4448,17 @@ void statue_random (int x, int y)
 	    Level->site[x][y].p_locf = L_RUBBLE;
 	    plotspot (x, y, TRUE);
 	    lset (x, y, CHANGED);
-	    make_site_treasure (x, y, difficulty ());
+	    make_site_treasure (x, y, difficulty());
 	    break;
 	case 3:
 	    print1 ("The statue hits you back!");
-	    p_damage (random_range (difficulty () * 5), UNSTOPPABLE, "a statue");
+	    p_damage (random_range (difficulty() * 5), UNSTOPPABLE, "a statue");
 	    break;
 	case 4:
 	    print1 ("The statue looks slightly pained. It speaks:");
-	    morewait ();
-	    clearmsg ();
-	    hint ();
+	    morewait();
+	    clearmsg();
+	    hint();
 	    break;
 	case 5:
 	    if ((Current_Environment == Current_Dungeon) || (Current_Environment == E_CITY)) {
@@ -4506,7 +4500,7 @@ void statue_random (int x, int y)
 			lset (i, j, CHANGED);
 		    }
 		}
-	    show_screen ();
+	    show_screen();
 	    break;
     }
 }
@@ -4531,7 +4525,7 @@ static void wake_statue (int x, int y, int first)
 	Level->site[x][y].locchar = FLOOR;
 	lset (x, y, CHANGED);
 	tml = ((pml) checkmalloc (sizeof (mltype)));
-	tml->m = (Level->site[x][y].creature = m_create (x, y, 0, difficulty () + 1));
+	tml->m = (Level->site[x][y].creature = m_create (x, y, 0, difficulty() + 1));
 	m_status_set (Level->site[x][y].creature, HOSTILE);
 	tml->next = Level->mlist;
 	Level->mlist = tml;
@@ -4549,18 +4543,18 @@ void l_casino (void)
 	print2 ("Casino closed due to Grand Jury investigation.");
     else {
 	while (!done) {
-	    morewait ();
-	    clearmsg ();
+	    morewait();
+	    clearmsg();
 	    print1 ("a: Drop 100Au in the slots.");
 	    print2 ("b: Risk 1000Au  at roulette.");
 	    print3 ("ESCAPE: Leave this green baize hall.");
-	    response = (char) mcigetc ();
+	    response = (char) mcigetc();
 	    if (response == 'a') {
 		if (Player.cash < 100)
 		    print3 ("No credit, jerk.");
 		else {
 		    Player.cash -= 100;
-		    dataprint ();
+		    dataprint();
 		    for (i = 0; i < 20; i++) {
 			if (i == 19)
 			    sleep (1);
@@ -4569,7 +4563,7 @@ void l_casino (void)
 			a = random_range (10);
 			b = random_range (10);
 			c = random_range (10);
-			clearmsg1 ();
+			clearmsg1();
 			mprint (slotstr (a));
 			mprint (slotstr (b));
 			mprint (slotstr (c));
@@ -4585,7 +4579,7 @@ void l_casino (void)
 			b = random_range (10);
 			c = random_range (10);
 		    }
-		    clearmsg ();
+		    clearmsg();
 		    mprint (slotstr (a));
 		    mprint (slotstr (b));
 		    mprint (slotstr (c));
@@ -4593,21 +4587,21 @@ void l_casino (void)
 			print3 ("Jackpot Winner!");
 			winnings += (a + 2) * (b + 2) * (c + 2) * 5;
 			Player.cash += (a + 2) * (b + 2) * (c + 2) * 5;
-			dataprint ();
+			dataprint();
 		    } else if (a == b) {
 			print3 ("Winner!");
 			Player.cash += (a + 2) * (b + 2) * 5;
-			dataprint ();
+			dataprint();
 			winnings += (a + 2) * (b + 2) * 5;
 		    } else if (a == c) {
 			print3 ("Winner!");
 			Player.cash += (a + 2) * (c + 2) * 5;
-			dataprint ();
+			dataprint();
 			winnings += (a + 2) * (c + 2) * 5;
 		    } else if (c == b) {
 			print3 ("Winner!");
 			Player.cash += (c + 2) * (b + 2) * 5;
-			dataprint ();
+			dataprint();
 			winnings += (c + 2) * (b + 2) * 5;
 		    } else {
 			print3 ("Loser!");
@@ -4619,10 +4613,10 @@ void l_casino (void)
 		    mprint ("No credit, jerk.");
 		else {
 		    Player.cash -= 1000;
-		    dataprint ();
+		    dataprint();
 		    print1 ("Red or Black? [rb]");
 		    do
-			response = (char) mcigetc ();
+			response = (char) mcigetc();
 		    while ((response != 'r') && (response != 'b'));
 		    match = (response == 'r' ? 0 : 1);
 		    for (i = 0; i < 20; i++) {
@@ -4662,11 +4656,11 @@ void l_casino (void)
 			print3 (" Winner!");
 			winnings += 1000;
 			Player.cash += 2000;
-			dataprint ();
+			dataprint();
 		    } else {
 			print3 (" Loser!");
 			winnings -= 1000;
-			dataprint ();
+			dataprint();
 		    }
 		}
 	    } else if (response == ESCAPE)
@@ -4681,10 +4675,10 @@ void l_commandant (void)
     pob food;
     print1 ("Commandant Sonder's Rampart-fried Lyzzard partes. Open 24 hrs.");
     print2 ("Buy a bucket! Only 5 Au. Make a purchase? [yn] ");
-    if (ynq2 () == 'y') {
-	clearmsg ();
+    if (ynq2() == 'y') {
+	clearmsg();
 	print1 ("How many? ");
-	num = (int) parsenum ();
+	num = (int) parsenum();
 	if (num < 1)
 	    print3 ("Cute. Real cute.");
 	else if (num * 5 > Player.cash)
@@ -4698,7 +4692,7 @@ void l_commandant (void)
 		print2 ("There you go, mac! One Lyzzard Bucket, coming up.");
 	    else
 		print2 ("A passel of Lyzzard Buckets, for your pleasure.");
-	    morewait ();
+	    morewait();
 	    gain_item (food);
 	}
     } else
@@ -4709,14 +4703,14 @@ void l_diner (void)
 {
     print1 ("The Rampart Diner. All you can eat, 25Au.");
     print2 ("Place an order? [yn] ");
-    if (ynq2 () == 'y') {
+    if (ynq2() == 'y') {
 	if (Player.cash < 25)
 	    mprint ("TANSTAAFL! Now git!");
 	else {
 	    Player.cash -= 25;
-	    dataprint ();
+	    dataprint();
 	    Player.food = 44;
-	    foodcheck ();
+	    foodcheck();
 	}
     }
 }
@@ -4724,19 +4718,19 @@ void l_diner (void)
 void l_crap (void)
 {
     print1 ("Les Crapeuleaux. (****) ");
-    if ((hour () < 17) || (hour () > 23))
+    if ((hour() < 17) || (hour() > 23))
 	print2 ("So sorry, we are closed 'til the morrow...");
     else {
 	print2 ("May I take your order? [yn] ");
-	if (ynq2 () == 'y') {
+	if (ynq2() == 'y') {
 	    if (Player.cash < 1000)
 		print2 ("So sorry, you have not the funds for dinner.");
 	    else {
 		print2 ("Hope you enjoyed your tres expensive meal, m'sieur...");
 		Player.cash -= 1000;
-		dataprint ();
+		dataprint();
 		Player.food += 8;
-		foodcheck ();
+		foodcheck();
 	    }
 	}
     }
@@ -4747,17 +4741,17 @@ void l_tavern (void)
 #define hinthour tavern_hinthour
     char response;
     print1 ("The Centaur and Nymph -- J. Riley, prop.");
-    if (nighttime ()) {
-	menuclear ();
+    if (nighttime()) {
+	menuclear();
 	menuprint ("Riley says: Whataya have?\n\n");
 	menuprint ("a: Pint of Riley's ultra-dark 1Au\n");
 	menuprint ("b: Shot of Tullimore Dew 10Au\n");
 	menuprint ("c: Round for the House. 100Au\n");
 	menuprint ("d: Bed and Breakfast. 25Au\n");
 	menuprint ("ESCAPE: Leave this comfortable haven.\n");
-	showmenu ();
+	showmenu();
 	do
-	    response = (char) mcigetc ();
+	    response = (char) mcigetc();
 	while ((response != 'a') && (response != 'b') && (response != 'c') && (response != 'd') && (response != ESCAPE));
 	switch (response) {
 	    case 'a':
@@ -4765,14 +4759,14 @@ void l_tavern (void)
 		    print2 ("Aw hell, have one on me.");
 		else {
 		    Player.cash -= 1;
-		    dataprint ();
-		    if (hinthour != hour ()) {
+		    dataprint();
+		    if (hinthour != hour()) {
 			if (random_range (3)) {
 			    print1 ("You overhear a rumor...");
-			    hint ();
+			    hint();
 			} else
 			    print1 ("You don't hear much of interest.");
-			hinthour = hour ();
+			hinthour = hour();
 		    } else
 			print1 ("You just hear the same conversations again.");
 		}
@@ -4787,7 +4781,7 @@ void l_tavern (void)
 			print2 ("Phew! That's, er, smooth stuff!");
 		    Player.status[POISONED] = 0;
 		    Player.status[DISEASED] = 0;
-		    showflags ();
+		    showflags();
 		}
 		break;
 	    case 'c':
@@ -4795,21 +4789,21 @@ void l_tavern (void)
 		    print1 ("Whatta feeb!");
 		    print2 ("Outta my establishment.... Now!");
 		    p_damage (random_range (20), UNSTOPPABLE, "Riley's right cross");
-		    morewait ();
+		    morewait();
 		} else {
 		    Player.cash -= 100;
-		    dataprint ();
+		    dataprint();
 		    print1 ("'What a guy!'");
-		    morewait ();
+		    morewait();
 		    print2 ("'Hey, thanks, fella.'");
-		    morewait ();
+		    morewait();
 		    print3 ("'Make mine a double...'");
-		    morewait ();
-		    clearmsg ();
+		    morewait();
+		    clearmsg();
 		    switch (random_range (4)) {
 			case 0:
 			    print1 ("'You're a real pal. Say, have you heard.... ");
-			    hint ();
+			    hint();
 			    break;
 			case 1:
 			    print1 ("A wandering priest of Dionysus blesses you...");
@@ -4829,7 +4823,7 @@ void l_tavern (void)
 			case 3:
 			    print1 ("Riley draws you a shot of his 'special reserve'");
 			    print2 ("Drink it [yn]?");
-			    if (ynq2 () == 'y') {
+			    if (ynq2() == 'y') {
 				if (Player.con < random_range (20)) {
 				    print1 ("<cough> Quite a kick!");
 				    print2 ("You feel a fiery warmth in your tummy....");
@@ -4847,7 +4841,7 @@ void l_tavern (void)
 		else {
 		    Player.cash -= 25;
 		    print2 ("How about a shot o' the dew for a nightcap?");
-		    morewait ();
+		    morewait();
 		    Time += (6 + random_range (4)) * 60;
 		    Player.status[POISONED] = 0;
 		    Player.status[DISEASED] = 0;
@@ -4861,11 +4855,11 @@ void l_tavern (void)
 		    Player.iq = min (Player.iq, Player.maxiq);
 		    Player.pow = min (Player.pow, Player.maxpow);
 		    toggle_item_use (FALSE);
-		    timeprint ();
-		    dataprint ();
-		    showflags ();
+		    timeprint();
+		    dataprint();
+		    showflags();
 		    print1 ("The next day.....");
-		    if (hour () > 10)
+		    if (hour() > 10)
 			print2 ("Oh my! You overslept!");
 		}
 		break;
@@ -4875,7 +4869,7 @@ void l_tavern (void)
 	}
     } else
 	print2 ("The pub don't open til dark, fella.");
-    xredraw ();
+    xredraw();
 }
 
 #undef hinthour
@@ -4886,18 +4880,18 @@ void l_alchemist (void)
     char response;
     pob obj;
     print1 ("Ambrosias' Potions et cie.");
-    if (nighttime ())
+    if (nighttime())
 	print2 ("Ambrosias doesn't seem to be in right now.");
     else
 	while (!done) {
-	    morewait ();
-	    clearmsg ();
+	    morewait();
+	    clearmsg();
 	    print1 ("a: Sell monster components.");
 	    print2 ("b: Pay for transformation.");
 	    print3 ("ESCAPE: Leave this place.");
-	    response = (char) mcigetc ();
+	    response = (char) mcigetc();
 	    if (response == 'a') {
-		clearmsg ();
+		clearmsg();
 		done = TRUE;
 		i = getitem (CORPSE);
 		if ((i != ABORT) && (Player.possessions[i] != NULL)) {
@@ -4907,11 +4901,11 @@ void l_alchemist (void)
 			if (obj->basevalue > 0)
 			    print2 ("You might be able to sell it to someone else, though.");
 		    } else {
-			clearmsg ();
+			clearmsg();
 			print1 ("I'll give you ");
 			mnumprint (obj->basevalue / 3);
 			nprint1 ("Au for it. Take it? [yn] ");
-			if (ynq1 () == 'y') {
+			if (ynq1() == 'y') {
 			    Player.cash += (obj->basevalue / 3);
 			    conform_lost_objects (1, obj);
 			} else
@@ -4920,7 +4914,7 @@ void l_alchemist (void)
 		} else
 		    print2 ("So nu?");
 	    } else if (response == 'b') {
-		clearmsg ();
+		clearmsg();
 		done = TRUE;
 		i = getitem (CORPSE);
 		if ((i != ABORT) && (Player.possessions[i] != NULL)) {
@@ -4932,7 +4926,7 @@ void l_alchemist (void)
 			print1 ("It'll cost you ");
 			mnumprint (max (10, obj->basevalue * 2));
 			nprint1 ("Au for the transformation. Pay it? [yn] ");
-			if (ynq1 () == 'y') {
+			if (ynq1() == 'y') {
 			    if (Player.cash < max (10, obj->basevalue * 2))
 				print2 ("You can't afford it!");
 			    else {
@@ -4963,24 +4957,24 @@ void l_dpw (void)
 	print2 ("G'wan! Get a job!");
     else if (Player.cash < 100) {
 	print2 ("Do you want to go on the dole? [yn] ");
-	if (ynq2 () == 'y') {
+	if (ynq2() == 'y') {
 	    print1 ("Well, ok, but spend it wisely.");
-	    morewait ();
+	    morewait();
 	    print1 ("Please enter your name for our records:");
-	    strcpy (Str1, msgscanstring ());
+	    strcpy (Str1, msgscanstring());
 	    if (Str1[0] >= 'a' && Str1[0] <= 'z')
 		Str1[0] += 'A' - 'a';
 	    if (Str1[0] == '\0')
 		print1 ("Maybe you should come back when you've learned to write.");
 	    else if (strcmp (Player.name, Str1) != 0) {
 		print3 ("Aha! Welfare Fraud! It's off to gaol for you, lout!");
-		morewait ();
-		send_to_jail ();
+		morewait();
+		send_to_jail();
 	    } else {
 		print2 ("Here's your handout, layabout!");
 		LastDay = Date;
 		Player.cash = 99;
-		dataprint ();
+		dataprint();
 	    }
 	}
     } else
@@ -4993,23 +4987,23 @@ void l_library (void)
     int studied = FALSE;
     int done = FALSE, fee = 1000;
     print1 ("Rampart Public Library.");
-    if (nighttime ())
+    if (nighttime())
 	print2 ("CLOSED");
     else {
-	morewait ();
+	morewait();
 	print1 ("Library Research Fee: 1000Au.");
 	if (Player.maxiq < 18) {
 	    print2 ("The Rampart student aid system has arranged a grant!");
-	    morewait ();
-	    clearmsg ();
+	    morewait();
+	    clearmsg();
 	    print1 ("Your revised fee is: ");
 	    mnumprint (fee = max (50, 1000 - (18 - Player.maxiq) * 125));
 	    nprint1 ("Au.");
 	}
-	morewait ();
+	morewait();
 	while (!done) {
 	    print1 ("Pay the fee? [yn] ");
-	    if (ynq1 () == 'y') {
+	    if (ynq1() == 'y') {
 		if (Player.cash < fee) {
 		    print2 ("No payee, No studee.");
 		    done = TRUE;
@@ -5017,8 +5011,8 @@ void l_library (void)
 		    Player.cash -= fee;
 		    do {
 			studied = TRUE;
-			dataprint ();
-			menuclear ();
+			dataprint();
+			menuclear();
 			menuprint ("Peruse a scroll:\n");
 			menuprint ("a: Omegan Theology\n");
 			menuprint ("b: Guide to Rampart\n");
@@ -5026,45 +5020,45 @@ void l_library (void)
 			menuprint ("d: Odd Uncatalogued Document\n");
 			menuprint ("e: Attempt Advanced Research\n");
 			menuprint ("ESCAPE: Leave this font of learning.\n");
-			showmenu ();
-			response = (char) mcigetc ();
+			showmenu();
+			response = (char) mcigetc();
 			if (response == 'a') {
 			    print1 ("You unfurl an ancient, yellowing scroll...");
-			    morewait ();
-			    theologyfile ();
+			    morewait();
+			    theologyfile();
 			} else if (response == 'b') {
 			    print1 ("You unroll a slick four-color document...");
-			    morewait ();
-			    cityguidefile ();
+			    morewait();
+			    cityguidefile();
 			} else if (response == 'c') {
 			    print1 ("This scroll is written in a strange magical script...");
-			    morewait ();
-			    wishfile ();
+			    morewait();
+			    wishfile();
 			} else if (response == 'd') {
 			    print1 ("You find a strange document, obviously misfiled");
 			    print2 ("under the heading 'acrylic fungus painting technique'");
-			    morewait ();
-			    adeptfile ();
+			    morewait();
+			    adeptfile();
 			} else if (response == 'e') {
 			    if (random_range (30) > Player.iq) {
 				print2 ("You feel more knowledgeable!");
 				Player.iq++;
 				Player.maxiq++;
-				dataprint ();
+				dataprint();
 				if (Player.maxiq < 19 && fee != max (50, 1000 - (18 - Player.maxiq) * 125)) {
-				    morewait ();
-				    clearmsg ();
+				    morewait();
+				    clearmsg();
 				    print1 ("Your revised fee is: ");
 				    mnumprint (fee = max (50, 1000 - (18 - Player.maxiq) * 125));
 				    nprint1 ("Au.");
-				    morewait ();
+				    morewait();
 				}
 			    } else {
-				clearmsg1 ();
+				clearmsg1();
 				print1 ("You find advice in an ancient tome: ");
-				morewait ();
-				hint ();
-				morewait ();
+				morewait();
+				hint();
+				morewait();
 			    }
 			} else if (response == ESCAPE) {
 			    done = TRUE;
@@ -5073,7 +5067,7 @@ void l_library (void)
 			    studied = FALSE;
 		    } while (!studied);
 		}
-		xredraw ();
+		xredraw();
 	    } else {
 		done = TRUE;
 		if (studied)
@@ -5090,7 +5084,7 @@ void l_pawn_shop (void)
     int i, j, k, limit, number, done = FALSE;
     char item, action;
 
-    if (nighttime ())
+    if (nighttime())
 	print1 ("Shop Closed: Have a Nice (K)Night");
     else {
 	limit = min (5, Date - Pawndate);
@@ -5100,7 +5094,7 @@ void l_pawn_shop (void)
 		if (Objects[Pawnitems[0]->id].uniqueness > UNIQUE_UNMADE)
 		    Objects[Pawnitems[0]->id].uniqueness = UNIQUE_UNMADE;
 		// could turn up anywhere, really :)
-		free ((char *) Pawnitems[0]);
+		free (Pawnitems[0]);
 		Pawnitems[0] = NULL;
 	    }
 	    for (i = 0; i < PAWNITEMS - 1; i++)
@@ -5118,7 +5112,7 @@ void l_pawn_shop (void)
 	while (!done) {
 	    print1 ("Knight's Pawn Shop:");
 	    print2 ("Buy item, Sell item, sell Pack contents, Leave [b,s,p,ESCAPE] ");
-	    menuclear ();
+	    menuclear();
 	    for (i = 0; i < PAWNITEMS; i++)
 		if (Pawnitems[i] != NULL) {
 		    strcpy (Str3, " :");
@@ -5127,15 +5121,15 @@ void l_pawn_shop (void)
 		    menuprint (Str3);
 		    menuprint ("\n");
 		}
-	    showmenu ();
-	    action = (char) mcigetc ();
+	    showmenu();
+	    action = (char) mcigetc();
 	    if (action == ESCAPE)
 		done = TRUE;
 	    else if (action == 'b') {
 		print2 ("Purchase which item? [ESCAPE to quit] ");
 		item = ' ';
 		while ((item != ESCAPE) && ((item < 'a') || (item >= 'a' + PAWNITEMS)))
-		    item = (char) mcigetc ();
+		    item = (char) mcigetc();
 		if (item != ESCAPE) {
 		    i = item - 'a';
 		    if (Pawnitems[i] == NULL)
@@ -5143,17 +5137,17 @@ void l_pawn_shop (void)
 		    else if (true_item_value (Pawnitems[i]) <= 0) {
 			print1 ("Hmm, how did that junk get on my shelves?");
 			print2 ("I'll just remove it.");
-			free ((char *) Pawnitems[i]);
+			free (Pawnitems[i]);
 			Pawnitems[i] = NULL;
 		    } else {
-			clearmsg ();
+			clearmsg();
 			print1 ("The low, low, cost is: ");
 			mlongprint (Pawnitems[i]->number * true_item_value (Pawnitems[i]));
 			nprint1 (" Buy it? [ynq] ");
-			if (ynq1 () == 'y') {
+			if (ynq1() == 'y') {
 			    if (Player.cash < Pawnitems[i]->number * true_item_value (Pawnitems[i])) {
 				print2 ("No credit! Gwan, Beat it!");
-				morewait ();
+				morewait();
 			    } else {
 				Player.cash -= Pawnitems[i]->number * true_item_value (Pawnitems[i]);
 				Objects[Pawnitems[i]->id].known = 1;
@@ -5164,29 +5158,29 @@ void l_pawn_shop (void)
 		    }
 		}
 	    } else if (action == 's') {
-		menuclear ();
+		menuclear();
 		print2 ("Sell which item: ");
 		i = getitem (NULL_ITEM);
 		if ((i != ABORT) && (Player.possessions[i] != NULL)) {
 		    if (cursed (Player.possessions[i])) {
 			print1 ("No loans on cursed items! I been burned before....");
-			morewait ();
+			morewait();
 		    } else if (true_item_value (Player.possessions[i]) <= 0) {
 			print1 ("That looks like a worthless piece of junk to me.");
-			morewait ();
+			morewait();
 		    } else {
-			clearmsg ();
+			clearmsg();
 			print1 ("You can get ");
 			mlongprint (item_value (Player.possessions[i]) / 2);
 			nprint1 ("Au each. Sell [yn]? ");
-			if (ynq1 () == 'y') {
+			if (ynq1() == 'y') {
 			    number = getnumber (Player.possessions[i]->number);
 			    if ((number >= Player.possessions[i]->number) && Player.possessions[i]->used) {
 				Player.possessions[i]->used = FALSE;
 				item_use (Player.possessions[i]);
 			    }
 			    Player.cash += number * item_value (Player.possessions[i]) / 2;
-			    free ((char *) Pawnitems[0]);
+			    free (Pawnitems[0]);
 			    for (j = 0; j < PAWNITEMS - 1; j++)
 				Pawnitems[j] = Pawnitems[j + 1];
 			    Pawnitems[PAWNITEMS - 1] = ((pob) checkmalloc (sizeof (objtype)));
@@ -5194,24 +5188,24 @@ void l_pawn_shop (void)
 			    Pawnitems[PAWNITEMS - 1]->number = number;
 			    Pawnitems[PAWNITEMS - 1]->known = 2;
 			    dispose_lost_objects (number, Player.possessions[i]);
-			    dataprint ();
+			    dataprint();
 			}
 		    }
 		}
 	    } else if (action == 'p') {
 		for (i = 0; i < Player.packptr; i++) {
 		    if (Player.pack[i]->blessing > -1 && true_item_value (Player.pack[i]) > 0) {
-			clearmsg ();
+			clearmsg();
 			print1 ("Sell ");
 			nprint1 (itemid (Player.pack[i]));
 			nprint1 (" for ");
 			mlongprint (item_value (Player.pack[i]) / 2);
 			nprint1 ("Au each? [yn] ");
-			if (ynq1 () == 'y') {
+			if (ynq1() == 'y') {
 			    number = getnumber (Player.pack[i]->number);
 			    if (number > 0) {
 				Player.cash += number * item_value (Player.pack[i]) / 2;
-				free ((char *) Pawnitems[0]);
+				free (Pawnitems[0]);
 				for (j = 0; j < PAWNITEMS - 1; j++)
 				    Pawnitems[j] = Pawnitems[j + 1];
 				Pawnitems[PAWNITEMS - 1] = ((pob) checkmalloc (sizeof (objtype)));
@@ -5220,20 +5214,20 @@ void l_pawn_shop (void)
 				Pawnitems[PAWNITEMS - 1]->known = 2;
 				Player.pack[i]->number -= number;
 				if (Player.pack[i]->number < 1) {
-				    free ((char *) Player.pack[i]);
+				    free (Player.pack[i]);
 				    Player.pack[i] = NULL;
 				}
-				dataprint ();
+				dataprint();
 			    }
 			}
 		    }
 		}
-		fixpack ();
+		fixpack();
 	    }
 	}
     }
-    calc_melee ();
-    xredraw ();
+    calc_melee();
+    xredraw();
 }
 
 void l_condo (void)
@@ -5245,44 +5239,44 @@ void l_condo (void)
     if (!gamestatusp (SOLD_CONDO)) {
 	print1 ("Rampart Arms. Weekly Rentals and Purchases");
 	print2 ("Which are you interested in [r,p, or ESCAPE] ");
-	response = mgetc ();
+	response = mgetc();
 	if (response == 'p') {
 	    print2 ("Only 50,000Au. Buy it? [yn] ");
-	    if (ynq2 () == 'y') {
+	    if (ynq2() == 'y') {
 		if (Player.cash < 50000)
 		    print3 ("No mortgages, buddy.");
 		else {
 		    setgamestatus (SOLD_CONDO);
 		    Player.cash -= 50000;
-		    dataprint ();
+		    dataprint();
 		    print2 ("You are the proud owner of a luxurious condo penthouse.");
 		    Condoitems = NULL;
 		}
 	    }
 	} else if (response == 'r') {
 	    print2 ("Weekly Rental, 1000Au. Pay for it? [yn] ");
-	    if (ynq2 () == 'y') {
+	    if (ynq2() == 'y') {
 		if (Player.cash < 1000)
 		    print2 ("Hey, pay the rent or out you go....");
 		else {
 		    weeksleep = TRUE;
 		    Player.cash -= 1000;
-		    dataprint ();
+		    dataprint();
 		}
 	    }
 	} else
 	    print2 ("Please keep us in mind for your housing needs.");
     } else {
 	while (!done) {
-	    menuclear ();
+	    menuclear();
 	    menuprint ("Home Sweet Home\n");
 	    menuprint ("a: Leave items in your safe.\n");
 	    menuprint ("b: Retrieve items.\n");
 	    menuprint ("c: Take a week off to rest.\n");
 	    menuprint ("d: Retire permanently.\n");
 	    menuprint ("ESCAPE: Leave this place.\n");
-	    showmenu ();
-	    response = (char) mcigetc ();
+	    showmenu();
+	    response = (char) mcigetc();
 	    if (response == 'a') {
 		i = getitem (NULL_ITEM);
 		if (i != ABORT) {
@@ -5303,7 +5297,7 @@ void l_condo (void)
 		    print1 ("Retrieve ");
 		    nprint1 (itemid (ol->thing));
 		    nprint1 (" [ynq] ");
-		    response = (char) mcigetc ();
+		    response = (char) mcigetc();
 		    if (response == 'y') {
 			gain_item (ol->thing);
 			if (ol == Condoitems)
@@ -5318,22 +5312,22 @@ void l_condo (void)
 	    } else if (response == 'c') {
 		weeksleep = TRUE;
 		print1 ("You take a week off to rest...");
-		morewait ();
+		morewait();
 	    } else if (response == 'd') {
-		clearmsg ();
+		clearmsg();
 		print1 ("You sure you want to retire, now? [yn] ");
-		if (ynq1 () == 'y') {
-		    p_win ();
+		if (ynq1() == 'y') {
+		    p_win();
 		}
 	    } else if (response == ESCAPE)
 		done = TRUE;
 	}
-	xredraw ();
+	xredraw();
     }
     if (weeksleep) {
-	clearmsg ();
+	clearmsg();
 	print1 ("Taking a week off to rest...");
-	morewait ();
+	morewait();
 	toggle_item_use (TRUE);
 	Player.hp = Player.maxhp;
 	Player.str = Player.maxstr;
@@ -5350,8 +5344,8 @@ void l_condo (void)
 	print2 ("You're once again fit and ready to continue your adventure.");
 	Time += 60 * 24 * 7;
 	Date += 7;
-	moon_check ();
-	timeprint ();
+	moon_check();
+	timeprint();
     }
 }
 
@@ -5379,7 +5373,7 @@ static void gymtrain (int *maxstat, int *stat)
 	    }
 	}
     }
-    dataprint ();
+    dataprint();
 }
 
 static void healforpay (void)
@@ -5393,7 +5387,7 @@ static void healforpay (void)
 	    Player.hp = Player.maxhp;
 	print2 ("Another medical marvel....");
     }
-    calc_melee ();
+    calc_melee();
 }
 
 static void cureforpay (void)
@@ -5404,7 +5398,7 @@ static void cureforpay (void)
 	Player.cash -= 250;
 	Player.status[DISEASED] = 0;
 	print2 ("Quarantine lifted....");
-	showflags ();
+	showflags();
     }
 }
 
@@ -5440,7 +5434,7 @@ void send_to_jail (void)
     if (Player.rank[ORDER] > 0) {
 	print1 ("A member of the Order of Paladins sent to jail!");
 	print2 ("It cannot be!");
-	morewait ();
+	morewait();
 	print1 ("You are immediately expelled permanently from the Order!");
 	print2 ("Your name is expunged from the records....");
 	Player.rank[ORDER] = -1;
@@ -5449,7 +5443,7 @@ void send_to_jail (void)
     else if ((Current_Environment != E_CITY) && (Last_Environment != E_CITY))
 	print1 ("Fortunately, there is no jail around here, so you are freed!");
     else {
-	pacify_guards ();
+	pacify_guards();
 	if (((Current_Environment == E_HOUSE) || (Current_Environment == E_MANSION) || (Current_Environment == E_HOVEL)) && (Last_Environment == E_CITY)) {
 	    setgamestatus (SUPPRESS_PRINTING);
 	    change_environment (E_CITY);
@@ -5459,19 +5453,19 @@ void send_to_jail (void)
 	    if (gamestatusp (UNDEAD_GUARDS)) {
 		print1 ("You are taken to a weirdly deserted chamber where an undead");
 		print2 ("Magistrate presides over a court of ghosts and haunts.");
-		morewait ();
+		morewait();
 		print1 ("'Mr. Foreman, what is the verdict?'");
 		print2 ("'Guilty as charged, your lordship.'");
-		morewait ();
-		clearmsg ();
+		morewait();
+		clearmsg();
 		print1 ("'Guilty...");
-		morewait ();
+		morewait();
 		nprint1 ("Guilty...");
-		morewait ();
+		morewait();
 		nprint1 ("Guilty...");
-		morewait ();
+		morewait();
 		nprint1 ("Guilty...'");
-		clearmsg ();
+		clearmsg();
 		print1 ("The members of the court close in around, fingers pointing.");
 		print2 ("You feel insubstantial hands closing around your throat....");
 		print3 ("You feel your life draining away!");
@@ -5479,10 +5473,10 @@ void send_to_jail (void)
 		    Player.level--;
 		    Player.xp /= 2;
 		    Player.hp /= 2;
-		    dataprint ();
+		    dataprint();
 		}
 		Player.maxhp = Player.maxcon;
-		morewait ();
+		morewait();
 		print1 ("You are finally released, a husk of your former self....");
 		Player.x = 58;
 		Player.y = 40;
@@ -5505,26 +5499,26 @@ void send_to_jail (void)
 		    case 1:
 			print1 ("The Magistrate expresses shame for your conduct.");
 			print2 ("You are thrown in jail!");
-			morewait ();
-			repair_jail ();
+			morewait();
+			repair_jail();
 			Player.y = 54;
 			Player.x = 37 + (2 * random_range (4));
 			screencheck (54);
-			l_portcullis_trap ();
+			l_portcullis_trap();
 			break;
 		    default:
 			print1 ("The Magistrate renders summary judgement.");
 			print2 ("You are sentenced to prison!");
-			morewait ();
+			morewait();
 			print1 ("The guards recognize you as a 'three-time-loser'");
 			print2 ("...and beat you up a little to teach you a lesson.");
 			p_damage (random_range (Imprisonment * 10), UNSTOPPABLE, "police brutality");
-			morewait ();
-			repair_jail ();
+			morewait();
+			repair_jail();
 			Player.y = 54;
 			Player.x = 37 + (2 * random_range (4));
 			screencheck (54);
-			l_portcullis_trap ();
+			l_portcullis_trap();
 		}
 	}
     }
@@ -5538,37 +5532,37 @@ void l_adept (void)
 	    print2 ("A familiar female voice says: I would not advise this now....");
 	else
 	    print2 ("A familiar female voice says: Go for it!");
-	morewait ();
-	clearmsg ();
+	morewait();
+	clearmsg();
     }
     print2 ("Enter the mystic portal? [yn] ");
-    if (ynq2 () != 'y') {
+    if (ynq2() != 'y') {
 	if (Player.level > 100) {
 	    print1 ("The Lords of Destiny spurn your cowardice....");
 	    Player.xp = 0;
 	    Player.level = 0;
 	    Player.hp = Player.maxhp = Player.con;
-	    Player.mana = calcmana ();
+	    Player.mana = calcmana();
 	    print2 ("You suddenly feel very inexperienced.");
-	    dataprint ();
+	    dataprint();
 	}
     } else {
-	clearmsg ();
+	clearmsg();
 	print1 ("You pass through the portal.");
-	morewait ();
-	drawomega ();
+	morewait();
+	drawomega();
 	print1 ("Like wow man! Colors! ");
 	if (Player.patron != DESTINY) {
 	    print2 ("Strange forces try to tear you apart!");
 	    p_damage (random_range (200), UNSTOPPABLE, "a vortex of chaos");
 	} else
 	    print2 ("Some strange force shields you from a chaos vortex!");
-	morewait ();
+	morewait();
 	print1 ("Your head spins for a moment....");
 	print2 ("and clears....");
-	morewait ();
+	morewait();
 	Player.hp = Player.maxhp;
-	Player.mana = calcmana ();
+	Player.mana = calcmana();
 	change_environment (E_ABYSS);
     }
 }
@@ -5578,10 +5572,10 @@ void l_trifid (void)
     int damage = 0, stuck = TRUE;
     print1 ("The hedge comes alive with a surge of alien growth!");
     while (stuck) {
-	dataprint ();
+	dataprint();
 	damage += Level->depth / 2 + 1;
 	print2 ("Razor-edged vines covered in suckers attach themselves to you.");
-	morewait ();
+	morewait();
 	if (find_and_remove_item (THINGID + 6, -1)) {
 	    print1 ("Thinking fast, you toss salt water on the trifid...");
 	    print2 ("The trifid disintegrates with a frustrated sigh.");
@@ -5592,17 +5586,17 @@ void l_trifid (void)
 	    stuck = FALSE;
 	} else {
 	    p_damage (damage, UNSTOPPABLE, "a trifid");
-	    morewait ();
+	    morewait();
 	    print1 ("You are entangled in tendrils...");
-	    menuclear ();
+	    menuclear();
 	    menuprint ("a: Try to break free.\n");
 	    menuprint ("b: Hang limp and hope the tendrils uncoil.\n");
 	    menuprint ("c: Pray for assistance.\n");
 	    menuprint ("d: Attempt to bargain with the hedge.\n");
 	    menuprint ("e: Click your heels together and wish for escape.\n");
 	    menuprint ("ANYTHING ELSE: writhe and scream hopelessly.\n");
-	    showmenu ();
-	    switch (menugetc ()) {
+	    showmenu();
+	    switch (menugetc()) {
 		case 'a':
 		    if (Player.str > random_range (200)) {
 			print1 ("Amazing! You're now free.");
@@ -5634,35 +5628,35 @@ void l_trifid (void)
 	    }
 	}
     }
-    xredraw ();
+    xredraw();
 }
 
 void l_vault (void)
 {
     print1 ("You come to a thick vault door with a complex time lock.");
-    if ((hour () == 23)) {
+    if ((hour() == 23)) {
 	print2 ("The door is open.");
 	Level->site[12][56].locchar = FLOOR;
     } else {
 	print2 ("The door is closed.");
 	Level->site[12][56].locchar = WALL;
-	morewait ();
-	clearmsg ();
+	morewait();
+	clearmsg();
 	print1 ("Try to crack it? [yn] ");
-	if (ynq1 () == 'y') {
+	if (ynq1() == 'y') {
 	    if (random_range (100) < Player.rank[THIEVES] * Player.rank[THIEVES]) {
 		print2 ("The lock clicks open!!!");
 		gain_experience (5000);
 		Level->site[12][56].locchar = FLOOR;
 	    } else {
 		print2 ("Uh, oh, set off the alarm.... The castle guard arrives....");
-		morewait ();
+		morewait();
 		if (Player.rank[NOBILITY] == DUKE) {
-		    clearmsg ();
+		    clearmsg();
 		    print1 ("\"Ah, just testing us, your Grace?  I hope we're up to scratch.\"");
-		    morewait ();
+		    morewait();
 		} else
-		    send_to_jail ();
+		    send_to_jail();
 	    }
 	} else
 	    print2 ("Good move.");
@@ -5674,27 +5668,27 @@ void l_brothel (void)
     char response;
     print1 ("You come to a heavily reinforced inner door.");
     print2 ("A sign reads `The House of the Eclipse'");
-    morewait ();
-    clearmsg ();
+    morewait();
+    clearmsg();
     print1 ("Try to enter? [yn] ");
-    if (ynq1 () == 'y') {
-	menuclear ();
+    if (ynq1() == 'y') {
+	menuclear();
 	menuprint ("a:knock on the door.\n");
 	menuprint ("b:try to pick the lock.\n");
 	menuprint ("c:bash down the door.\n");
 	menuprint ("ESCAPE: Leave this house of ill repute.\n");
-	showmenu ();
+	showmenu();
 	do
-	    response = menugetc ();
+	    response = menugetc();
 	while ((response != 'a') && (response != 'b') && (response != 'c') && (response != ESCAPE));
-	xredraw ();
+	xredraw();
 	if (response == 'a') {
-	    if (!nighttime ())
+	    if (!nighttime())
 		print2 ("There is no reponse.");
 	    else {
 		print1 ("A window opens in the door.");
 		print2 ("`500Au, buddy. For the night.' pay it? [yn] ");
-		if (ynq2 () == 'y') {
+		if (ynq2() == 'y') {
 		    if (Player.cash < 500) {
 			print1 ("`What, no roll?!'");
 			print2 ("The bouncer bounces you a little and lets you go.");
@@ -5703,7 +5697,7 @@ void l_brothel (void)
 			Player.cash -= 500;
 			print1 ("You are ushered into an opulently appointed hall.");
 			print2 ("After an expensive dinner (takeout from Les Crapuleux)");
-			morewait ();
+			morewait();
 			if (Player.preference == 'n') {
 			    switch (random_range (4)) {
 				case 0:
@@ -5751,11 +5745,11 @@ void l_brothel (void)
 					break;
 				}
 			}
-			morewait ();
-			if (hour () > 12)
-			    Time += ((24 - hour ()) + 8) * 60;
+			morewait();
+			if (hour() > 12)
+			    Time += ((24 - hour()) + 8) * 60;
 			else {
-			    Time += ((9 - hour ()) * 60);
+			    Time += ((9 - hour()) * 60);
 			    Date++;
 			}
 			Player.food = 40;
@@ -5776,11 +5770,11 @@ void l_brothel (void)
 			else
 			    Player.con++;
 			gain_experience (100);
-			timeprint ();
-			dataprint ();
-			showflags ();
-			morewait ();
-			clearmsg ();
+			timeprint();
+			dataprint();
+			showflags();
+			morewait();
+			clearmsg();
 			if (Player.preference == 'n')
 			    print1 ("You arise refreshed the next morning...");
 			else
@@ -5790,23 +5784,23 @@ void l_brothel (void)
 		    print2 ("What are you, some kinda prude?");
 	    }
 	} else if (response == 'b') {
-	    if (nighttime ()) {
+	    if (nighttime()) {
 		print1 ("As you fumble at the lock, the door opens....");
 		print2 ("The bouncer tosses you into the street.");
 	    } else
 		print1 ("The door appears to be bolted and barred from behind.");
 	} else if (response == 'c') {
-	    if (nighttime ()) {
+	    if (nighttime()) {
 		print1 ("As you charge toward the door it opens....");
 		print2 ("Yaaaaah! Thud!");
-		morewait ();
+		morewait();
 		print1 ("You run past the startled bouncer into a wall.");
 		p_damage (20, UNSTOPPABLE, "a move worthy of Clouseau");
 		print2 ("The bouncer tosses you into the street.");
 	    } else {
 		print1 ("Ouch! The door resists your efforts.");
 		p_damage (1, UNSTOPPABLE, "a sturdy door");
-		morewait ();
+		morewait();
 		print1 ("You hear an irritated voice from inside:");
 		print2 ("'Keep it down out there! Some of us are trying to sleep!'");
 	    }
@@ -5826,7 +5820,7 @@ void sign_print (int x, int y, int signp)
 	case L_MANSION:
 	    print1 ("You notice a sign:");
 	    print2 ("This edifice protected by DeathWatch Devices, Ltd.");
-	    morewait ();
+	    morewait();
 	    break;
 	case L_GRANARY:
 	    print1 ("You notice a sign:");
@@ -5962,7 +5956,7 @@ void sign_print (int x, int y, int signp)
 	case L_ORACLE:
 	    print1 ("You notice a sign:");
 	    print2 ("The Oracle of the Cyan Flames");
-	    morewait ();
+	    morewait();
 	    break;
     }
 }
@@ -5970,9 +5964,9 @@ void sign_print (int x, int y, int signp)
 void l_countryside (void)
 {
     if (optionp (CONFIRM)) {
-	clearmsg ();
+	clearmsg();
 	print1 ("Do you really want to return to the countryside? ");
-	if (ynq1 () != 'y')
+	if (ynq1() != 'y')
 	    return;
     }
     change_environment (E_COUNTRYSIDE);
@@ -5984,11 +5978,11 @@ void l_oracle (void)
     if (gamestatusp (ATTACKED_ORACLE) && (!gamestatusp (COMPLETED_ASTRAL))) {
 	print1 ("You come before a blue crystal dais. You see a broken mirror.");
 	print2 ("Look in the mirror? [yn] ");
-	if (ynq2 () == 'y') {
+	if (ynq2() == 'y') {
 	    print1 ("A strange force rips you from your place....");
 	    Player.hp = 1;
 	    print2 ("You feel drained....");
-	    dataprint ();
+	    dataprint();
 	    print3 ("You find yourself in a weird flickery maze.");
 	    change_environment (E_ASTRAL);
 	}
@@ -5996,15 +5990,15 @@ void l_oracle (void)
 	print1 ("You come before a blue crystal dais. There is a bell and a mirror.");
 	print2 ("Ring the bell [b], look in the mirror [m], or leave [ESCAPE] ");
 	do
-	    response = (char) mcigetc ();
+	    response = (char) mcigetc();
 	while ((response != 'b') && (response != 'm') && (response != ESCAPE));
 	if (response == 'b') {
 	    print1 ("The ringing note seems to last forever.");
 	    print2 ("You notice a robed figure in front of you....");
-	    morewait ();
+	    morewait();
 	    print1 ("The oracle doffs her cowl. Her eyes glitter with blue fire!");
 	    print2 ("Attack her? [yn] ");
-	    if (ynq2 () == 'y') {
+	    if (ynq2() == 'y') {
 		setgamestatus (ATTACKED_ORACLE);
 		print1 ("The oracle deftly avoids your attack.");
 		print2 ("She sneers at you and vanishes.");
@@ -6019,17 +6013,17 @@ void l_oracle (void)
 		} else if (!gamestatusp (COMPLETED_CASTLE)) {
 		    print3 ("'Explorest thou the depths of the Castle of the ArchMage.'");
 		} else if (!gamestatusp (COMPLETED_ASTRAL)) {
-		    morewait ();
+		    morewait();
 		    print1 ("'Journey to the Astral Plane and meet the Gods' servants.'");
 		    print2 ("The oracle holds out her hand. Do you take it? [yn] ");
-		    if (ynq2 () == 'y') {
+		    if (ynq2() == 'y') {
 			print1 ("'Beware: Only the Star Gem can escape the Astral Plane.'");
 			print2 ("A magic portal opens behind the oracle. She leads you");
-			morewait ();
+			morewait();
 			print1 ("through a sequence of special effects that would have");
 			print2 ("IL&M technicians cursing in awe and deposits you in an");
-			morewait ();
-			clearmsg ();
+			morewait();
+			clearmsg();
 			print1 ("odd looking room whose walls seem strangely insubstantial.");
 			gain_experience (5000);
 			change_environment (E_ASTRAL);
@@ -6040,7 +6034,7 @@ void l_oracle (void)
 		} else if (!gamestatusp (COMPLETED_CHALLENGE)) {
 		    print3 ("'The challenge of adepthood yet awaits thee.'");
 		} else {
-		    morewait ();
+		    morewait();
 		    print1 ("'My lord: Thou hast surpassed my tutelage forever.");
 		    print2 ("Fare thee well.'");
 		    print3 ("The oracle replaces her hood and seems to fade away....");
@@ -6057,21 +6051,21 @@ void l_oracle (void)
 void l_mansion (void)
 {
     print1 ("Enter the mansion? [yn] ");
-    if (ynq1 () == 'y')
+    if (ynq1() == 'y')
 	change_environment (E_MANSION);
 }
 
 void l_house (void)
 {
     print1 ("Enter the house? [yn] ");
-    if (ynq1 () == 'y')
+    if (ynq1() == 'y')
 	change_environment (E_HOUSE);
 }
 
 void l_hovel (void)
 {
     print1 ("Enter the hovel? [yn] ");
-    if (ynq1 () == 'y')
+    if (ynq1() == 'y')
 	change_environment (E_HOVEL);
 }
 
@@ -6083,7 +6077,7 @@ void l_safe (void)
     print1 ("You have discovered a safe!");
     print2 ("Pick the lock [p], Force the door [f], or ignore [ESCAPE]");
     do
-	response = (char) mcigetc ();
+	response = (char) mcigetc();
     while ((response != 'p') && (response != 'f') && (response != ESCAPE));
     if (response == 'p')
 	attempt = (2 * Player.dex + Player.rank[THIEVES] * 10 - random_range (100)) / 10;
@@ -6099,9 +6093,9 @@ void l_safe (void)
 	if (random_range (2) == 1) {
 	    print1 ("You find:");
 	    do {
-		newitem = create_object (difficulty ());
+		newitem = create_object (difficulty());
 		print2 (itemid (newitem));
-		morewait ();
+		morewait();
 		gain_item (newitem);
 	    } while (random_range (3) == 1);
 	} else
@@ -6110,12 +6104,12 @@ void l_safe (void)
 	print3 ("Your attempt at burglary failed!");
 	if (attempt == -1) {
 	    print1 ("A siren goes off! You see flashing red lights everywhere!");
-	    morewait ();
+	    morewait();
 	    if (Last_Environment == E_CITY) {
 		print2 ("The city guard shows up! They collar you in no time flat!");
 		change_environment (E_CITY);
-		morewait ();
-		send_to_jail ();
+		morewait();
+		send_to_jail();
 	    }
 	} else if (attempt == -2) {
 	    print1 ("There is a sudden flash!");
@@ -6152,13 +6146,13 @@ void l_cartographer (void)
     int i, j, x, y;
     print1 ("Ye Olde Mappe Shoppe.");
     print2 ("Map of the local area: 500Au. Buy it? [yn] ");
-    if (ynq2 () == 'y') {
+    if (ynq2() == 'y') {
 	if (Player.cash < 500)
 	    print3 ("Cursed be cheapskates! May you never find an aid station....");
 	else {
 	    print3 ("You now have the local area mapped.");
 	    Player.cash -= 500;
-	    dataprint ();
+	    dataprint();
 	    switch (Villagenum) {
 		case 1:
 		    x = 56;
@@ -6204,12 +6198,12 @@ void l_charity (void)
 {
     long donation;
     print2 ("'Greetings, friend. Do you wish to make a donation?' [yn] ");
-    if (ynq2 () != 'y')
+    if (ynq2() != 'y')
 	print3 ("'Pinchpurse!'");
     else {
-	clearmsg ();
+	clearmsg();
 	print1 ("How much can you give? ");
-	donation = parsenum ();
+	donation = parsenum();
 	if (donation < 1)
 	    print2 ("'Go stick your head in a pig.'");
 	else if (donation > Player.cash)
@@ -6226,5 +6220,5 @@ void l_charity (void)
 	    Player.alignment += 5;
 	}
     }
-    dataprint ();
+    dataprint();
 }

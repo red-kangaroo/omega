@@ -1,7 +1,7 @@
 #include "defs.h"
 #include "extern.h"
 
-extern char *Omegalib;				// This string holds the path to the library files
+extern const char* Omegalib;				// This string holds the path to the library files
 extern struct monster Monsters[NUMMONSTERS];	// one of each monster
 extern struct spell Spells[NUMSPELLS + 1];	// one of each spell
 extern struct object Objects[TOTALITEMS];	// one of each item

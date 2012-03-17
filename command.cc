@@ -47,7 +47,7 @@ void p_process (void)
     static int searchval = 0;
 
     if (Player.status[BERSERK])
-	if (goberserk ()) {
+	if (goberserk()) {
 	    setgamestatus (SKIP_PLAYER);
 	    drawvision (Player.x, Player.y);
 	}
@@ -60,8 +60,8 @@ void p_process (void)
 	drawvision (Player.x, Player.y);
 	if (!gamestatusp (FAST_MOVE)) {
 	    searchval = 0;
-	    Cmd = mgetc ();
-	    clear_if_necessary ();
+	    Cmd = mgetc();
+	    clear_if_necessary();
 	}
 	Command_Duration = 0;
 	switch (Cmd) {
@@ -70,34 +70,34 @@ void p_process (void)
 		setgamestatus (SKIP_MONSTERS);
 		break;		// no op on space or return
 	    case 6:
-		abortshadowform ();
+		abortshadowform();
 		break;		// ^f
 	    case 7:
-		wizard ();
+		wizard();
 		break;		// ^g
 	    case 9:
-		display_pack ();
-		morewait ();
-		xredraw ();
+		display_pack();
+		morewait();
+		xredraw();
 		break;		// ^i
 	    case 11:
 		if (gamestatusp (CHEATED))
-		    frobgamestatus ();
+		    frobgamestatus();
 	    case 12:
-		xredraw ();
+		xredraw();
 		setgamestatus (SKIP_MONSTERS);
 		break;		// ^l
 	    case 16:
-		bufferprint ();
+		bufferprint();
 		setgamestatus (SKIP_MONSTERS);
 		break;		// ^p
 	    case 18:
-		redraw ();
+		redraw();
 		setgamestatus (SKIP_MONSTERS);
 		break;		// ^r
 	    case 23:
 		if (gamestatusp (CHEATED))
-		    drawscreen ();
+		    drawscreen();
 		break;		// ^w
 	    case 24:		// ^x
 		if (gamestatusp (CHEATED) || Player.rank[ADEPT])
@@ -105,50 +105,50 @@ void p_process (void)
 		Command_Duration = 5;
 		break;
 	    case 'a':
-		zapwand ();
+		zapwand();
 		Command_Duration = Player.speed * 8 / 5;
 		break;
 	    case 'c':
-		closedoor ();
+		closedoor();
 		Command_Duration = Player.speed * 2 / 5;
 		break;
 	    case 'd':
-		drop ();
+		drop();
 		Command_Duration = Player.speed * 5 / 5;
 		break;
 	    case 'e':
-		eat ();
+		eat();
 		Command_Duration = 30;
 		break;
 	    case 'f':
-		fire ();
+		fire();
 		Command_Duration = Player.speed * 5 / 5;
 		break;
 	    case 'g':
-		pickup ();
+		pickup();
 		Command_Duration = Player.speed * 10 / 5;
 		break;
 	    case 'i':
-		do_inventory_control ();
+		do_inventory_control();
 		break;
 	    case 'm':
-		magic ();
+		magic();
 		Command_Duration = 12;
 		break;
 	    case 'o':
-		opendoor ();
+		opendoor();
 		Command_Duration = Player.speed * 5 / 5;
 		break;
 	    case 'p':
-		pickpocket ();
+		pickpocket();
 		Command_Duration = Player.speed * 20 / 5;
 		break;
 	    case 'q':
-		quaff ();
+		quaff();
 		Command_Duration = 10;
 		break;
 	    case 'r':
-		peruse ();
+		peruse();
 		Command_Duration = 20;
 		break;
 	    case 's':
@@ -156,105 +156,105 @@ void p_process (void)
 		Command_Duration = 20;
 		break;
 	    case 't':
-		talk ();
+		talk();
 		Command_Duration = 10;
 		break;
 	    case 'v':
-		vault ();
+		vault();
 		Command_Duration = Player.speed * 10 / 5;
 		break;
 	    case 'x':
-		examine ();
+		examine();
 		Command_Duration = 1;
 		break;
 	    case 'z':
-		bash_location ();
+		bash_location();
 		Command_Duration = Player.speed * 10 / 5;
 		break;
 	    case 'A':
-		activate ();
+		activate();
 		Command_Duration = 10;
 		break;
 	    case 'C':
-		callitem ();
+		callitem();
 		break;
 	    case 'D':
-		disarm ();
+		disarm();
 		Command_Duration = 30;
 		break;
 	    case 'E':
-		dismount_steed ();
+		dismount_steed();
 		Command_Duration = Player.speed * 10 / 5;
 		break;
 	    case 'F':
-		tacoptions ();
+		tacoptions();
 		break;
 	    case 'G':
-		give ();
+		give();
 		Command_Duration = 10;
 		break;
 	    case 'I':
 		if (!optionp (TOPINV))
-		    top_inventory_control ();
+		    top_inventory_control();
 		else {
-		    display_possessions ();
-		    inventory_control ();
+		    display_possessions();
+		    inventory_control();
 		}
 		break;
 	    case 'M':
-		city_move ();
+		city_move();
 		Command_Duration = 10;
 		break;
 	    case 'O':
-		setoptions ();
+		setoptions();
 		break;
 	    case 'P':
-		show_license ();
+		show_license();
 		break;		// actually show_license is in file.c
 	    case 'Q':
-		quit ();
+		quit();
 		break;
 	    case 'R':
-		rename_player ();
+		rename_player();
 		break;
 	    case 'S':
 		save (optionp (COMPRESS_OPTION), FALSE);
 		break;
 	    case 'T':
-		tunnel ();
+		tunnel();
 		Command_Duration = Player.speed * 30 / 5;
 		break;
 	    case 'V':
-		version ();
+		version();
 		break;
 	    case 'Z':
-		bash_item ();
+		bash_item();
 		Command_Duration = Player.speed * 10 / 5;
 		break;
 	    case '.':
-		rest ();
+		rest();
 		Command_Duration = 10;
 		break;
 	    case ',':
 		Command_Duration = 10;
-		nap ();
+		nap();
 		break;
 	    case '>':
-		downstairs ();
+		downstairs();
 		break;
 	    case '<':
-		upstairs ();
+		upstairs();
 		break;
 	    case '@':
 		p_movefunction (Level->site[Player.x][Player.y].p_locf);
 		Command_Duration = 5;
 		break;
 	    case '/':
-		charid ();
+		charid();
 		setgamestatus (SKIP_MONSTERS);
 		break;
 	    case '?':
-		help ();
+		help();
 		setgamestatus (SKIP_MONSTERS);
 		break;
 	    case '4':
@@ -299,10 +299,10 @@ void p_process (void)
 		break;
 	    case '5':
 		setgamestatus (SKIP_MONSTERS);	// don't do anything; a dummy turn
-		Cmd = mgetc ();
+		Cmd = mgetc();
 		while ((Cmd != ESCAPE) && ((Cmd < '1') || (Cmd > '9') || (Cmd == '5'))) {
 		    print3 ("Run in keypad direction [ESCAPE to abort]: ");
-		    Cmd = mgetc ();
+		    Cmd = mgetc();
 		}
 		if (Cmd != ESCAPE)
 		    setgamestatus (FAST_MOVE);
@@ -356,13 +356,13 @@ void p_process (void)
 		Command_Duration = Player.speed * 4 / 5;
 		break;
 	    default:
-		commanderror ();
+		commanderror();
 		setgamestatus (SKIP_MONSTERS);
 		break;
 	}
     }
     if (Current_Environment != E_COUNTRYSIDE)
-	roomcheck ();
+	roomcheck();
     screencheck (Player.y);
 }
 
@@ -374,93 +374,93 @@ void p_country_process (void)
     drawvision (Player.x, Player.y);
     do {
 	no_op = FALSE;
-	Cmd = mgetc ();
-	clear_if_necessary ();
+	Cmd = mgetc();
+	clear_if_necessary();
 	switch (Cmd) {
 	    case ' ':
 	    case 13:
 		no_op = TRUE;
 		break;
 	    case 7:
-		wizard ();
+		wizard();
 		break;		// ^g
 	    case 12:
-		xredraw ();
+		xredraw();
 		no_op = TRUE;
 		break;		// ^l
 	    case 16:
-		bufferprint ();
+		bufferprint();
 		no_op = TRUE;
 		break;		// ^p
 	    case 18:
-		redraw ();
+		redraw();
 		no_op = TRUE;
 		break;		// ^r
 	    case 23:
 		if (gamestatusp (CHEATED))
-		    drawscreen ();
+		    drawscreen();
 		break;		// ^w
 	    case 24:
 		if (gamestatusp (CHEATED) || Player.rank[ADEPT])
 		    wish (1);
 		break;		// ^x
 	    case 'd':
-		drop ();
+		drop();
 		break;
 	    case 'e':
-		eat ();
+		eat();
 		break;
 	    case 'i':
-		do_inventory_control ();
+		do_inventory_control();
 		break;
 	    case 's':
-		countrysearch ();
+		countrysearch();
 		break;
 	    case 'x':
-		examine ();
+		examine();
 		break;
 	    case 'E':
-		dismount_steed ();
+		dismount_steed();
 		break;
 	    case 'H':
 		hunt (Country[Player.x][Player.y].current_terrain_type);
 		break;
 	    case 'I':
 		if (!optionp (TOPINV))
-		    top_inventory_control ();
+		    top_inventory_control();
 		else {
-		    menuclear ();
-		    display_possessions ();
-		    inventory_control ();
+		    menuclear();
+		    display_possessions();
+		    inventory_control();
 		}
 		break;
 	    case 'O':
-		setoptions ();
+		setoptions();
 		break;
 	    case 'P':
-		show_license ();
+		show_license();
 		break;		// actually show_license is in file.c
 	    case 'Q':
-		quit ();
+		quit();
 		break;
 	    case 'R':
-		rename_player ();
+		rename_player();
 		break;
 	    case 'S':
 		save (optionp (COMPRESS_OPTION), FALSE);
 		break;
 	    case 'V':
-		version ();
+		version();
 		break;
 	    case '>':
 		enter_site (Country[Player.x][Player.y].base_terrain_type);
 		break;
 	    case '/':
-		charid ();
+		charid();
 		no_op = TRUE;
 		break;
 	    case '?':
-		help ();
+		help();
 		no_op = TRUE;
 		break;
 	    case '4':
@@ -496,7 +496,7 @@ void p_country_process (void)
 		movepincountry (1, -1);
 		break;
 	    default:
-		commanderror ();
+		commanderror();
 		no_op = TRUE;
 		break;
 	}
@@ -540,7 +540,7 @@ static void rest (void)
 		print3 (" You sure have an early bedtime! ");
 		break;
 	}
-	morewait ();
+	morewait();
     }
 }
 
@@ -550,7 +550,7 @@ static void peruse (void)
     int iidx;
     struct object *obj;
 
-    clearmsg ();
+    clearmsg();
 
     if (Player.status[BLINDED] > 0)
 	print3 ("You're blind -- you can't read!!!");
@@ -568,7 +568,7 @@ static void peruse (void)
 		nprint3 (itemid (obj));
 	    } else {
 		nprint1 ("You carefully unfurl the scroll....");
-		morewait ();
+		morewait();
 		item_use (obj);
 		dispose_lost_objects (1, obj);
 	    }
@@ -580,7 +580,7 @@ static void quaff (void)
 {
     int iidx;
     struct object *obj;
-    clearmsg ();
+    clearmsg();
     print1 ("Quaff --");
     iidx = getitem (POTION);
     if (iidx == ABORT)
@@ -593,7 +593,7 @@ static void quaff (void)
 	} else {
 	    print1 ("You drink it down.... ");
 	    item_use (obj);
-	    morewait ();
+	    morewait();
 	    dispose_lost_objects (1, obj);
 	}
     }
@@ -601,12 +601,12 @@ static void quaff (void)
 
 static void activate (void)
 {
-    clearmsg ();
+    clearmsg();
 
     print1 ("Activate -- item [i] or artifact [a] or quit [ESCAPE]?");
     char response;
     do
-	response = (char) mcigetc ();
+	response = (char) mcigetc();
     while ((response != 'i') && (response != 'a') && (response != ESCAPE));
     if (response != ESCAPE) {
 	int iidx = ABORT;
@@ -615,9 +615,9 @@ static void activate (void)
 	else if (response == 'a')
 	    iidx = getitem (ARTIFACT);
 	if (iidx != ABORT) {
-	    clearmsg ();
+	    clearmsg();
 	    print1 ("You activate it.... ");
-	    morewait ();
+	    morewait();
 	    item_use (Player.possessions[iidx]);
 	} else
 	    setgamestatus (SKIP_MONSTERS);
@@ -630,7 +630,7 @@ static void eat (void)
     int iidx;
     struct object *obj;
 
-    clearmsg ();
+    clearmsg();
 
     print1 ("Eat --");
     iidx = getitem (FOOD);
@@ -648,11 +648,11 @@ static void eat (void)
 	    dispose_lost_objects (1, obj);
 	    if (Current_Dungeon == E_COUNTRYSIDE) {
 		Time += 100;
-		hourly_check ();
+		hourly_check();
 	    }
 	}
     }
-    foodcheck ();
+    foodcheck();
 }
 
 // search all adjacent spots for secrecy
@@ -687,7 +687,7 @@ void drop (void)
 {
     int iidx, n;
 
-    clearmsg ();
+    clearmsg();
 
     print1 ("Drop --");
     iidx = getitem (CASH);
@@ -695,7 +695,7 @@ void drop (void)
 	setgamestatus (SKIP_MONSTERS);
     else {
 	if (iidx == CASHVALUE)
-	    drop_money ();
+	    drop_money();
 	else if ((!Player.possessions[iidx]->used) || (!cursed (Player.possessions[iidx]))) {
 	    if (Player.possessions[iidx]->number == 1) {
 		p_drop_at (Player.x, Player.y, 1, Player.possessions[iidx]);
@@ -710,7 +710,7 @@ void drop (void)
 	    nprint3 (itemid (Player.possessions[iidx]));
 	}
     }
-    calc_melee ();
+    calc_melee();
 }
 
 // talk to the animals -- learn their languages....
@@ -720,10 +720,10 @@ static void talk (void)
     char response;
     struct monster *m;
 
-    clearmsg ();
+    clearmsg();
 
     print1 ("Talk --");
-    iidx = getdir ();
+    iidx = getdir();
 
     if (iidx == ABORT)
 	setgamestatus (SKIP_MONSTERS);
@@ -736,7 +736,7 @@ static void talk (void)
 	    setgamestatus (SKIP_MONSTERS);
 	} else {
 	    m = Level->site[Player.x + dx][Player.y + dy].creature;
-	    menuclear ();
+	    menuclear();
 	    strcpy (Str1, "     Talk to ");
 	    strcat (Str1, m->monstring);
 	    strcat (Str1, ":");
@@ -745,9 +745,9 @@ static void talk (void)
 	    menuprint ("\nb: Threaten.");
 	    menuprint ("\nc: Surrender.");
 	    menuprint ("\nESCAPE: Clam up.");
-	    showmenu ();
+	    showmenu();
 	    do
-		response = menugetc ();
+		response = menugetc();
 	    while ((response != 'a') && (response != 'b') && (response != 'c') && (response != ESCAPE));
 	    switch (response) {
 		case 'a':
@@ -765,7 +765,7 @@ static void talk (void)
 	    }
 	}
     }
-    xredraw ();
+    xredraw();
 }
 
 // try to deactivate a trap
@@ -774,10 +774,10 @@ static void disarm (void)
     int x, y, iidx = 0;
     pob o;
 
-    clearmsg ();
+    clearmsg();
     print1 ("Disarm -- ");
 
-    iidx = getdir ();
+    iidx = getdir();
 
     if (iidx == ABORT)
 	setgamestatus (SKIP_MONSTERS);
@@ -790,7 +790,7 @@ static void disarm (void)
 	else if (Level->site[x][y].locchar != TRAP)
 	    print3 ("You can't see a trap there!");
 	else {
-	    if (random_range (50 + difficulty () * 5) < Player.dex * 2 + Player.level * 3 + Player.rank[THIEVES] * 10) {
+	    if (random_range (50 + difficulty() * 5) < Player.dex * 2 + Player.level * 3 + Player.rank[THIEVES] * 10) {
 		print1 ("You disarmed the trap!");
 		if (random_range (100) < Player.dex + Player.rank[THIEVES] * 10) {
 		    o = ((pob) checkmalloc (sizeof (objtype)));
@@ -829,7 +829,7 @@ static void disarm (void)
 		    }
 		    if (o != NULL) {
 			print2 ("You manage to retrieve the trap components!");
-			morewait ();
+			morewait();
 			Objects[o->id].known = 1;
 			o->known = 1;
 			gain_item (o);
@@ -840,7 +840,7 @@ static void disarm (void)
 		Level->site[x][y].locchar = FLOOR;
 		lset (x, y, CHANGED);
 		gain_experience (5);
-	    } else if (random_range (10 + difficulty () * 2) > Player.dex) {
+	    } else if (random_range (10 + difficulty() * 2) > Player.dex) {
 		print1 ("You accidentally set off the trap!");
 		Player.x = x;
 		Player.y = y;
@@ -859,10 +859,10 @@ static void give (void)
     struct monster *m;
     pob obj;
 
-    clearmsg ();
+    clearmsg();
 
     print1 ("Give to monster --");
-    dindex = getdir ();
+    dindex = getdir();
     if (dindex == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
@@ -875,7 +875,7 @@ static void give (void)
 	    setgamestatus (SKIP_MONSTERS);
 	} else {
 	    m = Level->site[Player.x + dx][Player.y + dy].creature;
-	    clearmsg ();
+	    clearmsg();
 	    print1 ("Give what? ");
 	    iidx = getitem (CASH);
 	    if (iidx == ABORT)
@@ -890,14 +890,14 @@ static void give (void)
 		obj->number = 1;
 		print2 ("Given: ");
 		nprint2 (itemid (obj));
-		morewait ();
+		morewait();
 		// WDT bug fix: I moved the print above the givemonster
 		// call.  If that turns out looking ugly, I should change it to
 		// a sprintf or strcat.  At any rate, it was wrong before because
 		// it was accessing an object which had already been freed as part
 		// of givemonster.
 		givemonster (m, obj);
-		calc_melee ();
+		calc_melee();
 	    } else {
 		print3 ("You can't even give away: ");
 		nprint3 (itemid (Player.possessions[iidx]));
@@ -912,7 +912,7 @@ static void zapwand (void)
     int iidx;
     struct object *obj;
 
-    clearmsg ();
+    clearmsg();
 
     if (Player.status[AFRAID] > 0)
 	print3 ("You are so terror-stricken you can't hold a wand straight!");
@@ -940,12 +940,12 @@ static void zapwand (void)
 static void magic (void)
 {
     int iidx, pwrdrain;
-    clearmsg ();
+    clearmsg();
     if (Player.status[AFRAID] > 0)
 	print3 ("You are too afraid to concentrate on a spell!");
     else {
-	iidx = getspell ();
-	xredraw ();
+	iidx = getspell();
+	xredraw();
 	if (iidx == ABORT)
 	    setgamestatus (SKIP_MONSTERS);
 	else {
@@ -965,7 +965,7 @@ static void magic (void)
 	    }
 	}
     }
-    dataprint ();
+    dataprint();
 }
 
 // go upstairs ('<' command)
@@ -986,7 +986,7 @@ static void upstairs (void)
 		change_environment (E_COUNTRYSIDE);
 	} else
 	    change_level (Level->depth, Level->depth - 1, FALSE);
-	roomcheck ();
+	roomcheck();
     }
     setgamestatus (SKIP_MONSTERS);
 }
@@ -1004,7 +1004,7 @@ static void downstairs (void)
 	if (Current_Environment == Current_Dungeon) {
 	    print1 ("You descend a level.");
 	    change_level (Level->depth, Level->depth + 1, FALSE);
-	    roomcheck ();
+	    roomcheck();
 	} else if ((Current_Environment == E_CITY) || (Last_Environment == E_CITY))
 	    change_environment (E_SEWERS);
 	else if (Current_Environment != Current_Dungeon)
@@ -1020,17 +1020,17 @@ void setoptions (void)
     int slot = 1, to, done = FALSE;
     int response;
 
-    clearmsg ();
-    menuclear ();
+    clearmsg();
+    menuclear();
 
-    display_options ();
+    display_options();
 
     move_slot (1, 1, NUMOPTIONS);
-    clearmsg ();
+    clearmsg();
     print1 ("Currently selected option is preceded by highlit >>");
     print2 ("Move selected option with '>' and '<', ESCAPE to quit.");
     do {
-	response = mcigetc ();
+	response = mcigetc();
 	switch (response) {
 	    case 'j':
 	    case '>':
@@ -1106,10 +1106,10 @@ void setoptions (void)
 	move_slot (slot, slot, NUMOPTIONS + 1);
     } while (!done);
     if (optionp (SHOW_COLOUR))
-	colour_on ();
+	colour_on();
     else
-	colour_off ();
-    xredraw ();
+	colour_off();
+    xredraw();
 }
 
 // name an item
@@ -1118,7 +1118,7 @@ static void callitem (void)
     int iidx;
     pob obj;
 
-    clearmsg ();
+    clearmsg();
     setgamestatus (SKIP_MONSTERS);
     print1 ("Call --");
     iidx = getitem (NULL_ITEM);
@@ -1130,10 +1130,10 @@ static void callitem (void)
 	    print3 ("That item is already identified!");
 	else {
 	    print1 ("Call it:");
-	    obj->objstr = salloc (msgscanstring ());
-	    clearmsg ();
+	    obj->objstr = salloc (msgscanstring());
+	    clearmsg();
 	    print2 ("Also call all similar items by that name? [yn] ");
-	    if (ynq2 () == 'y') {
+	    if (ynq2() == 'y') {
 		Objects[obj->id].objstr = obj->objstr;
 	    }
 	}
@@ -1146,9 +1146,9 @@ static void opendoor (void)
     int dir;
     int ox, oy;
 
-    clearmsg ();
+    clearmsg();
     print1 ("Open --");
-    dir = getdir ();
+    dir = getdir();
     if (dir == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
@@ -1185,9 +1185,9 @@ static void bash_location (void)
     int dir;
     int ox, oy;
 
-    clearmsg ();
+    clearmsg();
     print1 ("Bashing --");
-    dir = getdir ();
+    dir = getdir();
     if (dir == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
@@ -1196,9 +1196,9 @@ static void bash_location (void)
 	if ((Current_Environment == E_CITY) && (ox == 0) && (oy == 0)) {
 	    print1 ("Back Door WIZARD Mode!");
 	    print2 ("You will invalidate your score if you proceed.");
-	    morewait ();
+	    morewait();
 	    print1 ("Enable WIZARD Mode? [yn] ");
-	    if (ynq1 () == 'y') {
+	    if (ynq1() == 'y') {
 		print2 ("You feel like a cheater.");
 		setgamestatus (CHEATED);
 	    } else
@@ -1210,7 +1210,7 @@ static void bash_location (void)
 	    } else if (Level->site[ox][oy].locchar == OPEN_DOOR) {
 		print1 ("You hurl yourself through the open door!");
 		print2 ("Yaaaaah! ... thud.");
-		morewait ();
+		morewait();
 		Player.x = ox;
 		Player.y = oy;
 		p_damage (3, UNSTOPPABLE, "silliness");
@@ -1223,7 +1223,7 @@ static void bash_location (void)
 		    lset (ox, oy, CHANGED);
 		}
 		if (Level->site[ox][oy].aux == LOCKED) {
-		    if (random_range (50 + difficulty () * 10) < Player.str) {
+		    if (random_range (50 + difficulty() * 10) < Player.str) {
 			Player.x = ox;
 			Player.y = oy;
 			print2 ("You blast the door off its hinges!");
@@ -1283,15 +1283,15 @@ static void bash_location (void)
 			print3 ("Your own deity's aegis defends you from the bolt!");
 		    p_damage (max (0, random_range (100) - Player.rank[PRIESTHOOD] * 20), UNSTOPPABLE, "a bolt of godsfire");
 		    if (Player.rank[PRIESTHOOD] * 20 + Player.pow + Player.level > random_range (200)) {
-			morewait ();
+			morewait();
 			print1 ("The altar crumbles...");
 			Level->site[ox][oy].locchar = RUBBLE;
 			Level->site[ox][oy].p_locf = L_RUBBLE;
 			lset (ox, oy, CHANGED);
-			morewait ();
+			morewait();
 			if (Player.rank[PRIESTHOOD]) {
 			    print2 ("You sense your deity's pleasure with you.");
-			    morewait ();
+			    morewait();
 			    print3 ("You are surrounded by a golden glow.");
 			    cleanse (1);
 			    heal (10);
@@ -1313,7 +1313,7 @@ void bash_item (void)
     int item;
     pob obj;
 
-    clearmsg ();
+    clearmsg();
     print1 ("Destroy an item --");
     item = getitem (NULL_ITEM);
     if (item == CASHVALUE)
@@ -1347,7 +1347,7 @@ void save (int compress, int force)
     char fname[100];
     int pos, ok = TRUE;
 
-    clearmsg ();
+    clearmsg();
     if (gamestatusp (ARENA_MODE)) {
 	if (force) {
 	    resetgamestatus (ARENA_MODE);
@@ -1376,11 +1376,11 @@ void save (int compress, int force)
     }
     if (!force && ok) {
 	print1 ("Confirm Save? [yn] ");
-	ok = (ynq1 () == 'y');
+	ok = (ynq1() == 'y');
     }
     if (force || ok) {
 	print1 ("Enter savefile name: ");
-	strcpy (fname, msgscanstring ());
+	strcpy (fname, msgscanstring());
 	if (fname[0] == '\0') {
 	    print1 ("No save file entered - save aborted.");
 	    ok = FALSE;
@@ -1395,18 +1395,18 @@ void save (int compress, int force)
 	    if (save_game (fname)) {
 		print3 ("Bye!");
 		sleep (2);
-		endgraf ();
+		endgraf();
 		exit (0);
 	    } else
 		print1 ("Save Aborted.");
 	}
     }
     if (force) {
-	morewait ();
-	clearmsg ();
+	morewait();
+	clearmsg();
 	print1 ("The game is quitting - you will lose your character.");
 	print2 ("Try to save again? ");
-	if (ynq2 () == 'y')
+	if (ynq2() == 'y')
 	    save (compress, force);
     }
     setgamestatus (SKIP_MONSTERS);	// if we get here, we failed to save
@@ -1418,10 +1418,10 @@ static void closedoor (void)
     int dir;
     int ox, oy;
 
-    clearmsg ();
+    clearmsg();
 
     print1 ("Close --");
-    dir = getdir ();
+    dir = getdir();
     if (dir == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
@@ -1470,9 +1470,9 @@ static void moveplayer (int dx, int dy)
 		if (twiddle) {
 		    Time++;
 		    if (Time % 10 == 0)
-			tenminute_check ();
+			tenminute_check();
 		    else
-			minute_status_check ();
+			minute_status_check();
 		}
 	    }
 
@@ -1483,7 +1483,7 @@ static void moveplayer (int dx, int dy)
 		    if ((Level->site[Player.x][Player.y].things != NULL) || (optionp (RUNSTOP) && loc_statusp (Player.x, Player.y, STOPS)))
 			resetgamestatus (FAST_MOVE);
 		if ((Level->site[Player.x][Player.y].things != NULL) && (optionp (PICKUP)))
-		    pickup ();
+		    pickup();
 	    }
 	}
     } else if (gamestatusp (FAST_MOVE)) {
@@ -1502,20 +1502,20 @@ static void movepincountry (int dx, int dy)
 	    print2 ("Your steed bucks wildly and throws you off!");
 	    p_damage (10, UNSTOPPABLE, "a cruelly abused horse");
 	    resetgamestatus (MOUNTED);
-	    morewait ();
+	    morewait();
 	    print1 ("With a shrill neigh of defiance, your former steed gallops");
 	    print2 ("off into the middle distance....");
 	    if (Player.packptr != 0) {
-		morewait ();
+		morewait();
 		print1 ("You remember (too late) that the contents of your pack");
 		print2 ("were kept in your steed's saddlebags!");
 		for (i = 0; i < MAXPACK; i++) {
 		    if (Player.pack[i] != NULL)
-			free ((char *) Player.pack[i]);
+			free (Player.pack[i]);
 		    Player.pack[i] = NULL;
 		}
 		Player.packptr = 0;
-		calc_melee ();
+		calc_melee();
 	    }
 	} else {
 	    p_damage (1, UNSTOPPABLE, "a rupture");
@@ -1524,7 +1524,7 @@ static void movepincountry (int dx, int dy)
     } else {
 	if (gamestatusp (LOST)) {
 	    print3 ("Being lost, you strike out randomly....");
-	    morewait ();
+	    morewait();
 	    dx = random_range (3) - 1;
 	    dy = random_range (3) - 1;
 	}
@@ -1542,8 +1542,8 @@ static void movepincountry (int dx, int dy)
 			    print2 ("You come down in a strange location....");
 			    Player.x = random_range (WIDTH);
 			    Player.y = random_range (LENGTH);
-			    morewait ();
-			    clearmsg ();
+			    morewait();
+			    clearmsg();
 			    print1 ("Your boots disintegrate with a malicious giggle...");
 			    dispose_lost_objects (1, Player.possessions[O_BOOTS]);
 			} else if (Player.possessions[O_BOOTS]->known != 2) {
@@ -1554,11 +1554,11 @@ static void movepincountry (int dx, int dy)
 		}
 		if (gamestatusp (LOST) && (Precipitation < 1) && c_statusp (Player.x, Player.y, SEEN)) {
 		    print3 ("Ah! Now you know where you are!");
-		    morewait ();
+		    morewait();
 		    resetgamestatus (LOST);
 		} else if (gamestatusp (LOST)) {
 		    print3 ("You're still lost.");
-		    morewait ();
+		    morewait();
 		}
 		if (Precipitation > 0)
 		    Precipitation--;
@@ -1575,7 +1575,7 @@ static void examine (void)
     pol ol;
     int x = Player.x, y = Player.y, drewmenu = FALSE;
 
-    clearmsg ();
+    clearmsg();
 
     // WDT HACK: I'm not sure I buy that one shouldn't be able to examine
     // when one is blind.  However, the 'right' way to do it is certainly
@@ -1590,7 +1590,7 @@ static void examine (void)
     mprint ("Examine --");
     setspot (&x, &y);
     if (inbounds (x, y)) {
-	clearmsg ();
+	clearmsg();
 	if (Current_Environment == E_COUNTRYSIDE) {
 	    if (!c_statusp (x, y, SEEN))
 		print3 ("How should I know what that is?");
@@ -1601,11 +1601,11 @@ static void examine (void)
 	} else if (!view_los_p (Player.x, Player.y, x, y))
 	    print3 ("I refuse to examine something I can't see.");
 	else {
-	    clearmsg ();
+	    clearmsg();
 	    if (Level->site[x][y].creature != NULL)
 		mprint (mstatus_string (Level->site[x][y].creature));
 	    else if ((Player.x == x) && (Player.y == y))
-		describe_player ();
+		describe_player();
 	    if (loc_statusp (x, y, SECRET))
 		print2 ("An age-worn stone wall.");
 	    else
@@ -1713,22 +1713,22 @@ static void examine (void)
 		    print3 (itemid (ol->thing));
 		else {
 		    drewmenu = TRUE;
-		    menuclear ();
+		    menuclear();
 		    menuprint ("Things on floor:\n");
 		    while (ol != NULL) {
 			menuprint ("\n");
 			menuprint (itemid (ol->thing));
 			ol = ol->next;
 		    }
-		    showmenu ();
+		    showmenu();
 		}
 	    }
-	    morewait ();
+	    morewait();
 	    sign_print (x, y, TRUE);
 	}
     }
     if (drewmenu)
-	xredraw ();
+	xredraw();
 }
 
 static void help (void)
@@ -1738,9 +1738,9 @@ static void help (void)
     FILE *in, *out;
     int n;
 
-    clearmsg ();
+    clearmsg();
     print1 ("Please enter the letter indicating what topic you want help on.");
-    menuclear ();
+    menuclear();
     menuprint ("a: Overview\n");
     menuprint ("b: Characters\n");
     menuprint ("c: Inventories\n");
@@ -1756,14 +1756,14 @@ static void help (void)
     menuprint ("m: Countryside Command List\n");
     menuprint ("n: Everything\n");
     menuprint ("ESCAPE: Forget the whole thing.");
-    showmenu ();
+    showmenu();
     do
-	c = (char) mcigetc ();
+	c = (char) mcigetc();
     while ((c < 'a' || c > 'n') && c != ESCAPE);
     if (c == 'n') {
 	print1 ("Trying to copy all help files to ./omega.doc ");
 	nprint1 ("Confirm [yn]");
-	if (ynq1 () == 'y') {
+	if (ynq1() == 'y') {
 	    out = checkfopen ("omega.doc", "w");
 	    print2 ("Copying");
 	    for (n = 1; n <= 13; n++) {
@@ -1781,14 +1781,14 @@ static void help (void)
 	sprintf (filestr, "%shelp%d.txt", Omegalib, c + 1 - 'a');
 	print1 ("Display help file, or Copy help file to file in wd. [dc] ");
 	do
-	    c = (char) mcigetc ();
+	    c = (char) mcigetc();
 	while ((c != 'd') && (c != 'c') && (c != ESCAPE));
 	if (c == 'd')
 	    displayfile (filestr);
 	else if (c == 'c')
 	    copyfile (filestr);
     }
-    xredraw ();
+    xredraw();
 }
 
 static void version (void)
@@ -1803,7 +1803,7 @@ static void fire (void)
     pob obj;
     struct monster *m;
 
-    clearmsg ();
+    clearmsg();
 
     print1 ("Fire/Throw --");
     ii = getitem (NULL_ITEM);
@@ -1879,14 +1879,14 @@ static void fire (void)
 
 void quit (void)
 {
-    clearmsg ();
+    clearmsg();
     mprint ("Quit: Are you sure? [yn] ");
-    if (ynq () == 'y') {
+    if (ynq() == 'y') {
 	if (Player.rank[ADEPT] == 0)
-	    display_quit ();
+	    display_quit();
 	else
-	    display_bigwin ();
-	endgraf ();
+	    display_bigwin();
+	endgraf();
 	exit (0);
     } else
 	resetgamestatus (SKIP_MONSTERS);
@@ -1898,22 +1898,22 @@ static void nap (void)
     static int naptime;
     if (gamestatusp (FAST_MOVE)) {
 	if (naptime-- < 1) {
-	    clearmsg ();
+	    clearmsg();
 	    mprint ("Yawn. You wake up.");
 	    resetgamestatus (FAST_MOVE);
 	    drawvision (Player.x, Player.y);
 	}
     } else {
-	clearmsg ();
+	clearmsg();
 	mprint ("Rest for how long? (in minutes) ");
-	naptime = (int) parsenum ();
+	naptime = (int) parsenum();
 	if (naptime > 600) {
 	    print3 ("You can only sleep up to 10 hours (600 minutes)");
 	    naptime = 3600;
 	} else
 	    naptime *= 6;
 	if (naptime > 1) {
-	    clearmsg ();
+	    clearmsg();
 	    setgamestatus (FAST_MOVE);
 	    mprint ("Resting.... ");
 	}
@@ -1926,9 +1926,9 @@ static void charid (void)
     int countryside = FALSE;
     char cstr[80];
 
-    clearmsg ();
+    clearmsg();
     mprint ("Character to identify: ");
-    id = mgetc ();
+    id = mgetc();
     if (Current_Environment == E_COUNTRYSIDE) {
 	countryside = TRUE;
 	strcpy (cstr, countryid (id));
@@ -2066,9 +2066,9 @@ static void wizard (void)
     if (gamestatusp (CHEATED))
 	mprint ("You're already in wizard mode!");
     else {
-	clearmsg ();
+	clearmsg();
 	mprint ("Really try to enter wizard mode? [yn] ");
-	if (ynq () == 'y') {
+	if (ynq() == 'y') {
 	    setgamestatus (CHEATED);
 	    mprint ("Wizard mode set.");
 	}
@@ -2080,7 +2080,7 @@ static void vault (void)
 {
     int x = Player.x, y = Player.y, jumper = 0;
 
-    clearmsg ();
+    clearmsg();
 
     if (Player.possessions[O_BOOTS] != NULL)
 	if (Player.possessions[O_BOOTS]->usef == I_BOOTS_JUMPING)
@@ -2114,7 +2114,7 @@ static void vault (void)
 	    p_movefunction (Level->site[Player.x][Player.y].p_locf);
 	    if (Current_Environment != E_COUNTRYSIDE)
 		if ((Level->site[Player.x][Player.y].things != NULL) && (optionp (PICKUP)))
-		    pickup ();
+		    pickup();
 	}
     }
 }
@@ -2123,29 +2123,31 @@ static void vault (void)
 static void tacoptions (void)
 {
     int actionsleft, done, place;
-    char defatt, *attstr, *defstr;	// for the default setting
+    char defatt;
+    const char *attstr;
+    const char *defstr;	// for the default setting
     int draw_again = 1;
 
     setgamestatus (SKIP_MONSTERS);
 
     done = FALSE;
-    actionsleft = maneuvers ();
+    actionsleft = maneuvers();
     place = 0;
     do {
 	if (draw_again) {
-	    menuclear ();
+	    menuclear();
 	    menuprint ("Enter a combat maneuvers sequence.\n");
 	    menuprint ("? for help, ! for default, backspace to start again,\n");
 	    menuprint (" RETURN to save sequence\n");
-	    showmenu ();
+	    showmenu();
 	    draw_again = 0;
 	}
-	clearmsg ();
+	clearmsg();
 	mprint ("Maneuvers Left:");
 	mnumprint (actionsleft);
-	switch (mgetc ()) {
+	switch (mgetc()) {
 	    case '?':
-		combat_help ();
+		combat_help();
 		draw_again = 1;
 		break;
 	    case 'a':
@@ -2167,7 +2169,7 @@ static void tacoptions (void)
 			Player.meleestr[place] = 'C';
 		    }
 		    place++;
-		    Player.meleestr[place] = getlocation ();
+		    Player.meleestr[place] = getlocation();
 		    place++;
 		    actionsleft--;
 		}
@@ -2185,7 +2187,7 @@ static void tacoptions (void)
 		    else
 			menuprint ("\nBlock:");
 		    place++;
-		    Player.meleestr[place] = getlocation ();
+		    Player.meleestr[place] = getlocation();
 		    place++;
 		    actionsleft--;
 		}
@@ -2200,16 +2202,16 @@ static void tacoptions (void)
 			    menuprint ("\nLunge:");
 			    Player.meleestr[place] = 'L';
 			    place++;
-			    Player.meleestr[place] = getlocation ();
+			    Player.meleestr[place] = getlocation();
 			    place++;
 			    actionsleft -= 2;
 			} else {
 			    print3 ("Can't lunge with a missile weapon!");
-			    morewait ();
+			    morewait();
 			}
 		    } else {
 			print3 ("Can't lunge without a weapon!");
-			morewait ();
+			morewait();
 		    }
 		}
 		break;
@@ -2222,22 +2224,22 @@ static void tacoptions (void)
 			if (Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
 			    Player.meleestr[place++] = 'R';
 			    menuprint ("\nRiposte:");
-			    Player.meleestr[place++] = getlocation ();
+			    Player.meleestr[place++] = getlocation();
 			    actionsleft -= 2;
 			} else {
 			    print3 ("Can't riposte without a thrusting weapon!");
-			    morewait ();
+			    morewait();
 			}
 		    } else {
 			print3 ("Can't riposte without a thrusting weapon!");
-			morewait ();
+			morewait();
 		    }
 		}
 		break;
 	    case BACKSPACE:
 	    case DELETE:
 		place = 0;
-		actionsleft = maneuvers ();
+		actionsleft = maneuvers();
 		draw_again = 1;
 		break;
 	    case '!':
@@ -2260,11 +2262,11 @@ static void tacoptions (void)
 		    defstr = "Parry";
 		else
 		    defstr = "Block";
-		menuclear ();
+		menuclear();
 		menuprint ("Enter a combat maneuvers sequence.\n");
 		menuprint ("? for help, ! for default, backspace to start again,\n");
 		menuprint (" RETURN to save sequence\n\n");
-		for (place = 0; place < maneuvers (); place++)
+		for (place = 0; place < maneuvers(); place++)
 		    if (place & 1) {	// every 2nd time around
 			Player.meleestr[place * 2] = 'B';
 			Player.meleestr[(place * 2) + 1] = 'C';
@@ -2277,7 +2279,7 @@ static void tacoptions (void)
 			menuprint (" Center.\n");
 		    }
 		actionsleft = 0;
-		showmenu ();
+		showmenu();
 		Player.meleestr[place * 2] = '\0';
 		break;
 	    case RETURN:
@@ -2288,7 +2290,7 @@ static void tacoptions (void)
 	}
 	//    if (actionsleft < 1) morewait();
     } while (!done);
-    xredraw ();
+    xredraw();
     Player.meleestr[place] = 0;
 }
 
@@ -2298,11 +2300,11 @@ static void pickpocket (void)
     int dx, dy, ii = 0;
     struct monster *m;
 
-    clearmsg ();
+    clearmsg();
 
     mprint ("Pickpocketing --");
 
-    ii = getdir ();
+    ii = getdir();
 
     if (ii == ABORT)
 	setgamestatus (SKIP_MONSTERS);
@@ -2321,11 +2323,11 @@ static void pickpocket (void)
 		if (Player.cash > 0) {
 		    mprint ("As a punitive fine, the guard takes all your money.");
 		    Player.cash = 0;
-		    dataprint ();
+		    dataprint();
 		} else {
 		    mprint ("The guardsman places you under arrest.");
-		    morewait ();
-		    send_to_jail ();
+		    morewait();
+		    send_to_jail();
 		}
 	    } else if (m->possessions == NULL) {
 		mprint ("You couldn't find anything worth taking!");
@@ -2347,9 +2349,9 @@ static void pickpocket (void)
 void rename_player (void)
 {
     setgamestatus (SKIP_MONSTERS);
-    clearmsg ();
+    clearmsg();
     mprint ("Rename Character: ");
-    strcpy (Str1, msgscanstring ());
+    strcpy (Str1, msgscanstring());
     if (strlen (Str1) == 0)
 	mprint (Player.name);
     else {
@@ -2379,9 +2381,9 @@ static void tunnel (void)
 {
     int dir, ox, oy, aux;
 
-    clearmsg ();
+    clearmsg();
     mprint ("Tunnel -- ");
-    dir = getdir ();
+    dir = getdir();
     if (dir == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
@@ -2407,7 +2409,7 @@ static void tunnel (void)
 	    if (Player.possessions[O_WEAPON_HAND] == NULL) {
 		if ((aux > 0) && ((Player.str / 3) + random_range (100) > aux)) {
 		    mprint ("You carve a tunnel through the stone!");
-		    tunnelcheck ();
+		    tunnelcheck();
 		    Level->site[ox][oy].locchar = RUBBLE;
 		    Level->site[ox][oy].p_locf = L_RUBBLE;
 		    lset (ox, oy, CHANGED);
@@ -2416,7 +2418,7 @@ static void tunnel (void)
 	    } else if (Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
 		if ((aux > 0) && (Player.possessions[O_WEAPON_HAND]->dmg * 2 + random_range (100) > aux)) {
 		    mprint ("You carve a tunnel through the stone!");
-		    tunnelcheck ();
+		    tunnelcheck();
 		    Level->site[ox][oy].locchar = RUBBLE;
 		    Level->site[ox][oy].p_locf = L_RUBBLE;
 		    lset (ox, oy, CHANGED);
@@ -2425,7 +2427,7 @@ static void tunnel (void)
 	    } else if ((aux > 0) && (Player.possessions[O_WEAPON_HAND]->dmg + random_range (100)
 				     > aux)) {
 		mprint ("You carve a tunnel through the stone!");
-		tunnelcheck ();
+		tunnelcheck();
 		Level->site[ox][oy].locchar = RUBBLE;
 		Level->site[ox][oy].p_locf = L_RUBBLE;
 		lset (ox, oy, CHANGED);
@@ -2464,44 +2466,44 @@ static void hunt (int terrain)
 	case DESERT:
 	    mprint ("You wander off into the trackless desert in search of food...");
 	    Time += 100;
-	    hourly_check ();
+	    hourly_check();
 	    fertility = 10;
 	    break;
 	case JUNGLE:
 	    mprint ("You search the lush and verdant jungle for game....");
 	    Time += 100;
-	    hourly_check ();
+	    hourly_check();
 	    fertility = 80;
 	    break;
 	case PLAINS:
 	    mprint ("You set off through the tall grass; the game is afoot.");
 	    Time += 100;
-	    hourly_check ();
+	    hourly_check();
 	    fertility = 50;
 	    break;
 	case TUNDRA:
 	    mprint ("You blaze a trail through the frozen wasteland....");
 	    Time += 100;
-	    hourly_check ();
+	    hourly_check();
 	    fertility = 30;
 	    break;
 	case FOREST:
 	    mprint ("You try to follow the many tracks through the forest loam....");
 	    Time += 100;
-	    hourly_check ();
+	    hourly_check();
 	    fertility = 70;
 	    break;
 	case MOUNTAINS:
 	case PASS:
 	    mprint ("You search the cliff walls looking for something to eat....");
 	    Time += 100;
-	    hourly_check ();
+	    hourly_check();
 	    fertility = 30;
 	    break;
 	case RIVER:
 	    mprint ("The halcyon river is your hopeful food source...");
 	    Time += 100;
-	    hourly_check ();
+	    hourly_check();
 	    fertility = 80;
 	    break;
     }
@@ -2524,7 +2526,7 @@ void dismount_steed (void)
     else if (Current_Environment == E_COUNTRYSIDE) {
 	mprint ("If you leave your steed here he will wander away!");
 	mprint ("Do it anyway? [yn] ");
-	if (ynq () == 'y')
+	if (ynq() == 'y')
 	    resetgamestatus (MOUNTED);
     } else {
 	resetgamestatus (MOUNTED);;
@@ -2538,37 +2540,37 @@ void dismount_steed (void)
 	Level->site[Player.x][Player.y].creature = ml->m;
 	Level->mlist = ml;
     }
-    calc_melee ();
+    calc_melee();
 }
 
 static void city_move (void)
 {
     int site, x = Player.x, y = Player.y, toggle = FALSE;
-    clearmsg ();
+    clearmsg();
     if (Current_Environment != E_CITY) {
 	print3 ("This command only works in the city!");
 	setgamestatus (SKIP_MONSTERS);
     } else if (Player.status[IMMOBILE] > 0)
 	print3 ("You can't even move!");
-    else if (hostilemonstersnear ()) {
+    else if (hostilemonstersnear()) {
 	setgamestatus (SKIP_MONSTERS);
 	print3 ("You can't move this way with hostile monsters around!");
     } else if (Level->site[Player.x][Player.y].aux == NOCITYMOVE)
 	print3 ("You can't use the 'M' command from this location.");
     else {
 	print1 ("Move to which establishment [? for help, ESCAPE to quit]");
-	site = parsecitysite ();
+	site = parsecitysite();
 	if (site != ABORT) {
 	    mprint ("You're on your way...");
-	    morewait ();
+	    morewait();
 	    while ((x != CitySiteList[site][1]) || (y != CitySiteList[site][2])) {
 		toggle = !toggle;
 		if (toggle) {
 		    Time++;
 		    if (Time % 10 == 0)
-			tenminute_check ();
+			tenminute_check();
 		    else
-			minute_status_check ();
+			minute_status_check();
 		}
 		x += sign (CitySiteList[site][1] - x);
 		y += sign (CitySiteList[site][2] - y);
@@ -2580,7 +2582,7 @@ static void city_move (void)
 	    screencheck (Player.y);
 	    mprint ("Made it!");
 	    drawvision (Player.x, Player.y);
-	    morewait ();
+	    morewait();
 	    p_movefunction (Level->site[x][y].p_locf);
 	}
     }
@@ -2592,11 +2594,11 @@ static void frobgamestatus (void)
     long num;
     mprint ("Set or Reset or Forget it [s,r,ESCAPE]:");
     do
-	response = (char) mcigetc ();
+	response = (char) mcigetc();
     while ((response != 'r') && (response != 's') && (response != ESCAPE));
     if (response != ESCAPE) {
 	mprint ("Enter log2 of flag:");
-	num = (int) parsenum ();
+	num = (int) parsenum();
 	if (num > -1) {
 	    num = pow2 (num);
 	    if (num == CHEATED) {

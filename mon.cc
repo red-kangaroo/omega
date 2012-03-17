@@ -145,7 +145,7 @@ void m_pulse (struct monster *m)
 		m_pickup (m, Level->site[m->x][m->y].things->thing);
 		prev = Level->site[m->x][m->y].things;
 		Level->site[m->x][m->y].things = Level->site[m->x][m->y].things->next;
-		free ((char *) prev);
+		free (prev);
 	    }
 	// prevents monsters from casting spells from other side of dungeon
 	if ((range < max (5, m->level)) && (m->hp > 0) && (random_range (2) == 1))
@@ -425,15 +425,15 @@ static void m_talk_druid (struct monster *m)
 	print1 ("The Archdruid raises a hand in greeting.");
 	if (!gamestatusp (SPOKE_TO_DRUID)) {
 	    setgamestatus (SPOKE_TO_DRUID);
-	    morewait ();
+	    morewait();
 	    print1 ("The Archdruid congratulates you on reaching his sanctum.");
 	    print2 ("You feel competent.");
-	    morewait ();
+	    morewait();
 	    gain_experience (300);
 	    if (Player.patron == DRUID) {
 		print1 ("The Archdruid conveys to you the wisdom of nature....");
 		print2 ("You feel like a sage.");
-		morewait ();
+		morewait();
 		for (i = 0; i < NUMRANKS; i++) {
 		    if (Player.guildxp[i] > 0)
 			Player.guildxp[i] += 300;
@@ -441,7 +441,7 @@ static void m_talk_druid (struct monster *m)
 	    }
 	}
 	mprint ("Do you request a ritual of neutralization? [yn] ");
-	if (ynq () == 'y') {
+	if (ynq() == 'y') {
 	    if (Phase / 2 == 6 || Phase / 2 == 0) {	// full or new moon
 		mprint ("\"Unfortunately, I cannot perform a ritual of balance on");
 		if (Phase / 2 == 6)
@@ -451,40 +451,40 @@ static void m_talk_druid (struct monster *m)
 	    } else if (Phase / 2 == 3 || Phase / 2 == 9) {	// half moon
 		mprint ("You take part in today's holy celebration of balance...");
 		Player.alignment = 0;
-		Player.mana = calcmana ();
+		Player.mana = calcmana();
 		if (Player.patron == DRUID)
 		    gain_experience (200);	// if a druid wants to spend 2 days
 		Time += 60;	// celebrating for 1600 xp, why not?
-		hourly_check ();
+		hourly_check();
 		Time += 60;
-		hourly_check ();
+		hourly_check();
 		Time += 60;
-		hourly_check ();
+		hourly_check();
 		Time += 60;
-		hourly_check ();
+		hourly_check();
 		Time += 60;
-		hourly_check ();
+		hourly_check();
 		Time += 60;
-		hourly_check ();
+		hourly_check();
 	    } else {
 		mprint ("The ArchDruid conducts a sacred rite of balance...");
 		if (Player.patron == DRUID) {
 		    Player.alignment = 0;
-		    Player.mana = calcmana ();
+		    Player.mana = calcmana();
 		} else
 		    Player.alignment -= Player.alignment * max (0, 10 - Player.level) / 10;
 		// the higher level the character is, the more set in his/her ways
 		Time += 60;
-		hourly_check ();
+		hourly_check();
 	    }
-	    dataprint ();
+	    dataprint();
 	}
     } else {
 	mprint ("The ArchDruid looks at you and cries: 'Unclean! Unclean!'");
 	disrupt (Player.x, Player.y, 100);
 	mprint ("This seems to have satiated his desire for vengeance.");
 	mprint ("'Have you learned your lesson?' The ArchDruid asks. [yn] ");
-	if (ynq ()) {
+	if (ynq()) {
 	    mprint ("'I certainly hope so!' says the ArchDruid.");
 	    for (curr = Level->mlist; curr; curr = curr->next)
 		m_status_reset (curr->m, HOSTILE);
@@ -606,22 +606,22 @@ static void m_talk_guard (struct monster *m)
     if (m_statusp (m, HOSTILE)) {
 	print1 ("'Surrender in the name of the Law!'");
 	print2 ("Do it? [yn] ");
-	if (ynq2 () == 'y') {
+	if (ynq2() == 'y') {
 	    Player.alignment++;
 	    if (Current_Environment == E_CITY) {
 		print1 ("Go directly to jail. Do not pass go, do not collect 200Au.");
 		print2 ("You are taken to the city gaol.");
-		morewait ();
-		send_to_jail ();
+		morewait();
+		send_to_jail();
 		drawvision (Player.x, Player.y);
 	    } else {
-		clearmsg ();
+		clearmsg();
 		print1 ("Mollified, the guard disarms you and sends you away.");
 		dispose_lost_objects (1, Player.possessions[O_WEAPON_HAND]);
-		pacify_guards ();
+		pacify_guards();
 	    }
 	} else {
-	    clearmsg ();
+	    clearmsg();
 	    print1 ("All right, you criminal scum, you asked for it!");
 	}
     } else if (Player.rank[ORDER] > 0)
@@ -663,7 +663,7 @@ static void m_talk_thief (struct monster *m)
 	print1 ("The cloaked figure makes a gesture which you recognize...");
 	print2 ("...the thieves' guild recognition signal!");
 	print3 ("'Sorry, mate, thought you were a mark....'");
-	morewait ();
+	morewait();
 	m_vanish (m);
     } else
 	m_talk_man (m);
@@ -686,14 +686,14 @@ static void m_talk_im (struct monster *m)
 	mprint ("The merchant says: Alas! I have nothing to sell!");
     else {
 	m->possessions->thing->known = 2;
-	clearmsg ();
+	clearmsg();
 	mprint ("I have a fine");
 	mprint (itemid (m->possessions->thing));
 	mprint ("for only");
 	mlongprint (max (10, 4 * true_item_value (m->possessions->thing)));
 	mprint ("Au.");
 	mprint ("Want it? [yn] ");
-	if (ynq () == 'y') {
+	if (ynq() == 'y') {
 	    if (Player.cash < (max (10, 4 * true_item_value (m->possessions->thing)))) {
 		if (Player.alignment > 10) {
 		    mprint ("Well, I'll let you have it for what you've got.");
@@ -866,7 +866,7 @@ static void m_talk_hint (struct monster *m)
     } else {
 	strcat (Str2, " whispers in your ear: ");
 	mprint (Str2);
-	hint ();
+	hint();
 	m->talkf = M_TALK_SILENT;
     }
 }
@@ -874,15 +874,15 @@ static void m_talk_hint (struct monster *m)
 static void m_talk_gf (struct monster *m)
 {
     mprint ("The good fairy glints: Would you like a wish?");
-    if (ynq () == 'y') {
+    if (ynq() == 'y') {
 	mprint ("The good fairy glows: Are you sure?");
-	if (ynq () == 'y') {
+	if (ynq() == 'y') {
 	    mprint ("The good fairy radiates: Really really sure?");
-	    if (ynq () == 'y') {
+	    if (ynq() == 'y') {
 		mprint ("The good fairy beams: I mean, like, sure as sure can be?");
-		if (ynq () == 'y') {
+		if (ynq() == 'y') {
 		    mprint ("The good fairy dazzles: You don't want a wish, right?");
-		    if (ynq () == 'y')
+		    if (ynq() == 'y')
 			mprint ("The good fairy laughs: I thought not.");
 		    else
 			wish (0);
@@ -892,7 +892,7 @@ static void m_talk_gf (struct monster *m)
     }
     mprint ("In a flash of sweet-smelling light, the fairy vanishes....");
     Player.hp = max (Player.hp, Player.maxhp);
-    Player.mana = max (Player.mana, calcmana ());
+    Player.mana = max (Player.mana, calcmana());
     mprint ("You feel mellow.");
     m_vanish (m);
 }
@@ -927,7 +927,7 @@ static void m_talk_seductor (struct monster *m)
 	strcat (Str2, " beckons seductively...");
 	mprint (Str2);
 	mprint ("Flee? [yn] ");
-	if (ynq () == 'y') {
+	if (ynq() == 'y') {
 	    mprint ("You feel stupid.");
 	} else {
 	    strcpy (Str2, "The ");
@@ -951,12 +951,12 @@ static void m_talk_demonlover (struct monster *m)
     if (Player.preference == 'n') {
 	strcat (Str2, " notices your disinterest and changes with a snarl...");
 	mprint (Str2);
-	morewait ();
+	morewait();
     } else {
 	strcat (Str2, " beckons seductively...");
 	mprint (Str2);
 	mprint ("Flee? [yn] ");
-	if (ynq () == 'y')
+	if (ynq() == 'y')
 	    mprint ("You feel fortunate....");
 	else {
 	    if (m->uniqueness == COMMON) {
@@ -966,10 +966,10 @@ static void m_talk_demonlover (struct monster *m)
 		strcpy (Str2, m->monstring);
 	    strcat (Str2, " shows you a good time....");
 	    mprint (Str2);
-	    morewait ();
+	    morewait();
 	    mprint ("You feel your life energies draining...");
 	    level_drain (random_range (3) + 1, "a demon's kiss");
-	    morewait ();
+	    morewait();
 	}
     }
     m->talkf = M_TALK_EVIL;
@@ -1005,12 +1005,12 @@ static void m_talk_horse (struct monster *m)
 	mprint ("The horse shies; maybe he doesn't like the dungeon air....");
     else {
 	mprint ("The horse lets you pat his nose. Want to ride him? [yn] ");
-	if (ynq () == 'y') {
+	if (ynq() == 'y') {
 	    m->hp = -1;
 	    Level->site[m->x][m->y].creature = NULL;
 	    putspot (m->x, m->y, getspot (m->x, m->y, FALSE));
 	    setgamestatus (MOUNTED);
-	    calc_melee ();
+	    calc_melee();
 	    mprint ("You are now equitating!");
 	}
     }
@@ -1038,9 +1038,9 @@ static void m_talk_servant (struct monster *m)
 	mprint ("The Servant of Chaos grins mischievously at you.");
 	mprint ("You are asked: Are there any Servants of Law hereabouts? [yn] ");
     }
-    if (ynq () == 'y') {
+    if (ynq() == 'y') {
 	print1 ("Show me.");
-	show_screen ();
+	show_screen();
 	drawmonsters (TRUE);
 	setspot (&x, &y);
 	if (Level->site[x][y].creature != NULL) {
@@ -1079,9 +1079,9 @@ static void m_talk_animal (struct monster *m)
 static void m_talk_scream (struct monster *m)
 {
     mprint ("A thinly echoing scream reaches your ears....");
-    morewait ();
+    morewait();
     mprint ("You feel doomed....");
-    morewait ();
+    morewait();
     mprint ("A bird appears and flies three times widdershins around your head.");
     summon (-1, QUAIL);
     m->talkf = M_TALK_EVIL;
@@ -1115,7 +1115,7 @@ static void m_talk_merchant (struct monster *m)
 	if (Current_Environment == E_VILLAGE) {
 	    mprint ("The merchant asks you if you want to buy a horse for 250GP.");
 	    mprint ("Pay the merchant? [yn] ");
-	    if (ynq () == 'y') {
+	    if (ynq() == 'y') {
 		if (Player.cash < 250)
 		    mprint ("The merchant says: 'Come back when you've got the cash!'");
 		else {
@@ -1145,18 +1145,18 @@ static void m_talk_prime (struct monster *m)
 	if (Current_Environment == E_CIRCLE) {
 	    print1 ("The Prime nods brusquely at you, removes a gem from his");
 	    print2 ("sleeve, places it on the floor, and vanishes wordlessly.");
-	    morewait ();
+	    morewait();
 	    m_dropstuff (m);
 	    m_vanish (m);
 	} else {
 	    print1 ("The Prime makes an intricate gesture, which leaves behind");
 	    print2 ("glowing blue sparks... He winks mischievously at you....");
 	    if (Player.rank[CIRCLE] > 0) {
-		morewait ();
+		morewait();
 		print1 ("The blue sparks strike you! You feel enhanced!");
 		print2 ("You feel more experienced....");
 		Player.pow += Player.rank[CIRCLE];
-		Player.mana += calcmana ();
+		Player.mana += calcmana();
 		gain_experience (1000);
 		m_vanish (m);
 	    }
@@ -1229,7 +1229,7 @@ static void tacmonster (struct monster *m)
 
 static void monster_melee (struct monster *m, int hitloc, int bonus)
 {
-    if (player_on_sanctuary ())
+    if (player_on_sanctuary())
 	print1 ("The aegis of your deity protects you!");
     else {
 	// It's lawful to wait to be attacked
@@ -1420,7 +1420,6 @@ static int monster_hit (struct monster *m, int hitloc, int bonus)
 // try to block appropriately.
 void transcribe_monster_actions (struct monster *m)
 {
-    char attack_loc, block_loc;
     static char mmstr[80];
 
     int p_blocks[3];
@@ -1448,6 +1447,14 @@ void transcribe_monster_actions (struct monster *m)
 	}
     }
 
+    m->meleestr = mmstr;
+    if (m->id != NPC)
+	m->meleestr = Monsters[m->id].meleestr;
+    else
+	m->meleestr = m_melee_str (m->level/2);
+
+#if 0	// FIXME: melee strings are const
+    char attack_loc, block_loc;
     if ((p_blocks[2] <= p_blocks[1]) && (p_blocks[2] <= p_blocks[0]))
 	attack_loc = 'L';
     else if ((p_blocks[1] <= p_blocks[2]) && (p_blocks[1] <= p_blocks[0]))
@@ -1461,35 +1468,26 @@ void transcribe_monster_actions (struct monster *m)
     else
 	block_loc = 'H';
 
-    m->meleestr = mmstr;
-
-    if (m->id != NPC)
-	strcpy (m->meleestr, Monsters[m->id].meleestr);
-    else {
-	strcpy (m->meleestr, "");
-	for (int i = 0; i < m->level; i += 2)
-	    strcat (m->meleestr, "L?R?");
-    }
-
     for (unsigned i = 0; i < strlen (m->meleestr); i += 2) {
 	if ((m->meleestr[i] == 'A') || (m->meleestr[i] == 'L')) {
 	    if (m->meleestr[i + 1] == '?') {
 		if (m->level + random_range (30) > Player.level + random_range (20))
 		    m->meleestr[i + 1] = attack_loc;
 		else
-		    m->meleestr[i + 1] = random_loc ();
+		    m->meleestr[i + 1] = random_loc();
 	    } else if (m->meleestr[i + 1] == 'X')
-		m->meleestr[i + 1] = random_loc ();
+		m->meleestr[i + 1] = random_loc();
 	} else if ((m->meleestr[i] == 'B') || (m->meleestr[i] == 'R')) {
 	    if (m->meleestr[i + 1] == '?') {
 		if (m->level + random_range (30) > Player.level + random_range (20))
 		    m->meleestr[i + 1] = block_loc;
 		else
-		    m->meleestr[i + 1] = random_loc ();
+		    m->meleestr[i + 1] = random_loc();
 	    } else if (m->meleestr[i + 1] == 'X')
-		m->meleestr[i + 1] = random_loc ();
+		m->meleestr[i + 1] = random_loc();
 	}
     }
+#endif
 }
 
 char random_loc (void)
@@ -1651,7 +1649,7 @@ static void m_sp_demon (struct monster *m)
 static void m_sp_acid_cloud (struct monster *m)
 {
     if (m_statusp (m, HOSTILE) && (distance (m->x, m->y, Player.x, Player.y) < 3))
-	acid_cloud ();
+	acid_cloud();
 }
 
 static void m_sp_escape (struct monster *m)
@@ -1776,7 +1774,7 @@ static void m_sp_surprise (struct monster *m)
 			mprint ("A shriek of hatred causes you to momentarily freeze up!");
 			break;
 		}
-		morewait ();
+		morewait();
 		setgamestatus (SKIP_PLAYER);
 		m_status_reset (m, M_INVISIBLE);
 	    } else {
@@ -1790,7 +1788,7 @@ static void m_sp_surprise (struct monster *m)
 static void m_sp_whistleblower (struct monster *m)
 {
     if (m_statusp (m, HOSTILE)) {
-	alert_guards ();
+	alert_guards();
 	m->specialf = M_MELEE_NORMAL;
     }
 }
@@ -1827,7 +1825,7 @@ static void m_sp_eater (struct monster *m)
     if (m_statusp (m, HOSTILE))
 	if (los_p (m->x, m->y, Player.x, Player.y)) {
 	    mprint ("A strange numbing sensation comes over you...");
-	    morewait ();
+	    morewait();
 	    Player.mana = Player.mana / 2;
 	    if (random_range (4))
 		enchant (-1);
@@ -1896,14 +1894,14 @@ static void m_sp_blackout (struct monster *m)
     if (loc_statusp (m->x, m->y, LIT)) {
 	mprint ("The fungus chirps.... ");
 	mprint ("The area is plunged into darkness.");
-	torch_check ();
-	torch_check ();
-	torch_check ();
-	torch_check ();
-	torch_check ();
-	torch_check ();
+	torch_check();
+	torch_check();
+	torch_check();
+	torch_check();
+	torch_check();
+	torch_check();
 	spreadroomdark (m->x, m->y, Level->site[m->x][m->y].roomnumber);
-	levelrefresh ();
+	levelrefresh();
     }
 }
 
@@ -1978,7 +1976,7 @@ static void m_sp_av (struct monster *m)
     if (Player.mana > 0) {
 	mprint ("You feel a sudden loss of mana!");
 	Player.mana -= (max (0, 10 - distance (m->x, m->y, Player.x, Player.y)));
-	dataprint ();
+	dataprint();
     }
 }
 
@@ -2054,17 +2052,21 @@ static void m_sp_raise (struct monster *m)
 {
     int x, y;
     pol t;
-    for (x = m->x - 2; x <= m->x + 2; x++)
-	for (y = m->y - 2; y <= m->y + 2; y++)
-	    if (inbounds (x, y))
-		if (Level->site[x][y].things != NULL)
+    for (x = m->x - 2; x <= m->x + 2; x++) {
+	for (y = m->y - 2; y <= m->y + 2; y++) {
+	    if (inbounds (x, y)) {
+		if (Level->site[x][y].things != NULL) {
 		    if (Level->site[x][y].things->thing->id == CORPSEID) {
 			mprint ("The Zombie Overlord makes a mystical gesture...");
 			summon (-1, Level->site[x][y].things->thing->charge);
 			t = Level->site[x][y].things;
 			Level->site[x][y].things = Level->site[x][y].things->next;
-			free ((char *) t);
+			free (t);
 		    }
+		}
+	    }
+	}
+    }
 }
 
 static void m_sp_mb (struct monster *m)
@@ -2085,7 +2087,7 @@ static void m_sp_mb (struct monster *m)
 	} else {
 	    mprint ("You feel toasty warm inside!");
 	    Player.pow++;
-	    Player.mana = max (Player.mana, calcmana ());
+	    Player.mana = max (Player.mana, calcmana());
 	    Player.hp = max (Player.hp, ++Player.maxhp);
 	}
 	m->hp = 0;
@@ -2133,7 +2135,7 @@ static void m_huge_sounds (struct monster *m)
 
 static void m_thief_f (struct monster *m)
 {
-    int i = random_item ();
+    int i = random_item();
     if (random_range (3) == 1) {
 	if (distance (Player.x, Player.y, m->x, m->y) < 2) {
 	    if (p_immune (THEFT) || (Player.level > (m->level * 2) + random_range (20)))
@@ -2183,7 +2185,7 @@ static void m_aggravate (struct monster *m)
 	    strcpy (Str2, m->monstring);
 	strcat (Str2, " emits an irritating humming sound.");
 	mprint (Str2);
-	aggravate ();
+	aggravate();
 	m_status_reset (m, HOSTILE);
     }
 }
@@ -2226,7 +2228,7 @@ static void m_sp_lair (struct monster *m)
     if (m_statusp (m, HOSTILE)) {
 	mprint ("You notice a number of dragons waking up....");
 	mprint ("You are struck by a quantity of firebolts.");
-	morewait ();
+	morewait();
 	for (ml = Level->mlist; ml != NULL; ml = ml->next)
 	    if (ml->m->hp > 0 && ml->m->specialf == M_SP_LAIR) {
 		m_status_set (ml->m, HOSTILE);
@@ -2282,7 +2284,7 @@ void m_death (struct monster *m)
     m->hp = -1;
     if (los_p (Player.x, Player.y, m->x, m->y)) {
 	gain_experience (m->xpv);
-	calc_melee ();
+	calc_melee();
 	char buf[80];
 	if (m->uniqueness != COMMON)
 	    strcpy (buf, m->monstring);
@@ -2354,41 +2356,41 @@ void m_death (struct monster *m)
 		    case 5:
 		    case 6:
 			mprint ("You hear a faroff sound like angels crying....");
-			strcpy (Priest[m->aux2], nameprint ());
+			strcpy (Priest[m->aux2], nameprint());
 			Priestbehavior[m->aux2] = 2933;
 			break;
 		    case 7:
 			mprint ("A furtive figure dashes out of the shadows, takes a look at");
 			mprint ("the corpse, and runs away!");
-			strcpy (Shadowlord, nameprint ());
+			strcpy (Shadowlord, nameprint());
 			Shadowlordbehavior = 2912;
 			break;
 		    case 8:
 			mprint ("An aide-de-camp approaches, removes the corpse's insignia,");
 			mprint ("and departs.");
-			strcpy (Commandant, nameprint ());
+			strcpy (Commandant, nameprint());
 			Commandantbehavior = 2912;
 			break;
 		    case 9:
 			mprint ("An odd glow surrounds the corpse, and slowly fades.");
-			strcpy (Archmage, nameprint ());
+			strcpy (Archmage, nameprint());
 			Archmagebehavior = 2933;
 			break;
 		    case 10:
 			mprint ("A demon materializes, takes a quick look at the corpse,");
 			mprint ("and teleports away with a faint popping noise.");
-			strcpy (Prime, nameprint ());
+			strcpy (Prime, nameprint());
 			Primebehavior = 2932;
 			break;
 		    case 11:
 			mprint ("A sports columnist rushes forward and takes a quick photo");
 			mprint ("of the corpse and rushes off muttering about a deadline.");
-			strcpy (Champion, nameprint ());
+			strcpy (Champion, nameprint());
 			Championbehavior = 2913;
 			break;
 		    case 12:
 			mprint ("You hear a fanfare in the distance, and feel dismayed.");
-			strcpy (Duke, nameprint ());
+			strcpy (Duke, nameprint());
 			Dukebehavior = 2911;
 			break;
 		    case 13:
@@ -2396,7 +2398,7 @@ void m_death (struct monster *m)
 			    mprint ("You feel smug.");
 			else if (Player.alignment < 10)
 			    mprint ("You feel ashamed.");
-			strcpy (Chaoslord, nameprint ());
+			strcpy (Chaoslord, nameprint());
 			Chaoslordbehavior = 2912;
 			break;
 		    case 14:
@@ -2404,7 +2406,7 @@ void m_death (struct monster *m)
 			    mprint ("You feel smug.");
 			else if (Player.alignment > 10)
 			    mprint ("You feel ashamed.");
-			strcpy (Lawlord, nameprint ());
+			strcpy (Lawlord, nameprint());
 			Lawlordbehavior = 2911;
 			break;
 		    case 15:
@@ -2417,7 +2419,7 @@ void m_death (struct monster *m)
 				prev = curr;
 				curr = curr->next;
 			    }
-			    strcpy (Justiciar, nameprint ());
+			    strcpy (Justiciar, nameprint());
 			    Justiciarbehavior = 2911;
 			    mprint ("In the distance you hear a trumpet. A Servant of Law");
 			    // promote one of the city guards to be justiciar
@@ -2449,9 +2451,9 @@ void m_death (struct monster *m)
 				m_status_reset (ml->m, HOSTILE);
 			    } else {
 				mprint ("materializes, sheds a tear, and leaves.");
-				morewait ();
+				morewait();
 			    }
-			    alert_guards ();
+			    alert_guards();
 			    // will cause order to be destroyed if no guards or justiciar
 			} else {
 			    mprint ("A Servant of Chaos materializes, grabs the corpse,");
@@ -2464,7 +2466,7 @@ void m_death (struct monster *m)
 	    case GUARD:	// guard
 		Player.alignment -= 10;
 		if ((Current_Environment == E_CITY) || (Current_Environment == E_VILLAGE))
-		    alert_guards ();
+		    alert_guards();
 		break;
 	    case GOBLIN_KING:
 		if (!gamestatusp (ATTACKED_ORACLE)) {
@@ -2521,7 +2523,7 @@ static void monster_move (struct monster *m)
 
 static void monster_strike (struct monster *m)
 {
-    if (player_on_sanctuary ())
+    if (player_on_sanctuary())
 	print1 ("The aegis of your deity protects you!");
     else {
 	// It's lawful to wait to be attacked
@@ -2535,7 +2537,7 @@ static void monster_strike (struct monster *m)
 static void monster_special (struct monster *m)
 {
     // since many special functions are really attacks, cancel them all if on sanctuary
-    if (!player_on_sanctuary ())
+    if (!player_on_sanctuary())
 	monster_action (m, m->specialf);
 }
 
@@ -2934,7 +2936,7 @@ void determine_npc_behavior (pmt npc, int level, int behavior)
     competence = (behavior % 1000) / 100;
     talktype = behavior / 1000;
     npc->level = competence;
-    if (npc->level < 2 * difficulty ())
+    if (npc->level < 2 * difficulty())
 	npc->status += HOSTILE;
     npc->xpv = npc->level * 20;
     switch (combatype) {
@@ -3067,7 +3069,7 @@ void m_trap_dart (struct monster *m)
 	Level->site[m->x][m->y].locchar = TRAP;
 	lset (m->x, m->y, CHANGED);
     }
-    m_damage (m, difficulty () * 2, NORMAL_DAMAGE);
+    m_damage (m, difficulty() * 2, NORMAL_DAMAGE);
 }
 
 void m_trap_pit (struct monster *m)
@@ -3086,7 +3088,7 @@ void m_trap_pit (struct monster *m)
     }
     if (!m_statusp (m, INTANGIBLE))
 	m_status_reset (m, MOBILE);
-    m_damage (m, difficulty () * 5, NORMAL_DAMAGE);
+    m_damage (m, difficulty() * 5, NORMAL_DAMAGE);
 
 }
 
@@ -3163,7 +3165,7 @@ void m_trap_blade (struct monster *m)
 	strcat (buf, " was hit by a blade trap!");
 	mprint (buf);
     }
-    m_damage (m, (difficulty () + 1) * 7 - Player.defense, NORMAL_DAMAGE);
+    m_damage (m, (difficulty() + 1) * 7 - Player.defense, NORMAL_DAMAGE);
 }
 
 void m_trap_fire (struct monster *m)
@@ -3181,7 +3183,7 @@ void m_trap_fire (struct monster *m)
 	strcat (buf, " was hit by a fire trap!");
 	mprint (buf);
     }
-    m_damage (m, (difficulty () + 1) * 5, FLAME);
+    m_damage (m, (difficulty() + 1) * 5, FLAME);
 }
 
 void m_fire (struct monster *m)
@@ -3270,7 +3272,7 @@ void m_trap_acid (struct monster *m)
 	Level->site[m->x][m->y].locchar = TRAP;
 	lset (m->x, m->y, CHANGED);
     }
-    m_damage (m, random_range (difficulty () * difficulty ()), ACID);
+    m_damage (m, random_range (difficulty() * difficulty()), ACID);
 }
 
 void m_trap_manadrain (struct monster *m)
@@ -3393,7 +3395,7 @@ void m_altar (struct monster *m)
     }
 }
 
-char *mantype (void)
+const char* mantype (void)
 {
     switch (random_range (20)) {
 	case 0:
@@ -3459,4 +3461,10 @@ static void strengthen_death (struct monster *m)
 
 void m_no_op (struct monster *m UNUSED)
 {
+}
+
+const char* m_melee_str (unsigned level)
+{
+    static const char SkilledMeleeStr[33] = "L?R?L?R?L?R?L?R?L?R?L?R?L?R?L?R?";
+    return (SkilledMeleeStr+strlen(SkilledMeleeStr)-4*min(level,8));
 }

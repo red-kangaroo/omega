@@ -9,7 +9,7 @@ static void corridor_crawl(int *fx, int *fy, int sx, int sy, int n, Symbol loc, 
 static void find_stairs(char fromlevel, char tolevel);
 static plv findlevel(struct level *dungeon, char levelnum);
 static void make_forest(void);
-static void make_general_map(char *terrain);
+static void make_general_map(const char* terrain);
 static void make_jungle(void);
 static void make_mountains(void);
 static void make_plains(void);
@@ -52,7 +52,7 @@ void clear_level (struct level *dungeon_level)
 		dungeon_level->site[i][j].showchar = SPACE;
 		dungeon_level->site[i][j].creature = NULL;
 		dungeon_level->site[i][j].things = NULL;
-		dungeon_level->site[i][j].aux = difficulty () * 20;
+		dungeon_level->site[i][j].aux = difficulty() * 20;
 		dungeon_level->site[i][j].buildaux = 0;
 		dungeon_level->site[i][j].p_locf = L_NO_OP;
 		dungeon_level->site[i][j].lstatus = 0;
@@ -90,32 +90,32 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
 	switch (Current_Environment) {
 	    case E_CAVES:
 		if ((random_range (4) == 0) && (tolevel < MaxDungeonLevels))
-		    room_level ();
+		    room_level();
 		else
-		    cavern_level ();
+		    cavern_level();
 		break;
 	    case E_SEWERS:
 		if ((random_range (4) == 0) && (tolevel < MaxDungeonLevels))
-		    room_level ();
+		    room_level();
 		else
-		    sewer_level ();
+		    sewer_level();
 		break;
 	    case E_CASTLE:
-		room_level ();
+		room_level();
 		break;
 	    case E_ASTRAL:
-		maze_level ();
+		maze_level();
 		break;
 	    case E_VOLCANO:
 		switch (random_range (3)) {
 		    case 0:
-			cavern_level ();
+			cavern_level();
 			break;
 		    case 1:
-			room_level ();
+			room_level();
 			break;
 		    case 2:
-			maze_level ();
+			maze_level();
 			break;
 		}
 		break;
@@ -123,22 +123,22 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
 		print3 ("This dungeon not implemented!");
 		break;
 	}
-	install_traps ();
-	install_specials ();
+	install_traps();
+	install_specials();
 	make_stairs (fromlevel);
 	make_stairs (fromlevel);
 	initrand (E_RESTORE, 0);
 	populate_level (Current_Environment);
-	stock_level ();
+	stock_level();
     }
     find_stairs (fromlevel, tolevel);
     ScreenOffset = Player.y - (ScreenLength / 2);
-    show_screen ();
+    show_screen();
     screencheck (Player.y);
     drawvision (Player.x, Player.y);
     // synchronize with player on level change
     Player.click = (Tick + 1) % 60;
-    roomcheck ();
+    roomcheck();
 }
 
 // tries to find the level of depth levelnum in dungeon; if can't find it returns NULL
@@ -219,7 +219,7 @@ static void corridor_crawl (int* fx, int* fy, int sx, int sy, int n, Symbol loc,
     }
 }
 
-char *roomname (int ri)
+const char* roomname (int ri)
 {
     switch (ri) {
 	case RS_ZORCH:
@@ -604,7 +604,7 @@ void install_specials (void)
 
     for (x = 0; x < WIDTH; x++) {
 	for (y = 0; y < LENGTH; y++) {
-	    if ((Level->site[x][y].locchar == FLOOR) && (Level->site[x][y].p_locf == L_NO_OP) && (random_range (300) < difficulty ())) {
+	    if ((Level->site[x][y].locchar == FLOOR) && (Level->site[x][y].p_locf == L_NO_OP) && (random_range (300) < difficulty())) {
 		i = random_range (100);
 		if (i < 10) {
 		    Level->site[x][y].locchar = ALTAR;
@@ -633,7 +633,7 @@ void install_specials (void)
 		    Level->site[x][y].p_locf = L_TRIFID;
 		} else if (i < 70) {
 		    Level->site[x][y].locchar = STATUE;
-		    if (random_range (100) < difficulty ())
+		    if (random_range (100) < difficulty())
 			for (j = 0; j < 8; j++) {
 			    if (Level->site[x + Dirs[0][j]][y + Dirs[1][j]].p_locf != L_NO_OP)
 				Level->site[x + Dirs[0][j]][y + Dirs[1][j]].locchar = FLOOR;
@@ -712,29 +712,29 @@ void make_country_screen (int terrain)
     Level->generated = TRUE;
     switch (terrain) {
 	case FOREST:
-	    make_forest ();
+	    make_forest();
 	    break;
 	case JUNGLE:
-	    make_jungle ();
+	    make_jungle();
 	    break;
 	case SWAMP:
-	    make_swamp ();
+	    make_swamp();
 	    break;
 	case RIVER:
-	    make_river ();
+	    make_river();
 	    break;
 	case MOUNTAINS:
 	case PASS:
-	    make_mountains ();
+	    make_mountains();
 	    break;
 	case ROAD:
-	    make_road ();
+	    make_road();
 	    break;
 	default:
-	    make_plains ();
+	    make_plains();
 	    break;
     }
-    if (nighttime ()) {
+    if (nighttime()) {
 	print3 ("Night's gloom shrouds your sight.");
 	for (i = 0; i < WIDTH; i++)
 	    for (j = 0; j < LENGTH; j++) {
@@ -744,7 +744,7 @@ void make_country_screen (int terrain)
     }
 }
 
-static void make_general_map (char *terrain)
+static void make_general_map (const char* terrain)
 {
     int i, j;
     int size = strlen (terrain);

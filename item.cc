@@ -2,7 +2,7 @@
 
 //----------------------------------------------------------------------
 
-static char* grotname(void);
+static const char* grotname(void);
 static void i_accuracy(pob o);
 static void i_acquire(pob o);
 static void i_alert(pob o);
@@ -126,245 +126,245 @@ static int orbcheck(int element);
 // make a random new object, returning pointer
 pob create_object (int itemlevel)
 {
-    pob new;
+    pob o;
     int r;
     int ok = FALSE;
 
     while (!ok) {
-	new = ((pob) checkmalloc (sizeof (objtype)));
+	o = ((pob) checkmalloc (sizeof (objtype)));
 	r = random_range (135);
 	if (r < 20)
-	    make_thing (new, -1);
+	    make_thing (o, -1);
 	else if (r < 40)
-	    make_food (new, -1);
+	    make_food (o, -1);
 	else if (r < 50)
-	    make_scroll (new, -1);
+	    make_scroll (o, -1);
 	else if (r < 60)
-	    make_potion (new, -1);
+	    make_potion (o, -1);
 	else if (r < 70)
-	    make_weapon (new, -1);
+	    make_weapon (o, -1);
 	else if (r < 80)
-	    make_armor (new, -1);
+	    make_armor (o, -1);
 	else if (r < 90)
-	    make_shield (new, -1);
+	    make_shield (o, -1);
 	else if (r < 100)
-	    make_stick (new, -1);
+	    make_stick (o, -1);
 	else if (r < 110)
-	    make_boots (new, -1);
+	    make_boots (o, -1);
 	else if (r < 120)
-	    make_cloak (new, -1);
+	    make_cloak (o, -1);
 	else if (r < 130)
-	    make_ring (new, -1);
+	    make_ring (o, -1);
 	else
-	    make_artifact (new, -1);
+	    make_artifact (o, -1);
 	// not ok if object is too good for level, or if unique and already made
 	// 1/100 chance of finding object if too good for level
-	ok = ((new->uniqueness < UNIQUE_MADE) && ((new->level < itemlevel + random_range (3)) || (random_range (100) == 23)));
+	ok = ((o->uniqueness < UNIQUE_MADE) && ((o->level < itemlevel + random_range (3)) || (random_range (100) == 23)));
 	if (!ok)
-	    free ((char* ) new);
+	    free (o);
     }
-    if (new->uniqueness == UNIQUE_UNMADE)
-	Objects[new->id].uniqueness = UNIQUE_MADE;
-    return (new);
+    if (o->uniqueness == UNIQUE_UNMADE)
+	Objects[o->id].uniqueness = UNIQUE_MADE;
+    return (o);
 }
 
-void make_cash (pob new, int level)
+void make_cash (pob o, int level)
 {
-    *new = Objects[CASHID];
-    new->basevalue = random_range (level * level + 10) + 1;	// aux is AU value
-    new->objstr = cashstr ();
-    new->cursestr = new->truename = new->objstr;
+    *o = Objects[CASHID];
+    o->basevalue = random_range (level * level + 10) + 1;	// aux is AU value
+    o->objstr = cashstr();
+    o->cursestr = o->truename = o->objstr;
 }
 
-void make_food (pob new, int id)
+void make_food (pob o, int id)
 {
     if (id == -1)
 	id = random_range (NUMFOODS);
-    *new = Objects[FOODID + id];
+    *o = Objects[FOODID + id];
 }
 
-void make_corpse (pob new, struct monster *m)
+void make_corpse (pob o, struct monster *m)
 {
-    *new = Objects[CORPSEID];
-    new->charge = m->id;
-    new->weight = m->corpseweight;
-    new->basevalue = m->corpsevalue;
-    new->known = 2;
-    new->objstr = m->corpsestr;
-    new->truename = new->cursestr = new->objstr;
+    *o = Objects[CORPSEID];
+    o->charge = m->id;
+    o->weight = m->corpseweight;
+    o->basevalue = m->corpsevalue;
+    o->known = 2;
+    o->objstr = m->corpsestr;
+    o->truename = o->cursestr = o->objstr;
     if (m_statusp (m, EDIBLE)) {
-	new->usef = I_FOOD;
-	new->aux = 6;
+	o->usef = I_FOOD;
+	o->aux = 6;
     } else if (m_statusp (m, POISONOUS))
-	new->usef = I_POISON_FOOD;
+	o->usef = I_POISON_FOOD;
     // Special corpse-eating effects
     else
 	switch (m->id) {
 	    case TSETSE:	// tse tse fly
 	    case TORPOR:	// torpor beast
-		new->usef = I_SLEEP_SELF;
+		o->usef = I_SLEEP_SELF;
 		break;
 	    case NASTY:
-		new->usef = I_INVISIBLE;
+		o->usef = I_INVISIBLE;
 		break;
 	    case BLIPPER:
-		new->usef = I_TELEPORT;
+		o->usef = I_TELEPORT;
 		break;
 	    case EYE:		// floating eye -- it's traditional....
-		new->usef = I_CLAIRVOYANCE;
+		o->usef = I_CLAIRVOYANCE;
 		break;
 	    case FUZZY:		// astral fuzzy
-		new->usef = I_DISPLACE;
+		o->usef = I_DISPLACE;
 		break;
 	    case SERV_LAW:
-		new->usef = I_CHAOS;
+		o->usef = I_CHAOS;
 		break;
 	    case SERV_CHAOS:
-		new->usef = I_LAW;
+		o->usef = I_LAW;
 		break;
 	    case ASTRAL_VAMP:	// astral vampire
-		new->usef = I_ENCHANT;
+		o->usef = I_ENCHANT;
 		break;
 	    case MANABURST:
-		new->usef = I_SPELLS;
+		o->usef = I_SPELLS;
 		break;
 	    case RAKSHASA:
-		new->usef = I_TRUESIGHT;
+		o->usef = I_TRUESIGHT;
 		break;
 	    case COMA:		// coma beast
-		new->usef = I_ALERT;
+		o->usef = I_ALERT;
 		break;
 	}
 }
 
-void make_ring (pob new, int id)
+void make_ring (pob o, int id)
 {
     if (id == -1)
 	id = random_range (NUMRINGS);
-    *new = Objects[RINGID + id];
-    if (new->blessing == 0)
-	new->blessing = itemblessing ();
-    if (new->plus == 0)
-	new->plus = itemplus () + 1;
-    if (new->blessing < 0)
-	new->plus = -1 - abs (new->plus);
+    *o = Objects[RINGID + id];
+    if (o->blessing == 0)
+	o->blessing = itemblessing();
+    if (o->plus == 0)
+	o->plus = itemplus() + 1;
+    if (o->blessing < 0)
+	o->plus = -1 - abs (o->plus);
 }
 
-void make_thing (pob new, int id)
+void make_thing (pob o, int id)
 {
     if (id == -1)
 	id = random_range (NUMTHINGS);
-    *new = Objects[THINGID + id];
-    if (strcmp (new->objstr, "grot") == 0) {
-	new->objstr = grotname ();
-	new->truename = new->cursestr = new->objstr;
+    *o = Objects[THINGID + id];
+    if (strcmp (o->objstr, "grot") == 0) {
+	o->objstr = grotname();
+	o->truename = o->cursestr = o->objstr;
     }
 }
 
-void make_scroll (pob new, int id)
+void make_scroll (pob o, int id)
 {
     if (id == -1)
 	id = random_range (NUMSCROLLS);
-    *new = Objects[SCROLLID + id];
+    *o = Objects[SCROLLID + id];
     // if a scroll of spells, aux is the spell id in Spells
-    if (new->id == SCROLLID + 1) {
-	new->aux = random_range (NUMSPELLS);
+    if (o->id == SCROLLID + 1) {
+	o->aux = random_range (NUMSPELLS);
     }
 }
 
-void make_potion (pob new, int id)
+void make_potion (pob o, int id)
 {
     if (id == -1)
 	id = random_range (NUMPOTIONS);
-    *new = Objects[POTIONID + id];
-    if (new->plus == 0)
-	new->plus = itemplus ();
+    *o = Objects[POTIONID + id];
+    if (o->plus == 0)
+	o->plus = itemplus();
 }
 
-void make_weapon (pob new, int id)
+void make_weapon (pob o, int id)
 {
     if (id == -1)
 	id = random_range (NUMWEAPONS);
-    *new = Objects[WEAPONID + id];
+    *o = Objects[WEAPONID + id];
     if ((id == 28) || (id == 29))	// bolt or arrow
-	new->number = random_range (20) + 1;
-    if (new->blessing == 0)
-	new->blessing = itemblessing ();
-    if (new->plus == 0) {
-	new->plus = itemplus ();
-	if (new->blessing < 0)
-	    new->plus = -1 - abs (new->plus);
-	else if (new->blessing > 0)
-	    new->plus = 1 + abs (new->plus);
+	o->number = random_range (20) + 1;
+    if (o->blessing == 0)
+	o->blessing = itemblessing();
+    if (o->plus == 0) {
+	o->plus = itemplus();
+	if (o->blessing < 0)
+	    o->plus = -1 - abs (o->plus);
+	else if (o->blessing > 0)
+	    o->plus = 1 + abs (o->plus);
     }
 }
 
-void make_shield (pob new, int id)
+void make_shield (pob o, int id)
 {
     if (id == -1)
 	id = random_range (NUMSHIELDS);
-    *new = Objects[SHIELDID + id];
-    if (new->plus == 0)
-	new->plus = itemplus ();
-    if (new->blessing == 0)
-	new->blessing = itemblessing ();
-    if (new->blessing < 0)
-	new->plus = -1 - abs (new->plus);
-    else if (new->blessing > 0)
-	new->plus = 1 + abs (new->plus);
+    *o = Objects[SHIELDID + id];
+    if (o->plus == 0)
+	o->plus = itemplus();
+    if (o->blessing == 0)
+	o->blessing = itemblessing();
+    if (o->blessing < 0)
+	o->plus = -1 - abs (o->plus);
+    else if (o->blessing > 0)
+	o->plus = 1 + abs (o->plus);
 }
 
-void make_armor (pob new, int id)
+void make_armor (pob o, int id)
 {
     if (id == -1)
 	id = random_range (NUMARMOR);
-    *new = Objects[ARMORID + id];
-    if (new->plus == 0)
-	new->plus = itemplus ();
-    if (new->blessing == 0)
-	new->blessing = itemblessing ();
-    if (new->blessing < 0)
-	new->plus = -1 - abs (new->plus);
-    else if (new->blessing > 0)
-	new->plus = 1 + abs (new->plus);
+    *o = Objects[ARMORID + id];
+    if (o->plus == 0)
+	o->plus = itemplus();
+    if (o->blessing == 0)
+	o->blessing = itemblessing();
+    if (o->blessing < 0)
+	o->plus = -1 - abs (o->plus);
+    else if (o->blessing > 0)
+	o->plus = 1 + abs (o->plus);
 }
 
-void make_cloak (pob new, int id)
+void make_cloak (pob o, int id)
 {
     if (id == -1)
 	id = random_range (NUMCLOAKS);
     Objects[CLOAKID + 4].plus = 2;
-    *new = Objects[CLOAKID + id];
-    if (new->blessing == 0)
-	new->blessing = itemblessing ();
+    *o = Objects[CLOAKID + id];
+    if (o->blessing == 0)
+	o->blessing = itemblessing();
 }
 
-void make_boots (pob new, int id)
+void make_boots (pob o, int id)
 {
     if (id == -1)
 	id = random_range (NUMBOOTS);
-    *new = Objects[BOOTID + id];
-    if (new->blessing == 0)
-	new->blessing = itemblessing ();
+    *o = Objects[BOOTID + id];
+    if (o->blessing == 0)
+	o->blessing = itemblessing();
 }
 
-void make_stick (pob new, int id)
+void make_stick (pob o, int id)
 {
     if (id == -1)
 	id = random_range (NUMSTICKS);
-    *new = Objects[STICKID + id];
-    new->charge = itemcharge ();
-    if (new->blessing == 0)
-	new->blessing = itemblessing ();
+    *o = Objects[STICKID + id];
+    o->charge = itemcharge();
+    if (o->blessing == 0)
+	o->blessing = itemblessing();
 }
 
-void make_artifact (pob new, int id)
+void make_artifact (pob o, int id)
 {
     if (id == -1)
 	do
 	    id = random_range (NUMARTIFACTS);
 	while (Objects[id].uniqueness >= UNIQUE_MADE);
-    *new = Objects[ARTIFACTID + id];
+    *o = Objects[ARTIFACTID + id];
 }
 
 // this function is used to shuffle the id numbers of scrolls, potions, etc
@@ -384,7 +384,7 @@ void shuffle (int ids[], int number)
 
 // item name functions
 
-char* scrollname (int id)
+const char* scrollname (int id)
 {
     switch (scroll_ids[id]) {
 	case 0:
@@ -451,7 +451,7 @@ char* scrollname (int id)
     }
 }
 
-static char* grotname (void)
+static const char* grotname (void)
 {
     switch (random_range (20)) {
 	case 0:
@@ -498,7 +498,7 @@ static char* grotname (void)
     }
 }
 
-char* potionname (int id)
+const char* potionname (int id)
 {
     switch (potion_ids[id]) {
 	case 0:
@@ -545,7 +545,7 @@ char* potionname (int id)
     }
 }
 
-char* stickname (int id)
+const char* stickname (int id)
 {
     switch (stick_ids[id]) {
 	case 0:
@@ -592,7 +592,7 @@ char* stickname (int id)
     }
 }
 
-char* ringname (int id)
+const char* ringname (int id)
 {
     switch (ring_ids[id]) {
 	case 0:
@@ -641,7 +641,7 @@ char* ringname (int id)
     }
 }
 
-char* cloakname (int id)
+const char* cloakname (int id)
 {
     switch (cloak_ids[id]) {
 	case 0:
@@ -690,7 +690,7 @@ char* cloakname (int id)
     }
 }
 
-char* bootname (int id)
+const char* bootname (int id)
 {
     switch (boot_ids[id]) {
 	case 0:
@@ -842,7 +842,7 @@ static void i_jane_t (pob o)
 	    k = ARTIFACTID;
 	    break;
     }
-    menuclear ();
+    menuclear();
     menuprint ("You could probably now recognise:\n");
     for (int i = j; i < k; i++) {
 	Objects[i].known = 1;
@@ -855,9 +855,9 @@ static void i_jane_t (pob o)
 	    sprintf (Str1, "   a %s\n", Objects[i].truename);
 	menuprint (Str1);
     }
-    showmenu ();
-    morewait ();
-    xredraw ();
+    showmenu();
+    morewait();
+    xredraw();
 }
 
 static void i_flux (pob o)
@@ -881,7 +881,7 @@ static void i_clairvoyance (struct object *o)
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
     if (o->blessing < 0)
-	amnesia ();
+	amnesia();
     else
 	clairvoyance (5 + o->blessing * 5);
 }
@@ -909,7 +909,7 @@ static void i_spells (pob o)
     if (o->blessing > -1)
 	Objects[o->id].known = 1;
     mprint ("A scroll of spells.");
-    morewait ();
+    morewait();
     learnspell (o->blessing);
 }
 
@@ -1031,7 +1031,7 @@ static void i_azoth (pob o)
     } else if (o->plus == 0) {
 	mprint ("The partially enchanted azoth makes you sick!");
 	Player.con = ((int) (Player.con / 2));
-	calc_melee ();
+	calc_melee();
     } else if (o->blessing < 1) {
 	mprint ("The unblessed azoth warps your soul!");
 	Player.pow = Player.maxpow = ((int) (Player.maxpow / 2));
@@ -1044,7 +1044,7 @@ static void i_azoth (pob o)
 	} else {
 	    heal (10);
 	    cleanse (1);
-	    Player.mana = calcmana () * 3;
+	    Player.mana = calcmana() * 3;
 	    toggle_item_use (TRUE);
 	    Player.str = (Player.maxstr++) * 3;
 	    toggle_item_use (FALSE);
@@ -1157,13 +1157,13 @@ static void i_stim (pob o)
     i_speed (o);
     Player.str += 3;
     Player.con -= 1;
-    calc_melee ();
+    calc_melee();
 }
 
 static void i_pow (pob o UNUSED)
 {
     mprint ("You feel a surge of mystic power!");
-    Player.mana = 2 * calcmana ();
+    Player.mana = 2 * calcmana();
 }
 
 static void i_poison_food (pob o UNUSED)
@@ -1175,15 +1175,15 @@ static void i_poison_food (pob o UNUSED)
 static void i_pepper_food (pob o UNUSED)
 {
     mprint ("You innocently start to chew the szechuan pepper.....");
-    morewait ();
+    morewait();
     mprint ("hot.");
-    morewait ();
+    morewait();
     mprint ("Hot.");
-    morewait ();
+    morewait();
     mprint ("Hot!");
-    morewait ();
+    morewait();
     mprint ("HOT!!!!!!");
-    morewait ();
+    morewait();
     p_damage (1, UNSTOPPABLE, "a szechuan pepper");
     mprint ("Your sinuses melt and run out your ears.");
     mprint ("Your mouth and throat seem to be permanently on fire.");
@@ -1318,7 +1318,7 @@ static void i_pick (pob o)
 	o->known = 1;
 	Objects[o->id].known = 1;
 	mprint ("Pick lock:");
-	dir = getdir ();
+	dir = getdir();
 	if (dir == ABORT)
 	    resetgamestatus (SKIP_MONSTERS);
 	else {
@@ -1350,7 +1350,7 @@ static void i_key (pob o)
     int ox, oy;
     o->used = FALSE;
     mprint ("Unlock door: ");
-    dir = getdir ();
+    dir = getdir();
     if (dir == ABORT)
 	resetgamestatus (SKIP_MONSTERS);
     else {
@@ -1399,7 +1399,7 @@ static void i_corpse (pob o)
 		Player.food = 25;
 	    Player.food += 8;
 	    Player.alignment -= 10;
-	    foodcheck ();
+	    foodcheck();
 	    break;
 	case FNORD:		// fnord
 	    mprint ("You feel illuminated!");
@@ -1412,20 +1412,20 @@ static void i_corpse (pob o)
 	case DRAGONETTE:	// can't get here... i_usef changed to I_FOOD
 	    mprint ("Those dragon-steaks were fantastic!");
 	    Player.food = 24;
-	    foodcheck ();
+	    foodcheck();
 	    break;
 	case BEHEMOTH:
 	    mprint ("You feel infinitely more virile now.");
 	    Player.str = max (Player.str, Player.maxstr + 10);
 	    Player.food = 24;
-	    foodcheck ();
+	    foodcheck();
 	    break;
 	case INVIS_SLAY:
 	    mprint ("Guess what? You're invisible.");
 	    if (Player.status[INVISIBLE] < 1000)
 		Player.status[INVISIBLE] = 666;
 	    Player.food += 6;
-	    foodcheck ();
+	    foodcheck();
 	    break;
 	case UNICORN:
 	    mprint ("You ATE a unicorn's horn?!?!?");
@@ -1445,7 +1445,7 @@ static void i_corpse (pob o)
 	case CATEAGLE:
 	    mprint ("Well, you forced it down. Not much nutrition, though.");
 	    Player.food++;
-	    foodcheck ();
+	    foodcheck();
 	    break;
 	case SEWER_RAT:
 	case PHANTASTICON:	// can't get here... i_usef changed to I_POISON_FOOD
@@ -1482,7 +1482,7 @@ static void i_perm_accuracy (pob o)
 	Player.status[ACCURATE] -= 1500;
 	if (Player.status[ACCURATE] < 1) {
 	    Player.status[ACCURATE] = 0;
-	    calc_melee ();
+	    calc_melee();
 	    mprint ("Your vision blurs....");
 	}
     }
@@ -1502,11 +1502,11 @@ static void i_perm_hero (pob o)
     if (o->used) {
 	if (o->blessing > -1) {
 	    Player.status[HERO] += 1500;
-	    calc_melee ();
+	    calc_melee();
 	    mprint ("You feel super!");
 	} else {
 	    Player.status[HERO] = 0;
-	    calc_melee ();
+	    calc_melee();
 	    if (!Player.immunity[FEAR]) {
 		Player.status[AFRAID] += 1500;
 		mprint ("You feel cowardly....");
@@ -1516,7 +1516,7 @@ static void i_perm_hero (pob o)
 	if (o->blessing > -1) {
 	    Player.status[HERO] -= 1500;
 	    if (Player.status[HERO] < 1) {
-		calc_melee ();
+		calc_melee();
 		mprint ("You feel less super now.");
 		Player.status[HERO] = 0;
 	    }
@@ -1570,7 +1570,7 @@ static void i_perm_protection (pob o)
 	else
 	    Player.status[PROTECTION] += abs (o->plus) + 1;
     }
-    calc_melee ();
+    calc_melee();
 }
 
 static void i_perm_agility (pob o)
@@ -1588,7 +1588,7 @@ static void i_perm_agility (pob o)
 	else
 	    Player.agi += abs (o->plus) + 1;
     }
-    calc_melee ();
+    calc_melee();
 }
 
 static void i_truesight (pob o)
@@ -1663,7 +1663,7 @@ static void i_trap (pob o)
 
 static void i_raise_portcullis (pob o)
 {
-    l_raise_portcullis ();
+    l_raise_portcullis();
     mprint ("The box beeps once and explodes in your hands!");
     conform_lost_objects (1, o);
 }
@@ -1695,7 +1695,7 @@ static void i_perm_strength (pob o)
 	else
 	    Player.str += abs (o->plus) + 1;
     }
-    calc_melee ();
+    calc_melee();
 }
 
 static void i_perm_burden (pob o)
@@ -1830,7 +1830,7 @@ static void i_perm_breathing (pob o)
 	}
     } else if (o->used) {
 	Player.status[BREATHING] = 0;
-	p_drown ();
+	p_drown();
 	print1 ("Water pours from the broken suit.");
     }
 }
@@ -1883,7 +1883,7 @@ void weapon_demonblade (int dmgmod, pob o, struct monster *m)
 	mprint ("Demonblade howls as it strikes the spirit!");
 	if (random_range (10) == 1) {
 	    mprint ("... and shatters into a thousand lost fragments!");
-	    morewait ();
+	    morewait();
 	    p_damage (50, UNSTOPPABLE, "Demonblade exploding");
 	    conform_lost_object (o);
 	} else {
@@ -2154,8 +2154,8 @@ static void i_planes (pob o UNUSED)
     else {
 	print1 ("You focus mana into the amulet....");
 	Player.mana = max (0, Player.mana - 100);
-	dataprint ();
-	morewait ();
+	dataprint();
+	morewait();
 	strategic_teleport (1);
     }
 }
@@ -2174,11 +2174,11 @@ static void i_sceptre (pob o UNUSED)
 	HiMagicUse = Date;
 	print1 ("With a shriek of tearing aether, a magic portal appears!");
 	print2 ("Step through? [yn] ");
-	if (ynq () == 'y')
+	if (ynq() == 'y')
 	    change_environment (E_COURT);
 	print1 ("The sceptre seems to subside. You hear a high whine, as of");
 	print2 ("capacitors beginning to recharge.");
-	morewait ();
+	morewait();
     }
 }
 
@@ -2197,19 +2197,19 @@ static void i_stargem (pob o)
 	if (o->blessing < 1) {
 	    print1 ("The Star Gem shines brightly and emits a musical tone.");
 	    print2 ("You see a dark cloud roil away from it.");
-	    morewait ();
+	    morewait();
 	    o->blessing = 10;
 	}
 	print1 ("The star gem flares with golden light!");
-	morewait ();
+	morewait();
 	if (Player.status[ILLUMINATION] < 1000) {
 	    print1 ("Interesting, you seem to be permanently accompanied");
 	    print2 ("by a friendly lambent glow....");
-	    morewait ();
+	    morewait();
 	    Player.status[ILLUMINATION] = 1500;
 	}
 	print1 ("You suddenly find yourself whisked away by some unknown force!");
-	morewait ();
+	morewait();
 	setgamestatus (COMPLETED_ASTRAL);
 	change_environment (E_COUNTRYSIDE);
 	Player.x = 61;
@@ -2248,7 +2248,7 @@ static void i_juggernaut (pob o)
 	print2 ("Uh, oh, it's coming this way!");
 	p_death ("the Juggernaut of Karnak");
     } else {
-	d = getdir ();
+	d = getdir();
 	if (d == ABORT)
 	    print2 ("You deactivate the Juggernaut before it escapes.");
 	else {
@@ -2289,7 +2289,7 @@ static void i_juggernaut (pob o)
 	    gain_experience (1000);
 	    dispose_lost_objects (1, o);
 	    Level->tunnelled += tunneled - 1;
-	    tunnelcheck ();
+	    tunnelcheck();
 	}
     }
 }
@@ -2304,27 +2304,27 @@ static void i_symbol (pob o)
 	print1 ("You invoke the deity...");
 	print2 ("...who for some reason seems rather annoyed at you...");
 	print3 ("You are enveloped in Godsfire!");
-	morewait ();
+	morewait();
 	for (; Player.hp > 1; Player.hp--) {
-	    dataprint ();
-	    morewait ();
+	    dataprint();
+	    morewait();
 	    for (i = 0; i < MAXITEMS; i++)
 		if (Player.possessions[i] != NULL)
 		    dispose_lost_objects (Player.possessions[i]->number, Player.possessions[i]);
 	    Player.mana = 0;
 	}
-    } else if (SymbolUseHour == hour ()) {
+    } else if (SymbolUseHour == hour()) {
 	print1 ("Your deity frowns upon this profligate use of power...");
 	print2 ("Shazam! A bolt of Godsfire! Your symbol shatters!");
 	dispose_lost_objects (1, o);
 	Player.hp = 1;
-	dataprint ();
+	dataprint();
     } else {
 	print1 ("A mystic flow of theurgic energy courses through your body!");
-	SymbolUseHour = hour ();
+	SymbolUseHour = hour();
 	cleanse (1);
 	heal (10);
-	Player.mana = max (Player.mana, calcmana ());
+	Player.mana = max (Player.mana, calcmana());
     }
 }
 
@@ -2334,22 +2334,22 @@ static void i_crystal (pob o)
 	print1 ("You can't figure out how to activate this orb.");
     else {
 	print1 ("You gaze into your crystal ball.");
-	if (ViewHour == hour ())
+	if (ViewHour == hour())
 	    print2 ("All you get is Gilligan's Island reruns.");
 	else if ((o->blessing < 0) || (Player.iq + Player.level < random_range (30))) {
-	    ViewHour = hour ();
+	    ViewHour = hour();
 	    print2 ("Weird interference patterns from the crystal fog your mind....");
-	    amnesia ();
+	    amnesia();
 	} else {
-	    ViewHour = hour ();
+	    ViewHour = hour();
 	    print2 ("You sense the presence of life...");
 	    mondet (1);
-	    morewait ();
+	    morewait();
 	    print2 ("You sense the presence of objects...");
 	    objdet (1);
-	    morewait ();
+	    morewait();
 	    print2 ("You begin to see visions of things beyond your ken....");
-	    hint ();
+	    hint();
 	}
     }
 }
@@ -2366,22 +2366,22 @@ static void i_antioch (pob o)
 	print1 ("Bring out the Holy Hand-Grenade of Antioch!");
 	setspot (&x, &y);
 	print2 ("Ok, you pull the pin.....");
-	morewait ();
+	morewait();
 	print1 ("What do you count up to? ");
-	count = (int) parsenum ();
+	count = (int) parsenum();
 	if ((count < 3) && (Level->site[x][y].creature != NULL)) {
 	    print1 ("`Three shall be the number of thy counting....");
 	    print2 ("And the number of thy counting shall be three.'");
 	    print3 ("Your target picks up the grenade and throws it back!");
-	    morewait ();
-	    clearmsg ();
+	    morewait();
+	    clearmsg();
 	    print1 ("Ka-Boom!");
 	    p_death ("the Holy Hand-Grenade of Antioch");
 	} else if (count > 3) {
 	    print1 ("`Three shall be the number of thy counting.");
 	    print2 ("And the number of thy counting shall be three.'");
-	    morewait ();
-	    clearmsg ();
+	    morewait();
+	    clearmsg();
 	    print1 ("Ka-Boom!");
 	    p_death ("the Holy Hand-Grenade of Antioch");
 	} else {
@@ -2419,17 +2419,17 @@ static void i_kolwynia (pob o)
 static void i_enchantment (pob o)
 {
     char response;
-    if (ZapHour == hour ())
+    if (ZapHour == hour())
 	print1 ("The staff doesn't seem to have recharged yet.");
     else if (!o->known) {
-	ZapHour = hour ();
+	ZapHour = hour();
 	print1 ("You blast the staff backwards....");
 	dispel (-1);
     } else {
-	ZapHour = hour ();
+	ZapHour = hour();
 	print1 ("Zap with white or black end [wb] ");
 	do
-	    response = (char) mcigetc ();
+	    response = (char) mcigetc();
 	while ((response != 'w') && (response != 'b'));
 	print2 ("The staff discharges!");
 	if (response == 'w')
@@ -2441,14 +2441,14 @@ static void i_enchantment (pob o)
 
 static void i_helm (pob o)
 {
-    if (HelmHour == hour ())
+    if (HelmHour == hour())
 	print1 ("The helm doesn't seem to have recharged yet.");
     else if (!o->known) {
-	HelmHour = hour ();
+	HelmHour = hour();
 	print1 ("You put the helm on backwards....");
 	p_teleport (-1);
     } else {
-	HelmHour = hour ();
+	HelmHour = hour();
 	print1 ("Your environment fades.... and rematerializes.");
 	p_teleport (o->blessing);
     }
@@ -2456,14 +2456,14 @@ static void i_helm (pob o)
 
 static void i_death (pob o UNUSED)
 {
-    clearmsg ();
+    clearmsg();
     print1 ("Bad move...");
     p_death ("the Potion of Death");
 }
 
 static void i_life (pob o)
 {
-    clearmsg ();
+    clearmsg();
     print1 ("Good move.");
     Player.hp = Player.maxhp = 2 * Player.maxhp;
     dispose_lost_objects (1, o);
@@ -2475,17 +2475,17 @@ static int orbcheck (int element)
     char response;
     print1 ("The orb begins to glow with increasing intensity!");
     print2 ("You have the feeling you need to do something more....");
-    morewait ();
+    morewait();
     print1 ("Burn it in fire [f] ");
     print2 ("Douse it with water [w] ");
-    morewait ();
+    morewait();
     print1 ("Smash it against the earth [e] ");
     print2 ("Toss is through the air [a] ");
-    morewait ();
+    morewait();
     print1 ("Mix the above actions, doing them in sequence [m] ");
     do {
 	print2 ("Which one [f,w,e,a,m] ");
-	response = (char) mcigetc ();
+	response = (char) mcigetc();
     } while ((response != 'f') && (response != 'w') && (response != 'e') && (response != 'a') && (response != 'm'));
     return (response == element);
 }
@@ -2547,7 +2547,7 @@ static void i_orbearth (pob o)
 		    dispose_lost_objects (Player.possessions[i]->number, Player.possessions[i]);
 	    for (i = 0; i < MAXPACK; i++)
 		if (Player.pack[i] != NULL) {
-		    free ((char* ) Player.pack[i]);
+		    free (Player.pack[i]);
 		    Player.pack[i] = NULL;
 		}
 	    Player.packptr = 0;
@@ -2604,13 +2604,13 @@ static void i_orbmastery (pob o)
 	Player.dex = Player.maxdex = 2 * Player.maxdex;
 	Player.con = Player.maxcon = 2 * Player.maxcon;
 	Player.agi = Player.maxagi = 2 * Player.maxagi;
-	dataprint ();
-	morewait ();
+	dataprint();
+	morewait();
 	print1 ("You have been imbued with a cosmic power....");
-	morewait ();
+	morewait();
 	wish (1);
-	morewait ();
-	clearmsg ();
+	morewait();
+	clearmsg();
 	print2 ("You feel much more experienced.");
 	gain_experience (20000);
 	*o = Objects[ARTIFACTID + 5];
@@ -2801,7 +2801,7 @@ static void i_polymorph (pob o)
 
 void item_use (struct object *o)
 {
-    clearmsg ();
+    clearmsg();
     switch (o->usef) {
 	case -1:
 	    i_no_op (o);
@@ -2860,7 +2860,7 @@ void item_use (struct object *o)
 	    i_law (o);
 	    break;
 	case I_HINT:
-	    hint ();
+	    hint();
 	    break;
 	case I_HERO:
 	    i_hero (o);

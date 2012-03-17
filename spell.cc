@@ -173,7 +173,7 @@ static void s_hero (void)
 static void s_return (void)
 {
     mprint ("You hear a whine as your spell begins to charge up.");
-    Player.status[RETURNING] = ((Current_Environment == Current_Dungeon) ? difficulty () : 1);
+    Player.status[RETURNING] = ((Current_Environment == Current_Dungeon) ? difficulty() : 1);
 }
 
 static void s_desecrate (void)
@@ -193,7 +193,7 @@ static void s_summon (void)
 
 static void s_sanctuary (void)
 {
-    sanctuary ();
+    sanctuary();
 }
 
 static void s_sanctify (void)
@@ -232,7 +232,7 @@ static void s_ritual (void)
     time_clock (FALSE);
     setgamestatus (SKIP_PLAYER);
     time_clock (FALSE);
-    if (RitualHour == hour ())
+    if (RitualHour == hour())
 	mprint ("Your mental fatigue prevents from completing the ritual!");
     else if (random_range (100) > Player.iq + Player.pow + Player.level)
 	mprint ("Your concentration was broken -- the ritual fails!");
@@ -249,7 +249,7 @@ static void s_ritual (void)
 	time_clock (FALSE);
 	setgamestatus (SKIP_PLAYER);
 	time_clock (FALSE);
-	RitualHour = hour ();
+	RitualHour = hour();
 	// set of random conditions for different ritual effects
 	if (Current_Environment == E_CITY) {
 	    mprint ("Flowing waves of mystical light congeal all around you.");
@@ -283,8 +283,8 @@ static void s_ritual (void)
 			mprint ("You are buffeted by bursts of random magic.");
 			p_damage (random_range (Player.pow), UNSTOPPABLE, "high magic");
 			mprint ("Continue ritual? Could be dangerous.... [yn] ");
-			if (ynq () == 'y')
-			    s_wish ();
+			if (ynq() == 'y')
+			    s_wish();
 			else
 			    mprint ("The mana fades away to nothingness.");
 			x = Player.x;
@@ -319,8 +319,8 @@ static void s_ritual (void)
 			mprint ("The Lords of Destiny look upon you....");
 			if (Player.level > 10) {
 			    mprint ("A curtain of blue flames leaps up from the omega.");
-			    morewait ();
-			    l_adept ();
+			    morewait();
+			    l_adept();
 			} else {
 			    if (Player.patron == DESTINY) {
 				mprint ("Your patrons take pity on you.");
@@ -360,7 +360,7 @@ static void s_ritual (void)
 		RitualRoom = Level->site[Player.x][Player.y].roomnumber;
 		switch (RitualRoom) {
 		    case RS_WALLSPACE:
-			shadowform ();
+			shadowform();
 			break;
 		    case RS_CORRIDOR:
 			haste (0);
@@ -387,7 +387,7 @@ static void s_apport (void)
 
 static void s_shadowform (void)
 {
-    shadowform ();
+    shadowform();
 }
 
 static void s_alert (void)
@@ -450,12 +450,12 @@ int getspell (void)
 
     do {
 	mprint ("Cast Spell: [type spell abbrev, ?, or ESCAPE]: ");
-	spell = spellparse ();
+	spell = spellparse();
     } while (spell < ABORT);
     return (spell);
 }
 
-char *spellid (int id)
+const char* spellid (int id)
 {
     switch (id) {
 	case S_MON_DET:
@@ -681,127 +681,127 @@ void cast_spell (int spell)
 {
     switch (spell) {
 	case S_MON_DET:
-	    s_mondet ();
+	    s_mondet();
 	    break;
 	case S_OBJ_DET:
-	    s_objdet ();
+	    s_objdet();
 	    break;
 	case S_IDENTIFY:
-	    s_identify ();
+	    s_identify();
 	    break;
 	case S_FIREBOLT:
-	    s_firebolt ();
+	    s_firebolt();
 	    break;
 	case S_SLEEP:
-	    s_sleep ();
+	    s_sleep();
 	    break;
 	case S_LBALL:
-	    s_lball ();
+	    s_lball();
 	    break;
 	case S_TELEPORT:
-	    s_teleport ();
+	    s_teleport();
 	    break;
 	case S_DISRUPT:
-	    s_disrupt ();
+	    s_disrupt();
 	    break;
 	case S_DISINTEGRATE:
-	    s_disintegrate ();
+	    s_disintegrate();
 	    break;
 	case S_MISSILE:
-	    s_missile ();
+	    s_missile();
 	    break;
 	case S_HEAL:
-	    s_heal ();
+	    s_heal();
 	    break;
 	case S_DISPEL:
-	    s_dispel ();
+	    s_dispel();
 	    break;
 	case S_BREATHE:
-	    s_breathe ();
+	    s_breathe();
 	    break;
 	case S_INVISIBLE:
-	    s_invisible ();
+	    s_invisible();
 	    break;
 	case S_WARP:
-	    s_warp ();
+	    s_warp();
 	    break;
 	case S_ENCHANT:
-	    s_enchant ();
+	    s_enchant();
 	    break;
 	case S_BLESS:
-	    s_bless ();
+	    s_bless();
 	    break;
 	case S_RESTORE:
-	    s_restore ();
+	    s_restore();
 	    break;
 	case S_CURE:
-	    s_cure ();
+	    s_cure();
 	    break;
 	case S_TRUESIGHT:
-	    s_truesight ();
+	    s_truesight();
 	    break;
 	case S_HELLFIRE:
-	    s_hellfire ();
+	    s_hellfire();
 	    break;
 	case S_KNOWLEDGE:
-	    s_knowledge ();
+	    s_knowledge();
 	    break;
 	case S_HERO:
-	    s_hero ();
+	    s_hero();
 	    break;
 	case S_RETURN:
-	    s_return ();
+	    s_return();
 	    break;
 	case S_DESECRATE:
-	    s_desecrate ();
+	    s_desecrate();
 	    break;
 	case S_HASTE:
-	    s_haste ();
+	    s_haste();
 	    break;
 	case S_SUMMON:
-	    s_summon ();
+	    s_summon();
 	    break;
 	case S_SANCTUARY:
-	    s_sanctuary ();
+	    s_sanctuary();
 	    break;
 	case S_ACCURACY:
-	    s_accuracy ();
+	    s_accuracy();
 	    break;
 	case S_RITUAL:
-	    s_ritual ();
+	    s_ritual();
 	    break;
 	case S_APPORT:
-	    s_apport ();
+	    s_apport();
 	    break;
 	case S_SHADOWFORM:
-	    s_shadowform ();
+	    s_shadowform();
 	    break;
 	case S_ALERT:
-	    s_alert ();
+	    s_alert();
 	    break;
 	case S_REGENERATE:
-	    s_regenerate ();
+	    s_regenerate();
 	    break;
 	case S_SANCTIFY:
-	    s_sanctify ();
+	    s_sanctify();
 	    break;
 	case S_CLAIRVOYANCE:
-	    s_clairvoyance ();
+	    s_clairvoyance();
 	    break;
 	case S_DRAIN:
-	    s_drain ();
+	    s_drain();
 	    break;
 	case S_LEVITATE:
-	    s_levitate ();
+	    s_levitate();
 	    break;
 	case S_FEAR:
-	    s_fear ();
+	    s_fear();
 	    break;
 	case S_POLYMORPH:
-	    s_polymorph ();
+	    s_polymorph();
 	    break;
 	case S_WISH:
-	    s_wish ();
+	    s_wish();
 	    break;
 	default:
 	    mprint ("Your odd spell fizzles with a small 'sput'.");
@@ -809,7 +809,7 @@ void cast_spell (int spell)
     }
 }
 
-static char *spell_names[] = {	// alphabetical listing
+static const char* spell_names[] = {	// alphabetical listing
     "accuracy", "alertness", "apportation", "ball lightning", "blessing",
     "breathing", "clairvoyance", "curing", "desecration", "disintegrate",
     "dispelling", "disrupt", "enchantment", "energy drain", "fear", "firebolt",
@@ -834,7 +834,7 @@ static void showknownspells (int first, int last)
 {
     int i, printed = FALSE;
 
-    menuclear ();
+    menuclear();
     menuprint ("\nPossible Spells:\n");
     for (i = first; i <= last; i++)
 	if (Spells[spell_ids[i]].known) {
@@ -847,7 +847,7 @@ static void showknownspells (int first, int last)
 	}
     if (!printed)
 	menuprint ("\nNo spells match that prefix!");
-    showmenu ();
+    showmenu();
 }
 
 static int spellparse (void)
@@ -868,7 +868,7 @@ static int spellparse (void)
     pos = 0;
     print2 ("");
     do {
-	byte = mgetc ();
+	byte = mgetc();
 	if (byte == BACKSPACE || byte == DELETE) {
 	    if (pos > 0) {
 		prefix[--pos] = '\0';
@@ -896,7 +896,7 @@ static int spellparse (void)
 		print2 ("");
 	    }
 	} else if (byte == ESCAPE) {
-	    xredraw ();
+	    xredraw();
 	    return ABORT;
 	} else if (byte == '?')
 	    showknownspells (first, last);
@@ -924,7 +924,7 @@ static int spellparse (void)
 	    }
 	}
     } while (byte != '\n');
-    xredraw ();
+    xredraw();
     if (found)
 	return spell_ids[first];
     else {

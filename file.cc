@@ -7,35 +7,35 @@
 
 //----------------------------------------------------------------------
 
-static int test_file_access(char *file_name, int mode);
-static void checkhigh(char *descrip, int behavior);
-static void displaycryptfile(char *filestr);
+static int test_file_access(const char* file_name, int mode);
+static void checkhigh(const char* descrip, int behavior);
+static void displaycryptfile(const char* filestr);
 static void lock_score_file(void);
 static void unlock_score_file(void);
 
 //----------------------------------------------------------------------
 
-FILE* checkfopen (char* filestring, char* optionstring)
+FILE* checkfopen (const char* filestring, const char* optionstring)
 {
     FILE *fd;
     char response;
 
     fd = fopen (filestring, optionstring);
-    clearmsg ();
+    clearmsg();
     while (fd == NULL) {
 	print3 ("Warning! Error opening file:");
 	nprint3 (filestring);
 	print1 (" Abort or Retry? [ar] ");
 	do
-	    response = (char) mcigetc ();
+	    response = (char) mcigetc();
 	while ((response != 'a') && (response != 'r'));
 	if (response == 'r')
 	    fd = fopen (filestring, optionstring);
 	else {
 	    print2 ("Sorry 'bout that.... Saving character, then quitting.");
-	    morewait ();
+	    morewait();
 	    save (optionp (COMPRESS_OPTION), TRUE);
-	    endgraf ();
+	    endgraf();
 	    exit (0);
 	}
     }
@@ -47,7 +47,7 @@ void user_intro (void)
     strcpy (Str1, Omegalib);
     strcat (Str1, "intro.txt");
     displaycryptfile (Str1);
-    xredraw ();
+    xredraw();
 }
 
 void show_license (void)
@@ -55,7 +55,7 @@ void show_license (void)
     strcpy (Str1, Omegalib);
     strcat (Str1, "license.txt");
     displayfile (Str1);
-    xredraw ();
+    xredraw();
 }
 
 void abyss_file (void)
@@ -70,7 +70,7 @@ void inv_help (void)
     strcpy (Str1, Omegalib);
     strcat (Str1, "help3.txt");
     displayfile (Str1);
-    xredraw ();
+    xredraw();
 }
 
 void combat_help (void)
@@ -78,7 +78,7 @@ void combat_help (void)
     strcpy (Str1, Omegalib);
     strcat (Str1, "help5.txt");
     displayfile (Str1);
-    menuclear ();
+    menuclear();
 }
 
 void cityguidefile (void)
@@ -86,7 +86,7 @@ void cityguidefile (void)
     strcpy (Str1, Omegalib);
     strcat (Str1, "scroll2.txt");
     displaycryptfile (Str1);
-    xredraw ();
+    xredraw();
 }
 
 void wishfile (void)
@@ -94,7 +94,7 @@ void wishfile (void)
     strcpy (Str1, Omegalib);
     strcat (Str1, "scroll3.txt");
     displaycryptfile (Str1);
-    xredraw ();
+    xredraw();
 }
 
 void adeptfile (void)
@@ -102,7 +102,7 @@ void adeptfile (void)
     strcpy (Str1, Omegalib);
     strcat (Str1, "scroll4.txt");
     displaycryptfile (Str1);
-    xredraw ();
+    xredraw();
 }
 
 void theologyfile (void)
@@ -110,7 +110,7 @@ void theologyfile (void)
     strcpy (Str1, Omegalib);
     strcat (Str1, "scroll1.txt");
     displaycryptfile (Str1);
-    xredraw ();
+    xredraw();
 }
 
 void showmotd (void)
@@ -146,7 +146,7 @@ static void lock_score_file (void)
 	} else if (lock < 0)	// oops - something very wrong
 	    return;
     } while (lock < 0);
-    sprintf (Str1, "%d", getpid ());
+    sprintf (Str1, "%d", getpid());
     write (lock, Str1, strlen (Str1));
     close (lock);
 }
@@ -163,7 +163,7 @@ void showscores (void)
     FILE *fd;
     int i;
 
-    lock_score_file ();
+    lock_score_file();
     strcpy (Str1, Omegalib);
     strcat (Str1, "omega.hi");
     fd = checkfopen (Str1, "rb");
@@ -193,8 +193,8 @@ void showscores (void)
     filescanstring (fd, Justiciar);
     fscanf (fd, "%d %d\n", &Justiciarlevel, &Justiciarbehavior);
     fclose (fd);
-    unlock_score_file ();
-    clear ();
+    unlock_score_file();
+    clear();
     printw ("High Score: %ld", Hiscore);
     printw (", by %s (%s)", Hiscorer, levelname (Hilevel));
     printw ("\n%s\n", Hidescrip);
@@ -228,9 +228,9 @@ void showscores (void)
     printw ("\nThe ArchDruid:                ");
     printw ("%s (%s)", Priest[DRUID], levelname (Priestlevel[DRUID]));
     printw ("\n\nHit any key to continue.");
-    refresh ();
+    refresh();
     wgetch (stdscr);
-    clear_screen ();
+    clear_screen();
 }
 
 // Writes a new high-score file, with the nominated npc as whatever it is
@@ -243,7 +243,7 @@ void save_hiscore_npc (int npc)
 
     if (gamestatusp (CHEATED))
 	return;
-    lock_score_file ();
+    lock_score_file();
     strcpy (Str1, Omegalib);
     strcat (Str1, "omega.hi");
     infile = checkfopen (Str1, "rb");
@@ -309,17 +309,17 @@ void save_hiscore_npc (int npc)
     fclose (outfile);
     unlink (Str1);
     rename (Str2, Str1);
-    unlock_score_file ();
+    unlock_score_file();
 }
 
-static void checkhigh (char *descrip, int behavior)
+static void checkhigh (const char* descrip, int behavior)
 {
     long points;
 
     if (FixedPoints > 0)
 	points = FixedPoints;
     else
-	points = calc_points ();
+	points = calc_points();
     if (!gamestatusp (CHEATED)) {
 	if (Hiscore < points) {
 	    strcpy (Hiscorer, Player.name);
@@ -329,7 +329,7 @@ static void checkhigh (char *descrip, int behavior)
 	    Hibehavior = behavior;
 	    save_hiscore_npc (0);
 	    mprint ("Yow! A new high score!");
-	    morewait ();
+	    morewait();
 	}
 	if (Player.alignment < Chaos) {
 	    strcpy (Chaoslord, Player.name);
@@ -338,7 +338,7 @@ static void checkhigh (char *descrip, int behavior)
 	    Chaoslordbehavior = behavior;
 	    save_hiscore_npc (13);
 	    mprint ("Criminy! A new Lord of Chaos!");
-	    morewait ();
+	    morewait();
 	}
 	if (Player.alignment > Law) {
 	    strcpy (Lawlord, Player.name);
@@ -347,12 +347,12 @@ static void checkhigh (char *descrip, int behavior)
 	    Lawlordbehavior = behavior;
 	    save_hiscore_npc (14);
 	    mprint ("Gosh! A new Lord of Law!");
-	    morewait ();
+	    morewait();
 	}
     }
 }
 
-void extendlog (char *descrip, int lifestatus)
+void extendlog (const char* descrip, int lifestatus)
 {
     FILE *fd;
     int npcbehavior;
@@ -384,7 +384,7 @@ void filescanstring (FILE* fd, char* fstr)
     fstr[i] = 0;
 }
 
-static int test_file_access (char *file_name, int mode)
+static int test_file_access (const char* file_name, int mode)
 {
     int fd;
 
@@ -451,7 +451,7 @@ int filecheck (void)
     } else if (badbutpossible) {
 	printf ("\nFurther execution may cause anomalous behavior.");
 	printf ("\nContinue anyhow? [yn] ");
-	if (getchar () == 'y')
+	if (getchar() == 'y')
 	    return (-1);
 	else
 	    return (0);
@@ -460,84 +460,84 @@ int filecheck (void)
 }
 
 // display a file given a string name of file
-void displayfile (char *filestr)
+void displayfile (const char* filestr)
 {
     FILE *fd = checkfopen (filestr, "r");
     int c, d = ' ';
-    clear ();
-    refresh ();
+    clear();
+    refresh();
     c = fgetc (fd);
     while ((c != EOF) && ((char) d != 'q') && ((char) d != ESCAPE)) {
 	if (getcury(stdscr) > ScreenLength) {
-	    standout ();
+	    standout();
 	    printw ("\n-More-");
-	    standend ();
-	    refresh ();
+	    standend();
+	    refresh();
 	    d = wgetch (stdscr);
-	    clear ();
+	    clear();
 	}
 	printw ("%c", (char) c);
 	c = fgetc (fd);
     }
     if (((char) d != 'q') && ((char) d != ESCAPE)) {
-	standout ();
+	standout();
 	printw ("\n-Done-");
-	standend ();
-	refresh ();
-	getch ();
+	standend();
+	refresh();
+	getch();
     }
-    clear ();
-    refresh ();
+    clear();
+    refresh();
     fclose (fd);
 }
 
 // display a file given a string name of file
-static void displaycryptfile (char *filestr)
+static void displaycryptfile (const char* filestr)
 {
     FILE *fd = checkfopen (filestr, "rb");
     int c, d = ' ';
     char key = 100;
 
-    clear ();
-    refresh ();
+    clear();
+    refresh();
     c = fgetc (fd);
     while ((c != EOF) && ((char) d != 'q') && ((char) d != ESCAPE)) {
 	if (getcury(stdscr) > ScreenLength) {
-	    standout ();
+	    standout();
 	    printw ("\n-More-");
-	    standend ();
-	    refresh ();
+	    standend();
+	    refresh();
 	    d = wgetch (stdscr);
-	    clear ();
+	    clear();
 	}
 	key = ((unsigned char) c) ^ key;
 	printw ("%c", key);
 	c = fgetc (fd);
     }
     if (((char) d != 'q') && ((char) d != ESCAPE)) {
-	standout ();
+	standout();
 	printw ("\n-Done-");
-	standend ();
-	refresh ();
-	getch ();
+	standend();
+	refresh();
+	getch();
     }
-    clear ();
-    refresh ();
+    clear();
+    refresh();
     fclose (fd);
 }
 
 // copy a file given a string name of file
-void copyfile (char *srcstr)
+void copyfile (const char* srcstr)
 {
     char deststr[80];
     char buffer[STRING_LEN];
     FILE *in, *out;
 
     print1 ("Enter name of file to create: ");
-    strcpy (deststr, msgscanstring ());
+    strcpy (deststr, msgscanstring());
     if (strlen (deststr) == 0) {
 	print2 ("Aborting...");
-	morewait ();
+	morewait();
 	return;
     }
     in = checkfopen (srcstr, "rb");
@@ -545,7 +545,7 @@ void copyfile (char *srcstr)
     if (!out) {
 	sprintf (buffer, "Unable to write to file %s - Aborting.", deststr);
 	print2 (buffer);
-	morewait ();
+	morewait();
 	fclose (in);
 	return;
     }

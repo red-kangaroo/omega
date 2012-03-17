@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------
 
 static int itemlist(int itemindex, int num);
-static int monsterlist(void);
+static int selectmonster(void);
 static void ball(int fx, int fy, int tx, int ty, int dmg, int dtype);
 static void bolt(int fx, int fy, int tx, int ty, int hit, int dmg, int dtype);
 
@@ -16,17 +16,17 @@ void enchant (int delta)
     long change_cash;
 
     if (delta < 0) {
-	i = random_item ();
+	i = random_item();
 	if (i == ABORT || Player.possessions[i]->usef == I_NOTHING || Player.possessions[i]->usef == I_NO_OP || Player.possessions[i]->usef == I_NORMAL_ARMOR || Player.possessions[i]->usef == I_NORMAL_WEAPON
 	    || Player.possessions[i]->usef == I_NORMAL_SHIELD || Player.possessions[i]->objchar == FOOD || Player.possessions[i]->objchar == MISSILEWEAPON) {
 	    print1 ("You feel fortunate.");
-	    morewait ();
+	    morewait();
 	} else if (Player.possessions[i]->blessing < 0 || (Player.possessions[i]->objchar == ARTIFACT && random_range (3))) {
 	    if (Player.possessions[i]->uniqueness == COMMON)
 		print1 ("Your ");
 	    nprint1 (itemid (Player.possessions[i]));
 	    nprint1 (" glows, but the glow flickers out...");
-	    morewait ();
+	    morewait();
 	} else {
 	    used = (Player.possessions[i]->used);
 	    if (used) {
@@ -37,7 +37,7 @@ void enchant (int delta)
 		print1 ("Your ");
 	    nprint1 (itemid (Player.possessions[i]));
 	    nprint1 (" radiates an aura of mundanity!");
-	    morewait ();
+	    morewait();
 	    Player.possessions[i]->plus = 0;
 	    Player.possessions[i]->charge = -1;
 	    Player.possessions[i]->usef = I_NOTHING;
@@ -50,7 +50,7 @@ void enchant (int delta)
 	i = getitem (CASH);
 	if (i == ABORT) {
 	    print1 ("You feel unlucky.");
-	    morewait ();
+	    morewait();
 	} else if (i == CASHVALUE) {
 	    print1 ("You enchant your money.... What a concept!");
 	    change_cash = Player.cash * (random_range (7) - 3) / 6;
@@ -59,7 +59,7 @@ void enchant (int delta)
 	    else
 		print2 ("Maybe it wasn't such a good idea....");
 	    Player.cash += change_cash;
-	    morewait ();
+	    morewait();
 	} else if (Player.possessions[i]->objchar == ARTIFACT) {
 	    if (Player.possessions[i]->usef != Objects[Player.possessions[i]->id].usef) {
 		print1 ("It re-acquires its magical aura!");
@@ -68,15 +68,15 @@ void enchant (int delta)
 		print1 ("The enchantment spell enfolds the ");
 		nprint1 (itemid (Player.possessions[i]));
 		print2 ("and the potent enchantment of the Artifact causes a backlash!");
-		morewait ();
-		clearmsg ();
+		morewait();
+		clearmsg();
 		manastorm (Player.x, Player.y, Player.possessions[i]->level * 5);
 	    }
 	} else {
 	    if (Player.possessions[i]->plus > random_range (20) + 1) {
 		print1 ("Uh-oh, the force of the enchantment was too much!");
 		print2 ("There is a loud explosion!");
-		morewait ();
+		morewait();
 		manastorm (Player.x, Player.y, Player.possessions[i]->plus * 5);
 		dispose_lost_objects (1, Player.possessions[i]);
 	    } else {
@@ -88,7 +88,7 @@ void enchant (int delta)
 		    resetgamestatus (SUPPRESS_PRINTING);
 		}
 		print1 ("The item shines!");
-		morewait ();
+		morewait();
 		Player.possessions[i]->plus += delta + 1;
 		if (Player.possessions[i]->charge > -1)
 		    Player.possessions[i]->charge += ((delta + 1) * (random_range (10) + 1));
@@ -100,7 +100,7 @@ void enchant (int delta)
 		}
 	    }
 	}
-	calc_melee ();
+	calc_melee();
     }
 }
 
@@ -110,16 +110,16 @@ void bless (int blessing)
     int iidx, used;
 
     if (blessing < 0) {
-	iidx = random_item ();
+	iidx = random_item();
 	if (iidx == ABORT) {
 	    print1 ("You feel fortunate.");
-	    morewait ();
+	    morewait();
 	} else {
 	    print1 ("A foul odor arises from ");
 	    if (Player.possessions[iidx]->uniqueness == COMMON)
 		nprint1 ("your ");
 	    nprint1 (itemid (Player.possessions[iidx]));
-	    morewait ();
+	    morewait();
 	    used = (Player.possessions[iidx]->used);
 	    if (used) {
 		setgamestatus (SUPPRESS_PRINTING);
@@ -141,7 +141,7 @@ void bless (int blessing)
 	iidx = getitem (NULL_ITEM);
 	if (iidx == CASHVALUE) {
 	    print1 ("Blessing your money has no effect.");
-	    morewait ();
+	    morewait();
 	} else if (iidx != ABORT) {
 	    used = (Player.possessions[iidx]->used == TRUE);
 	    if (used) {
@@ -153,20 +153,20 @@ void bless (int blessing)
 	    print1 ("A pure white light surrounds the item... ");
 	    if (Player.possessions[iidx]->blessing < 0 - (blessing + 1)) {
 		print2 ("which is evil enough to resist the effect of the blessing!");
-		morewait ();
+		morewait();
 	    } else if (Player.possessions[iidx]->blessing < -1) {
 		print2 ("which disintegrates under the influence of the holy aura!");
-		morewait ();
+		morewait();
 		Player.itemweight -= Player.possessions[iidx]->weight;
 		dispose_lost_objects (1, Player.possessions[iidx]);
 	    } else if (Player.possessions[iidx]->blessing < blessing + 1) {
 		print2 ("which now seems affected by afflatus!");
-		morewait ();
+		morewait();
 		Player.possessions[iidx]->blessing++;
 		Player.possessions[iidx]->plus = abs (Player.possessions[iidx]->plus) + 1;
 	    } else {
 		print2 ("The hierolux fades without any appreciable effect....");
-		morewait ();
+		morewait();
 	    }
 	    if (used && (Player.possessions[iidx] != NULL)) {
 		setgamestatus (SUPPRESS_PRINTING);
@@ -176,7 +176,7 @@ void bless (int blessing)
 	    }
 	}
     }
-    calc_melee ();
+    calc_melee();
 }
 
 void heal (int amount)
@@ -195,7 +195,7 @@ void heal (int amount)
 	if (Player.hp < 0)
 	    p_death ("magical disruption");
     }
-    dataprint ();
+    dataprint();
 }
 
 void fbolt (int fx, int fy, int tx, int ty, int hit, int dmg)
@@ -244,7 +244,7 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 	    boltchar = ('o' | CLR (WHITE));
 	    break;
     }
-    clearmsg ();
+    clearmsg();
 
     do_los (boltchar, &xx, &yy, tx, ty);
 
@@ -468,9 +468,9 @@ void mondet (int blessing)
 		putspot (random_range (WIDTH), random_range (LENGTH), Monsters[random_range (NUMMONSTERS)].monchar);
 	}
     }
-    levelrefresh ();
-    morewait ();
-    show_screen ();
+    levelrefresh();
+    morewait();
+    show_screen();
 }
 
 void objdet (int blessing)
@@ -484,16 +484,16 @@ void objdet (int blessing)
 		else
 		    putspot (i, j, Level->site[i][j].things->thing->objchar);
 	    }
-    levelrefresh ();
-    morewait ();
-    show_screen ();
+    levelrefresh();
+    morewait();
+    show_screen();
 }
 
 void identify (int blessing)
 {
     int iidx;
 
-    clearmsg ();
+    clearmsg();
 
     if (blessing == 0) {
 	print1 ("Identify:");
@@ -540,7 +540,7 @@ void identify (int blessing)
 		}
 	    }
     }
-    calc_melee ();
+    calc_melee();
 }
 
 // returns index of random item, ABORT if player carrying none
@@ -563,19 +563,19 @@ void wish (int blessing)
 {
     int i;
     char wishstr[80];
-    clearmsg ();
+    clearmsg();
     print1 ("What do you wish for? ");
     if (blessing < 0)
-	deathprint ();
+	deathprint();
     else
-	strcpy (wishstr, msgscanstring ());
+	strcpy (wishstr, msgscanstring());
     if (blessing < 0 || strcmp (wishstr, "Death") == 0) {
 	print2 ("As you wish, so shall it be.");
 	p_death ("a deathwish");
     }
     if (strcmp (wishstr, "Power") == 0) {
 	print2 ("You feel a sudden surge of energy");
-	Player.mana = calcmana () * 10;
+	Player.mana = calcmana() * 10;
     } else if (strcmp (wishstr, "Skill") == 0) {
 	print2 ("You feel more competent.");
 	if (gamestatusp (CHEATED))
@@ -616,11 +616,11 @@ void wish (int blessing)
 	summon (gamestatusp (CHEATED), -1);
     else if (strcmp (wishstr, "Stats") == 0 && gamestatusp (CHEATED)) {
 	Player.str = Player.maxstr = Player.con = Player.maxcon = Player.agi = Player.maxagi = Player.dex = Player.maxdex = Player.iq = Player.maxiq = Player.pow = Player.maxpow = 200;
-	calc_melee ();
+	calc_melee();
     } else
 	print2 ("You feel stupid.");
-    dataprint ();
-    showflags ();
+    dataprint();
+    showflags();
 }
 
 // gain for an item
@@ -631,14 +631,14 @@ void acquire (int blessing)
     pob newthing;
 
     if (blessing < 0) {
-	iidx = random_item ();
+	iidx = random_item();
 	if (iidx == ABORT)
 	    mprint ("You feel fortunate.");
 	else {
 	    print1 ("Smoke drifts out of your pack.... ");
 	    print2 ("Destroyed: ");
 	    nprint2 (itemid (Player.possessions[iidx]));
-	    morewait ();
+	    morewait();
 	    dispose_lost_objects (1, Player.possessions[iidx]);
 	}
     } else {
@@ -648,7 +648,7 @@ void acquire (int blessing)
 	    print1 ("Acquire which kind of item: !?][}{)/=%%\\& ");
 	else
 	    print1 ("Acquire which kind of item: !?][}{)/=%%\\ ");
-	otype = mgetc ();
+	otype = mgetc();
 	switch (otype) {
 	    case (POTION & 0xff):
 		if (blessing > 0)
@@ -773,7 +773,7 @@ void acquire (int blessing)
 	    default:
 		print2 ("You feel stupid.");
 	}
-	xredraw ();
+	xredraw();
 	if (id != ABORT) {
 	    if (blessing > 0) {
 		newthing->known = 2;
@@ -791,9 +791,9 @@ void knowledge (int blessing)
 	mprint ("You feel ignorant.");
     else {
 	mprint ("You feel knowledgeable!");
-	menuclear ();
+	menuclear();
 	menuprint ("Current Point Total: ");
-	menulongprint (calc_points ());
+	menulongprint (calc_points());
 	menuprint ("\nAlignment:");
 	if (Player.alignment == 0)
 	    menuprint ("Neutral, embodying the Cosmic Balance");
@@ -814,9 +814,9 @@ void knowledge (int blessing)
 	    menuprint ("Chaos\n");
 	else if (Player.alignment > 0)
 	    menuprint ("Law\n");
-	showmenu ();
-	morewait ();
-	menuclear ();
+	showmenu();
+	morewait();
+	menuclear();
 	menuprint ("Current stati:\n");
 	if (Player.status[BLINDED])
 	    menuprint ("Blinded\n");
@@ -864,9 +864,9 @@ void knowledge (int blessing)
 	    menuprint ("Buffered\n");
 	if (Player.status[RETURNING])
 	    menuprint ("Returning\n");
-	showmenu ();
-	morewait ();
-	menuclear ();
+	showmenu();
+	morewait();
+	menuclear();
 	menuprint ("Immunities:\n");
 	if (p_immune (NORMAL_DAMAGE))
 	    menuprint ("Normal Damage\n");
@@ -892,9 +892,9 @@ void knowledge (int blessing)
 	    menuprint ("Gaze\n");
 	if (p_immune (INFECTION))
 	    menuprint ("Infection\n");
-	showmenu ();
-	morewait ();
-	menuclear ();
+	showmenu();
+	morewait();
+	menuclear();
 	menuprint ("Ranks:\n");
 	switch (Player.rank[LEGION]) {
 	    case COMMANDANT:
@@ -1109,9 +1109,9 @@ void knowledge (int blessing)
 	}
 	if (Player.rank[ADEPT] > 0)
 	    menuprint ("**************\n*Omegan Adept*\n**************\n");
-	showmenu ();
-	morewait ();
-	xredraw ();
+	showmenu();
+	morewait();
+	xredraw();
     }
 }
 
@@ -1129,7 +1129,7 @@ void flux (int blessing UNUSED)
 	mprint ("Odd.... No effect!");
     else {
 	mprint ("You stagger as the very nature of reality warps!");
-	erase_level ();
+	erase_level();
 	Level->generated = FALSE;
 	mprint ("The fabric of spacetime reknits....");
 	change_level (Level->depth - 1, Level->depth, TRUE);
@@ -1166,7 +1166,7 @@ void warp (int blessing)
 	mprint ("How strange! No effect....");
     else {
 	mprint ("Warp to which level? ");
-	newlevel = (int) parsenum ();
+	newlevel = (int) parsenum();
 	if (newlevel >= MaxDungeonLevels || blessing < 0 || newlevel < 1) {
 	    mprint ("You have been deflected!");
 	    newlevel = random_range (MaxDungeonLevels - 1) + 1;
@@ -1174,7 +1174,7 @@ void warp (int blessing)
 	mprint ("You dematerialize...");
 	change_level (Level->depth, newlevel, FALSE);
     }
-    roomcheck ();
+    roomcheck();
 }
 
 void alert (int blessing)
@@ -1248,7 +1248,7 @@ void recover_stat (int blessing)
 	Player.iq = max (Player.iq, Player.maxiq);
 	Player.pow = max (Player.pow, Player.maxpow);
     }
-    calc_melee ();
+    calc_melee();
 }
 
 void augment (int blessing)
@@ -1306,7 +1306,7 @@ void augment (int blessing)
 	Player.iq = max (Player.iq + 1, Player.maxiq + 1);
 	Player.pow = max (Player.pow + 1, Player.maxpow + 1);
     }
-    calc_melee ();
+    calc_melee();
 }
 
 void breathe (int blessing)
@@ -1404,10 +1404,10 @@ void accuracy (int blessing)
     if (blessing > -1) {
 	mprint ("Everything seems covered in bullseyes!");
 	Player.status[ACCURACY] += random_range (5) + 1 + blessing * 5;
-	calc_melee ();
+	calc_melee();
     } else {
 	Player.status[ACCURACY] = 0;
-	calc_melee ();
+	calc_melee();
 	mprint ("Your vision blurs...");
     }
 }
@@ -1420,8 +1420,8 @@ void summon (int blessing, int id)
 
     if (id < 0) {
 	if (blessing > 0) {
-	    id = monsterlist ();
-	    xredraw ();
+	    id = selectmonster();
+	    xredraw();
 	}
 	// for (id ==0) case, see below -- get a "fair" monster
 	else if (blessing < 0)
@@ -1435,7 +1435,7 @@ void summon (int blessing, int id)
 
     if (!looking) {
 	if ((blessing == 0) && (id < 0))
-	    Level->site[x][y].creature = m_create (x, y, WANDERING, difficulty ());
+	    Level->site[x][y].creature = m_create (x, y, WANDERING, difficulty());
 	else
 	    Level->site[x][y].creature = make_creature (id);
 	Level->site[x][y].creature->x = x;
@@ -1456,49 +1456,49 @@ static int itemlist (int itemindex, int num)
     int i, itemno;
 
     print2 ("Show ID list? ");
-    if (ynq2 () == 'y') {
-	menuclear ();
+    if (ynq2() == 'y') {
+	menuclear();
 	for (i = 0; i < num; i++) {
 	    menunumprint (i + 1);
 	    menuprint (":");
 	    menuprint (Objects[i + itemindex].truename);
 	    menuprint ("\n");
 	}
-	showmenu ();
+	showmenu();
     }
     mprint ("Item ID? ");
-    itemno = (int) parsenum () - 1;
+    itemno = (int) parsenum() - 1;
     if ((itemno >= num) || (itemno < 0))
 	itemno = ABORT;
     return (itemno);
 }
 
-static int monsterlist (void)
+static int selectmonster (void)
 {
     int i, itemno;
     print2 ("Show ID list? ");
-    if (ynq2 () == 'y')
+    if (ynq2() == 'y')
 	do {
-	    clearmsg ();
+	    clearmsg();
 	    print1 ("Summon monster: ");
-	    menuclear ();
+	    menuclear();
 	    for (i = 0; i < NUMMONSTERS; i++) {
 		menunumprint (i + 1);
 		menuprint (":");
 		menuprint (Monsters[i].monstring);
 		menuprint ("\n");
 	    }
-	    showmenu ();
-	    itemno = (int) parsenum () - 1;
+	    showmenu();
+	    itemno = (int) parsenum() - 1;
 	    if ((itemno < 0) || (itemno > NUMMONSTERS - 1)) {
 		print3 ("How about trying a real monster?");
-		morewait ();
+		morewait();
 	    }
 	} while ((itemno < 0) || (itemno > NUMMONSTERS - 1));
     else
 	do {
 	    print1 ("Summon monster: ");
-	    itemno = (int) parsenum () - 1;
+	    itemno = (int) parsenum() - 1;
 	} while ((itemno < 0) || (itemno > NUMMONSTERS - 1));
     return (itemno);
 }
@@ -1527,13 +1527,13 @@ void cleanse (int blessing)
 	if (Player.status[DISEASED] > 0) {
 	    Player.status[DISEASED] = 0;
 	}
-	showflags ();
+	showflags();
 	mprint ("You feel radiant!");
     } else {
 	Player.status[POISONED] += 10;
 	Player.status[DISEASED] += 10;
 	mprint ("You feel besmirched!");
-	showflags ();
+	showflags();
     }
 }
 
@@ -1550,9 +1550,9 @@ void annihilate (int blessing)
     }
     if (blessing > 0) {
 	if (Current_Environment == E_COUNTRYSIDE) {
-	    clearmsg ();
+	    clearmsg();
 	    print1 ("Bolts of lightning flash down for as far as you can see!!!");
-	    morewait ();
+	    morewait();
 	    print1 ("There is a rain of small birds and insects from the sky, and you");
 	    print2 ("notice that you can't hear any animal noises around here any more...");
 	    Player.alignment -= 3;
@@ -1641,7 +1641,7 @@ void clairvoyance (int vision)
 		dodrawspot (i, j);
 	    }
 	}
-    levelrefresh ();
+    levelrefresh();
 }
 
 void aggravate (void)
@@ -1694,12 +1694,12 @@ void amnesia (void)
 	for (i = 0; i < WIDTH; i++)
 	    lreset (i, j, SEEN);
 
-    erase_level ();
+    erase_level();
     drawvision (Player.x, Player.y);
 }
 
 //affects player only
-void level_drain (int levels, char *source)
+void level_drain (int levels, const char* source)
 {
     int decrement = ((int) (Player.maxhp / (Player.level + 1)));
 
@@ -1792,7 +1792,7 @@ void disintegrate (int x, int y)
 	} else if ((Level->site[x][y].locchar == WALL) || (Level->site[x][y].locchar == OPEN_DOOR) || (Level->site[x][y].locchar == CLOSED_DOOR) || (Level->site[x][y].locchar == PORTCULLIS) || (Level->site[x][y].locchar == STATUE)) {
 	    mprint ("The site is reduced to rubble!");
 	    if (Level->site[x][y].locchar == WALL)
-		tunnelcheck ();
+		tunnelcheck();
 	    Level->site[x][y].p_locf = L_RUBBLE;
 	    Level->site[x][y].locchar = RUBBLE;
 	    lreset (x, y, SECRET);
@@ -1873,7 +1873,7 @@ void p_teleport (int type)
 	}
     }
     screencheck (Player.y);
-    roomcheck ();
+    roomcheck();
 }
 
 void p_poison (int toxicity)
@@ -1883,7 +1883,7 @@ void p_poison (int toxicity)
 	Player.status[POISONED] += toxicity;
     else
 	mprint ("The sickness fades!");
-    showflags ();
+    showflags();
 }
 
 void apport (int blessing)
@@ -1900,7 +1900,7 @@ void apport (int blessing)
     } else {
 	mprint ("You have a sense of loss.");
 	for (i = 0; i < abs (blessing); i++) {
-	    idx = random_item ();
+	    idx = random_item();
 	    if (idx != ABORT) {
 		drop_at (x, y, Player.possessions[idx]);
 		dispose_lost_objects (Player.possessions[idx]->number, Player.possessions[idx]);
@@ -1924,7 +1924,7 @@ void strategic_teleport (int blessing)
     }
     mprint ("Magic portals open up all around you!");
     if (blessing < 0) {
-	morewait ();
+	morewait();
 	mprint ("You are dragged into one!");
 	change_environment (E_COUNTRYSIDE);
 	do {
@@ -1933,7 +1933,7 @@ void strategic_teleport (int blessing)
 	} while (Country[Player.x][Player.y].base_terrain_type == CHAOS_SEA);
     } else {
 	mprint ("Below each portal is a caption. Enter which one:");
-	menuclear ();
+	menuclear();
 	menuprint ("a: Rampart\n");
 	menuprint ("b: Village of Star View\n");
 	menuprint ("c: Village of Woodmere\n");
@@ -1951,8 +1951,8 @@ void strategic_teleport (int blessing)
 	if (gamestatusp (CHEATED))
 	    menuprint ("z: Anywhere\n");
 	menuprint ("ANYTHING ELSE: Avoid entering a portal.");
-	showmenu ();
-	switch ((char) mcigetc ()) {
+	showmenu();
+	switch ((char) mcigetc()) {
 	    case 'a':
 		change_environment (E_COUNTRYSIDE);
 		Player.x = 27;
@@ -2026,11 +2026,11 @@ void strategic_teleport (int blessing)
 	    default:
 		if (gamestatusp (CHEATED)) {
 		    mprint ("Enter environment number: ");
-		    new_env = (int) parsenum ();
+		    new_env = (int) parsenum();
 		    change_environment (new_env);
 		}
 	}
-	xredraw ();
+	xredraw();
 	if (gamestatusp (LOST)) {
 	    print1 ("You know where you are now.");
 	    resetgamestatus (LOST);
@@ -2049,10 +2049,10 @@ void hero (int blessing)
     if (blessing > -1) {
 	mprint ("You feel super!");
 	Player.status[HERO] += random_range (5) + 1 + blessing;
-	calc_melee ();
+	calc_melee();
     } else {
 	Player.status[HERO] = 0;
-	calc_melee ();
+	calc_melee();
 	mprint ("You feel cowardly.");
 	level_drain (abs (blessing), "a potion of cowardice");
     }
@@ -2121,7 +2121,7 @@ void cure (int blessing)
 	    mprint ("Nothing much happens.");
     } else
 	disease (12);
-    showflags ();
+    showflags();
 }
 
 void disease (int amount)
@@ -2218,7 +2218,7 @@ void dispel (int blessing)
 	    Player.status[ACCURATE] = 1;
 	if (Player.status[TRUESIGHT] && (Player.status[TRUESIGHT] < 1000))
 	    Player.status[TRUESIGHT] = 1;
-	tenminute_status_check ();
+	tenminute_status_check();
     }
 }
 
@@ -2227,7 +2227,7 @@ void polymorph (int blessing)
     int x = Player.x, y = Player.y, newmonster;
     struct monster *m;
     setspot (&x, &y);
-    clearmsg ();
+    clearmsg();
     if ((x == Player.x) && (y == Player.y)) {
 	// WDT HACK: shouldn't this use one of the 'getarticle' functions
 	// to prevent things like "a elder grue" (should be "an elder grue")?
@@ -2300,7 +2300,7 @@ void hellfire (int x, int y, int blessing)
 	mprint ("The monster writhes in the flames...");
 	if (blessing < 0) {
 	    mprint ("...and appears stronger.");
-	    morewait ();
+	    morewait();
 	    mprint ("Much stronger.");
 	    m->hp += 1000;
 	    m->hit += 20;

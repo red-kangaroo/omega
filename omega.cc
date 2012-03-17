@@ -7,7 +7,7 @@
 
 //----------------------------------------------------------------------
 
-static int game_restore(int argc, char *argv[]);
+static int game_restore(int argc, const char* argv[]);
 static void init_world(void);
 static void fix_phantom(struct monster *m);
 
@@ -15,7 +15,7 @@ static void fix_phantom(struct monster *m);
 
 // most globals originate in omega.c
 
-char *Omegalib;			// contains the path to the library files
+const char* Omegalib;			// contains the path to the library files
 
 // Objects and Monsters are allocated and initialized in init.c
 
@@ -88,8 +88,7 @@ int LastTownLocY = 0;		// previous position in village or city
 int LastCountryLocX = 0;	// previous position in countryside
 int LastCountryLocY = 0;	// previous position in countryside
 char Password[64];		// autoteller password
-char Str1[STRING_LEN], Str2[STRING_LEN], Str3[STRING_LEN], Str4[STRING_LEN];
-   // Some string space, random uses
+char Str1[STRING_LEN], Str2[STRING_LEN], Str3[STRING_LEN], Str4[STRING_LEN]; // Some string space, random uses
 
 pol Condoitems = NULL;		// Items in condo
 
@@ -144,7 +143,7 @@ void initrand (int environment, int level)
     srand (seed);
 }
 
-static int game_restore (int argc, char *argv[])
+static int game_restore (int argc, const char* argv[])
 {
     char savestr[80];
     int ok;
@@ -152,7 +151,7 @@ static int game_restore (int argc, char *argv[])
 	strcpy (savestr, argv[1]);
 	ok = restore_game (savestr);
 	if (!ok) {
-	    endgraf ();
+	    endgraf();
 	    printf ("Try again with the right save file, luser!\n");
 	    exit (0);
 	}
@@ -162,7 +161,7 @@ static int game_restore (int argc, char *argv[])
 	return (FALSE);
 }
 
-int main (int argc, char *argv[])
+int main (int argc, const char* argv[])
 {
     int continuing;
     int count;
@@ -183,20 +182,20 @@ int main (int argc, char *argv[])
     Omegalib = OMEGALIB;
 
     // if filecheck is 0, some necessary data files are missing
-    if (filecheck () == 0)
+    if (filecheck() == 0)
 	exit (0);
 
     // all kinds of initialization
-    initgraf ();
-    initdirs ();
+    initgraf();
+    initdirs();
     initrand (E_RANDOM, 0);
-    initspells ();
+    initspells();
 
     for (count = 0; count < STRING_BUFFER_SIZE; count++)
 	strcpy (Stringbuffer[count], "<nothing>");
 
-    omega_title ();
-    showscores ();
+    omega_title();
+    showscores();
 
     // game restore attempts to restore game if there is an argument
     continuing = game_restore (argc, argv);
@@ -208,23 +207,23 @@ int main (int argc, char *argv[])
 	Date = random_range (360);
 	Phase = random_range (24);
 	strcpy (Password, "");
-	initplayer ();
-	init_world ();
+	initplayer();
+	init_world();
 	mprint ("'?' for help or commandlist, 'Q' to quit.");
     } else
 	mprint ("Your adventure continues....");
 
-    timeprint ();
-    calc_melee ();
+    timeprint();
+    calc_melee();
     if (Current_Environment != E_COUNTRYSIDE)
 	showroom (Level->site[Player.x][Player.y].roomnumber);
     else
 	terrain_check (FALSE);
 
     if (optionp (SHOW_COLOUR))
-	colour_on ();
+	colour_on();
     else
-	colour_off ();
+	colour_off();
 
     screencheck (Player.y);
 
@@ -233,7 +232,7 @@ int main (int argc, char *argv[])
 	time_clock (TRUE);
     while (TRUE) {
 	if (Current_Environment == E_COUNTRYSIDE)
-	    p_country_process ();
+	    p_country_process();
 	else
 	    time_clock (FALSE);
     }
@@ -242,18 +241,18 @@ int main (int argc, char *argv[])
 static void signalexit (int sig UNUSED)
 {
     int reply;
-    clearmsg ();
+    clearmsg();
     mprint ("Yikes!");
-    morewait ();
+    morewait();
     mprint ("Sorry, caught a core-dump signal.");
     mprint ("Want to try and save the game?");
-    reply = ynq ();
+    reply = ynq();
     if (reply == 'y')
 	save (FALSE, TRUE);	// don't compress, force save
     else if (reply == EOF)
 	signalsave (0);
     mprint ("Bye!");
-    endgraf ();
+    endgraf();
     exit (0);
 }
 
@@ -265,7 +264,7 @@ static void init_world (void)
     City = Level = TempLevel = Dungeon = NULL;
     for (env = 0; env <= E_MAX; env++)
 	level_seed[env] = rand();
-    load_country ();
+    load_country();
     for (i = 0; i < NUMCITYSITES; i++)
 	CitySiteList[i][0] = FALSE;
     load_city (TRUE);
@@ -317,9 +316,9 @@ void time_clock (int reset)
 
     if (++Tick > 60) {
 	Tick = 0;
-	minute_status_check ();	// see about some player statuses each minute
+	minute_status_check();	// see about some player statuses each minute
 	if (++Time % 10 == 0)
-	    tenminute_check ();
+	    tenminute_check();
     }
 
     if (reset)
@@ -331,7 +330,7 @@ void time_clock (int reset)
 	    do {
 		resetgamestatus (SKIP_MONSTERS);
 		if ((!Player.status[SLEPT]) && (Current_Environment != E_COUNTRYSIDE))
-		    p_process ();
+		    p_process();
 	    } while (gamestatusp (SKIP_MONSTERS) && (Current_Environment != E_COUNTRYSIDE));
 	else
 	    resetgamestatus (SKIP_PLAYER);
@@ -363,8 +362,8 @@ void time_clock (int reset)
 		ml = ml->next;
 	    } else if (ml->m != Arena_Monster) {
 		*prev = ml->next;
-		free ((char *) ml->m);
-		free ((char *) ml);
+		free (ml->m);
+		free (ml);
 		ml = *prev;
 	    } else
 		ml = ml->next;
