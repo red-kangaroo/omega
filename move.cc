@@ -267,8 +267,8 @@ static void l_lift (void)
     print1 ("Go up, down, or neither [u,d,ESCAPE] ");
     do
 	response = (char) mcigetc();
-    while ((response != 'u') && (response != 'd') && (response != ESCAPE));
-    if (response != ESCAPE) {
+    while ((response != 'u') && (response != 'd') && (response != KEY_ESCAPE));
+    if (response != KEY_ESCAPE) {
 	print1 ("How many levels?");
 	levelnum = (int) parsenum();
 	if (levelnum > 6) {
@@ -992,7 +992,7 @@ static void l_balancestone (void)
     print1 ("Touch it? [yn] ");
     if (ynq1() == 'y') {
 	print1 ("A vortex of mana spins about you!");
-	if (abs (Player.alignment) > random_range (50)) {
+	if (absv (Player.alignment) > random_range (50)) {
 	    print2 ("The cyclone whirls you off to a strange place!");
 	    morewait();
 	    change_environment (E_COUNTRYSIDE);

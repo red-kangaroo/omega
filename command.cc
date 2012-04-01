@@ -296,11 +296,11 @@ void p_process (void)
 	    case '5':
 		setgamestatus (SKIP_MONSTERS);	// don't do anything; a dummy turn
 		Cmd = mgetc();
-		while ((Cmd != ESCAPE) && ((Cmd < '1') || (Cmd > '9') || (Cmd == '5'))) {
+		while ((Cmd != KEY_ESCAPE) && ((Cmd < '1') || (Cmd > '9') || (Cmd == '5'))) {
 		    print3 ("Run in keypad direction [ESCAPE to abort]: ");
 		    Cmd = mgetc();
 		}
-		if (Cmd != ESCAPE)
+		if (Cmd != KEY_ESCAPE)
 		    setgamestatus (FAST_MOVE);
 		break;
 	    case 'H':
@@ -603,8 +603,8 @@ static void activate (void)
     char response;
     do
 	response = (char) mcigetc();
-    while ((response != 'i') && (response != 'a') && (response != ESCAPE));
-    if (response != ESCAPE) {
+    while ((response != 'i') && (response != 'a') && (response != KEY_ESCAPE));
+    if (response != KEY_ESCAPE) {
 	int iidx = ABORT;
 	if (response == 'i')
 	    iidx = getitem (THING);
@@ -744,7 +744,7 @@ static void talk (void)
 	    showmenu();
 	    do
 		response = menugetc();
-	    while ((response != 'a') && (response != 'b') && (response != 'c') && (response != ESCAPE));
+	    while ((response != 'a') && (response != 'b') && (response != 'c') && (response != KEY_ESCAPE));
 	    switch (response) {
 		case 'a':
 		    monster_talk (m);
@@ -1091,7 +1091,7 @@ void setoptions (void)
 		else
 		    print3 ("A number is meaningless for this option.");
 		break;
-	    case ESCAPE:
+	    case KEY_ESCAPE:
 		done = TRUE;
 		break;
 	    default:
@@ -1292,7 +1292,7 @@ void bash_item (void)
 	} else {
 	    if (obj->objchar == WEAPON) {
 		print2 ("The weapon turned in your hand -- you hit yourself!");
-		p_damage (random_range (obj->dmg + abs (obj->plus)), NORMAL_DAMAGE, "a failure at vandalism");
+		p_damage (random_range (obj->dmg + absv (obj->plus)), NORMAL_DAMAGE, "a failure at vandalism");
 	    } else if (obj->objchar == ARTIFACT) {
 		print2 ("Uh Oh -- Now you've gotten it angry....");
 		p_damage (obj->level * 10, UNSTOPPABLE, "an enraged artifact");
@@ -1722,7 +1722,7 @@ static void help (void)
     showmenu();
     do
 	c = (char) mcigetc();
-    while ((c < 'a' || c > 'n') && c != ESCAPE);
+    while ((c < 'a' || c > 'n') && c != KEY_ESCAPE);
     if (c == 'n') {
 	print1 ("Trying to copy all help files to ./omega.doc ");
 	nprint1 ("Confirm [yn]");
@@ -1740,12 +1740,12 @@ static void help (void)
 	    fclose (out);
 	    nprint2 (" Done.");
 	}
-    } else if (c != ESCAPE) {
+    } else if (c != KEY_ESCAPE) {
 	sprintf (filestr, "%shelp%d.txt", Omegalib, c + 1 - 'a');
 	print1 ("Display help file, or Copy help file to file in wd. [dc] ");
 	do
 	    c = (char) mcigetc();
-	while ((c != 'd') && (c != 'c') && (c != ESCAPE));
+	while ((c != 'd') && (c != 'c') && (c != KEY_ESCAPE));
 	if (c == 'd')
 	    displayfile (filestr);
 	else if (c == 'c')
@@ -2200,8 +2200,7 @@ static void tacoptions (void)
 		    }
 		}
 		break;
-	    case BACKSPACE:
-	    case DELETE:
+	    case KEY_BACKSPACE:
 		place = 0;
 		actionsleft = maneuvers();
 		draw_again = 1;
@@ -2246,9 +2245,8 @@ static void tacoptions (void)
 		showmenu();
 		Player.meleestr[place * 2] = '\0';
 		break;
-	    case RETURN:
-	    case LINEFEED:
-	    case ESCAPE:
+	    case KEY_ENTER:
+	    case KEY_ESCAPE:
 		done = TRUE;
 		break;
 	}
@@ -2559,8 +2557,8 @@ static void frobgamestatus (void)
     mprint ("Set or Reset or Forget it [s,r,ESCAPE]:");
     do
 	response = (char) mcigetc();
-    while ((response != 'r') && (response != 's') && (response != ESCAPE));
-    if (response != ESCAPE) {
+    while ((response != 'r') && (response != 's') && (response != KEY_ESCAPE));
+    if (response != KEY_ESCAPE) {
 	mprint ("Enter log2 of flag:");
 	num = (int) parsenum();
 	if (num > -1) {

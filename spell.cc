@@ -866,7 +866,7 @@ static int spellparse (void)
     print2 ("");
     do {
 	byte = mgetc();
-	if (byte == BACKSPACE || byte == DELETE) {
+	if (byte == KEY_BACKSPACE) {
 	    if (pos > 0) {
 		prefix[--pos] = '\0';
 		byte = prefix[pos - 1];
@@ -892,7 +892,7 @@ static int spellparse (void)
 		found = 0;
 		print2 ("");
 	    }
-	} else if (byte == ESCAPE) {
+	} else if (byte == KEY_ESCAPE) {
 	    xredraw();
 	    return ABORT;
 	} else if (byte == '?')

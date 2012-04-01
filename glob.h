@@ -97,3 +97,30 @@ extern int boot_ids[30];
 
 extern int deepest[E_MAX + 1];
 extern int level_seed[E_MAX + 1];
+
+namespace {
+
+static constexpr inline int pow2 (int n) { return (1 << n); }
+
+static inline bool loc_statusp (int x, int y, unsigned stat)	{ return (Level->site[x][y].lstatus & stat); }
+static inline void lset (int x, int y, unsigned stat)		{ Level->site[x][y].lstatus |= stat; }
+static inline void lreset (int x, int y, unsigned stat)		{ Level->site[x][y].lstatus &= ~stat; }
+
+static inline bool c_statusp (int x, int y, unsigned stat)	{ return (Country[x][y].status & stat); }
+static inline void c_set (int x, int y, unsigned stat)		{ Country[x][y].status |= stat; }
+static inline void c_reset(int x, int y, unsigned stat)		{ Country[x][y].status &= ~stat; }
+
+static inline bool m_statusp (const monster_data* m,unsigned s)	{ return (m->status & s); }
+static inline void m_status_set (monster* m, unsigned s)	{ m->status |= s; }
+static inline void m_status_reset (monster* m, unsigned s)	{ m->status &= ~s; }
+static inline bool m_immunityp (monster* m, unsigned s)		{ return (m->immunity & pow2(s)); }
+
+static inline bool gamestatusp (unsigned flag)			{ return (GameStatus & flag); }
+static inline void setgamestatus (unsigned flag)		{ GameStatus |= flag; }
+static inline void resetgamestatus (unsigned flag)		{ GameStatus &= ~flag; }
+
+static inline bool optionp (unsigned o)				{ return (Player.options & o); }
+static inline void optionset (unsigned o)			{ Player.options |= o; }
+static inline void optionreset (unsigned o)			{ Player.options &= ~o; }
+
+} // namespace

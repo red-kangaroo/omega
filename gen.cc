@@ -164,10 +164,10 @@ static void straggle_corridor (int fx, int fy, int tx, int ty, Symbol loc, char 
     while ((fx != tx) || (fy != ty)) {
 	dx = tx - fx;
 	dy = ty - fy;
-	if (random_range (abs (dx) + abs (dy)) < abs (dx))
-	    corridor_crawl (&fx, &fy, sign (dx), 0, random_range (abs (dx)) + 1, loc, rsi);
+	if (random_range (absv (dx) + absv (dy)) < absv (dx))
+	    corridor_crawl (&fx, &fy, sign (dx), 0, random_range (absv (dx)) + 1, loc, rsi);
 	else
-	    corridor_crawl (&fx, &fy, 0, sign (dy), random_range (abs (dy)) + 1, loc, rsi);
+	    corridor_crawl (&fx, &fy, 0, sign (dy), random_range (absv (dy)) + 1, loc, rsi);
     }
 }
 

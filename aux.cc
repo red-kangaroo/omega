@@ -503,7 +503,7 @@ void setspot (int *x, int *y)
     mprint ("Targeting.... ? for help");
     curs_set (1);
     omshowcursor (*x, *y);
-    while ((c != '.') && (c != ESCAPE)) {
+    while ((c != '.') && (c != KEY_ESCAPE)) {
 	c = lgetc();
 	switch (c) {
 	    case 'h':
@@ -545,7 +545,7 @@ void setspot (int *x, int *y)
 		break;
 	}
     }
-    if (c == ESCAPE)
+    if (c == KEY_ESCAPE)
 	*x = *y = ABORT;
     curs_set (0);
     screencheck (Player.y);
@@ -589,7 +589,7 @@ int getdir (void)
 	    case 'n':
 	    case 'N':
 		return (0);
-	    case ESCAPE:
+	    case KEY_ESCAPE:
 		return (ABORT);
 	    default:
 		print3 ("That's not a direction! ");
@@ -3058,7 +3058,7 @@ int parsecitysite (void)
     print2 ("");
     do {
 	byte = mgetc();
-	if (byte == BACKSPACE || byte == DELETE) {
+	if (byte == KEY_BACKSPACE) {
 	    if (pos > 0) {
 		prefix[--pos] = '\0';
 		byte = prefix[pos - 1];
@@ -3084,7 +3084,7 @@ int parsecitysite (void)
 		found = 0;
 		print2 ("");
 	    }
-	} else if (byte == ESCAPE) {
+	} else if (byte == KEY_ESCAPE) {
 	    xredraw();
 	    return ABORT;
 	} else if (byte == '?')

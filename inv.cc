@@ -287,12 +287,12 @@ static void setplustr (pob obj, char* pstr)
 {
     pstr[0] = ' ';
     pstr[1] = (obj->plus < 0 ? '-' : '+');
-    if (abs (obj->plus) < 10) {
-	pstr[2] = '0' + abs (obj->plus);
+    if (absv (obj->plus) < 10) {
+	pstr[2] = '0' + absv (obj->plus);
 	pstr[3] = 0;
     } else {
-	pstr[2] = '0' + abs (obj->plus / 10);
-	pstr[3] = '0' + abs (obj->plus % 10);
+	pstr[2] = '0' + absv (obj->plus / 10);
+	pstr[3] = '0' + absv (obj->plus % 10);
 	pstr[4] = 0;
     }
 }
@@ -533,7 +533,7 @@ int getitem (Symbol itype)
 		    if (Player.possessions[i] != NULL)
 			if ((itype == NULL_ITEM) || (itype == CASH) || (Player.possessions[i]->objchar == itype) || ((itype == FOOD) && (Player.possessions[i]->objchar == CORPSE)))
 			    display_inventory_slot (i, FALSE);
-	    } else if (key == ESCAPE)
+	    } else if (key == KEY_ESCAPE)
 		ok = TRUE;
 	    else if (key == (CASH & 0xff)) {
 		if (itype == CASH)
@@ -549,7 +549,7 @@ int getitem (Symbol itype)
 	}
 	if (drewmenu)
 	    xredraw();
-	if (key == ESCAPE)
+	if (key == KEY_ESCAPE)
 	    return (ABORT);
 	else if (key == (CASH & 0xff))
 	    return (CASHVALUE);
@@ -726,7 +726,7 @@ static int aux_take_from_pack (int slot)
 		print1 ("Help not implemented (sorry).");
 		morewait();
 		ok = FALSE;
-	    } else if (response == ESCAPE)
+	    } else if (response == KEY_ESCAPE)
 		quitting = TRUE;
 	    else if (response == '+') {
 		if (last_item < Player.packptr)
@@ -774,7 +774,7 @@ static int aux_top_take_from_pack (int slot, int display)
 		display_pack();
 		displayed = TRUE;
 		ok = FALSE;
-	    } else if (response == ESCAPE)
+	    } else if (response == KEY_ESCAPE)
 		quitting = TRUE;
 	    else {
 		ok = ((response >= 'a') && (response < 'a' + Player.packptr));
@@ -944,7 +944,7 @@ void inventory_control (void)
 		    inv_help();
 		display_possessions();
 		break;
-	    case ESCAPE:
+	    case KEY_ESCAPE:
 		if (Player.possessions[O_UP_IN_AIR] != NULL) {
 		    drop_at (Player.x, Player.y, Player.possessions[O_UP_IN_AIR]);
 		    Player.possessions[O_UP_IN_AIR] = NULL;
@@ -1085,7 +1085,7 @@ void top_inventory_control (void)
 		    inv_help();
 		usedmenu = TRUE;
 		break;
-	    case ESCAPE:
+	    case KEY_ESCAPE:
 		if (Player.possessions[O_UP_IN_AIR] != NULL) {
 		    drop_at (Player.x, Player.y, Player.possessions[O_UP_IN_AIR]);
 		    Player.possessions[O_UP_IN_AIR] = NULL;
@@ -1108,7 +1108,7 @@ static int get_inventory_slot (void)
 	clearmsg1();
 	print1 ("Which inventory slot ['-'='up-in-air' slot]?");
 	response = (signed char) mcigetc();
-	if (response == ESCAPE || response == '-')
+	if (response == KEY_ESCAPE || response == '-')
 	    return O_UP_IN_AIR;
 	else
 	    response = key_to_index (response);

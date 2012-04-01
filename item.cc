@@ -247,7 +247,7 @@ void make_ring (pob o, int id)
     if (o->plus == 0)
 	o->plus = itemplus() + 1;
     if (o->blessing < 0)
-	o->plus = -1 - abs (o->plus);
+	o->plus = -1 - absv (o->plus);
 }
 
 void make_thing (pob o, int id)
@@ -292,9 +292,9 @@ void make_weapon (pob o, int id)
     if (o->plus == 0) {
 	o->plus = itemplus();
 	if (o->blessing < 0)
-	    o->plus = -1 - abs (o->plus);
+	    o->plus = -1 - absv (o->plus);
 	else if (o->blessing > 0)
-	    o->plus = 1 + abs (o->plus);
+	    o->plus = 1 + absv (o->plus);
     }
 }
 
@@ -308,9 +308,9 @@ void make_shield (pob o, int id)
     if (o->blessing == 0)
 	o->blessing = itemblessing();
     if (o->blessing < 0)
-	o->plus = -1 - abs (o->plus);
+	o->plus = -1 - absv (o->plus);
     else if (o->blessing > 0)
-	o->plus = 1 + abs (o->plus);
+	o->plus = 1 + absv (o->plus);
 }
 
 void make_armor (pob o, int id)
@@ -323,9 +323,9 @@ void make_armor (pob o, int id)
     if (o->blessing == 0)
 	o->blessing = itemblessing();
     if (o->blessing < 0)
-	o->plus = -1 - abs (o->plus);
+	o->plus = -1 - absv (o->plus);
     else if (o->blessing > 0)
-	o->plus = 1 + abs (o->plus);
+	o->plus = 1 + absv (o->plus);
 }
 
 void make_cloak (pob o, int id)
@@ -959,7 +959,7 @@ static void i_heal (pob o)
 	Objects[o->id].known = 1;
 	heal (1 + o->plus);
     } else
-	heal (-1 - abs (o->plus));
+	heal (-1 - absv (o->plus));
 }
 
 // potion of monster detection
@@ -1122,7 +1122,7 @@ static void i_perm_negimmune (pob o)
 	} else
 	    Player.immunity[NEGENERGY]--;
     } else if (o->used)
-	level_drain (abs (o->blessing), "cursed cloak of level drain");
+	level_drain (absv (o->blessing), "cursed cloak of level drain");
 }
 
 // food functions
@@ -1558,14 +1558,14 @@ static void i_perm_protection (pob o)
 {
     if (o->used) {
 	if (o->blessing > -1)
-	    Player.status[PROTECTION] += abs (o->plus) + 1;
+	    Player.status[PROTECTION] += absv (o->plus) + 1;
 	else
-	    Player.status[PROTECTION] -= abs (o->plus) + 1;
+	    Player.status[PROTECTION] -= absv (o->plus) + 1;
     } else {
 	if (o->blessing > -1)
-	    Player.status[PROTECTION] -= abs (o->plus) + 1;
+	    Player.status[PROTECTION] -= absv (o->plus) + 1;
 	else
-	    Player.status[PROTECTION] += abs (o->plus) + 1;
+	    Player.status[PROTECTION] += absv (o->plus) + 1;
     }
     calc_melee();
 }
@@ -1576,14 +1576,14 @@ static void i_perm_agility (pob o)
     Objects[o->id].known = 1;
     if (o->used) {
 	if (o->blessing > -1)
-	    Player.agi += abs (o->plus) + 1;
+	    Player.agi += absv (o->plus) + 1;
 	else
-	    Player.agi -= abs (o->plus) + 1;
+	    Player.agi -= absv (o->plus) + 1;
     } else {
 	if (o->blessing > -1)
-	    Player.agi -= abs (o->plus) + 1;
+	    Player.agi -= absv (o->plus) + 1;
 	else
-	    Player.agi += abs (o->plus) + 1;
+	    Player.agi += absv (o->plus) + 1;
     }
     calc_melee();
 }
@@ -1683,14 +1683,14 @@ static void i_perm_strength (pob o)
     Objects[o->id].known = 1;
     if (o->used) {
 	if (o->blessing > -1)
-	    Player.str += abs (o->plus) + 1;
+	    Player.str += absv (o->plus) + 1;
 	else
-	    Player.str -= abs (o->plus) + 1;
+	    Player.str -= absv (o->plus) + 1;
     } else {
 	if (o->blessing > -1)
-	    Player.str -= abs (o->plus) + 1;
+	    Player.str -= absv (o->plus) + 1;
 	else
-	    Player.str += abs (o->plus) + 1;
+	    Player.str += absv (o->plus) + 1;
     }
     calc_melee();
 }
@@ -2049,7 +2049,7 @@ void weapon_defend (int dmgmod, pob o, struct monster *m)
 	mprint ("The weapon finally quiets. It seems less holy now.");
 	o->truename = o->cursestr;
 	Player.status[PROTECTION] -= (o->hit);
-	o->plus = 0 - abs (o->plus);
+	o->plus = 0 - absv (o->plus);
 	o->blessing = -1;
     }
     if ((o->blessing > 0) && ((m->specialf == M_SP_DEMON) || (m->meleef == M_MELEE_SPIRIT))) {
@@ -2082,7 +2082,7 @@ static void i_defend (pob o)
 static void i_victrix (pob o)
 {
     o->known = 2;
-    o->blessing = abs (o->blessing);
+    o->blessing = absv (o->blessing);
     if (o->used) {
 	Player.immunity[POISON]++;
 	Player.immunity[FEAR]++;

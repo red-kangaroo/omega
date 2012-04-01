@@ -977,10 +977,10 @@ static void m_talk_demonlover (struct monster *m)
     m->specialf = M_SP_DEMON;
 
     if ((m->monchar & 0xff) == 's') {
-	m->monchar = 'I' | CLR (RED);
+	m->monchar = 'I' | CLR_RED_BLACK;
 	m->monstring = "incubus";
     } else {
-	m->monchar = 'S' | CLR (RED);
+	m->monchar = 'S' | CLR_RED_BLACK;
 	m->monstring = "succubus";
     }
     if (m->uniqueness == COMMON) {
@@ -3466,5 +3466,5 @@ void m_no_op (struct monster *m UNUSED)
 const char* m_melee_str (unsigned level)
 {
     static const char SkilledMeleeStr[33] = "L?R?L?R?L?R?L?R?L?R?L?R?L?R?L?R?";
-    return (SkilledMeleeStr+strlen(SkilledMeleeStr)-4*min(level,8));
+    return (SkilledMeleeStr+strlen(SkilledMeleeStr)-4*min(level,8U));
 }

@@ -20,7 +20,7 @@ static void lightspot(int x, int y);
 
 //----------------------------------------------------------------------
 
-#define CHARATTR(c)	((c) & ~0xff)
+static constexpr inline attr_t CHARATTR (chtype c) { return (c & ~A_CHARTEXT); }
 
 // note these variables are not exported to other files
 
@@ -66,7 +66,8 @@ void phaseprint (void)
 void show_screen (void)
 {
     int i, j, top, bottom;
-    int last_attr = 0, c;
+    attr_t last_attr = 0;
+    chtype c;
 
     wclear (Levelw);
     top = ScreenOffset;
@@ -77,9 +78,9 @@ void show_screen (void)
 	for (j = top; j < bottom; j++) {
 	    wmove (Levelw, screenmod (j), 0);
 	    for (i = 0; i < WIDTH; i++) {
-		c = ((loc_statusp (i, j, SEEN)) ? getspot (i, j, FALSE) : SPACE);
-		if (optionp (SHOW_COLOUR) && CHARATTR (c) != last_attr) {
-		    last_attr = CHARATTR (c);
+		c = ((loc_statusp (i, j, SEEN)) ? getspot (i, j, FALSE) : (int) SPACE);
+		if (optionp (SHOW_COLOUR) && CHARATTR(c) != last_attr) {
+		    last_attr = CHARATTR(c);
 		    wattrset (Levelw, last_attr);
 		}
 		waddch (Levelw, c & 0xff);
@@ -88,9 +89,9 @@ void show_screen (void)
 	for (j = top; j < bottom; j++)
 	    for (i = 0; i < WIDTH; i++) {
 		wmove (Levelw, screenmod (j), i);
-		c = ((c_statusp (i, j, SEEN)) ? Country[i][j].current_terrain_type : SPACE);
-		if (optionp (SHOW_COLOUR) && CHARATTR (c) != last_attr) {
-		    last_attr = CHARATTR (c);
+		c = ((c_statusp (i, j, SEEN)) ? Country[i][j].current_terrain_type : (int) SPACE);
+		if (optionp (SHOW_COLOUR) && CHARATTR(c) != last_attr) {
+		    last_attr = CHARATTR(c);
 		    wattrset (Levelw, last_attr);
 		}
 		waddch (Levelw, c & 0xff);
@@ -127,7 +128,7 @@ int ynq (void)
 {
     char p = '*';		// the user's choice; start with something impossible
 				// to prevent a loop.
-    while ((p != 'n') && (p != 'y') && (p != 'q') && (p != ESCAPE) && (p != EOF) && (p != ' '))
+    while ((p != 'n') && (p != 'y') && (p != 'q') && (p != KEY_ESCAPE) && (p != EOF) && (p != ' '))
 	p = wgetch (Msgw);
     switch (p) {
 	case 'y':
@@ -137,7 +138,7 @@ int ynq (void)
 	    wprintw (Msgw, "no. ");
 	    break;
 
-	case ESCAPE:
+	case KEY_ESCAPE:
 	    p = 'q';		// fall through to 'q'
 	case ' ':
 	    p = 'q';		// fall through to 'q'
@@ -155,7 +156,7 @@ int ynq1 (void)
 {
     char p = '*';		// the user's choice; start with something impossible
 				// to prevent a loop.
-    while ((p != 'n') && (p != 'y') && (p != 'q') && (p != ESCAPE) && (p != ' ') && (p != EOF))
+    while ((p != 'n') && (p != 'y') && (p != 'q') && (p != KEY_ESCAPE) && (p != ' ') && (p != EOF))
 	p = wgetch (Msg1w);
     switch (p) {
 	case 'y':
@@ -165,7 +166,7 @@ int ynq1 (void)
 	    wprintw (Msg1w, "no. ");
 	    break;
 
-	case ESCAPE:
+	case KEY_ESCAPE:
 	    p = 'q';		// fall through to 'q'
 	case ' ':
 	    p = 'q';		// fall through to 'q'
@@ -183,7 +184,7 @@ int ynq2 (void)
 {
     char p = '*';		// the user's choice; start with something impossible
 				// to prevent a loop.
-    while ((p != 'n') && (p != 'y') && (p != 'q') && (p != ESCAPE) && (p != ' ') && (p != EOF))
+    while ((p != 'n') && (p != 'y') && (p != 'q') && (p != KEY_ESCAPE) && (p != ' ') && (p != EOF))
 	p = wgetch (Msg2w);
     switch (p) {
 	case 'y':
@@ -193,7 +194,7 @@ int ynq2 (void)
 	    wprintw (Msg2w, "no. ");
 	    break;
 
-	case ESCAPE:
+	case KEY_ESCAPE:
 	    p = 'q';		// fall through to 'q'
 	case ' ':
 	    p = 'q';		// fall through to 'q'
@@ -800,7 +801,7 @@ void morewait (void)
 	display = !display;
 	wrefresh (Morew);
 	c = wgetch (Msgw);
-    } while ((c != ' ') && (c != RETURN) && (c != EOF));
+    } while ((c != ' ') && (c != KEY_ENTER) && (c != EOF));
     wclear (Morew);
     wrefresh (Morew);
 }
@@ -818,7 +819,7 @@ int stillonblock (void)
 	display = !display;
 	wrefresh (Morew);
 	c = wgetch (Msgw);
-    } while ((c != ' ') && (c != ESCAPE) && (c != EOF));
+    } while ((c != ' ') && (c != KEY_ESCAPE) && (c != EOF));
     wclear (Morew);
     wrefresh (Morew);
     return (c == ' ');
@@ -952,12 +953,12 @@ int getnumber (int range)
 	    mnumprint (value);
 	    do
 		atom = mcigetc();
-	    while ((atom != '<') && (atom != '>') && (atom != ESCAPE));
+	    while ((atom != '<') && (atom != '>') && (atom != KEY_ESCAPE));
 	    if ((atom == '>') && (value < range))
 		value++;
 	    else if ((atom == '<') && (value > 1))
 		value--;
-	    else if (atom == ESCAPE)
+	    else if (atom == KEY_ESCAPE)
 		done = TRUE;
 	}
     }
@@ -974,9 +975,9 @@ long parsenum (void)
     char byte = ' ';
 
     curs_set (1);
-    while ((byte != ESCAPE) && (byte != '\n')) {
+    while ((byte != KEY_ESCAPE) && (byte != '\n')) {
 	byte = mgetc();
-	if ((byte == BACKSPACE) || (byte == DELETE)) {
+	if (byte == KEY_BACKSPACE) {
 	    if (place > -1) {
 		number[place] = 0;
 		place--;
@@ -995,7 +996,7 @@ long parsenum (void)
     }
     curs_set (0);
     waddch (Msgw, ' ');
-    if (byte == ESCAPE)
+    if (byte == KEY_ESCAPE)
 	return (ABORT);
     else {
 	for (i = place; i >= 0; i--) {
@@ -1189,7 +1190,7 @@ void drawomega (void)
     for (i = 0; i < 7; i++) {
 	move (1, 1);
 	if (optionp (SHOW_COLOUR))
-	    wattrset (stdscr, CHARATTR (CLR (LIGHT_BLUE)));
+	    wattrset (stdscr, CHARATTR (CLR_LIGHT_BLUE_BLACK));
 	printw ("\n\n\n");
 	printw ("\n                                    *****");
 	printw ("\n                               ******   ******");
@@ -1208,7 +1209,7 @@ void drawomega (void)
 	napms (200);
 	move (1, 1);
 	if (optionp (SHOW_COLOUR))
-	    wattrset (stdscr, CHARATTR (CLR (CYAN)));
+	    wattrset (stdscr, CHARATTR (CLR_CYAN_BLACK));
 	printw ("\n\n\n");
 	printw ("\n                                    +++++");
 	printw ("\n                               ++++++   ++++++");
@@ -1227,7 +1228,7 @@ void drawomega (void)
 	napms (200);
 	move (1, 1);
 	if (optionp (SHOW_COLOUR))
-	    wattrset (stdscr, CHARATTR (CLR (BLUE)));
+	    wattrset (stdscr, CHARATTR (CLR_BLUE_BLACK));
 	printw ("\n\n\n");
 	printw ("\n                                    .....");
 	printw ("\n                               ......   ......");
@@ -1245,7 +1246,7 @@ void drawomega (void)
 	refresh();
 	napms (200);
     }
-    wattrset (stdscr, CHARATTR (CLR (WHITE)));
+    wattrset (stdscr, CHARATTR (CLR_WHITE_BLACK));
 }
 
 // y is an absolute coordinate

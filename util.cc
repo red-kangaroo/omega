@@ -49,7 +49,7 @@ int hitp (int hit, int ac)
 // number of moves from x1,y1 to x2,y2
 int distance (int x1, int y1, int x2, int y2)
 {
-    return (max (abs (x2 - x1), abs (y2 - y1)));
+    return (max (absv (x2 - x1), absv (y2 - y1)));
 }
 
 // can you shoot, or move monsters through a spot?
@@ -169,16 +169,16 @@ void do_los (int pyx, int *x1, int *y1, int x2, int y2)
 	dy = 6;
     else
 	dy = -1;
-    if (abs (x2 - *x1) > abs (y2 - *y1)) {
+    if (absv (x2 - *x1) > absv (y2 - *y1)) {
 	major = dx;
 	minor = dy;
-	step = abs (x2 - *x1);
-	delta = 2 * abs (y2 - *y1);
+	step = absv (x2 - *x1);
+	delta = 2 * absv (y2 - *y1);
     } else {
 	major = dy;
 	minor = dx;
-	step = abs (y2 - *y1);
-	delta = 2 * abs (x2 - *x1);
+	step = absv (y2 - *y1);
+	delta = 2 * absv (x2 - *x1);
     }
     if (major == -1)		// x1,y2 already == x2,y2
 	return;
@@ -230,16 +230,16 @@ void do_object_los (int pyx, int *x1, int *y1, int x2, int y2)
 	dy = 6;
     else
 	dy = -1;
-    if (abs (x2 - *x1) > abs (y2 - *y1)) {
+    if (absv (x2 - *x1) > absv (y2 - *y1)) {
 	major = dx;
 	minor = dy;
-	step = abs (x2 - *x1);
-	delta = 2 * abs (y2 - *y1);
+	step = absv (x2 - *x1);
+	delta = 2 * absv (y2 - *y1);
     } else {
 	major = dy;
 	minor = dx;
-	step = abs (y2 - *y1);
-	delta = 2 * abs (x2 - *x1);
+	step = absv (y2 - *y1);
+	delta = 2 * absv (x2 - *x1);
     }
     if (major == -1)		// x1,y2 already == x2,y2
 	return;
@@ -297,16 +297,16 @@ int los_p (int x1, int y1, int x2, int y2)
 	dy = 6;
     else
 	dy = -1;
-    if (abs (x2 - x1) > abs (y2 - y1)) {
+    if (absv (x2 - x1) > absv (y2 - y1)) {
 	major = dx;
 	minor = dy;
-	step = abs (x2 - x1);
-	delta = 2 * abs (y2 - y1);
+	step = absv (x2 - x1);
+	delta = 2 * absv (y2 - y1);
     } else {
 	major = dy;
 	minor = dx;
-	step = abs (y2 - y1);
-	delta = 2 * abs (x2 - x1);
+	step = absv (y2 - y1);
+	delta = 2 * absv (x2 - x1);
     }
     if (major == -1)		// x1,y2 already == x2,y2
 	return TRUE;
@@ -351,16 +351,16 @@ int view_los_p (int x1, int y1, int x2, int y2)
 	dy = 6;
     else
 	dy = -1;
-    if (abs (x2 - x1) > abs (y2 - y1)) {
+    if (absv (x2 - x1) > absv (y2 - y1)) {
 	major = dx;
 	minor = dy;
-	step = abs (x2 - x1);
-	delta = 2 * abs (y2 - y1);
+	step = absv (x2 - x1);
+	delta = 2 * absv (y2 - y1);
     } else {
 	major = dy;
 	minor = dx;
-	step = abs (y2 - y1);
-	delta = 2 * abs (x2 - x1);
+	step = absv (y2 - y1);
+	delta = 2 * absv (x2 - x1);
     }
     if (major == -1)		// x1,y2 already == x2,y2
 	return TRUE;

@@ -1933,14 +1933,14 @@ void l_arena (void)
 	print2 ("Enter the games, or Register as a Gladiator? [e,r,ESCAPE] ");
 	do
 	    response = (char) mcigetc();
-	while ((response != 'e') && (response != 'r') && (response != ESCAPE));
+	while ((response != 'e') && (response != 'r') && (response != KEY_ESCAPE));
     } else {
 	print2 ("Enter the games? [yn] ");
 	response = ynq2();
 	if (response == 'y')
 	    response = 'e';
 	else
-	    response = ESCAPE;
+	    response = KEY_ESCAPE;
     }
     if (response == 'r') {
 	if (Player.rank[ARENA] > 0)
@@ -2197,7 +2197,7 @@ void l_thieves_guild (void)
 	    menuprint ("ESCAPE: Leave this Den of Iniquity.");
 	    showmenu();
 	    action = mgetc();
-	    if (action == ESCAPE)
+	    if (action == KEY_ESCAPE)
 		done = TRUE;
 	    else if (action == 'a') {
 		done = TRUE;
@@ -2435,7 +2435,7 @@ void l_college (void)
 	    menuprint ("ESCAPE: Leave these hallowed halls.\n");
 	    showmenu();
 	    action = mgetc();
-	    if (action == ESCAPE)
+	    if (action == KEY_ESCAPE)
 		done = TRUE;
 	    else if (action == 'a') {
 		if (Player.rank[COLLEGE] > 0)
@@ -2613,7 +2613,7 @@ void l_sorcerors (void)
 	    menuprint ("ESCAPE: Leave these Chambers of Power.\n");
 	    showmenu();
 	    action = mgetc();
-	    if (action == ESCAPE)
+	    if (action == KEY_ESCAPE)
 		done = TRUE;
 	    else if (action == 'a') {
 		if (Player.rank[CIRCLE] > 0)
@@ -3936,11 +3936,11 @@ pmt make_creature (int mid)
     } else if ((newmonster->monchar & 0xff) == '!') {
 	// the nymph/satyr and incubus/succubus
 	if (Player.preference == 'f' || (Player.preference != 'm' && random_range (2))) {
-	    newmonster->monchar = 'n' | CLR (RED);
+	    newmonster->monchar = 'n' | CLR_RED_BLACK;
 	    newmonster->monstring = "nymph";
 	    newmonster->corpsestr = "dead nymph";
 	} else {
-	    newmonster->monchar = 's' | CLR (RED);
+	    newmonster->monchar = 's' | CLR_RED_BLACK;
 	    newmonster->monstring = "satyr";
 	    newmonster->corpsestr = "dead satyr";
 	}
@@ -4245,7 +4245,7 @@ void l_armorer (void)
 	    clearmsg();
 	    print1 ("Julie's: Buy Armor, Weapons, or Leave [a,w,ESCAPE] ");
 	    action = mgetc();
-	    if (action == ESCAPE)
+	    if (action == KEY_ESCAPE)
 		done = TRUE;
 	    else if (action == 'a')
 		buyfromstock (ARMORID, 10);
@@ -4273,9 +4273,9 @@ static void buyfromstock (int base, int numitems)
     }
     showmenu();
     item = ' ';
-    while ((item != ESCAPE) && ((item < 'a') || (item >= 'a' + numitems)))
+    while ((item != KEY_ESCAPE) && ((item < 'a') || (item >= 'a' + numitems)))
 	item = mgetc();
-    if (item != ESCAPE) {
+    if (item != KEY_ESCAPE) {
 	i = item - 'a';
 	newitem = ((pob) checkmalloc (sizeof (objtype)));
 	*newitem = Objects[base + i];
@@ -4300,7 +4300,6 @@ static void buyfromstock (int base, int numitems)
 
 void l_club (void)
 {
-#define hinthour club_hinthour
     char response;
 
     print1 ("Rampart Explorers' Club.");
@@ -4330,24 +4329,22 @@ void l_club (void)
 	print2 ("Shop at the club store or listen for rumors [sl] ");
 	do
 	    response = (char) mcigetc();
-	while ((response != 's') && (response != 'l') && (response != ESCAPE));
+	while ((response != 's') && (response != 'l') && (response != KEY_ESCAPE));
 	if (response == 'l') {
-	    if (hinthour == hour())
+	    if (club_hinthour == hour())
 		print2 ("You don't hear anything useful.");
 	    else {
 		print1 ("You overhear a conversation....");
 		hint();
-		hinthour = hour();
+		club_hinthour = hour();
 	    }
 	} else if (response == 's') {
 	    buyfromstock (THING_KEY, 2);
 	    xredraw();
-	} else if (response == ESCAPE)
+	} else if (response == KEY_ESCAPE)
 	    print2 ("Be seeing you, old chap!");
     }
 }
-
-#undef hinthour
 
 void l_gym (void)
 {
@@ -4383,7 +4380,7 @@ void l_gym (void)
 	    case 'd':
 		gymtrain (&(Player.maxagi), &(Player.agi));
 		break;
-	    case ESCAPE:
+	    case KEY_ESCAPE:
 		clearmsg();
 		if (trained == 0)
 		    print1 ("Well, it's your body you're depriving!");
@@ -4486,7 +4483,7 @@ void statue_random (int x, int y)
 		print1 ("Your weapon sinks deeply into the statue and is sucked away!");
 		item = Player.possessions[O_WEAPON_HAND];
 		conform_lost_object (Player.possessions[O_WEAPON_HAND]);
-		item->blessing = -1 - abs (item->blessing);
+		item->blessing = -1 - absv (item->blessing);
 		drop_at (x, y, item);
 	    }
 	    break;
@@ -4657,7 +4654,7 @@ void l_casino (void)
 			dataprint();
 		    }
 		}
-	    } else if (response == ESCAPE)
+	    } else if (response == KEY_ESCAPE)
 		done = TRUE;
 	}
     }
@@ -4732,7 +4729,6 @@ void l_crap (void)
 
 void l_tavern (void)
 {
-#define hinthour tavern_hinthour
     char response;
     print1 ("The Centaur and Nymph -- J. Riley, prop.");
     if (nighttime()) {
@@ -4746,7 +4742,7 @@ void l_tavern (void)
 	showmenu();
 	do
 	    response = (char) mcigetc();
-	while ((response != 'a') && (response != 'b') && (response != 'c') && (response != 'd') && (response != ESCAPE));
+	while ((response != 'a') && (response != 'b') && (response != 'c') && (response != 'd') && (response != KEY_ESCAPE));
 	switch (response) {
 	    case 'a':
 		if (Player.cash < 1)
@@ -4754,13 +4750,13 @@ void l_tavern (void)
 		else {
 		    Player.cash -= 1;
 		    dataprint();
-		    if (hinthour != hour()) {
+		    if (tavern_hinthour != hour()) {
 			if (random_range (3)) {
 			    print1 ("You overhear a rumor...");
 			    hint();
 			} else
 			    print1 ("You don't hear much of interest.");
-			hinthour = hour();
+			tavern_hinthour = hour();
 		    } else
 			print1 ("You just hear the same conversations again.");
 		}
@@ -4866,8 +4862,6 @@ void l_tavern (void)
     xredraw();
 }
 
-#undef hinthour
-
 void l_alchemist (void)
 {
     int i, done = FALSE, mlevel;
@@ -4939,7 +4933,7 @@ void l_alchemist (void)
 		    }
 		} else
 		    print2 ("So nu?");
-	    } else if (response == ESCAPE)
+	    } else if (response == KEY_ESCAPE)
 		done = TRUE;
 	}
 }
@@ -5054,7 +5048,7 @@ void l_library (void)
 				hint();
 				morewait();
 			    }
-			} else if (response == ESCAPE) {
+			} else if (response == KEY_ESCAPE) {
 			    done = TRUE;
 			    print1 ("That was an expensive browse...");
 			} else
@@ -5117,14 +5111,14 @@ void l_pawn_shop (void)
 		}
 	    showmenu();
 	    action = (char) mcigetc();
-	    if (action == ESCAPE)
+	    if (action == KEY_ESCAPE)
 		done = TRUE;
 	    else if (action == 'b') {
 		print2 ("Purchase which item? [ESCAPE to quit] ");
 		item = ' ';
-		while ((item != ESCAPE) && ((item < 'a') || (item >= 'a' + PAWNITEMS)))
+		while ((item != KEY_ESCAPE) && ((item < 'a') || (item >= 'a' + PAWNITEMS)))
 		    item = (char) mcigetc();
-		if (item != ESCAPE) {
+		if (item != KEY_ESCAPE) {
 		    i = item - 'a';
 		    if (Pawnitems[i] == NULL)
 			print3 ("No such item!");
@@ -5232,7 +5226,7 @@ void l_condo (void)
 
     if (!gamestatusp (SOLD_CONDO)) {
 	print1 ("Rampart Arms. Weekly Rentals and Purchases");
-	print2 ("Which are you interested in [r,p, or ESCAPE] ");
+	print2 ("Which are you interested in [r,p, or KEY_ESCAPE] ");
 	response = mgetc();
 	if (response == 'p') {
 	    print2 ("Only 50,000Au. Buy it? [yn] ");
@@ -5268,7 +5262,7 @@ void l_condo (void)
 	    menuprint ("b: Retrieve items.\n");
 	    menuprint ("c: Take a week off to rest.\n");
 	    menuprint ("d: Retire permanently.\n");
-	    menuprint ("ESCAPE: Leave this place.\n");
+	    menuprint ("KEY_ESCAPE: Leave this place.\n");
 	    showmenu();
 	    response = (char) mcigetc();
 	    if (response == 'a') {
@@ -5313,7 +5307,7 @@ void l_condo (void)
 		if (ynq1() == 'y') {
 		    p_win();
 		}
-	    } else if (response == ESCAPE)
+	    } else if (response == KEY_ESCAPE)
 		done = TRUE;
 	}
 	xredraw();
@@ -5670,11 +5664,11 @@ void l_brothel (void)
 	menuprint ("a:knock on the door.\n");
 	menuprint ("b:try to pick the lock.\n");
 	menuprint ("c:bash down the door.\n");
-	menuprint ("ESCAPE: Leave this house of ill repute.\n");
+	menuprint ("KEY_ESCAPE: Leave this house of ill repute.\n");
 	showmenu();
 	do
 	    response = menugetc();
-	while ((response != 'a') && (response != 'b') && (response != 'c') && (response != ESCAPE));
+	while ((response != 'a') && (response != 'b') && (response != 'c') && (response != KEY_ESCAPE));
 	xredraw();
 	if (response == 'a') {
 	    if (!nighttime())
@@ -5982,10 +5976,10 @@ void l_oracle (void)
 	}
     } else {
 	print1 ("You come before a blue crystal dais. There is a bell and a mirror.");
-	print2 ("Ring the bell [b], look in the mirror [m], or leave [ESCAPE] ");
+	print2 ("Ring the bell [b], look in the mirror [m], or leave [KEY_ESCAPE] ");
 	do
 	    response = (char) mcigetc();
-	while ((response != 'b') && (response != 'm') && (response != ESCAPE));
+	while ((response != 'b') && (response != 'm') && (response != KEY_ESCAPE));
 	if (response == 'b') {
 	    print1 ("The ringing note seems to last forever.");
 	    print2 ("You notice a robed figure in front of you....");
@@ -6069,10 +6063,10 @@ void l_safe (void)
     pob newitem;
     int attempt = 0;
     print1 ("You have discovered a safe!");
-    print2 ("Pick the lock [p], Force the door [f], or ignore [ESCAPE]");
+    print2 ("Pick the lock [p], Force the door [f], or ignore [KEY_ESCAPE]");
     do
 	response = (char) mcigetc();
-    while ((response != 'p') && (response != 'f') && (response != ESCAPE));
+    while ((response != 'p') && (response != 'f') && (response != KEY_ESCAPE));
     if (response == 'p')
 	attempt = (2 * Player.dex + Player.rank[THIEVES] * 10 - random_range (100)) / 10;
     else if (response == 'f')

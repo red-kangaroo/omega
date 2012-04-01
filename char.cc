@@ -528,7 +528,7 @@ static void omegan_character_stats (void)
 	Player.cash = random_range (100) + random_range (100) + random_range (100) + random_range (100) + random_range (100);
 	calc_melee();
 	dataprint();
-    } while ((i < REROLLS) && (mgetc() == ESCAPE));
+    } while ((i < REROLLS) && (mgetc() == KEY_ESCAPE));
     clearmsg();
     print1 ("Please enter your character's name: ");
     strcpy (Player.name, msgscanstring());

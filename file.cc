@@ -467,7 +467,7 @@ void displayfile (const char* filestr)
     clear();
     refresh();
     c = fgetc (fd);
-    while ((c != EOF) && ((char) d != 'q') && ((char) d != ESCAPE)) {
+    while ((c != EOF) && ((char) d != 'q') && ((char) d != KEY_ESCAPE)) {
 	if (getcury(stdscr) > ScreenLength) {
 	    standout();
 	    printw ("\n-More-");
@@ -479,7 +479,7 @@ void displayfile (const char* filestr)
 	printw ("%c", (char) c);
 	c = fgetc (fd);
     }
-    if (((char) d != 'q') && ((char) d != ESCAPE)) {
+    if (((char) d != 'q') && ((char) d != KEY_ESCAPE)) {
 	standout();
 	printw ("\n-Done-");
 	standend();
@@ -501,7 +501,7 @@ static void displaycryptfile (const char* filestr)
     clear();
     refresh();
     c = fgetc (fd);
-    while ((c != EOF) && ((char) d != 'q') && ((char) d != ESCAPE)) {
+    while ((c != EOF) && ((char) d != 'q') && ((char) d != KEY_ESCAPE)) {
 	if (getcury(stdscr) > ScreenLength) {
 	    standout();
 	    printw ("\n-More-");
@@ -514,7 +514,7 @@ static void displaycryptfile (const char* filestr)
 	printw ("%c", key);
 	c = fgetc (fd);
     }
-    if (((char) d != 'q') && ((char) d != ESCAPE)) {
+    if (((char) d != 'q') && ((char) d != KEY_ESCAPE)) {
 	standout();
 	printw ("\n-Done-");
 	standend();

@@ -129,7 +129,7 @@ void bless (int blessing)
 	    }
 	    Player.possessions[iidx]->blessing -= 2;
 	    if (Player.possessions[iidx]->blessing < 0)
-		Player.possessions[iidx]->plus = abs (Player.possessions[iidx]->plus) - 1;
+		Player.possessions[iidx]->plus = absv (Player.possessions[iidx]->plus) - 1;
 	    if (used) {
 		setgamestatus (SUPPRESS_PRINTING);
 		Player.possessions[iidx]->used = TRUE;
@@ -163,7 +163,7 @@ void bless (int blessing)
 		print2 ("which now seems affected by afflatus!");
 		morewait();
 		Player.possessions[iidx]->blessing++;
-		Player.possessions[iidx]->plus = abs (Player.possessions[iidx]->plus) + 1;
+		Player.possessions[iidx]->plus = absv (Player.possessions[iidx]->plus) + 1;
 	    } else {
 		print2 ("The hierolux fades without any appreciable effect....");
 		morewait();
@@ -191,7 +191,7 @@ void heal (int amount)
 	Player.status[BLINDED] = 0;
     } else {
 	mprint ("You feel unwell.");
-	Player.hp -= random_range (10 * abs (amount) + 1);
+	Player.hp -= random_range (10 * absv (amount) + 1);
 	if (Player.hp < 0)
 	    p_death ("magical disruption");
     }
@@ -230,18 +230,18 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 
     switch (dtype) {
 	case FLAME:
-	    boltchar = ('*' | CLR (LIGHT_RED));
+	    boltchar = ('*' | CLR_LIGHT_RED_BLACK);
 	    break;
 	case ELECTRICITY:
-	    boltchar = ('^' | CLR (LIGHT_BLUE));
+	    boltchar = ('^' | CLR_LIGHT_BLUE_BLACK);
 	    break;
 	default:
 	    assert (FALSE);	// this should never happen, right? WDT
 	case NORMAL_DAMAGE:
-	    boltchar = ('!' | CLR (BROWN));
+	    boltchar = ('!' | CLR_BROWN_BLACK);
 	    break;
 	case COLD:
-	    boltchar = ('o' | CLR (WHITE));
+	    boltchar = ('o' | CLR_WHITE_BLACK);
 	    break;
     }
     clearmsg();
@@ -365,20 +365,20 @@ static void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
 {
     int xx, yy, ex, ey, i;
     struct monster *target;
-    Symbol expchar = ('@' | CLR (LIGHT_PURPLE));
+    Symbol expchar = ('@' | CLR_LIGHT_PURPLE_BLACK);
 
     xx = fx;
     yy = fy;
 
     switch (dtype) {
 	case FLAME:
-	    expchar = ('*' | CLR (LIGHT_RED));
+	    expchar = ('*' | CLR_LIGHT_RED_BLACK);
 	    break;
 	case COLD:
-	    expchar = ('o' | CLR (WHITE));
+	    expchar = ('o' | CLR_WHITE_BLACK);
 	    break;
 	case ELECTRICITY:
-	    expchar = ('^' | CLR (LIGHT_BLUE));
+	    expchar = ('^' | CLR_LIGHT_BLUE_BLACK);
 	    break;
     }
 
@@ -797,16 +797,16 @@ void knowledge (int blessing)
 	menuprint ("\nAlignment:");
 	if (Player.alignment == 0)
 	    menuprint ("Neutral, embodying the Cosmic Balance");
-	else if (abs (Player.alignment) < 10)
+	else if (absv (Player.alignment) < 10)
 	    menuprint ("Neutral, tending toward ");
-	else if (abs (Player.alignment) < 50)
+	else if (absv (Player.alignment) < 50)
 	    menuprint ("Neutral-");
-	else if (abs (Player.alignment) < 100);
-	else if (abs (Player.alignment) < 200)
+	else if (absv (Player.alignment) < 100);
+	else if (absv (Player.alignment) < 200)
 	    menuprint ("Servant of ");
-	else if (abs (Player.alignment) < 400)
+	else if (absv (Player.alignment) < 400)
 	    menuprint ("Master of ");
-	else if (abs (Player.alignment) < 800)
+	else if (absv (Player.alignment) < 800)
 	    menuprint ("The Essence of ");
 	else
 	    menuprint ("The Ultimate Avatar of ");
@@ -1183,7 +1183,7 @@ void alert (int blessing)
 	mprint ("You feel on-the-ball.");
 	Player.status[ALERT] += 4 + (5 * blessing);
     } else
-	sleep_player (abs (blessing) + 3);
+	sleep_player (absv (blessing) + 3);
 }
 
 void regenerate (int blessing)
@@ -1325,7 +1325,7 @@ void i_chaos (pob o UNUSED)
     if (Player.alignment < 0) {
 	Player.alignment -= random_range (20);
 	mprint ("You feel deliciously chaotic!");
-	gain_experience (abs (Player.alignment) * 10);
+	gain_experience (absv (Player.alignment) * 10);
     } else {
 	mprint ("You feel a sense of inner turmoil!");
 	Player.alignment -= random_range (20);
@@ -1578,7 +1578,7 @@ void sleep_monster (int blessing)
 	setspot (&x, &y);
 
     if (blessing < 0)
-	sleep_player (abs (blessing) + 2);
+	sleep_player (absv (blessing) + 2);
     else if (blessing > 0) {
 	mprint ("A silence pervades the area.");
 	for (ml = Level->mlist; ml != NULL; ml = ml->next) {
@@ -1899,7 +1899,7 @@ void apport (int blessing)
 	    mprint ("There's nothing there to apport!");
     } else {
 	mprint ("You have a sense of loss.");
-	for (i = 0; i < abs (blessing); i++) {
+	for (i = 0; i < absv (blessing); i++) {
 	    idx = random_item();
 	    if (idx != ABORT) {
 		drop_at (x, y, Player.possessions[idx]);
@@ -2054,7 +2054,7 @@ void hero (int blessing)
 	Player.status[HERO] = 0;
 	calc_melee();
 	mprint ("You feel cowardly.");
-	level_drain (abs (blessing), "a potion of cowardice");
+	level_drain (absv (blessing), "a potion of cowardice");
     }
 }
 
@@ -2437,7 +2437,7 @@ void illuminate (int blessing)
 
 void drain_life (int amount)
 {
-    amount = abs (amount);
+    amount = absv (amount);
     mprint ("You feel cold!");
     if (p_immune (NEGENERGY))
 	mprint ("... but the feeling quickly fades.");

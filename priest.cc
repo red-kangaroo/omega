@@ -55,7 +55,7 @@ void l_altar (void)
 	    print2 ("Request a Blessing, Sacrifice an item, or just Pray [b,s,p] ");
 	    do
 		response = (char) mcigetc();
-	    while ((response != 'b') && (response != 's') && (response != 'p') && (response != ESCAPE));
+	    while ((response != 'b') && (response != 's') && (response != 'p') && (response != KEY_ESCAPE));
 	    if (response == 'b') {
 		print1 ("You beg a heavenly benefice.");
 		print2 ("You hear a gong resonating throughout eternity....");
@@ -100,11 +100,11 @@ void l_altar (void)
 		    if (Player.possessions[i]->used) {
 			Player.possessions[i]->used = FALSE;
 			item_use (Player.possessions[i]);
-			Player.possessions[i]->blessing = -1 - abs (Player.possessions[i]->blessing);
+			Player.possessions[i]->blessing = -1 - absv (Player.possessions[i]->blessing);
 			Player.possessions[i]->used = TRUE;
 			item_use (Player.possessions[i]);
 		    } else
-			Player.possessions[i]->blessing = -1 - abs (Player.possessions[i]->blessing);
+			Player.possessions[i]->blessing = -1 - absv (Player.possessions[i]->blessing);
 		    resetgamestatus (SUPPRESS_PRINTING);
 		}
 	    } else if (response == 'p') {
@@ -300,7 +300,7 @@ static int increase_priest_rank (int deity)
 		    print1 ("Hecate ignores you.");
 		break;
 	    case DRUID:
-		if (abs (Player.alignment) < 10) {
+		if (absv (Player.alignment) < 10) {
 		    print1 (Priest[DRUID]);
 		    nprint1 (" personally blesses you.");
 		    print2 ("You are now a lay devotee of the Druids.");
@@ -323,7 +323,7 @@ static int increase_priest_rank (int deity)
 		Player.guildxp[PRIESTHOOD] = 1;
 		break;
     } else if (deity == Player.patron) {
-	if ((((deity == ODIN) || (deity == ATHENA)) && (Player.alignment < 1)) || (((deity == SET) || (deity == HECATE)) && (Player.alignment > 1)) || ((deity == DRUID) && (abs (Player.alignment) > 10))) {
+	if ((((deity == ODIN) || (deity == ATHENA)) && (Player.alignment < 1)) || (((deity == SET) || (deity == HECATE)) && (Player.alignment > 1)) || ((deity == DRUID) && (absv (Player.alignment) > 10))) {
 	    print1 ("You have swerved from the One True Path!");
 	    print2 ("Your deity is greatly displeased...");
 	    Player.xp -= Player.level * Player.level;

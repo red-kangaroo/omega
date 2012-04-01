@@ -32,7 +32,7 @@ $O%.o:	%.cc
 	@[ -d $(dir $@) ] || mkdir -p $(dir $@)
 	@${CXX} ${CXXFLAGS} -MMD -MT "$(<:.cc=.s) $@" -o $@ -c $<
 
-%.s:	%.c
+%.s:	%.cc
 	@echo "    Compiling $< to assembly ..."
 	@${CXX} ${CXXFLAGS} -S -o $@ -c $<
 

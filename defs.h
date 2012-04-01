@@ -1,313 +1,193 @@
 #pragma once
 #include "config.h"
 #include <curses.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <assert.h>
 
-#define VACANT 0
-#define ABORT -1
-#define CASHVALUE -2
-// moderately arbitrary but probably cannot be easily changed
-#define MAXWIDTH 64
-#define MAXLENGTH 64
-#define SMALLSCREENLENGTH 16
-// number of slots in inventory. Cannot be changed without work
-#define MAXITEMS 16
-// number of slots in pack. Should be <= 26.
-#define MAXPACK 26
-// number of items in pawn shop. Should be <= 26
-#define PAWNITEMS 20
-// number of lines back strings are recalled
-#define STRING_BUFFER_SIZE 25
-// number of rerolls allowed +1
-#define REROLLS 31
+enum { CASHVALUE = -2, ABORT = -1, };
+enum {
+    MAXWIDTH = 64,		// moderately arbitrary but probably cannot be easily changed
+    MAXLENGTH = 64,
+    SMALLSCREENLENGTH = 16,
+    MAXITEMS = 16,		// number of slots in inventory. Cannot be changed without work
+    MAXPACK = 26,		// number of slots in pack. Should be <= 26.
+    PAWNITEMS = 20,		// number of items in pawn shop. Should be <= 26
+    STRING_BUFFER_SIZE = 25,	// number of lines back strings are recalled
+    REROLLS = 31,		// number of rerolls allowed +1
+    MAXROOMS = 48,
+    MAXCONNECTIONS = 4,
+    STRING_LEN = 100,
+    MAXLEVELS = 21,		// Arbitrary. Max of the levels in the dungeons
+    ASTRALLEVELS = 5,		// levels in each dungeon
+    SEWERLEVELS = 18,
+    CASTLELEVELS = 16,
+    CAVELEVELS = 10,
+    VOLCANOLEVELS = 20,
+    NOCITYMOVE = 666,		// cannot use M command on site with this aux value
+    NUMOPTIONS = 11,		// total number of player options
+    NUMTFOPTIONS = 9,		// number of options with TRUE/FALSE values
+    VERBOSITY_LEVEL = 10,	// The slot number of the two options not in Player.options
+    SEARCH_DURATION = 11
+};
+
 // Verbosity levels
-#define TERSE 0
-#define MEDIUM 1
-#define VERBOSE 2
-// Arbitrary. Max of the levels in the dungeons
-#define MAXLEVELS 21
-// levels in each dungeon
-#define ASTRALLEVELS 5
-#define SEWERLEVELS 18
-#define CASTLELEVELS 16
-#define CAVELEVELS 10
-#define VOLCANOLEVELS 20
+enum { TERSE, MEDIUM, VERBOSE };
+
 // Overall Game Progress Vector Bits
 // Long had BETTER have at least 32 bits....
-#define SPOKE_TO_DRUID		0x1
-#define COMPLETED_CAVES		0x2
-#define COMPLETED_SEWERS	0x4
-#define COMPLETED_CASTLE	0x8
-#define COMPLETED_ASTRAL	0x10
-#define COMPLETED_VOLCANO	0x20
-#define KILLED_DRAGONLORD	0x40
-#define KILLED_EATER		0x80
-#define KILLED_LAWBRINGER	0x100
-#define COMPLETED_CHALLENGE	0x200
-#define SOLD_CONDO		0x400
-#define FAST_MOVE		0x800
-#define SKIP_PLAYER		0x1000
-#define SKIP_MONSTERS		0x2000
-#define MOUNTED			0x4000
-#define SUPPRESS_PRINTING	0x8000
-#define LOST			0x10000
-#define ARENA_MODE		0x20000
-#define CHEATED			0x40000
-#define BANK_BROKEN		0x80000
-#define CLUB_MEMBER		0x100000
-#define PREPARED_VOID		0x200000
-#define DESTROYED_ORDER		0x400000
-#define GAVE_STARGEM		0x800000
-#define ATTACKED_ORACLE		0x1000000
-#define UNDEAD_GUARDS		0x2000000
-// non-existant environments for the random number seeding routine
-#define E_RESTORE -2
-#define E_RANDOM -1
-// general environment types
-#define E_NEVER_NEVER_LAND 0
-#define E_COUNTRYSIDE 1
-#define E_CITY 2
-#define E_VILLAGE 3
-#define E_TACTICAL_MAP 4
-#define E_SEWERS 5
-#define E_CASTLE 6
-#define E_CAVES 7
-#define E_VOLCANO 8
-#define E_ASTRAL 9
-#define E_ARENA 10
-#define E_HOVEL 11
-#define E_MANSION 12
-#define E_HOUSE 13
-#define E_DLAIR 14
-#define E_ABYSS 15
-#define E_STARPEAK 16
-#define E_MAGIC_ISLE 17
-#define E_TEMPLE 18
-#define E_CIRCLE 19
-#define E_COURT 20
-#define E_MAX E_COURT
+enum {
+    SPOKE_TO_DRUID	= (1<<0),
+    COMPLETED_CAVES	= (1<<1),
+    COMPLETED_SEWERS	= (1<<2),
+    COMPLETED_CASTLE	= (1<<3),
+    COMPLETED_ASTRAL	= (1<<4),
+    COMPLETED_VOLCANO	= (1<<5),
+    KILLED_DRAGONLORD	= (1<<6),
+    KILLED_EATER	= (1<<7),
+    KILLED_LAWBRINGER	= (1<<8),
+    COMPLETED_CHALLENGE	= (1<<9),
+    SOLD_CONDO		= (1<<10),
+    FAST_MOVE		= (1<<11),
+    SKIP_PLAYER		= (1<<12),
+    SKIP_MONSTERS	= (1<<13),
+    MOUNTED		= (1<<14),
+    SUPPRESS_PRINTING	= (1<<15),
+    LOST		= (1<<16),
+    ARENA_MODE		= (1<<17),
+    CHEATED		= (1<<18),
+    BANK_BROKEN		= (1<<19),
+    CLUB_MEMBER		= (1<<20),
+    PREPARED_VOID	= (1<<21),
+    DESTROYED_ORDER	= (1<<22),
+    GAVE_STARGEM	= (1<<23),
+    ATTACKED_ORACLE	= (1<<24),
+    UNDEAD_GUARDS	= (1<<25),
+};
+
+enum {
+    // non-existant environments for the random number seeding routine
+    E_RESTORE = -2,
+    E_RANDOM,
+    // general environment types
+    E_NEVER_NEVER_LAND,
+    E_COUNTRYSIDE,
+    E_CITY,
+    E_VILLAGE,
+    E_TACTICAL_MAP,
+    E_SEWERS,
+    E_CASTLE,
+    E_CAVES,
+    E_VOLCANO,
+    E_ASTRAL,
+    E_ARENA,
+    E_HOVEL,
+    E_MANSION,
+    E_HOUSE,
+    E_DLAIR,
+    E_ABYSS,
+    E_STARPEAK,
+    E_MAGIC_ISLE,
+    E_TEMPLE,
+    E_CIRCLE,
+    E_COURT,
+    E_MAX = E_COURT
+};
+
 // player game status
-#define DEAD 1
-#define QUIT 2
-#define WIN 3
-#define BIGWIN 4
-// kind of arbitrary
-#define MAXROOMS 48
-#define MAXCONNECTIONS 4
-#define STRING_LEN 100
-// some random characters
-#define ESCAPE 27
-#define RETURN '\n'
-#define LINEFEED '\r'
-#define BACKSPACE '\b'
-#define DELETE 127
-// tac mode action definitions
-// have to remember to find where these are used, mostly unused, now!
-#define DISENGAGE 10
-#define BLOCK 20
-#define CUT 30
-#define THRUST 40
-#define MAGIC 50
-#define LUNGE 60
-#define RIPOSTE 70
-#define WIELD 80
-#define PICK_UP 90
+enum { DEAD = 1, QUIT, WIN, BIGWIN };
+
 // as in attack low, block high, etc.
 // These values may be added to the ones above to get things like
 // block high, cut low, etc. CLEVER is only used by some monsters
 // to cheat with....
-#define LOW 1
-#define CENTER 2
-#define HIGH 3
-#define CLEVER 4
+enum { LOW = 1, CENTER, HIGH, CLEVER };
 // weapon types
-#define CUTTING 1
-#define THRUSTING 2
-#define STRIKING 3
-#define MISSILE 4
+enum { CUTTING = 1, THRUSTING, STRIKING, MISSILE };
+
 // random aux constants
 // aux field for private residences in city
-#define BURGLED 2
-#define LOCKED 3
-#define UNLOCKED 0
-// cannot use M command on site with this aux value
-#define NOCITYMOVE 666
+enum { UNLOCKED, BURGLED = 2, LOCKED };
 // bow and crossbow object aux fields
-#define LOADED 1
-#define UNLOADED 0
+enum { UNLOADED, LOADED };
 // alignment used randomly throughout
-#define LAWFUL 1
-#define CHAOTIC 2
-#define NEUTRAL 3
+enum { LAWFUL = 1, CHAOTIC, NEUTRAL };
+
 // spells
-#define NUMSPELLS 41
-#define S_MON_DET 0
-#define S_OBJ_DET 1
-#define S_MISSILE 2
-#define S_FIREBOLT 3
-#define S_TELEPORT 4
-#define S_LBALL 5
-#define S_SLEEP 6
-#define S_DISRUPT 7
-#define S_DISINTEGRATE 8
-#define S_POLYMORPH 9
-#define S_HEAL 10
-#define S_DISPEL 11
-#define S_IDENTIFY 12
-#define S_BREATHE 13
-#define S_INVISIBLE 14
-#define S_WARP 15
-#define S_ENCHANT 16
-#define S_BLESS 17
-#define S_RESTORE 18
-#define S_CURE 19
-#define S_TRUESIGHT 20
-#define S_HELLFIRE 21
-#define S_KNOWLEDGE 22
-#define S_HERO 23
-#define S_RETURN 24
-#define S_DESECRATE 25
-#define S_HASTE 26
-#define S_SUMMON 27
-#define S_SANCTUARY 28
-#define S_ACCURACY 29
-#define S_RITUAL 30
-#define S_FEAR 31
-#define S_APPORT 32
-#define S_SHADOWFORM 33
-#define S_ALERT 34
-#define S_REGENERATE 35
-#define S_SANCTIFY 36
-#define S_CLAIRVOYANCE 37
-#define S_DRAIN 38
-#define S_LEVITATE 39
-#define S_WISH 40
+enum {
+    S_MON_DET, S_OBJ_DET, S_MISSILE, S_FIREBOLT, S_TELEPORT,
+    S_LBALL, S_SLEEP, S_DISRUPT, S_DISINTEGRATE, S_POLYMORPH,
+    S_HEAL, S_DISPEL, S_IDENTIFY, S_BREATHE, S_INVISIBLE,
+    S_WARP, S_ENCHANT, S_BLESS, S_RESTORE, S_CURE,
+    S_TRUESIGHT, S_HELLFIRE, S_KNOWLEDGE, S_HERO, S_RETURN,
+    S_DESECRATE, S_HASTE, S_SUMMON, S_SANCTUARY, S_ACCURACY,
+    S_RITUAL, S_FEAR, S_APPORT, S_SHADOWFORM, S_ALERT,
+    S_REGENERATE, S_SANCTIFY, S_CLAIRVOYANCE, S_DRAIN, S_LEVITATE,
+    S_WISH, NUMSPELLS
+};
+
 // ranks in guilds, etc
-#define NUMRANKS 9
-#define LEGION 0
-#define ARENA 1
-#define COLLEGE 2
-#define THIEVES 3
-#define ORDER 4
-#define CIRCLE 5
-#define NOBILITY 6
-#define PRIESTHOOD 7
-#define ADEPT 8
-#define LEGIONAIRE 1
-#define CENTURION 2
-#define FORCE_LEADER 3
-#define COLONEL 4
-#define COMMANDANT 5
-#define TRAINEE 1
-#define BESTIARIUS 2
-#define RETIARIUS 3
-#define GLADIATOR 4
-#define CHAMPION 5
-#define NOVICE 1
-#define STUDENT 2
-#define PRECEPTOR 3
-#define MAGE 4
-#define ARCHMAGE 5
-#define TMEMBER 1
-#define ATHIEF 2
-#define THIEF 3
-#define TMASTER 4
-#define SHADOWLORD 5
-#define GALLANT 1
-#define GUARDIAN 2
-#define CHEVALIER 3
-#define PALADIN 4
-#define JUSTICIAR 5
-#define INITIATE 1
-#define ENCHANTER 2
-#define SORCEROR 3
-#define HIGHSORCEROR 4
-#define PRIME 5
-#define COMMONER 1
-#define ESQUIRE 2
-#define KNIGHT 3
-#define LORD 4
-#define DUKE 5
-#define LAY 1
-#define ACOLYTE 2
-#define PRIEST 3
-#define SPRIEST 4
-#define HIGHPRIEST 5
-// different priesthoods
-#define ODIN 1
-#define SET 2
-#define ATHENA 3
-#define HECATE 4
-#define DRUID 5
-#define DESTINY 6
+enum { LEGION, ARENA, COLLEGE, THIEVES, ORDER, CIRCLE, NOBILITY, PRIESTHOOD, ADEPT, NUMRANKS };
+enum { NOT_IN_LEGION,	LEGIONAIRE, CENTURION, FORCE_LEADER, COLONEL, COMMANDANT };
+enum { NOT_IN_ARENA,	TRAINEE, BESTIARIUS, RETIARIUS, GLADIATOR, CHAMPION };
+enum { NOT_IN_COLLEGE,	NOVICE, STUDENT, PRECEPTOR, MAGE, ARCHMAGE };
+enum { NOT_A_THIEF,	TMEMBER, ATHIEF, THIEF, TMASTER, SHADOWLORD };
+enum { NOT_IN_ORDER,	GALLANT, GUARDIAN, CHEVALIER, PALADIN, JUSTICIAR };
+enum { NOT_IN_CIRCLE,	INITIATE, ENCHANTER, SORCEROR, HIGHSORCEROR, PRIME };
+enum { NOT_NOBILITY,	COMMONER, ESQUIRE, KNIGHT, LORD, DUKE };
+enum { NOT_A_BELIEVER,	LAY, ACOLYTE, PRIEST, SPRIEST, HIGHPRIEST };
+enum { NOT_A_RELIGION,	ODIN, SET, ATHENA, HECATE, DRUID, DESTINY };
+
 // MONSTER STATUS/ABILITY BITS
-#define AWAKE 1
-#define MOBILE 2
-#define HOSTILE 4
-#define WANDERING 16
-#define HUNGRY 32
-#define GREEDY 64
-#define NEEDY  128
-#define ONLYSWIM 256
-#define FLYING 512
-#define INTANGIBLE 1024
-#define M_INVISIBLE 2048
-#define SWIMMING 4096
-#define POISONOUS 8192
-#define EDIBLE 16384
+enum {
+    AWAKE	= (1<<0),
+    MOBILE 	= (1<<1),
+    HOSTILE	= (1<<2),
+    WANDERING	= (1<<4),
+    HUNGRY	= (1<<5),
+    GREEDY	= (1<<6),
+    NEEDY	= (1<<7),
+    ONLYSWIM	= (1<<8),
+    FLYING	= (1<<9),
+    INTANGIBLE	= (1<<10),
+    M_INVISIBLE	= (1<<11),
+    SWIMMING	= (1<<12),
+    POISONOUS	= (1<<13),
+    EDIBLE	= (1<<14)
+};
+
 // PLAYER STATUS INDICES
-#define NUMSTATI 25
-#define ACCURACY 0
-#define BLINDED 1
-#define SLOWED 2
-#define DISPLACED 3
-#define SLEPT 4
-#define DISEASED 5
-#define POISONED 6
-#define HASTED 7
-#define BREATHING 8
-#define INVISIBLE 9
-#define REGENERATING 10
-#define VULNERABLE 11
-#define BERSERK 12
-#define IMMOBILE 13
-#define ALERT 14
-#define AFRAID 15
-#define HERO 16
-#define LEVITATING 17
-#define ACCURATE 18
-#define TRUESIGHT 19
-#define SHADOWFORM 20
-#define ILLUMINATION 21
-#define DEFLECTION 22
-#define PROTECTION 23
-// PROTECTION is deviant -- indicates protective value, not duration
-#define RETURNING 24
-// RETURNING is somewhat deviant--how many turns 'til RETURN spell goes off
+enum {
+    ACCURACY, BLINDED, SLOWED, DISPLACED, SLEPT,
+    DISEASED, POISONED, HASTED, BREATHING, INVISIBLE,
+    REGENERATING, VULNERABLE, BERSERK, IMMOBILE, ALERT,
+    AFRAID, HERO, LEVITATING, ACCURATE, TRUESIGHT,
+    SHADOWFORM, ILLUMINATION, DEFLECTION, PROTECTION, RETURNING,
+    // PROTECTION is deviant -- indicates protective value, not duration
+    // RETURNING is somewhat deviant--how many turns 'til RETURN spell goes off
+    NUMSTATI
+};
+
 // player immunity indices
 // also monster immunity bits (2^n)
 // also damage types
-#define NUMIMMUNITIES 14
-#define UNSTOPPABLE 0
-#define NORMAL_DAMAGE 1
-#define FLAME 2
-#define COLD 3
-#define ELECTRICITY 4
-#define POISON 5
-#define ACID 6
-#define FEAR 7
-#define SLEEP 8
-#define NEGENERGY 9
-#define OTHER_MAGIC 10
-#define THEFT 11
-#define GAZE 12
-#define INFECTION 13
-#define EVERYTHING -1
+enum {
+    EVERYTHING=-1,
+    UNSTOPPABLE, NORMAL_DAMAGE, FLAME, COLD, ELECTRICITY,
+    POISON, ACID, FEAR, SLEEP, NEGENERGY,
+    OTHER_MAGIC, THEFT, GAZE, INFECTION, NUMIMMUNITIES
+};
+
 // location lstatus bits
-#define SEEN 1
-#define LIT 2
-#define SECRET 4
-#define STOPS 8
-#define CHANGED 16
+enum {
+    SEEN	= (1<<0),
+    LIT		= (1<<1),
+    SECRET	= (1<<2),
+    STOPS	= (1<<3),
+    CHANGED	= (1<<4)
+};
 
 // room string id for use in roomname()
 enum ERoomName {
@@ -385,148 +265,129 @@ enum ERoomName {
     NUMROOMNAMES = RS_ROOMBASE-RS_ROOMLAST
 };
 
-#define COL_FG_BLINK A_BLINK
-
-#define CLR_BLACK_BROWN		COLOR_PAIR(5)
-#define CLR_BLACK_RED		COLOR_PAIR(3)
-#define CLR_BLACK_WHITE		COLOR_PAIR(4)
-#define CLR_BLUE_BLACK		COLOR_PAIR(6)
-#define CLR_BLUE_WHITE		COLOR_PAIR(7)
-#define CLR_BRIGHT_WHITE_BLACK	COLOR_PAIR(17)|A_BOLD
-#define CLR_BRIGHT_WHITE_BLUE	COLOR_PAIR(18)|A_BOLD
-#define CLR_BRIGHT_WHITE_RED	COLOR_PAIR(19)|A_BOLD
-#define CLR_BROWN_BLACK		COLOR_PAIR(21)
-#define CLR_BROWN_RED		COLOR_PAIR(23)
-#define CLR_BROWN_WHITE		COLOR_PAIR(24)
-#define CLR_CYAN_BLACK		COLOR_PAIR(8)
-#define CLR_GREEN_BLACK		COLOR_PAIR(9)
-#define CLR_GREEN_BROWN		COLOR_PAIR(12)
-#define CLR_GREEN_RED		COLOR_PAIR(11)
-#define CLR_GREY_BLACK		COLOR_PAIR(1)|A_BOLD
-#define CLR_GREY_BROWN		COLOR_PAIR(5)|A_BOLD
-#define CLR_GREY_GREEN		COLOR_PAIR(2)|A_BOLD
-#define CLR_GREY_RED		COLOR_PAIR(3)|A_BOLD
-#define CLR_GREY_WHITE		COLOR_PAIR(4)|A_BOLD
-#define CLR_LIGHT_BLUE_BLACK	COLOR_PAIR(6)|A_BOLD
-#define CLR_LIGHT_BLUE_WHITE	COLOR_PAIR(7)|A_BOLD
-#define CLR_LIGHT_GREEN_BLACK	COLOR_PAIR(9)|A_BOLD
-#define CLR_LIGHT_GREEN_BLUE	COLOR_PAIR(10)|A_BOLD
-#define CLR_LIGHT_PURPLE_BLACK	COLOR_PAIR(13)|A_BOLD
-#define CLR_LIGHT_RED_BLACK	COLOR_PAIR(15)|A_BOLD
-#define CLR_LIGHT_RED_WHITE	COLOR_PAIR(16)|A_BOLD
-#define CLR_PURPLE_BLACK	COLOR_PAIR(13)
-#define CLR_PURPLE_WHITE	COLOR_PAIR(14)
-#define CLR_RED_BLACK		COLOR_PAIR(15)
-#define CLR_RED_WHITE		COLOR_PAIR(16)
-#define CLR_WHITE_BLACK		COLOR_PAIR(17)
-#define CLR_WHITE_BLUE		COLOR_PAIR(18)
-#define CLR_WHITE_BROWN		COLOR_PAIR(20)
-#define CLR_WHITE_RED		COLOR_PAIR(19)
-#define CLR_YELLOW_BLACK	COLOR_PAIR(21)|A_BOLD
-#define CLR_YELLOW_BLUE		COLOR_PAIR(22)|A_BOLD
-#define CLR_YELLOW_BROWN	COLOR_PAIR(25)|A_BOLD
-#define CLR_YELLOW_WHITE	COLOR_PAIR(24)|A_BOLD
-
-#define CLR(fg)		CLR_##fg##_BLACK
-#define CLRS(fg, bg)	CLR_##fg##_##bg
+enum {
+    CLR_BLACK_BROWN		= COLOR_PAIR(5),
+    CLR_BLACK_RED		= COLOR_PAIR(3),
+    CLR_BLACK_WHITE		= COLOR_PAIR(4),
+    CLR_BLUE_BLACK		= COLOR_PAIR(6),
+    CLR_BLUE_WHITE		= COLOR_PAIR(7),
+    CLR_BRIGHT_WHITE_BLACK	= COLOR_PAIR(17)|A_BOLD,
+    CLR_BRIGHT_WHITE_BLUE	= COLOR_PAIR(18)|A_BOLD,
+    CLR_BRIGHT_WHITE_RED	= COLOR_PAIR(19)|A_BOLD,
+    CLR_BROWN_BLACK		= COLOR_PAIR(21),
+    CLR_BROWN_RED		= COLOR_PAIR(23),
+    CLR_BROWN_WHITE		= COLOR_PAIR(24),
+    CLR_CYAN_BLACK		= COLOR_PAIR(8),
+    CLR_GREEN_BLACK		= COLOR_PAIR(9),
+    CLR_GREEN_BROWN		= COLOR_PAIR(12),
+    CLR_GREEN_RED		= COLOR_PAIR(11),
+    CLR_GREY_BLACK		= COLOR_PAIR(1)|A_BOLD,
+    CLR_GREY_BROWN		= COLOR_PAIR(5)|A_BOLD,
+    CLR_GREY_GREEN		= COLOR_PAIR(2)|A_BOLD,
+    CLR_GREY_RED		= COLOR_PAIR(3)|A_BOLD,
+    CLR_GREY_WHITE		= COLOR_PAIR(4)|A_BOLD,
+    CLR_LIGHT_BLUE_BLACK	= COLOR_PAIR(6)|A_BOLD,
+    CLR_LIGHT_BLUE_WHITE	= COLOR_PAIR(7)|A_BOLD,
+    CLR_LIGHT_GREEN_BLACK	= COLOR_PAIR(9)|A_BOLD,
+    CLR_LIGHT_GREEN_BLUE	= COLOR_PAIR(10)|A_BOLD,
+    CLR_LIGHT_PURPLE_BLACK	= COLOR_PAIR(13)|A_BOLD,
+    CLR_LIGHT_RED_BLACK		= COLOR_PAIR(15)|A_BOLD,
+    CLR_LIGHT_RED_WHITE		= COLOR_PAIR(16)|A_BOLD,
+    CLR_PURPLE_BLACK		= COLOR_PAIR(13),
+    CLR_PURPLE_WHITE		= COLOR_PAIR(14),
+    CLR_RED_BLACK		= COLOR_PAIR(15),
+    CLR_RED_WHITE		= COLOR_PAIR(16),
+    CLR_WHITE_BLACK		= COLOR_PAIR(17),
+    CLR_WHITE_BLUE		= COLOR_PAIR(18),
+    CLR_WHITE_BROWN		= COLOR_PAIR(20),
+    CLR_WHITE_RED		= COLOR_PAIR(19),
+    CLR_YELLOW_BLACK		= COLOR_PAIR(21)|A_BOLD,
+    CLR_YELLOW_BLUE		= COLOR_PAIR(22)|A_BOLD,
+    CLR_YELLOW_BROWN		= COLOR_PAIR(25)|A_BOLD,
+    CLR_YELLOW_WHITE		= COLOR_PAIR(24)|A_BOLD
+};
 
 // objects, locations, and terrain; characters to draw
-#define NULL_ITEM '\0'
-#define SPACE (' ' | CLR(WHITE))
-#define WALL ('#' | CLR(GREY))
-#define PORTCULLIS ('7' | CLR(WHITE))
-#define OPEN_DOOR ('|' | CLR(BROWN))
-#define CLOSED_DOOR ('-' | CLR(BROWN))
-#define WHIRLWIND ('6' | CLR(LIGHT_BLUE))
-#define ABYSS ('0' | CLRS(BLACK,BROWN))
-#define VOID_CHAR (' ' | CLR(WHITE))
-#define LAVA ('`' | CLR(RED))
-#define HEDGE ('\"' | CLR(GREEN))
-#define WATER ('~' | CLR(BLUE))
-#define FIRE (';' | CLR(LIGHT_RED))
-#define TRAP ('^' | CLR(RED))
-#define LIFT ('_' | CLR(BRIGHT_WHITE))
-#define STAIRS_UP ('<' | CLR(WHITE))
-#define STAIRS_DOWN ('>' | CLR(WHITE))
-#define FLOOR ('.' | CLR(BROWN))
-#define PLAYER ('@' | CLR(WHITE))
-#define CORPSE ('+' | CLR(RED))
-#define STATUE ('1' | CLR(GREY))
-#define RUBBLE ('4' | CLR(GREY))
-#define ALTAR ('8' | CLR(LIGHT_BLUE))
-#define CASH ('$' | CLR(YELLOW))	// various kinds of money
-#define PILE ('*' | CLR(BRIGHT_WHITE))	// several objects in one place
-#define FOOD ('%' | CLR(BROWN))
-#define WEAPON (')' | CLR(GREY))
-#define MISSILEWEAPON ('(' | CLR(BROWN))
-#define SCROLL ('?' | CLR(YELLOW))
-#define POTION ('!' | CLR(LIGHT_GREEN))
-#define ARMOR (']' | CLR(GREY))
-#define SHIELD ('[' | CLR(BROWN))
-#define CLOAK ('}' | CLR(CYAN))
-#define BOOTS ('{' | CLR(BROWN))
-#define STICK ('/' | CLR(BROWN))
-#define RING ('=' | CLR(YELLOW))
-#define THING ('\\' | CLR(WHITE))
-#define ARTIFACT ('&' | CLR(YELLOW))
-// TERRAIN TYPES
-#define PLAINS ('-' | CLR(LIGHT_GREEN))
-#define TUNDRA ('_' | CLR(GREY))
-#define ROAD ('.' | CLR(BROWN))
-#define MOUNTAINS ('^' | CLR(GREY))
-#define PASS ('v' | CLR(BROWN))
-#define RIVER ('~' | CLR(BLUE))
-#define CITY ('O' | CLR(WHITE))
-#define VILLAGE ('o' | CLR(WHITE))
-#define FOREST ('(' | CLR(LIGHT_GREEN))
-#define JUNGLE (')' | CLR(GREEN))
-#define SWAMP ('=' | CLR(GREEN))
-#define VOLCANO ('!' | CLR(RED))
-#define CASTLE ('%' | CLR(GREY))
-#define TEMPLE ('X' | CLR(BROWN))
-#define CAVES ('*' | CLRS(BLACK,BROWN))
-#define DESERT ('\"' | CLR(YELLOW))
-#define CHAOS_SEA ('+' | CLR(LIGHT_PURPLE))
-#define STARPEAK ('|' | CLR(LIGHT_BLUE))
-#define DRAGONLAIR ('$' | CLR(BROWN))
-#define MAGIC_ISLE ('&' | CLR(PURPLE))
-#define CHAIR ('5' | CLR(BROWN))
-#define SAFE ('3' | CLR(GREY))
-#define FURNITURE ('2' | CLR(BROWN))
-#define BED ('9' | CLR(CYAN))
-// wow, all characters used!
-// total number of player options
-#define NUMOPTIONS 11
-// number of options with TRUE/FALSE values
-#define NUMTFOPTIONS 9
-// The slot number of the two options not in Player.options
-#define VERBOSITY_LEVEL 10
-#define SEARCH_DURATION 11
+enum {
+    NULL_ITEM,
+    SPACE		= (' ' | CLR_WHITE_BLACK),
+    WALL		= ('#' | CLR_GREY_BLACK),
+    PORTCULLIS		= ('7' | CLR_WHITE_BLACK),
+    OPEN_DOOR		= ('|' | CLR_BROWN_BLACK),
+    CLOSED_DOOR		= ('-' | CLR_BROWN_BLACK),
+    WHIRLWIND		= ('6' | CLR_LIGHT_BLUE_BLACK),
+    ABYSS		= ('0' | CLR_BLACK_BROWN),
+    VOID_CHAR		= (' ' | CLR_WHITE_BLACK),
+    LAVA		= ('`' | CLR_RED_BLACK),
+    HEDGE		= ('\"'| CLR_GREEN_BLACK),
+    WATER		= ('~' | CLR_BLUE_BLACK),
+    FIRE		= (';' | CLR_LIGHT_RED_BLACK),
+    TRAP		= ('^' | CLR_RED_BLACK),
+    LIFT		= ('_' | CLR_BRIGHT_WHITE_BLACK),
+    STAIRS_UP		= ('<' | CLR_WHITE_BLACK),
+    STAIRS_DOWN		= ('>' | CLR_WHITE_BLACK),
+    FLOOR		= ('.' | CLR_BROWN_BLACK),
+    PLAYER		= ('@' | CLR_WHITE_BLACK),
+    CORPSE		= ('+' | CLR_RED_BLACK),
+    STATUE		= ('1' | CLR_GREY_BLACK),
+    RUBBLE		= ('4' | CLR_GREY_BLACK),
+    ALTAR		= ('8' | CLR_LIGHT_BLUE_BLACK),
+    CASH		= ('$' | CLR_YELLOW_BLACK),
+    PILE		= ('*' | CLR_BRIGHT_WHITE_BLACK),
+    FOOD		= ('%' | CLR_BROWN_BLACK),
+    WEAPON		= (')' | CLR_GREY_BLACK),
+    MISSILEWEAPON	= ('(' | CLR_BROWN_BLACK),
+    SCROLL		= ('?' | CLR_YELLOW_BLACK),
+    POTION		= ('!' | CLR_LIGHT_GREEN_BLACK),
+    ARMOR		= (']' | CLR_GREY_BLACK),
+    SHIELD		= ('[' | CLR_BROWN_BLACK),
+    CLOAK		= ('}' | CLR_CYAN_BLACK),
+    BOOTS		= ('{' | CLR_BROWN_BLACK),
+    STICK		= ('/' | CLR_BROWN_BLACK),
+    RING		= ('=' | CLR_YELLOW_BLACK),
+    THING		= ('\\'| CLR_WHITE_BLACK),
+    ARTIFACT		= ('&' | CLR_YELLOW_BLACK),
+    PLAINS		= ('-' | CLR_LIGHT_GREEN_BLACK),
+    TUNDRA		= ('_' | CLR_GREY_BLACK),
+    ROAD		= ('.' | CLR_BROWN_BLACK),
+    MOUNTAINS		= ('^' | CLR_GREY_BLACK),
+    PASS		= ('v' | CLR_BROWN_BLACK),
+    RIVER		= ('~' | CLR_BLUE_BLACK),
+    CITY		= ('O' | CLR_WHITE_BLACK),
+    VILLAGE		= ('o' | CLR_WHITE_BLACK),
+    FOREST		= ('(' | CLR_LIGHT_GREEN_BLACK),
+    JUNGLE		= (')' | CLR_GREEN_BLACK),
+    SWAMP		= ('=' | CLR_GREEN_BLACK),
+    VOLCANO		= ('!' | CLR_RED_BLACK),
+    CASTLE		= ('%' | CLR_GREY_BLACK),
+    TEMPLE		= ('X' | CLR_BROWN_BLACK),
+    CAVES		= ('*' | CLR_BLACK_BROWN),
+    DESERT		= ('\"'| CLR_YELLOW_BLACK),
+    CHAOS_SEA		= ('+' | CLR_LIGHT_PURPLE_BLACK),
+    STARPEAK		= ('|' | CLR_LIGHT_BLUE_BLACK),
+    DRAGONLAIR		= ('$' | CLR_BROWN_BLACK),
+    MAGIC_ISLE		= ('&' | CLR_PURPLE_BLACK),
+    CHAIR		= ('5' | CLR_BROWN_BLACK),
+    SAFE		= ('3' | CLR_GREY_BLACK),
+    FURNITURE		= ('2' | CLR_BROWN_BLACK),
+    BED			= ('9' | CLR_CYAN_BLACK)
+};
+
 // Player.options bits
-#define BELLICOSE 1
-#define JUMPMOVE 2
-#define RUNSTOP 4
-#define PICKUP 8
-#define CONFIRM 16
-#define TOPINV 32
-#define PACKADD 64
-#define COMPRESS_OPTION 128
-#define SHOW_COLOUR 256
-// This has to be changed whenever an item is added
-#define NUMSCROLLS 24
-#define NUMPOTIONS 18
-#define NUMFOODS 16
-#define NUMTHINGS 26
-#define NUMWEAPONS 41
-#define NUMARMOR 17
-#define NUMSHIELDS 8
-#define NUMCLOAKS 7
-#define NUMBOOTS 7
-#define NUMRINGS 10
-#define NUMSTICKS 17
-#define NUMARTIFACTS 24
+enum {
+    BELLICOSE	= (1<<0),
+    JUMPMOVE	= (1<<1),
+    RUNSTOP	= (1<<2),
+    PICKUP	= (1<<3),
+    CONFIRM 	= (1<<4),
+    TOPINV 	= (1<<5),
+    PACKADD 	= (1<<6),
+    COMPRESS_OPTION= (1<<7),
+    SHOW_COLOUR	= (1<<8)
+};
 
 // running sum of itemtypes, for indexing into Objects array
+// This has to be changed whenever an item is added
 enum {
     THINGID,
     THING_DOOR_OPENER		= THINGID,
@@ -544,11 +405,13 @@ enum {
     THING_DISINTEGRATE_TRAP_COMPONENT,
     THING_ABYSS_TRAP_COMPONENT,
     THING_MANADRAIN_TRAP_COMPONENT,
+    NUMTHINGS	= 26,
 
     FOODID	= THINGID+NUMTHINGS,
     FOOD_RATION			= FOODID,
     FOOD_LEMBAS			= FOODID+1,
     FOOD_GRAIN			= FOODID+15,
+    NUMFOODS	= 16,
 
     SCROLLID	= FOODID+NUMFOODS,
     SCROLL_BLANK		= SCROLLID,
@@ -557,6 +420,7 @@ enum {
     SCROLL_TRUESIGHT		= SCROLLID+19,
     SCROLL_SUMMON		= SCROLLID+21,
     SCROLL_LIGHT		= SCROLLID+22,
+    NUMSCROLLS	= 24,
 
     POTIONID	= SCROLLID+NUMSCROLLS,
     POTION_OF_ALERTNESS		= POTIONID+5,
@@ -564,6 +428,7 @@ enum {
     POTION_OF_INVISIBILITY	= POTIONID+10,
     POTION_OF_LEVITATION	= POTIONID+16,
     POTION_OF_CURING		= POTIONID+17,
+    NUMPOTIONS	= 18,
 
     WEAPONID	= POTIONID+NUMPOTIONS,
     WEAPON_DAGGER		= WEAPONID,
@@ -592,15 +457,18 @@ enum {
     WEAPON_GOBLIN_HEWER		= WEAPONID+36,
     WEAPON_GIANT_CLUB		= WEAPONID+38,
     WEAPON_SCYTHE_OF_DEATH	= WEAPONID+39,
+    NUMWEAPONS	= 41,
 
     ARMORID	= WEAPONID+NUMWEAPONS,
     ARMOR_SOFT_LEATHER		= ARMORID+1,
     ARMOR_MITHRIL_PLATE		= ARMORID+11,
     ARMOR_DRAGONSCALE		= ARMORID+12,
+    NUMARMOR	= 17,
 
     SHIELDID	= ARMORID+NUMARMOR,
     SHIELD_NORMAL		= SHIELDID+2,
     SHIELD_OF_DEFLECTION	= SHIELDID+7,
+    NUMSHIELDS	= 8,
 
     CLOAKID	= SHIELDID+NUMSHIELDS,
     CLOAK_OF_WOOL		= CLOAKID,
@@ -610,14 +478,18 @@ enum {
     CLOAK_OF_PROTECTION,
     CLOAK_OF_DISPLACEMENT,
     CLOAK_OF_TRUESIGHT,
+    NUMCLOAKS	= 7,
 
     BOOTID	= CLOAKID+NUMCLOAKS,
+    NUMBOOTS	= 7,
+
     RINGID	= BOOTID+NUMBOOTS,
     RING_OF_TRUESIGHT		= RINGID,
     RING_OF_STRENGTH		= RINGID+2,
     RING_OF_GAZE_IMMUNITY	= RINGID+3,
     RING_OF_FIRE_RESISTANCE	= RINGID+4,
     RING_OF_POISON_RESISTANCE	= RINGID+6,
+    NUMRINGS	= 10,
 
     STICKID	= RINGID+NUMRINGS,
     WAND_OF_BALL_LIGHTNING	= STICKID+3,
@@ -627,6 +499,7 @@ enum {
     STAFF_OF_MISSILES		= STICKID+11,
     STAFF_OF_DISPELLING		= STICKID+13,
     STAFF_OF_HEALING		= STICKID+14,
+    NUMSTICKS	= 17,
 
     ARTIFACTID	= STICKID+NUMSTICKS,
     ORB_OF_MASTERY		= ARTIFACTID,
@@ -653,613 +526,311 @@ enum {
     STAR_GEM,
     SCEPTRE_OF_HIGH_MAGIC,
     AMULET_OF_THE_PLAINS,
+    NUMARTIFACTS	= 24,
 
-    CASHID	= ARTIFACTID+NUMARTIFACTS
+    CASHID	= ARTIFACTID+NUMARTIFACTS,
+    CORPSEID,	// Corpse's aux field is monster id
+    TOTALITEMS
 };
 
-// Corpse's aux field is monster id
-#define CORPSEID (CASHID+1)
-#define TOTALITEMS (CORPSEID+1)
 // describing unique items and monsters
-#define COMMON 0
-#define UNIQUE_UNMADE 1
-#define UNIQUE_MADE 2
-#define UNIQUE_TAKEN 3
+enum { COMMON, UNIQUE_UNMADE, UNIQUE_MADE, UNIQUE_TAKEN };
 // general item function id's
-#define I_NO_OP 0
-#define I_NOTHING 1
-// note some of these functions are for other types of items too
-// scroll functions
-#define I_BLESS 101
-#define I_ACQUIRE 102
-#define I_ENCHANT 103
-#define I_TELEPORT 104
-#define I_WISH 105
-#define I_CLAIRVOYANCE 106
-#define I_DISPLACE 107
-#define I_ID 108
-#define I_FIREFLASH 109
-#define I_SPELLS 110
-#define I_JANE_T 111
-#define I_ALERT 112
-#define I_FLUX 113
-#define I_CHARGE 114
-#define I_WARP 115
-#define I_KNOWLEDGE 116
-#define I_LAW 117
-#define I_HINT 118
-#define I_HERO 119
-#define I_TRUESIGHT 120
-#define I_ILLUMINATE 121
-#define I_DEFLECT 122
-// potion functions
-#define I_HEAL 201
-#define I_OBJDET 202
-#define I_MONDET 203
-#define I_SLEEP_SELF 204
-#define I_RESTORE 205
-#define I_NEUTRALIZE_POISON 206
-#define I_SPEED 207
-#define I_AZOTH 208
-#define I_REGENERATE 210
-#define I_INVISIBLE 211
-#define I_BREATHING 212
-#define I_FEAR_RESIST 213
-#define I_AUGMENT 214
-#define I_CHAOS 215
-#define I_ACCURACY 216
-#define I_LEVITATION 217
-#define I_CURE 218
-// stick functions
-#define I_FIREBOLT 301
-#define I_LBOLT 302
-#define I_MISSILE 303
-#define I_SLEEP_OTHER 304
-#define I_FIREBALL 305
-#define I_LBALL 306
-#define I_SUMMON 307
-#define I_HIDE 308
-#define I_DISRUPT 309
-#define I_DISINTEGRATE 310
-#define I_SNOWBALL 311
-#define I_APPORT 312
-#define I_DISPEL 313
-#define I_POLYMORPH 314
-#define I_FEAR 315
+enum {
+    // note some of these functions are for other types of items too
+    I_NO_OP, I_NOTHING,
+    // scroll functions
+    I_BLESS = 101, I_ACQUIRE, I_ENCHANT, I_TELEPORT, I_WISH,
+    I_CLAIRVOYANCE, I_DISPLACE, I_ID, I_FIREFLASH, I_SPELLS,
+    I_JANE_T, I_ALERT, I_FLUX, I_CHARGE, I_WARP, I_KNOWLEDGE,
+    I_LAW, I_HINT, I_HERO, I_TRUESIGHT, I_ILLUMINATE,
+    I_DEFLECT,
+    // potion functions
+    I_HEAL = 201, I_OBJDET, I_MONDET, I_SLEEP_SELF, I_RESTORE,
+    I_NEUTRALIZE_POISON, I_SPEED, I_AZOTH, I_REGENERATE, I_INVISIBLE,
+    I_BREATHING, I_FEAR_RESIST, I_AUGMENT, I_CHAOS, I_ACCURACY,
+    I_LEVITATION, I_CURE,
+    // stick functions
+    I_FIREBOLT = 301, I_LBOLT, I_MISSILE, I_SLEEP_OTHER, I_FIREBALL,
+    I_LBALL, I_SUMMON, I_HIDE, I_DISRUPT, I_DISINTEGRATE,
+    I_SNOWBALL, I_APPORT, I_DISPEL, I_POLYMORPH, I_FEAR,
     // food functions
-#define I_FOOD 401
-#define I_LEMBAS 402
-#define I_STIM 403
-#define I_POW 404
-#define I_IMMUNE 405
-#define I_POISON_FOOD 406
-#define I_CORPSE 407
-#define I_PEPPER_FOOD 408
-#define I_CANNIBAL 409
-#define I_INEDIBLE 410
+    I_FOOD = 401, I_LEMBAS, I_STIM, I_POW, I_IMMUNE,
+    I_POISON_FOOD, I_CORPSE, I_PEPPER_FOOD, I_CANNIBAL, I_INEDIBLE,
     // boots functions
-#define I_PERM_SPEED 501
-#define I_PERM_HERO 502
-#define I_PERM_LEVITATE 503
-#define I_PERM_AGILITY 504
-#define I_BOOTS_JUMPING 505
-#define I_BOOTS_7LEAGUE 506
+    I_PERM_SPEED = 501, I_PERM_HERO, I_PERM_LEVITATE, I_PERM_AGILITY,
+    I_BOOTS_JUMPING, I_BOOTS_7LEAGUE,
     // cloak functions
-#define I_PERM_DISPLACE 601
-#define I_PERM_NEGIMMUNE 602
-#define I_PERM_INVISIBLE 603
-#define I_PERM_ACCURACY 604
-#define I_PERM_PROTECTION 605
-#define I_PERM_TRUESIGHT 606
+    I_PERM_DISPLACE = 601, I_PERM_NEGIMMUNE, I_PERM_INVISIBLE, I_PERM_ACCURACY,
+    I_PERM_PROTECTION, I_PERM_TRUESIGHT,
     // ring functions
-#define I_PERM_VISION 701
-#define I_PERM_BURDEN 702
-#define I_PERM_STRENGTH 703
-#define I_PERM_GAZE_IMMUNE 704
-#define I_PERM_FIRE_RESIST 705
-#define I_PERM_POISON_RESIST 706
-#define I_PERM_REGENERATE 707
-#define I_PERM_KNOWLEDGE 708
+    I_PERM_VISION = 701, I_PERM_BURDEN, I_PERM_STRENGTH, I_PERM_GAZE_IMMUNE,
+    I_PERM_FIRE_RESIST, I_PERM_POISON_RESIST, I_PERM_REGENERATE, I_PERM_KNOWLEDGE,
     // armor functions
-#define I_PERM_ENERGY_RESIST 801
-#define I_PERM_BREATHING 802
-#define I_PERM_FEAR_RESIST 803
-#define I_NORMAL_ARMOR 804
-// artifact functions
-#define I_ORBFIRE 901
-#define I_ORBWATER 902
-#define I_ORBEARTH 903
-#define I_ORBAIR 904
-#define I_ORBMASTERY 905
-#define I_ORBDEAD 906
-#define I_CRYSTAL 907
-#define I_ANTIOCH 908
-#define I_KOLWYNIA 909
-#define I_DEATH 910
-#define I_ENCHANTMENT 911
-#define I_HELM 912
-#define I_LIFE 913
-#define I_JUGGERNAUT 914
-#define I_SYMBOL 915
-#define I_STARGEM 916
-#define I_SCEPTRE 917
-#define I_PLANES 918
-// weapons functions
-#define I_NORMAL_WEAPON 1001
-#define I_LIGHTSABRE 1002
-#define I_DEMONBLADE 1003
-#define I_MACE_DISRUPT 1004
-#define I_TANGLE 1005
-#define I_ARROW 1006
-#define I_BOLT 1007
-#define I_VORPAL 1008
-#define I_DESECRATE 1009
-#define I_FIRESTAR 1010
-#define I_DEFEND 1011
-#define I_VICTRIX 1012
-#define I_EMPIRE 1013
-#define I_SCYTHE 1014
-#define I_ACIDWHIP 1015
-// thing functions
-#define I_PICK 1101
-#define I_KEY 1102
-#define I_SHOVEL 1103		// unused
-#define I_EXCAVATOR 1104	// unused
-#define I_PERM_ILLUMINATE 1105
-#define I_TRAP 1106
-#define I_RAISE_PORTCULLIS 1107
-// shield functions
-#define I_PERM_DEFLECT 1201
-#define I_NORMAL_SHIELD 1202
+    I_PERM_ENERGY_RESIST = 801, I_PERM_BREATHING, I_PERM_FEAR_RESIST, I_NORMAL_ARMOR,
+    // artifact functions
+    I_ORBFIRE = 901, I_ORBWATER, I_ORBEARTH, I_ORBAIR, I_ORBMASTERY,
+    I_ORBDEAD, I_CRYSTAL, I_ANTIOCH, I_KOLWYNIA, I_DEATH,
+    I_ENCHANTMENT, I_HELM, I_LIFE, I_JUGGERNAUT, I_SYMBOL,
+    I_STARGEM, I_SCEPTRE, I_PLANES,
+    // weapons functions
+    I_NORMAL_WEAPON = 1001, I_LIGHTSABRE, I_DEMONBLADE, I_MACE_DISRUPT, I_TANGLE,
+    I_ARROW, I_BOLT, I_VORPAL, I_DESECRATE, I_FIRESTAR,
+    I_DEFEND, I_VICTRIX, I_EMPIRE, I_SCYTHE, I_ACIDWHIP,
+    // thing functions
+    I_PICK = 1101, I_KEY, I_SHOVEL, I_EXCAVATOR, I_PERM_ILLUMINATE,
+    I_TRAP, I_RAISE_PORTCULLIS,
+    // shield functions
+    I_PERM_DEFLECT = 1201,
+    I_NORMAL_SHIELD
+};
+
 // monster function ids
 // Its conceivable for a function of one type to be called when another
 // would usually occur. A monster's special function may be an extra move,
 // for example.
-#define M_NO_OP -1
-// talk functions
-#define M_TALK_STUPID 101
-#define M_TALK_SILENT 102
-#define M_TALK_HUNGRY 103
-#define M_TALK_GREEDY 104
-#define M_TALK_TITTER 105
-#define M_TALK_MAN 106
-#define M_TALK_ROBOT 107
-#define M_TALK_EVIL 108
-#define M_TALK_BURBLE 109
-#define M_TALK_SLITHY 110
-#define M_TALK_MIMSY 111
-#define M_TALK_SEDUCTOR 112
-#define M_TALK_MP 113
-#define M_TALK_IM 114
-#define M_TALK_GUARD 115
-#define M_TALK_GHOST 116
-#define M_TALK_HINT 117
-#define M_TALK_BEG 118
-#define M_TALK_EF 119
-#define M_TALK_GF 120
-#define M_TALK_MORGON 121
-#define M_TALK_LB 122
-#define M_TALK_DEMONLOVER 123
-#define M_TALK_ASSASSIN 124
-#define M_TALK_NINJA 125
-#define M_TALK_THIEF 126
-#define M_TALK_MERCHANT 127
-#define M_TALK_HORSE 128
-#define M_TALK_PARROT 129
-#define M_TALK_ANIMAL 130
-#define M_TALK_HYENA 131
-#define M_TALK_SERVANT 132
-#define M_TALK_SCREAM 133
-#define M_TALK_DRUID 134
-#define M_TALK_ARCHMAGE 135
-#define M_TALK_PRIME 136
-// ability functions
-#define M_SP_SURPRISE 201
-#define M_SP_MP 202
-#define M_SP_THIEF 203
-#define M_SP_AGGRAVATE 204
-#define M_SP_POISON_CLOUD 205
-#define M_SP_HUGE 206
-#define M_SP_SUMMON 207
-#define M_SP_ILLUSION 208
-#define M_SP_FLUTTER 209
-#define M_SP_ESCAPE 210
-#define M_SP_SPELL 211
-#define M_SP_EXPLODE 212
-#define M_SP_DEMON 213
-#define M_SP_ACID_CLOUD 214
-#define M_SP_WHIRL 215
-#define M_SP_GHOST 216
-#define M_SP_WHISTLEBLOWER 217
-#define M_SP_EATER 218
-#define M_SP_LAWBRINGER 219
-#define M_SP_DRAGONLORD 220
-#define M_SP_DE 221
-#define M_SP_DEMONLOVER 222
-#define M_SP_SEDUCTOR 223
-#define M_SP_MASTER 224
-#define M_SP_WYRM 225
-#define M_SP_BLACKOUT 226
-#define M_SP_BOG 227
-#define M_SP_MERCHANT 228
-#define M_SP_WERE 229
-#define M_SP_SERVANT 231
-#define M_SP_AV 232
-#define M_SP_LW 233
-#define M_SP_SWARM 234
-#define M_SP_ANGEL 235
-#define M_SP_MB 236
-#define M_SP_MIRROR 237
-#define M_SP_RAISE 238
-#define M_SP_DEATH 239
-#define M_SP_COURT 240
-#define M_SP_LAIR 241
-#define M_SP_PRIME 242
-// rangestrike functions
-#define M_STRIKE_MISSILE 301
-#define M_STRIKE_FBOLT 302
-#define M_STRIKE_LBALL 303
-#define M_STRIKE_FBALL 304
-#define M_STRIKE_BLIND 305
-#define M_STRIKE_SNOWBALL 306
-#define M_STRIKE_MASTER 307
-#define M_STRIKE_SONIC 308
-// combat functions
-#define M_MELEE_NORMAL 401
-#define M_MELEE_FIRE 402
-#define M_MELEE_DRAGON 403
-#define M_MELEE_MP 404
-#define M_MELEE_ELEC 405
-#define M_MELEE_POISON 406
-#define M_MELEE_NG 407
-#define M_MELEE_SUCCUBUS 408
-#define M_MELEE_SPIRIT 409
-#define M_MELEE_DISEASE 410
-#define M_MELEE_SLEEP 411
-#define M_MELEE_COLD 412
-#define M_MELEE_MASTER 413
-#define M_MELEE_GRAPPLE 414
-#define M_MELEE_DEATH 415
-// movement functions
-#define M_MOVE_NORMAL 501
-#define M_MOVE_FLUTTER 502
-#define M_MOVE_TELEPORT 503
-#define M_MOVE_FOLLOW 504
-#define M_MOVE_RANDOM 505
-#define M_MOVE_SMART 506
-#define M_MOVE_SPIRIT 507
-#define M_MOVE_SCAREDY 508
-#define M_MOVE_CONFUSED 509
-#define M_MOVE_ANIMAL 510
-#define M_MOVE_LEASH 230
+enum {
+    M_NO_OP = -1,
+    // talk functions
+    M_TALK_STUPID = 101,
+    M_TALK_SILENT,
+    M_TALK_HUNGRY,
+    M_TALK_GREEDY,
+    M_TALK_TITTER,
+    M_TALK_MAN,
+    M_TALK_ROBOT,
+    M_TALK_EVIL,
+    M_TALK_BURBLE,
+    M_TALK_SLITHY,
+    M_TALK_MIMSY,
+    M_TALK_SEDUCTOR,
+    M_TALK_MP,
+    M_TALK_IM,
+    M_TALK_GUARD,
+    M_TALK_GHOST,
+    M_TALK_HINT,
+    M_TALK_BEG,
+    M_TALK_EF,
+    M_TALK_GF,
+    M_TALK_MORGON,
+    M_TALK_LB,
+    M_TALK_DEMONLOVER,
+    M_TALK_ASSASSIN,
+    M_TALK_NINJA,
+    M_TALK_THIEF,
+    M_TALK_MERCHANT,
+    M_TALK_HORSE,
+    M_TALK_PARROT,
+    M_TALK_ANIMAL,
+    M_TALK_HYENA,
+    M_TALK_SERVANT,
+    M_TALK_SCREAM,
+    M_TALK_DRUID,
+    M_TALK_ARCHMAGE,
+    M_TALK_PRIME,
+    // ability functions
+    M_SP_SURPRISE = 201,
+    M_SP_MP,
+    M_SP_THIEF,
+    M_SP_AGGRAVATE,
+    M_SP_POISON_CLOUD,
+    M_SP_HUGE,
+    M_SP_SUMMON,
+    M_SP_ILLUSION,
+    M_SP_FLUTTER,
+    M_SP_ESCAPE,
+    M_SP_SPELL,
+    M_SP_EXPLODE,
+    M_SP_DEMON,
+    M_SP_ACID_CLOUD,
+    M_SP_WHIRL,
+    M_SP_GHOST,
+    M_SP_WHISTLEBLOWER,
+    M_SP_EATER,
+    M_SP_LAWBRINGER,
+    M_SP_DRAGONLORD,
+    M_SP_DE,
+    M_SP_DEMONLOVER,
+    M_SP_SEDUCTOR,
+    M_SP_MASTER,
+    M_SP_WYRM,
+    M_SP_BLACKOUT,
+    M_SP_BOG,
+    M_SP_MERCHANT,
+    M_SP_WERE,
+    M_SP_SERVANT,
+    M_SP_AV,
+    M_SP_LW,
+    M_SP_SWARM,
+    M_SP_ANGEL,
+    M_SP_MB,
+    M_SP_MIRROR,
+    M_SP_RAISE,
+    M_SP_DEATH,
+    M_SP_COURT,
+    M_SP_LAIR,
+    M_SP_PRIME,
+    // rangestrike functions
+    M_STRIKE_MISSILE = 301,
+    M_STRIKE_FBOLT,
+    M_STRIKE_LBALL,
+    M_STRIKE_FBALL,
+    M_STRIKE_BLIND,
+    M_STRIKE_SNOWBALL,
+    M_STRIKE_MASTER,
+    M_STRIKE_SONIC,
+    // combat functions
+    M_MELEE_NORMAL = 401,
+    M_MELEE_FIRE,
+    M_MELEE_DRAGON,
+    M_MELEE_MP,
+    M_MELEE_ELEC,
+    M_MELEE_POISON,
+    M_MELEE_NG,
+    M_MELEE_SUCCUBUS,
+    M_MELEE_SPIRIT,
+    M_MELEE_DISEASE,
+    M_MELEE_SLEEP,
+    M_MELEE_COLD,
+    M_MELEE_MASTER,
+    M_MELEE_GRAPPLE,
+    M_MELEE_DEATH,
+    // movement functions
+    M_MOVE_NORMAL = 501,
+    M_MOVE_FLUTTER,
+    M_MOVE_TELEPORT,
+    M_MOVE_FOLLOW,
+    M_MOVE_RANDOM,
+    M_MOVE_SMART,
+    M_MOVE_SPIRIT,
+    M_MOVE_SCAREDY,
+    M_MOVE_CONFUSED,
+    M_MOVE_ANIMAL,
+    M_MOVE_LEASH
+};
+
+// Some monster ID's : (Those that are explicitly named in code)
+// Actually, there are still many magic constants floating around.
+// Eventually I'll get around to making each monster's id a constant....
+// done, thanks to David Given.
+//
 // MLx -> index to Monsters starting for level x
 // MLx -> number of monsters of level x or less
 // NML_x -> number of monsters of level x
 // NML-X must be changed whenever a monster is added
 // This whole thing MUST be repaired.  Monster levels must
 // be represented elsewhere.
-#define ML0 0
-#define NML_0 9
-#define ML1 (ML0 + NML_0)	// 9
-#define NML_1 22
-#define ML2 (ML1 + NML_1)	// 31
-#define NML_2 14
-#define ML3 (ML2 + NML_2)	// 45
-#define NML_3 15
-#define ML4 (ML3 + NML_3)	// 60
-#define NML_4 18
-#define ML5 (ML4 + NML_4)	// 78
-#define NML_5 14
-#define ML6 (ML5 + NML_5)	// 92
-#define NML_6 13
-#define ML7 (ML6 + NML_6)	// 105
-#define NML_7 15
-#define ML8 (ML7 + NML_7)	// 120
-#define NML_8 12
-#define ML9 (ML8 + NML_8)	// 132
-#define NML_9 8
-#define ML10 (ML9 + NML_9)	// 140
-#define NML_10 10
-#define NUMMONSTERS (ML10 + NML_10)	// 150
-// Some monster ID's : (Those that are explicitly named in code)
-// Actually, there are still many magic constants floating around.
-// Eventually I'll get around to making each monster's id a constant....
-// done, thanks to David Given.
-#define RANDOM -1
-#define HORNET (ML0+0)
-#define MEND_PRIEST (ML0+1)
-#define ITIN_MERCH (ML0+2)
-#define GUARD (ML0+3)
-#define NPC (ML0+4)
-#define SHEEP (ML0+5)
-#define MERCHANT (ML0+6)
-#define ZERO_NPC (ML0+7)
-#define HISCORE_NPC (ML0+8)
-#define GRUNT (ML1+0)
-#define TSETSE (ML1+1)
-#define FNORD (ML1+2)
-#define SEWER_RAT (ML1+3)
-#define AGGRAVATOR (ML1+4)
-#define BLIPPER (ML1+5)
-#define GOBLIN (ML1+6)
-#define PHANTASTICON (ML1+7)
-#define ROBOT (ML1+8)
-#define GEEK (ML1+9)
-#define BOROGROVE (ML1+10)
-#define QUAIL (ML1+11)
-#define BADGER (ML1+12)
-#define HAWK (ML1+13)
-#define DEER (ML1+14)
-#define CAMEL (ML1+15)
-#define ANTEATER (ML1+16)
-#define BUNNY (ML1+17)
-#define TROUT (ML1+18)
-#define BASS (ML1+19)
-#define PARROT (ML1+20)
-#define HYENA (ML1+21)
-#define APPR_NINJA (ML2+0)
-#define NIGHT_GAUNT (ML2+1)
-#define SNEAK_THIEF (ML2+2)
-#define EYE (ML2+3)
-#define TOVE (ML2+4)
-#define NASTY (ML2+5)
-#define GHOST (ML2+6)
-#define ENCHANTOR (ML2+7)	// use 'OR' to avoid conflict with circle rank
-#define MURK (ML2+8)
-#define GOBLIN_CHIEF (ML2+9)
-#define WOLF (ML2+10)
-#define ANT (ML2+11)
-#define ELEPHANT (ML2+12)
-#define HORSE (ML2+13)
-#define SALAMANDER (ML3+0)
-#define CATOBLEPAS (ML3+1)
-#define L_FDEMON (ML3+2)
-#define ACID_CLOUD (ML3+3)
-#define PHANTOM (ML3+4)
-#define GOBLIN_KING (ML3+5)
-#define PTERODACTYL (ML3+6)
-#define GOBLIN_SHAMAN (ML3+7)
-#define LION (ML3+8)
-#define BRIGAND (ML3+9)
-#define BEAR (ML3+10)
-#define MAMBA (ML3+11)
-#define MANOWAR (ML3+12)
-#define WEREHUMAN (ML3+13)
-#define THOUGHTFORM (ML3+14)
-#define MANTICORE (ML4+0)
-#define TASMANIAN (ML4+1)
-#define AUTO_MINOR (ML4+2)
-#define DENEBIAN (ML4+3)
-#define JUBJUB (ML4+4)
-#define HAUNT (ML4+5)
-#define INCUBUS (ML4+6)
-#define SATYR (ML4+7)
-#define CROC (ML4+8)
-#define TORPOR (ML4+9)
-#define DOBERMAN (ML4+10)
-#define FUZZY (ML4+11)
-#define SERV_LAW (ML4+12)
-#define SERV_CHAOS (ML4+13)
-#define SWARM (ML4+14)
-#define BAN_SIDHE (ML4+15)
-#define GRUE (ML4+16)
-#define GENIN (ML4+17)
-#define DRAGONETTE (ML5+0)
-#define TESLA (ML5+1)
-#define WYVERN (ML5+2)
-#define CATEAGLE (ML5+3)
-#define FROST_DEMON (ML5+4)
-#define SPECTRE (ML5+5)
-#define NECROMANCER (ML5+6)
-#define SHADOW (ML5+7)
-#define BOGTHING (ML5+8)
-#define ASTRAL_VAMP (ML5+9)
-#define LAVA_WORM (ML5+10)
-#define MANABURST (ML5+11)
-#define OUTER_DEMON (ML5+12)
-#define MIRRORSHADE (ML5+13)
-#define FIRE_ELEM (ML6+0)
-#define AIR_ELEM (ML6+1)
-#define WATER_ELEM (ML6+2)
-#define EARTH_ELEM (ML6+3)
-#define BANDERSNATCH (ML6+4)
-#define LICHE (ML6+5)
-#define TRITON (ML6+6)
-#define MAST_THIEF (ML6+7)
-#define TRICER (ML6+8)
-#define RAKSHASA (ML6+9)
-#define DEMON_SERP (ML6+10)
-#define ANGEL (ML6+11)
-#define CHUNIN (ML6+12)
-#define BEHEMOTH (ML7+0)
-#define NAZGUL (ML7+1)
-#define UNICORN (ML7+2)
-#define ROUS (ML7+3)
-#define ILL_FIEND (ML7+4)
-#define GREAT_WYRM (ML7+5)
-#define FLAME_DEV (ML7+6)
-#define LURKER (ML7+7)
-#define SANDMAN (ML7+8)
-#define MIRRORMAST (ML7+9)
-#define ELDER_GRUE (ML7+10)
-#define LOATHLY (ML7+11)
-#define ZOMBIE (ML7+12)
-#define RICOCHET (ML7+13)
-#define INNER_DEMON (ML7+14)
-#define GOOD_FAIRY (ML8+0)
-#define BAD_FAIRY (ML8+1)
-#define AUTO_MAJOR (ML8+2)
-#define DRAGON (ML8+3)
-#define JABBERWOCK (ML8+4)
-#define FDEMON_L (ML8+5)
-#define TIGERSHARK (ML8+6)
-#define JONIN (ML8+7)
-#define SHADOW_SLAY (ML8+8)
-#define MIL_PRIEST (ML8+9)
-#define COMA (ML8+10)
-#define HIGH_ANGEL (ML8+11)
-#define JOTUN (ML9+0)
-#define INVIS_SLAY (ML9+1)
-#define KING_WYV (ML9+2)
-#define DEATHSTAR (ML9+3)
-#define THAUMATURGIST (ML9+4)
-#define VAMP_LORD (ML9+5)
-#define ARCHANGEL (ML9+6)
-#define DEMON_PRINCE (ML9+7)
-#define DEATH (ML10+0)
-#define EATER (ML10+1)
-#define LAWBRINGER (ML10+2)
-#define DRAGON_LORD (ML10+3)
-#define DEMON_EMP (ML10+4)
-#define LORD_EARTH (ML10+5)
-#define LORD_AIR (ML10+6)
-#define LORD_WATER (ML10+7)
-#define LORD_FIRE (ML10+8)
-#define ELEM_MASTER (ML10+9)
+//
+enum {
+    RANDOM = -1,
+
+    ML0, HORNET = ML0, MEND_PRIEST, ITIN_MERCH, GUARD, NPC,
+    SHEEP, MERCHANT, ZERO_NPC, HISCORE_NPC,
+
+    ML1, GRUNT = ML1, TSETSE, FNORD, SEWER_RAT, AGGRAVATOR,
+    BLIPPER, GOBLIN, PHANTASTICON, ROBOT, GEEK,
+    BOROGROVE, QUAIL, BADGER, HAWK, DEER,
+    CAMEL, ANTEATER, BUNNY, TROUT, BASS,
+    PARROT, HYENA,
+
+    ML2, APPR_NINJA = ML2, NIGHT_GAUNT, SNEAK_THIEF, EYE, TOVE,
+    NASTY, GHOST, ENCHANTOR, MURK, GOBLIN_CHIEF,
+    WOLF, ANT, ELEPHANT, HORSE,
+
+    ML3, SALAMANDER = ML3, CATOBLEPAS, L_FDEMON, ACID_CLOUD, PHANTOM,
+    GOBLIN_KING, PTERODACTYL, GOBLIN_SHAMAN, LION, BRIGAND,
+    BEAR, MAMBA, MANOWAR, WEREHUMAN, THOUGHTFORM,
+
+    ML4, MANTICORE = ML4, TASMANIAN, AUTO_MINOR, DENEBIAN, JUBJUB,
+    HAUNT, INCUBUS, SATYR, CROC, TORPOR,
+    DOBERMAN, FUZZY, SERV_LAW, SERV_CHAOS, SWARM,
+    BAN_SIDHE, GRUE, GENIN,
+
+    ML5, DRAGONETTE = ML5, TESLA, WYVERN, CATEAGLE, FROST_DEMON,
+    SPECTRE, NECROMANCER, SHADOW, BOGTHING, ASTRAL_VAMP,
+    LAVA_WORM, MANABURST, OUTER_DEMON, MIRRORSHADE,
+
+    ML6, FIRE_ELEM = ML6, AIR_ELEM, WATER_ELEM, EARTH_ELEM, BANDERSNATCH,
+    LICHE, TRITON, MAST_THIEF, TRICER, RAKSHASA,
+    DEMON_SERP, ANGEL, CHUNIN,
+
+    ML7, BEHEMOTH = ML7, NAZGUL, UNICORN, ROUS, ILL_FIEND,
+    GREAT_WYRM, FLAME_DEV, LURKER, SANDMAN, MIRRORMAST,
+    ELDER_GRUE, LOATHLY, ZOMBIE, RICOCHET, INNER_DEMON,
+
+    ML8, GOOD_FAIRY = ML8, BAD_FAIRY, AUTO_MAJOR, DRAGON, JABBERWOCK,
+    FDEMON_L, TIGERSHARK, JONIN, SHADOW_SLAY, MIL_PRIEST,
+    COMA, HIGH_ANGEL,
+
+    ML9, JOTUN = ML9, INVIS_SLAY, KING_WYV, DEATHSTAR, THAUMATURGIST,
+    VAMP_LORD, ARCHANGEL, DEMON_PRINCE,
+
+    ML10, DEATH = ML10, EATER, LAWBRINGER, DRAGON_LORD, DEMON_EMP,
+    LORD_EARTH, LORD_AIR, LORD_WATER, LORD_FIRE, ELEM_MASTER,
+
+    NUMMONSTERS,
+
+    NML_0 = ML1-ML0, NML_1 = ML2-ML1, NML_2 = ML3-ML2,
+    NML_3 = ML4-ML3, NML_4 = ML5-ML4, NML_5 = ML6-ML5,
+    NML_6 = ML7-ML6, NML_7 = ML8-ML9, NML_8 = ML9-ML8,
+    NML_9 = ML10-ML9, NML_10 = NUMMONSTERS-ML10
+};
+
 // location functions
-#define L_NO_OP 0
-// random sites
-#define L_LIFT 1
-#define L_BALANCESTONE 2
-#define L_FIRE 3
-#define L_WHIRLWIND 4
-#define L_VOIDSTONE 5
-#define L_WARNING 6
-#define L_ARENA_EXIT 7
-#define L_HOUSE_EXIT 8
-#define L_SAFE 9
+enum {
+    L_NO_OP, L_LIFT, L_BALANCESTONE, L_FIRE, L_WHIRLWIND,
+    L_VOIDSTONE, L_WARNING, L_ARENA_EXIT, L_HOUSE_EXIT, L_SAFE
+};
+
 // city level shop and guild functions
 // following are those in CitySiteList
-#define NUMCITYSITES 27
-#define CITYSITEBASE 10
-#define L_CHARITY 10
-#define L_ARMORER 11
-#define L_CLUB 12
-#define L_GYM 13
-#define L_THIEVES_GUILD 14
-#define L_COLLEGE 15
-#define L_HEALER 16
-#define L_CASINO 17
-#define L_TAVERN 18
-#define L_MERC_GUILD 19
-#define L_ALCHEMIST 20
-#define L_SORCERORS 21
-#define L_CASTLE 22
-#define L_ARENA 23
-#define L_DPW 24
-#define L_LIBRARY 25
-#define L_PAWN_SHOP 26
-#define L_BANK 27
-#define L_CONDO 28
-#define L_ORACLE 29
-#define L_ORDER 30
-#define L_DINER 31
-#define L_COMMANDANT 32
-#define L_CRAP 33
-#define L_TEMPLE 34
-#define L_COUNTRYSIDE 35
-#define L_BROTHEL 36
-// end of city sites
-// random sites
-#define L_JAIL 37
-#define L_TEMPLE_WARNING 38
-#define L_LAWSTONE 39
-#define L_CHAOSTONE 40
-// final abyss sites ignore levitation
-#define L_EARTH_STATION 41
-#define L_FIRE_STATION 42
-#define L_WATER_STATION 43
-#define L_AIR_STATION 44
-#define L_VOID_STATION 45
-#define L_VOID 46
-#define L_VOICE1 47
-#define L_VOICE2 48
-#define L_VOICE3 49
-#define L_SACRIFICESTONE 50
-// circle hq sites
-#define L_TOME1 51
-#define L_TOME2 52
-#define L_ENTER_CIRCLE 53
-#define L_CIRCLE_LIBRARY 54
-// other site functions
-#define L_DRUID 55
-#define L_ALTAR 56
-#define L_GARDEN 57
-#define L_ADEPT 58
-#define L_SEWER 59
-#define L_OMEGA 60
-#define L_CARTOGRAPHER 61
-#define L_STABLES 62
-#define L_COMMONS 63
-#define L_GRANARY 64
-#define L_MAZE 65
-#define L_HOVEL 66
-#define L_HOUSE 67
-#define L_MANSION 68
-#define L_OCCUPIED_HOUSE 69
-#define L_TACTICAL_EXIT 70
-#define L_VAULT 71
-#define L_CEMETARY 72
-#define L_THRONE 73
-#define L_ESCALATOR 74
-#define L_ENTER_COURT 75
-#define L_TRIFID 76
-#define L_FINAL_ABYSS 77
-#define L_RAISE_PORTCULLIS 78
-#define L_MINDSTONE 79
-// above LEVITATION_AVOIDANCE, no effect if player is levitating
-#define LEVITATION_AVOIDANCE 80
-// random sites
-#define L_CHAOS 81
-#define L_WATER 82
-#define L_LAVA 83
-#define L_MAGIC_POOL 84
-#define L_PORTCULLIS_TRAP 85
-#define L_DROP_EVERY_PORTCULLIS 87
-#define L_PORTCULLIS 88
-// traps
-#define NUMTRAPS 13
-#define TRAP_BASE 89
-// traps
-#define L_TRAP_DART 89
-#define L_TRAP_PIT 90
-#define L_TRAP_DOOR 91
-#define L_TRAP_SNARE 92
-#define L_TRAP_BLADE 93
-#define L_TRAP_FIRE 94
-#define L_TRAP_TELEPORT 95
-#define L_TRAP_DISINTEGRATE 96
-#define L_TRAP_SLEEP_GAS 97
-#define L_TRAP_ACID 98
-#define L_TRAP_MANADRAIN 99
-#define L_TRAP_ABYSS 100
-#define L_TRAP_SIREN 101
-// more random sites
-#define L_STATUE_WAKE 102
-#define L_STATUE_RANDOM 103
-#define L_HEDGE 104
-#define L_RUBBLE 105
-#define L_ABYSS 106
+enum {
+    CITYSITEBASE = 10,
+    L_CHARITY, L_ARMORER, L_CLUB, L_GYM, L_THIEVES_GUILD,
+    L_COLLEGE, L_HEALER, L_CASINO, L_TAVERN, L_MERC_GUILD,
+    L_ALCHEMIST, L_SORCERORS, L_CASTLE, L_ARENA, L_DPW,
+    L_LIBRARY, L_PAWN_SHOP, L_BANK, L_CONDO, L_ORACLE,
+    L_ORDER, L_DINER, L_COMMANDANT, L_CRAP, L_TEMPLE,
+    L_COUNTRYSIDE, L_BROTHEL, L_JAIL, L_TEMPLE_WARNING, L_LAWSTONE,
+    L_CHAOSTONE,
+    // final abyss sites ignore levitation
+    L_EARTH_STATION, L_FIRE_STATION, L_WATER_STATION, L_AIR_STATION, L_VOID_STATION,
+    L_VOID, L_VOICE1, L_VOICE2, L_VOICE3, L_SACRIFICESTONE,
+    // circle hq sites
+    L_TOME1, L_TOME2, L_ENTER_CIRCLE, L_CIRCLE_LIBRARY,
+    // other site functions
+    L_DRUID, L_ALTAR, L_GARDEN, L_ADEPT, L_SEWER,
+    L_OMEGA, L_CARTOGRAPHER, L_STABLES, L_COMMONS, L_GRANARY,
+    L_MAZE, L_HOVEL, L_HOUSE, L_MANSION, L_OCCUPIED_HOUSE,
+    L_TACTICAL_EXIT, L_VAULT, L_CEMETARY, L_THRONE, L_ESCALATOR,
+    L_ENTER_COURT, L_TRIFID, L_FINAL_ABYSS, L_RAISE_PORTCULLIS, L_MINDSTONE,
+    // random sites
+    L_CHAOS, L_WATER, L_LAVA, L_MAGIC_POOL, L_PORTCULLIS_TRAP,
+    L_DROP_EVERY_PORTCULLIS = L_PORTCULLIS_TRAP+2, L_PORTCULLIS,
+    // traps
+    L_TRAP_DART, L_TRAP_PIT, L_TRAP_DOOR, L_TRAP_SNARE, L_TRAP_BLADE,
+    L_TRAP_FIRE, L_TRAP_TELEPORT, L_TRAP_DISINTEGRATE, L_TRAP_SLEEP_GAS, L_TRAP_ACID,
+    L_TRAP_MANADRAIN, L_TRAP_ABYSS, L_TRAP_SIREN,
+    // more random sites
+    L_STATUE_WAKE, L_STATUE_RANDOM, L_HEDGE, L_RUBBLE, L_ABYSS,
+    // Computed limits
+    NUMCITYSITES = L_JAIL-CITYSITEBASE,
+    LEVITATION_AVOIDANCE = L_CHAOS-1,	// above LEVITATION_AVOIDANCE, no effect if player is levitating
+    TRAP_BASE = L_TRAP_DART,
+    NUMTRAPS = L_TRAP_SIREN-TRAP_BASE+1
+};
+
 // player possession slots
 // slot 0 should not be filled when out of inventory_control()
-#define O_UP_IN_AIR 0
-#define O_READY_HAND 1
-#define O_WEAPON_HAND 2
-#define O_LEFT_SHOULDER 3
-#define O_RIGHT_SHOULDER 4
-#define O_BELT1 5
-#define O_BELT2 6
-#define O_BELT3 7
-#define O_SHIELD 8
-#define O_ARMOR 9
-#define O_BOOTS 10
-#define O_CLOAK 11
-#define O_RING1 12
-#define O_RING2 13
-#define O_RING3 14
-#define O_RING4 15
+enum {
+    O_UP_IN_AIR, O_READY_HAND, O_WEAPON_HAND,
+    O_LEFT_SHOULDER, O_RIGHT_SHOULDER,
+    O_BELT1, O_BELT2, O_BELT3, O_SHIELD, O_ARMOR,
+    O_BOOTS, O_CLOAK, O_RING1, O_RING2, O_RING3, O_RING4
+};
+
 // typedefs needed by structs
-typedef int Symbol;
+typedef chtype Symbol;
 
 // structure definitions
 
@@ -1395,54 +966,3 @@ typedef objtype *pob;
 
 typedef struct objectlist oltype;
 typedef oltype *pol;
-
-// random  function declarations from system libraries
-
-#include <stdlib.h>
-
-// The assert macro (for ANSI/ISO C).  Hopefully this will always work!
-#include <assert.h>
-
-#undef sign
-#undef max
-#undef min
-#undef abs
-// These must be made to work for both longs and ints
-#define sign(n) (((n) < 0) ? -1 : (((n) > 0) ? 1 : 0))
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-#define abs(n) (((n) < 0) ? (-(n)) : (n))
-
-// WDT: This should be harmless under ANSI C, and will stop
-// some errors under bizarre platforms.
-#define pow2(n) (1L << (n))
-
-// these bit operations were functions, but are faster as macros...
-
-#define loc_statusp(x,y,stat) ((Level->site[x][y].lstatus&(stat))?1:0)
-#define lset(x,y,stat) (Level->site[x][y].lstatus |= (stat))
-#define lreset(x,y,stat) (Level->site[x][y].lstatus &= ~(stat))
-
-#define c_statusp(x,y,stat) ((Country[x][y].status&(stat))?1:0)
-#define c_set(x,y,stat) (Country[x][y].status |= (stat))
-#define c_reset(x,y,stat) (Country[x][y].status &= ~(stat))
-
-#define m_statusp(m,s) (((m)->status&(s))?1:0)
-#define m_status_set(m,s) ((m)->status |= (s))
-#define m_status_reset(m,s) ((m)->status &= ~(s))
-#define m_immunityp(m,s) (((m)->immunity&pow2(s))?1:0)
-
-#define gamestatusp(flag) ((GameStatus&(flag))?1:0)
-#define setgamestatus(flag) (GameStatus |= (flag))
-#define resetgamestatus(flag) (GameStatus &= ~(flag))
-
-#define optionp(o) ((Player.options&(o))?1:0)
-#define optionset(o) (Player.options |= (o))
-#define optionreset(o) (Player.options &= ~(o))
-
-// systemV for some reason uses string.h instead of strings.h
-// Also, random and srandom are unlikely to be found on system V...
-
-#include <string.h>
-#include <stdio.h>
-#include <stdbool.h>
