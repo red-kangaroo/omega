@@ -89,12 +89,6 @@ extern int onewithchaos;
 extern int club_hinthour;
 extern int winnings;
 extern int tavern_hinthour;
-extern int scroll_ids[30];
-extern int potion_ids[30];
-extern int stick_ids[30];
-extern int ring_ids[30];
-extern int cloak_ids[30];
-extern int boot_ids[30];
 
 extern int deepest[E_MAX + 1];
 extern int level_seed[E_MAX + 1];

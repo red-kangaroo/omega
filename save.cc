@@ -171,12 +171,6 @@ static int save_player (FILE* fd)
     ok &= (fwrite ((const char*) &club_hinthour, sizeof (club_hinthour), 1, fd) > 0);
     ok &= (fwrite ((const char*) &winnings, sizeof (winnings), 1, fd) > 0);
     ok &= (fwrite ((const char*) &tavern_hinthour, sizeof (tavern_hinthour), 1, fd) > 0);
-    ok &= (fwrite ((const char*) scroll_ids, sizeof (scroll_ids), 1, fd) > 0);
-    ok &= (fwrite ((const char*) potion_ids, sizeof (potion_ids), 1, fd) > 0);
-    ok &= (fwrite ((const char*) stick_ids, sizeof (stick_ids), 1, fd) > 0);
-    ok &= (fwrite ((const char*) ring_ids, sizeof (ring_ids), 1, fd) > 0);
-    ok &= (fwrite ((const char*) cloak_ids, sizeof (cloak_ids), 1, fd) > 0);
-    ok &= (fwrite ((const char*) boot_ids, sizeof (boot_ids), 1, fd) > 0);
     ok &= (fwrite ((const char*) deepest, sizeof (int), E_MAX + 1, fd) > 0);
     ok &= (fwrite ((const char*) level_seed, sizeof (int), E_MAX + 1, fd) > 0);
 
@@ -553,17 +547,8 @@ static void restore_player (FILE* fd, int ver)
     fread ((char*) &club_hinthour, sizeof (club_hinthour), 1, fd);
     fread ((char*) &winnings, sizeof (winnings), 1, fd);
     fread ((char*) &tavern_hinthour, sizeof (tavern_hinthour), 1, fd);
-    fread ((char*) scroll_ids, sizeof (scroll_ids), 1, fd);
-    fread ((char*) potion_ids, sizeof (potion_ids), 1, fd);
-    fread ((char*) stick_ids, sizeof (stick_ids), 1, fd);
-    fread ((char*) ring_ids, sizeof (ring_ids), 1, fd);
-    fread ((char*) cloak_ids, sizeof (cloak_ids), 1, fd);
-    fread ((char*) boot_ids, sizeof (boot_ids), 1, fd);
     fread ((char*) deepest, sizeof (int), E_MAX + 1, fd);
     fread ((char*) level_seed, sizeof (int), E_MAX + 1, fd);
-
-    // Set up the strings for the id's
-    inititem (FALSE);
 
     for (i = 0; i < MAXITEMS; i++)
 	Player.possessions[i] = restore_item (fd, ver);

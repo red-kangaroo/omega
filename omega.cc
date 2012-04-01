@@ -121,12 +121,6 @@ int onewithchaos = FALSE;
 int club_hinthour = 0;
 int winnings = 0;
 int tavern_hinthour;
-int scroll_ids[30];
-int potion_ids[30];
-int stick_ids[30];
-int ring_ids[30];
-int cloak_ids[30];
-int boot_ids[30];
 
 int deepest[E_MAX + 1];
 int level_seed[E_MAX + 1];	// random number seed that generated level
@@ -210,7 +204,6 @@ int main (int argc, const char* argv[])
     // monsters initialized in game_restore if game is being restored
     // items initialized in game_restore if game is being restored
     if (!continuing) {
-	inititem (TRUE);
 	Date = random_range (360);
 	Phase = random_range (24);
 	strcpy (Password, "");
@@ -277,35 +270,6 @@ static void init_world (void)
     Level = City;
     Current_Environment = E_CITY;
     print1 ("You pass through the massive gates of Rampart, the city.");
-}
-
-// set variable item names
-void inititem (int reset)
-{
-    int i;
-
-    if (reset) {
-	shuffle (scroll_ids, 30);
-	shuffle (potion_ids, 20);
-	shuffle (stick_ids, 20);
-	shuffle (boot_ids, 20);
-	shuffle (cloak_ids, 20);
-	shuffle (ring_ids, 20);
-    }
-    for (i = 0; i < NUMSCROLLS; i++)
-	Objects[SCROLLID + i].objstr = scrollname (i);
-    for (i = 0; i < NUMPOTIONS; i++)
-	Objects[POTIONID + i].objstr = potionname (i);
-    Objects[POTION_OF_DEATH].objstr = potionname (18);
-    Objects[POTION_OF_LIFE].objstr = potionname (19);
-    for (i = 0; i < NUMSTICKS; i++)
-	Objects[STICKID + i].objstr = stickname (i);
-    for (i = 0; i < NUMBOOTS; i++)
-	Objects[BOOTID + i].objstr = bootname (i);
-    for (i = 0; i < NUMCLOAKS; i++)
-	Objects[CLOAKID + i].objstr = cloakname (i);
-    for (i = 0; i < NUMRINGS; i++)
-	Objects[RINGID + i].objstr = ringname (i);
 }
 
 // This function coordinates monsters and player actions, as well as
