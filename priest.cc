@@ -392,43 +392,43 @@ static void hp_req_test (void)
     pob o;
     switch (Player.patron) {
 	case ODIN:
-	    if (find_item (&o, ARTIFACTID + 15, -1))
+	    if (find_item (&o, HOLY_SYMBOL_OF_SET, -1))
 		make_hp (o);
 	    else
 		hp_req_print();
 	    break;
 	case SET:
-	    if (find_item (&o, ARTIFACTID + 14, -1))
+	    if (find_item (&o, HOLY_SYMBOL_OF_ODIN, -1))
 		make_hp (o);
 	    else
 		hp_req_print();
 	    break;
 	case ATHENA:
-	    if (find_item (&o, ARTIFACTID + 17, -1))
+	    if (find_item (&o, HOLY_SYMBOL_OF_HECATE, -1))
 		make_hp (o);
 	    else
 		hp_req_print();
 	    break;
 	case HECATE:
-	    if (find_item (&o, ARTIFACTID + 16, -1))
+	    if (find_item (&o, HOLY_SYMBOL_OF_ATHENA, -1))
 		make_hp (o);
 	    else
 		hp_req_print();
 	    break;
 	case DRUID:
-	    if (find_item (&o, ARTIFACTID + 14, -1))
+	    if (find_item (&o, HOLY_SYMBOL_OF_ODIN, -1))
 		make_hp (o);
-	    else if (find_item (&o, ARTIFACTID + 15, -1))
+	    else if (find_item (&o, HOLY_SYMBOL_OF_SET, -1))
 		make_hp (o);
-	    else if (find_item (&o, ARTIFACTID + 16, -1))
+	    else if (find_item (&o, HOLY_SYMBOL_OF_ATHENA, -1))
 		make_hp (o);
-	    else if (find_item (&o, ARTIFACTID + 17, -1))
+	    else if (find_item (&o, HOLY_SYMBOL_OF_HECATE, -1))
 		make_hp (o);
 	    else
 		hp_req_print();
 	    break;
 	case DESTINY:
-	    if (find_item (&o, ARTIFACTID + 19, -1))
+	    if (find_item (&o, HOLY_SYMBOL_OF_DESTINY, -1))
 		make_hp (o);
 	    else
 		hp_req_print();
@@ -473,22 +473,22 @@ static void make_hp (pob o)
     print2 ("You notice a change in the symbol you carry....");
     switch (Player.patron) {
 	case ODIN:
-	    *o = Objects[ARTIFACTID + 14];
+	    *o = Objects[HOLY_SYMBOL_OF_ODIN];
 	    break;
 	case SET:
-	    *o = Objects[ARTIFACTID + 15];
+	    *o = Objects[HOLY_SYMBOL_OF_SET];
 	    break;
 	case ATHENA:
-	    *o = Objects[ARTIFACTID + 16];
+	    *o = Objects[HOLY_SYMBOL_OF_ATHENA];
 	    break;
 	case HECATE:
-	    *o = Objects[ARTIFACTID + 17];
+	    *o = Objects[HOLY_SYMBOL_OF_HECATE];
 	    break;
 	case DRUID:
-	    *o = Objects[ARTIFACTID + 18];
+	    *o = Objects[HOLY_SYMBOL_OF_DRUIDISM];
 	    break;
 	case DESTINY:
-	    *o = Objects[ARTIFACTID + 19];
+	    *o = Objects[HOLY_SYMBOL_OF_DESTINY];
 	    break;
     }
     o->known = 2;

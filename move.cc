@@ -843,7 +843,7 @@ static void l_throne (void)
     print1 ("You have come upon a huge ornately appointed throne!");
     print2 ("Sit in it? [yn] ");
     if (ynq1() == 'y') {
-	if (!find_item (&o, ARTIFACTID + 22, -1)) {
+	if (!find_item (&o, SCEPTRE_OF_HIGH_MAGIC, -1)) {
 	    print1 ("The throne emits an eerie violet-black radiance.");
 	    print2 ("You find, to your horror, that you cannot get up!");
 	    print3 ("You feel an abstract sucking sensation...");
@@ -916,7 +916,7 @@ static void l_throne (void)
 			Level->site[Player.x][Player.y].locchar = RUBBLE;
 			Level->site[Player.x][Player.y].p_locf = L_RUBBLE;
 			lset (Player.x, Player.y, CHANGED);
-			if (find_and_remove_item (ARTIFACTID + 22, -1)) {
+			if (find_and_remove_item (SCEPTRE_OF_HIGH_MAGIC, -1)) {
 			    morewait();
 			    print1 ("Your sceptre reverberates with the noise, and");
 			    print2 ("it too explodes in a spray of shards.");

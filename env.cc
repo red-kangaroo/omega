@@ -228,10 +228,10 @@ static void make_prime (int i, int j)
     ml->next = Level->mlist;
     Level->mlist = ml;
 
-    if (Objects[ARTIFACTID + 21].uniqueness != UNIQUE_TAKEN) {
+    if (Objects[STAR_GEM].uniqueness != UNIQUE_TAKEN) {
 	ol = ((pol) checkmalloc (sizeof (oltype)));
 	o = ((pob) checkmalloc (sizeof (objtype)));
-	*o = Objects[ARTIFACTID + 21];
+	*o = Objects[STAR_GEM];
 	ol->thing = o;
 	ol->next = NULL;
 	m->possessions = ol;
@@ -268,7 +268,7 @@ void load_court (int populate)
 		    Level->site[i][j].locchar = CHAIR;
 		    Level->site[i][j].p_locf = L_THRONE;
 		    if (populate) {
-			make_specific_treasure (i, j, ARTIFACTID + 22);
+			make_specific_treasure (i, j, SCEPTRE_OF_HIGH_MAGIC);
 			make_archmage (i, j);
 			m_status_reset (Level->site[i][j].creature, HOSTILE);
 			m_status_reset (Level->site[i][j].creature, MOBILE);
@@ -1888,7 +1888,7 @@ void l_castle (void)
 	    } else
 		print2 ("Your quest is not yet complete, sir knight.");
 	} else if (Player.rank[NOBILITY] == LORD) {
-	    if (find_item (&o, ARTIFACTID + 0, -1)) {
+	    if (find_item (&o, ORB_OF_MASTERY, -1)) {
 		print1 ("My sincerest thanks, my lord.");
 		print2 ("You have proved yourself a true paragon of chivalry");
 		morewait();
@@ -2903,7 +2903,7 @@ void l_order (void)
 		clearmsg();
 		Player.rank[ORDER] = GUARDIAN;
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
-		*newitem = Objects[ARTIFACTID + 7];	// holy hand grenade.
+		*newitem = Objects[HOLY_HAND_GRENADE];
 		newitem->known = 2;
 		gain_item (newitem);
 	    }

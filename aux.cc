@@ -381,7 +381,7 @@ void fight_monster (struct monster *m)
 int damage_item (pob o)
 {
     // special case -- break star gem
-    if (o->id == ARTIFACTID + 21) {
+    if (o->id == STAR_GEM) {
 	print1 ("The Star Gem shatters into a million glistening shards....");
 	if (Current_Environment == E_STARPEAK) {
 	    if (!gamestatusp (KILLED_LAWBRINGER))
@@ -1876,7 +1876,7 @@ void change_environment (int new_environment)
 	    Player.x = 32;
 	    Player.y = 14;
 	    load_circle (TRUE);
-	    if (Objects[ARTIFACTID + 21].uniqueness == UNIQUE_TAKEN) {
+	    if (Objects[STAR_GEM].uniqueness == UNIQUE_TAKEN) {
 		print1 ("A bemused voice says:");
 		print2 ("'Why are you here? You already have the Star Gem!'");
 		morewait();

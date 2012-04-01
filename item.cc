@@ -332,7 +332,6 @@ void make_cloak (pob o, int id)
 {
     if (id == -1)
 	id = random_range (NUMCLOAKS);
-    Objects[CLOAKID + 4].plus = 2;
     *o = Objects[CLOAKID + id];
     if (o->blessing == 0)
 	o->blessing = itemblessing();
@@ -2506,7 +2505,7 @@ static void i_orbfire (pob o)
 	o->blessing = 100;
 	i_firebolt (o);
     }
-    *o = Objects[ARTIFACTID + 5];
+    *o = Objects[ORB_BURNT_OUT];
 }
 
 static void i_orbwater (pob o)
@@ -2526,7 +2525,7 @@ static void i_orbwater (pob o)
 	o->blessing = 100;
 	i_disrupt (o);
     }
-    *o = Objects[ARTIFACTID + 5];
+    *o = Objects[ORB_BURNT_OUT];
 }
 
 static void i_orbearth (pob o)
@@ -2561,7 +2560,7 @@ static void i_orbearth (pob o)
 	o->blessing = 100;
 	i_disintegrate (o);
     }
-    *o = Objects[ARTIFACTID + 5];
+    *o = Objects[ORB_BURNT_OUT];
 }
 
 static void i_orbair (pob o)
@@ -2582,7 +2581,7 @@ static void i_orbair (pob o)
 	i_invisible (o);
 	i_lbolt (o);
     }
-    *o = Objects[ARTIFACTID + 5];
+    *o = Objects[ORB_BURNT_OUT];
 }
 
 static void i_orbmastery (pob o)
@@ -2593,7 +2592,7 @@ static void i_orbmastery (pob o)
 	print2 ("The Orb of Mastery blasts you to cinders!");
 	p_death ("playing with the Orb of Mastery");
 	o->known = 1;
-    } else if ((find_and_remove_item (ARTIFACTID + 1, -1)) && (find_and_remove_item (ARTIFACTID + 2, -1)) && (find_and_remove_item (ARTIFACTID + 3, -1)) && (find_and_remove_item (ARTIFACTID + 4, -1))) {
+    } else if ((find_and_remove_item (ORB_OF_FIRE, -1)) && (find_and_remove_item (ORB_OF_EARTH, -1)) && (find_and_remove_item (ORB_OF_AIR, -1)) && (find_and_remove_item (ORB_OF_WATER, -1))) {
 	print1 ("The Orb of Mastery radiates rainbow colors!");
 	print2 ("You feel godlike.");
 	Player.iq = Player.maxiq = 2 * Player.maxiq;
@@ -2611,7 +2610,7 @@ static void i_orbmastery (pob o)
 	clearmsg();
 	print2 ("You feel much more experienced.");
 	gain_experience (20000);
-	*o = Objects[ARTIFACTID + 5];
+	*o = Objects[ORB_BURNT_OUT];
     } else {
 	print1 ("The Orb of Mastery's power is unbalanced!");
 	print2 ("The Orb of Mastery blasts you to cinders!");

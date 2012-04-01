@@ -289,8 +289,8 @@ void inititem (int reset)
 	Objects[SCROLLID + i].objstr = scrollname (i);
     for (i = 0; i < NUMPOTIONS; i++)
 	Objects[POTIONID + i].objstr = potionname (i);
-    Objects[ARTIFACTID + 10].objstr = potionname (18);
-    Objects[ARTIFACTID + 13].objstr = potionname (19);
+    Objects[POTION_OF_DEATH].objstr = potionname (18);
+    Objects[POTION_OF_LIFE].objstr = potionname (19);
     for (i = 0; i < NUMSTICKS; i++)
 	Objects[STICKID + i].objstr = stickname (i);
     for (i = 0; i < NUMBOOTS; i++)

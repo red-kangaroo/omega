@@ -17,7 +17,6 @@ static void zapwand(void);
 static void magic(void);
 static void upstairs(void);
 static void downstairs(void);
-static void callitem(void);
 static void opendoor(void);
 static void bash_location(void);
 static void closedoor(void);
@@ -174,9 +173,6 @@ void p_process (void)
 	    case 'A':
 		activate();
 		Command_Duration = 10;
-		break;
-	    case 'C':
-		callitem();
 		break;
 	    case 'D':
 		disarm();
@@ -1106,34 +1102,6 @@ void setoptions (void)
 	move_slot (slot, slot, NUMOPTIONS + 1);
     } while (!done);
     xredraw();
-}
-
-// name an item
-static void callitem (void)
-{
-    int iidx;
-    pob obj;
-
-    clearmsg();
-    setgamestatus (SKIP_MONSTERS);
-    print1 ("Call --");
-    iidx = getitem (NULL_ITEM);
-    if (iidx == CASHVALUE)
-	print3 ("Can't rename cash!");
-    else if (iidx != ABORT) {
-	obj = Player.possessions[iidx];
-	if (obj->known)
-	    print3 ("That item is already identified!");
-	else {
-	    print1 ("Call it:");
-	    obj->objstr = salloc (msgscanstring());
-	    clearmsg();
-	    print2 ("Also call all similar items by that name? [yn] ");
-	    if (ynq2() == 'y') {
-		Objects[obj->id].objstr = obj->objstr;
-	    }
-	}
-    }
 }
 
 // open a door

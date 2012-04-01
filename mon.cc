@@ -2849,7 +2849,7 @@ void make_hiscore_npc (pmt npc, int npcid)
 	case 6:
 	    strcpy (Str2, Priest[npcid]);
 	    determine_npc_behavior (npc, Priestlevel[npcid], Priestbehavior[npcid]);
-	    st = ARTIFACTID + 13 + npcid;	// appropriate holy symbol...
+	    st = HOLY_SYMBOL_OF_ODIN-1 + npcid;	// appropriate holy symbol...
 	    Objects[st].uniqueness = UNIQUE_MADE;
 	    if (npcid == DRUID)
 		npc->talkf = M_TALK_DRUID;
@@ -2869,7 +2869,7 @@ void make_hiscore_npc (pmt npc, int npcid)
 	case 9:
 	    strcpy (Str2, Archmage);
 	    determine_npc_behavior (npc, Archmagelevel, Archmagebehavior);
-	    st = ARTIFACTID + 9;	// kolwynia
+	    st = KEY_OF_KOLWYNIA;
 	    npc->talkf = M_TALK_ARCHMAGE;
 	    m_status_reset (npc, WANDERING);
 	    m_status_reset (npc, HOSTILE);

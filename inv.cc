@@ -224,11 +224,11 @@ const char* itemid (pob obj)
 	if (obj->known == 0)
 	    strcat (Str4, obj->objstr);
 	else if (obj->known == 1) {
-	    if (obj->id == ARTIFACTID + 8 || obj->id == ARTIFACTID + 20 || obj->id == ARTIFACTID + 21)
+	    if (obj->id == AMULET_OF_YENDOR || obj->id == JUGGERNAUT_OF_KARNAK || obj->id == STAR_GEM)
 		strcat (Str4, "the ");
 	    strcat (Str4, obj->truename);
 	} else {
-	    if (obj->id == ARTIFACTID + 8 || obj->id == ARTIFACTID + 20 || obj->id == ARTIFACTID + 21)
+	    if (obj->id == AMULET_OF_YENDOR || obj->id == JUGGERNAUT_OF_KARNAK || obj->id == STAR_GEM)
 		strcat (Str4, "the ");
 	    if (obj->usef == I_NOTHING && Objects[obj->id].usef != I_NOTHING)
 		strcat (Str4, "disenchanted ");
@@ -355,7 +355,7 @@ void give_money (struct monster *m)
 void givemonster (struct monster *m, struct object *o)
 {
     // special case -- give gem to LawBringer
-    if ((m->id == LAWBRINGER) && (o->id == ARTIFACTID + 21)) {
+    if ((m->id == LAWBRINGER) && (o->id == STAR_GEM)) {
 	clearmsg();
 	print1 ("The LawBringer accepts the gem reverently.");
 	print2 ("He raises it above his head, where it bursts into lambent flame!");

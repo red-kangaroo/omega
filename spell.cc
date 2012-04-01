@@ -321,9 +321,9 @@ static void s_ritual (void)
 			} else {
 			    if (Player.patron == DESTINY) {
 				mprint ("Your patrons take pity on you.");
-				if ((Player.rank[PRIESTHOOD] < SPRIEST) && (!find_item (&symbol, ARTIFACTID + 19, -1))) {
+				if ((Player.rank[PRIESTHOOD] < SPRIEST) && (!find_item (&symbol, HOLY_SYMBOL_OF_DESTINY, -1))) {
 				    symbol = ((pob) checkmalloc (sizeof (objtype)));
-				    *symbol = Objects[ARTIFACTID + 19];
+				    *symbol = Objects[HOLY_SYMBOL_OF_DESTINY];
 				    symbol->known = 2;
 				    symbol->charge = 17;
 				    gain_item (symbol);
