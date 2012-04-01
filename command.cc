@@ -204,9 +204,6 @@ void p_process (void)
 	    case 'O':
 		setoptions();
 		break;
-	    case 'P':
-		show_license();
-		break;		// actually show_license is in file.c
 	    case 'Q':
 		quit();
 		break;
@@ -433,9 +430,6 @@ void p_country_process (void)
 	    case 'O':
 		setoptions();
 		break;
-	    case 'P':
-		show_license();
-		break;		// actually show_license is in file.c
 	    case 'Q':
 		quit();
 		break;

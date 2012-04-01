@@ -208,7 +208,6 @@ void extendlog(const char* descrip, int lifestatus);
 void filescanstring (FILE* fd, char* fstr);
 void inv_help(void);
 void save_hiscore_npc(int npc);
-void show_license(void);
 void showmotd(void);
 void showscores(void);
 void theologyfile(void);

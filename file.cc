@@ -50,14 +50,6 @@ void user_intro (void)
     xredraw();
 }
 
-void show_license (void)
-{
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "license.txt");
-    displayfile (Str1);
-    xredraw();
-}
-
 void abyss_file (void)
 {
     strcpy (Str1, Omegalib);
@@ -404,7 +396,7 @@ static const char* required_file_list[] = {
     "village3.dat", "village4.dat", "village5.dat", "village6.dat",
     "home1.dat", "home2.dat", "home3.dat", "arena.dat", "maze1.dat",
     "maze2.dat", "maze3.dat", "maze4.dat", "omega.hi", "omega.log", "motd.txt",
-    "license.txt", "circle.dat", NULL
+    "circle.dat", NULL
 };
 
 static const char* optional_file_list[] = {
