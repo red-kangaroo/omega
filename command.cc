@@ -1725,7 +1725,7 @@ static void help (void)
 	    print2 ("Copying");
 	    for (n = 1; n <= 13; n++) {
 		nprint2 (".");
-		sprintf (Str1, "%shelp%d.txt", Omegalib, n);
+		sprintf (Str1, OMEGALIB "help%d.txt", n);
 		in = checkfopen (Str1, "r");
 		while (fgets (Str1, STRING_LEN, in))
 		    fputs (Str1, out);
@@ -1735,7 +1735,7 @@ static void help (void)
 	    nprint2 (" Done.");
 	}
     } else if (c != KEY_ESCAPE) {
-	sprintf (filestr, "%shelp%d.txt", Omegalib, c + 1 - 'a');
+	sprintf (filestr, OMEGALIB "help%d.txt", c + 1 - 'a');
 	print1 ("Display help file, or Copy help file to file in wd. [dc] ");
 	do
 	    c = (char) mcigetc();

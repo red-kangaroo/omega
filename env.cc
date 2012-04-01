@@ -52,9 +52,7 @@ void load_arena (void)
     Level = ((plv) checkmalloc (sizeof (levtype)));
     clear_level (Level);
     Level->environment = E_ARENA;
-    strcpy (Str3, Omegalib);
-    strcat (Str3, "arena.dat");
-    fd = checkfopen (Str3, "rb");
+    fd = checkfopen (OMEGALIB "arena.dat", "rb");
     site = cryptkey ("arena.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
@@ -115,9 +113,7 @@ void load_circle (int populate)
     Level = ((plv) checkmalloc (sizeof (levtype)));
     clear_level (Level);
     Level->environment = E_CIRCLE;
-    strcpy (Str3, Omegalib);
-    strcat (Str3, "circle.dat");
-    fd = checkfopen (Str3, "rb");
+    fd = checkfopen (OMEGALIB "circle.dat", "rb");
     site = cryptkey ("circle.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
@@ -253,9 +249,7 @@ void load_court (int populate)
     Level = ((plv) checkmalloc (sizeof (levtype)));
     clear_level (Level);
     Level->environment = E_COURT;
-    strcpy (Str3, Omegalib);
-    strcat (Str3, "court.dat");
-    fd = checkfopen (Str3, "rb");
+    fd = checkfopen (OMEGALIB "court.dat", "rb");
     site = cryptkey ("court.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
@@ -356,9 +350,7 @@ void load_abyss (void)
 
     clear_level (Level);
 
-    strcpy (Str3, Omegalib);
-    strcat (Str3, "abyss.dat");
-    fd = checkfopen (Str3, "rb");
+    fd = checkfopen (OMEGALIB "abyss.dat", "rb");
     site = cryptkey ("abyss.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
@@ -425,9 +417,7 @@ void load_city (int populate)
 
     initrand (E_CITY, 0);
 
-    strcpy (Str3, Omegalib);
-    strcat (Str3, "city.dat");
-    fd = checkfopen (Str3, "rb");
+    fd = checkfopen (OMEGALIB "city.dat", "rb");
     site = cryptkey ("city.dat");
 
     TempLevel = Level;
@@ -879,9 +869,7 @@ void resurrect_guards (void)
 
     FILE *fd;
 
-    strcpy (Str3, Omegalib);
-    strcat (Str3, "city.dat");
-    fd = checkfopen (Str3, "rb");
+    fd = checkfopen (OMEGALIB "city.dat", "rb");
     site = cryptkey ("city.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
@@ -912,7 +900,7 @@ static void mazesite (int i, int j, int populate)
     static int k = 0;
     static char site;
     if (fd == NULL) {
-	strcpy (Str2, Omegalib);
+	strcpy (Str2, OMEGALIB);
 	strcpy (Str4, "maze .dat");
 	Str4[4] = '1' + random_range (4);
 	strcat (Str2, Str4);
@@ -1062,9 +1050,7 @@ void load_country (void)
 
     FILE *fd;
 
-    strcpy (Str3, Omegalib);
-    strcat (Str3, "country.dat");
-    fd = checkfopen (Str3, "rb");
+    fd = checkfopen (OMEGALIB "country.dat", "rb");
     site = cryptkey ("country.dat");
 
     for (j = 0; j < LENGTH; j++) {
@@ -1182,9 +1168,7 @@ void load_dlair (int empty, int populate)
     Level = ((plv) checkmalloc (sizeof (levtype)));
     clear_level (Level);
     Level->environment = E_DLAIR;
-    strcpy (Str3, Omegalib);
-    strcat (Str3, "dlair.dat");
-    fd = checkfopen (Str3, "rb");
+    fd = checkfopen (OMEGALIB "dlair.dat", "rb");
     site = cryptkey ("dlair.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
@@ -1300,9 +1284,7 @@ void load_speak (int empty, int populate)
     Level = ((plv) checkmalloc (sizeof (levtype)));
     clear_level (Level);
     Level->environment = E_STARPEAK;
-    strcpy (Str3, Omegalib);
-    strcat (Str3, "speak.dat");
-    fd = checkfopen (Str3, "rb");
+    fd = checkfopen (OMEGALIB "speak.dat", "rb");
     site = cryptkey ("speak.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
@@ -1418,9 +1400,7 @@ void load_misle (int empty, int populate)
     Level = ((plv) checkmalloc (sizeof (levtype)));
     clear_level (Level);
     Level->environment = E_MAGIC_ISLE;
-    strcpy (Str3, Omegalib);
-    strcat (Str3, "misle.dat");
-    fd = checkfopen (Str3, "rb");
+    fd = checkfopen (OMEGALIB "misle.dat", "rb");
     site = cryptkey ("misle.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
@@ -1500,9 +1480,7 @@ void load_temple (int deity, int populate)
     Level = ((plv) checkmalloc (sizeof (levtype)));
     clear_level (Level);
     Level->environment = E_TEMPLE;
-    strcpy (Str3, Omegalib);
-    strcat (Str3, "temple.dat");
-    fd = checkfopen (Str3, "rb");
+    fd = checkfopen (OMEGALIB "temple.dat", "rb");
     site = cryptkey ("temple.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
@@ -2928,21 +2906,20 @@ void load_house (int kind, int populate)
     }
     Level = ((plv) checkmalloc (sizeof (levtype)));
     clear_level (Level);
-    strcpy (Str3, Omegalib);
     switch (kind) {
 	case E_HOUSE:
-	    strcat (Str3, "home1.dat");
+	    strcpy (Str3, OMEGALIB "home1.dat");
 	    Level->environment = E_HOUSE;
 	    site = cryptkey ("home1.dat");
 	    break;
 	case E_MANSION:
-	    strcat (Str3, "home2.dat");
+	    strcpy (Str3, OMEGALIB "home2.dat");
 	    Level->environment = E_MANSION;
 	    site = cryptkey ("home2.dat");
 	    break;
 	default:
 	case E_HOVEL:
-	    strcat (Str3, "home3.dat");
+	    strcpy (Str3, OMEGALIB "home3.dat");
 	    Level->environment = E_HOVEL;
 	    site = cryptkey ("home3.dat");
 	    break;
@@ -3159,7 +3136,7 @@ void load_village (int villagenum, int populate)
     Level = ((plv) checkmalloc (sizeof (levtype)));
     clear_level (Level);
     Level->environment = E_VILLAGE;
-    strcpy (Str3, Omegalib);
+    strcpy (Str3, OMEGALIB);
     switch (villagenum) {
 	case 1:
 	    strcat (Str3, "village1.dat");

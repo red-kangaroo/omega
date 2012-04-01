@@ -44,72 +44,54 @@ FILE* checkfopen (const char* filestring, const char* optionstring)
 
 void user_intro (void)
 {
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "intro.txt");
-    displaycryptfile (Str1);
+    displaycryptfile (OMEGALIB "intro.txt");
     xredraw();
 }
 
 void abyss_file (void)
 {
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "abyss.txt");
-    displaycryptfile (Str1);
+    displaycryptfile (OMEGALIB "abyss.txt");
 }
 
 void inv_help (void)
 {
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "help3.txt");
-    displayfile (Str1);
+    displayfile (OMEGALIB "help3.txt");
     xredraw();
 }
 
 void combat_help (void)
 {
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "help5.txt");
-    displayfile (Str1);
+    displayfile (OMEGALIB "help5.txt");
     menuclear();
 }
 
 void cityguidefile (void)
 {
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "scroll2.txt");
-    displaycryptfile (Str1);
+    displaycryptfile (OMEGALIB "scroll2.txt");
     xredraw();
 }
 
 void wishfile (void)
 {
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "scroll3.txt");
-    displaycryptfile (Str1);
+    displaycryptfile (OMEGALIB "scroll3.txt");
     xredraw();
 }
 
 void adeptfile (void)
 {
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "scroll4.txt");
-    displaycryptfile (Str1);
+    displaycryptfile (OMEGALIB "scroll4.txt");
     xredraw();
 }
 
 void theologyfile (void)
 {
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "scroll1.txt");
-    displaycryptfile (Str1);
+    displaycryptfile (OMEGALIB "scroll1.txt");
     xredraw();
 }
 
 void showmotd (void)
 {
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "motd.txt");
-    displayfile (Str1);
+    displayfile (OMEGALIB "motd.txt");
 }
 
 static void lock_score_file (void)
@@ -117,12 +99,10 @@ static void lock_score_file (void)
     int lock, attempts = 0, thispid, lastpid = 0;
     FILE *lockfile;
 
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "omega.hi.lock");
     do {
-	lock = open (Str1, O_CREAT | O_EXCL, 0600);	// create lock file
+	lock = open (OMEGALIB "omega.hi.lock", O_CREAT | O_EXCL, 0600);	// create lock file
 	if (lock < 0 && errno == EEXIST) {
-	    lockfile = fopen (Str1, "rb");
+	    lockfile = fopen (OMEGALIB "omega.hi.lock", "rb");
 	    if (lockfile) {
 		fscanf (lockfile, "%d", &thispid);
 		fclose (lockfile);
@@ -132,7 +112,7 @@ static void lock_score_file (void)
 	    }
 	    attempts++;
 	    if (attempts > 10)	// assume that lock file has been abandoned
-		unlink (Str1);	// so we unlink it ourselves - ugly...
+		unlink (OMEGALIB "omega.hi.lock");	// so we unlink it ourselves - ugly...
 	    else
 		napms (2000);
 	} else if (lock < 0)	// oops - something very wrong
@@ -145,9 +125,7 @@ static void lock_score_file (void)
 
 static void unlock_score_file (void)
 {
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "omega.hi.lock");
-    unlink (Str1);
+    unlink (OMEGALIB "omega.hi.lock");
 }
 
 void showscores (void)
@@ -156,9 +134,7 @@ void showscores (void)
     int i;
 
     lock_score_file();
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "omega.hi");
-    fd = checkfopen (Str1, "rb");
+    fd = checkfopen (OMEGALIB "omega.hi", "rb");
     filescanstring (fd, Hiscorer);
     filescanstring (fd, Hidescrip);
     fscanf (fd, "%ld %d %d\n", &Hiscore, &Hilevel, &Hibehavior);
@@ -236,12 +212,8 @@ void save_hiscore_npc (int npc)
     if (gamestatusp (CHEATED))
 	return;
     lock_score_file();
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "omega.hi");
-    infile = checkfopen (Str1, "rb");
-    strcpy (Str2, Omegalib);
-    strcat (Str2, "omega.hi.new");
-    outfile = checkfopen (Str2, "wb");
+    infile = checkfopen (OMEGALIB "omega.hi", "rb");
+    outfile = checkfopen (OMEGALIB "omega.hi.new", "wb");
     for (i = 0; i < 16; i++) {
 	if (npc == i) {
 	    switch (i) {
@@ -299,8 +271,8 @@ void save_hiscore_npc (int npc)
     }
     fclose (infile);
     fclose (outfile);
-    unlink (Str1);
-    rename (Str2, Str1);
+    unlink (OMEGALIB "omega.hi");
+    rename (OMEGALIB "omega.hi.new", OMEGALIB "omega.hi");
     unlock_score_file();
 }
 
@@ -352,9 +324,7 @@ void extendlog (const char* descrip, int lifestatus)
     if ((Player.level > 0) && (!gamestatusp (CHEATED))) {
 	npcbehavior = fixnpc (lifestatus);
 	checkhigh (descrip, npcbehavior);
-	strcpy (Str1, Omegalib);
-	strcat (Str1, "omega.log");
-	fd = checkfopen (Str1, "a");
+	fd = checkfopen (OMEGALIB "omega.log", "a");
 	fprintf (fd, " %d %d %d %s\n", lifestatus, Player.level, npcbehavior, Player.name);
 	fclose (fd);
     }
@@ -414,7 +384,7 @@ int filecheck (void)
     int endpos;
     int file;
 
-    strcpy (Str1, Omegalib);
+    strcpy (Str1, OMEGALIB);
     endpos = strlen (Str1);
     for (file = 0; required_file_list[file]; file++) {
 	strcpy (&(Str1[endpos]), required_file_list[file]);
@@ -435,10 +405,7 @@ int filecheck (void)
     }
     if (impossible) {
 	printf ("\nFurther execution is impossible. Sorry.");
-	if (strcmp (Omegalib, OMEGALIB))
-	    printf ("\nEnvironment variable OMEGALIB badly set\n");
-	else
-	    printf ("\nOMEGALIB may be badly #defined in defs.h\n");
+	printf ("\nOMEGALIB may be badly #defined in defs.h\n");
 	return (0);
     } else if (badbutpossible) {
 	printf ("\nFurther execution may cause anomalous behavior.");

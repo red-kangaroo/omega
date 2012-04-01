@@ -15,8 +15,6 @@ static void fix_phantom(struct monster *m);
 
 // most globals originate in omega.c
 
-const char* Omegalib;			// contains the path to the library files
-
 // Objects and Monsters are allocated and initialized in init.c
 
 // one of each spell
@@ -178,8 +176,6 @@ int main (int argc, const char* argv[])
     signal (SIGABRT, signalexit);
     signal (SIGBUS, signalexit);
     signal (SIGSYS, signalexit);
-
-    Omegalib = OMEGALIB;
 
     // if filecheck is 0, some necessary data files are missing
     if (filecheck() == 0)

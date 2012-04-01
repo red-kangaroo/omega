@@ -3012,9 +3012,7 @@ void make_log_npc (struct monster *npc)
     status = 2;
     strcpy (Str2, "Malaprop the Misnamed");
 
-    strcpy (Str1, Omegalib);
-    strcat (Str1, "omega.log");
-    fd = checkfopen (Str1, "r");
+    fd = checkfopen (OMEGALIB "omega.log", "r");
     n = 1;
     while (fgets (Str1, STRING_LEN, fd)) {
 	if (random_range (n) == 0) {	// this algo. from Knuth 2 - cute, eh?
