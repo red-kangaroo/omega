@@ -4,7 +4,7 @@
 //----------------------------------------------------------------------
 //{{{ Objects
 
-struct object Objects[TOTALITEMS] = {
+const struct object Objects[TOTALITEMS] = {
 //   id    plus   dmg    aux   frag     used  type  unique        level	    objstr              cursestr
 //    weight  chrg   hit    num     value bless             usef         objchar          truename
     { 0,  10, 0, 0, 0, 0,  0, 1, 10,   50, 0, 0, 0, COMMON, I_RAISE_PORTCULLIS, 2, THING, "small grey box with red button", "disposeable garage door opener", "disposeable garage door opener"},

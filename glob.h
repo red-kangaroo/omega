@@ -4,7 +4,7 @@
 extern const struct monster_data Monsters[NUMMONSTERS];	// one of each monster
 extern struct spell Spells[NUMSPELLS + 1];	// one of each spell
 extern uint64_t SpellKnown;			// bit set for known spells
-extern struct object Objects[TOTALITEMS];	// one of each item
+extern const struct object Objects[TOTALITEMS];	// one of each item
 extern uint8_t ObjectAttrs[TOTALITEMS];		// attributes such as known and uniqueness
 extern int CitySiteList[NUMCITYSITES][3];	// locations of city sites [0] - found, [1] - x, [2] - y
 extern struct player Player;			// the player
