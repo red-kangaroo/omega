@@ -5,6 +5,7 @@ extern const struct monster_data Monsters[NUMMONSTERS];	// one of each monster
 extern struct spell Spells[NUMSPELLS + 1];	// one of each spell
 extern uint64_t SpellKnown;			// bit set for known spells
 extern struct object Objects[TOTALITEMS];	// one of each item
+extern uint8_t ObjectAttrs[TOTALITEMS];		// attributes such as known and uniqueness
 extern int CitySiteList[NUMCITYSITES][3];	// locations of city sites [0] - found, [1] - x, [2] - y
 extern struct player Player;			// the player
 extern int LENGTH;				// level y dimension
@@ -128,5 +129,17 @@ static inline void learn_spell (ESpell sp)			{ SpellKnown |= (UINT64_C(1) << sp)
 static inline void forget_spell (ESpell sp)			{ SpellKnown &= ~(UINT64_C(1) << sp); }
 static inline void learn_all_spells (void)			{ SpellKnown = UINT64_MAX; }
 static inline void forget_all_spells (void)			{ SpellKnown = 0; }
+
+static inline bool object_is_known (unsigned o)			{ return (ObjectAttrs[o] & OBJECT_KNOWN); }
+static inline void learn_object (unsigned o)			{ ObjectAttrs[o] |= OBJECT_KNOWN; }
+static inline void forget_object (unsigned o)			{ ObjectAttrs[o] &= ~OBJECT_KNOWN; }
+static inline uint8_t object_uniqueness (unsigned o)		{ return (EUniqueness(ObjectAttrs[o] & OBJECT_UNIQUENESS)); }
+static inline void set_object_uniqueness (unsigned o, EUniqueness u)	{ ObjectAttrs[o] = (ObjectAttrs[o]&OBJECT_KNOWN)|u; }
+
+static inline bool object_is_known (const object* o)		{ return (object_is_known(o->id)); }
+static inline void learn_object (object* o)			{ learn_object (o->id); }
+static inline void forget_object (object* o)			{ forget_object (o->id); }
+static inline uint8_t object_uniqueness (const object* o)	{ return (object_uniqueness (o->id)); }
+static inline void set_object_uniqueness (object* o, EUniqueness u)	{ set_object_uniqueness (o->id, u); }
 
 } // namespace

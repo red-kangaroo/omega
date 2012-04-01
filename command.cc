@@ -820,8 +820,7 @@ static void disarm (void)
 		    if (o != NULL) {
 			print2 ("You manage to retrieve the trap components!");
 			morewait();
-			Objects[o->id].known = 1;
-			o->known = 1;
+			learn_object (o);
 			gain_item (o);
 			gain_experience (25);
 		    }
@@ -1503,9 +1502,9 @@ static void movepincountry (int dx, int dy)
 			    clearmsg();
 			    print1 ("Your boots disintegrate with a malicious giggle...");
 			    dispose_lost_objects (1, Player.possessions[O_BOOTS]);
-			} else if (Player.possessions[O_BOOTS]->known != 2) {
+			} else if (!object_is_known (Player.possessions[O_BOOTS])) {
 			    print1 ("Wow! Your boots take you 7 leagues in a single stride!");
-			    Player.possessions[O_BOOTS]->known = 2;
+			    learn_object (Player.possessions[O_BOOTS]);
 			}
 		    }
 		}

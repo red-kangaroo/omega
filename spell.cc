@@ -324,7 +324,7 @@ static void s_ritual (void)
 				if ((Player.rank[PRIESTHOOD] < SPRIEST) && (!find_item (&symbol, HOLY_SYMBOL_OF_DESTINY, -1))) {
 				    symbol = ((pob) checkmalloc (sizeof (objtype)));
 				    *symbol = Objects[HOLY_SYMBOL_OF_DESTINY];
-				    symbol->known = 2;
+				    learn_object (symbol);
 				    symbol->charge = 17;
 				    gain_item (symbol);
 				    mprint ("You feel uplifted.");

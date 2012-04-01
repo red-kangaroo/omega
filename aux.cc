@@ -404,7 +404,7 @@ int damage_item (pob o)
 	    print1 ("The shards coalesce back together again, and vanish");
 	    print2 ("with a muted giggle.");
 	    dispose_lost_objects (1, o);
-	    Objects[o->id].uniqueness = UNIQUE_UNMADE;
+	    set_object_uniqueness (o, UNIQUE_UNMADE);
 	    // WDT HACK: the above is correct only if UNIQUE_UNMADE means that
 	    // the artifact hasn't been generated yet.  (Clearly, Omega is a
 	    // little buggy in that regard with respect to artifacts in general
@@ -1494,16 +1494,11 @@ static long expval (int plevel)
 // If an item is unidentified, it isn't worth much to those who would buy it
 long item_value (pob item)
 {
-    if (item->known == 0) {
+    if (!object_is_known(item)) {
 	if (item->objchar == THING)
 	    return (1);
 	else
 	    return (true_item_value (item) / 10);
-    } else if (item->known == 1) {
-	if (item->objchar == THING)
-	    return (item->basevalue);
-	else
-	    return (item->basevalue / 2);
     } else
 	return (true_item_value (item));
 }
@@ -1876,7 +1871,7 @@ void change_environment (int new_environment)
 	    Player.x = 32;
 	    Player.y = 14;
 	    load_circle (TRUE);
-	    if (Objects[STAR_GEM].uniqueness == UNIQUE_TAKEN) {
+	    if (object_uniqueness(STAR_GEM) == UNIQUE_TAKEN) {
 		print1 ("A bemused voice says:");
 		print2 ("'Why are you here? You already have the Star Gem!'");
 		morewait();

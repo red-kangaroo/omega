@@ -415,11 +415,11 @@ long calc_points (void)
 
     for (i = 0; i < MAXITEMS; i++)
 	if (Player.possessions[i] != NULL)
-	    points += Player.possessions[i]->level * (Player.possessions[i]->known + 1);
+	    points += Player.possessions[i]->level * (object_is_known(Player.possessions[i]) + 1);
 
     for (i = 0; i < MAXPACK; i++)
 	if (Player.pack[i] != NULL)
-	    points += Player.pack[i]->level * (Player.pack[i]->known + 1);
+	    points += Player.pack[i]->level * (object_is_known(Player.pack[i]) + 1);
 
     for (i = 0; i < NUMRANKS; i++) {
 	if (Player.rank[i] == 5)

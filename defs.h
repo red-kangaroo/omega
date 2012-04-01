@@ -534,7 +534,9 @@ enum {
 };
 
 // describing unique items and monsters
-enum { COMMON, UNIQUE_UNMADE, UNIQUE_MADE, UNIQUE_TAKEN };
+enum EUniqueness { COMMON, UNIQUE_UNMADE, UNIQUE_MADE, UNIQUE_TAKEN };
+enum EObjectAttr { OBJECT_KNOWN = (1<<2), OBJECT_UNIQUENESS = OBJECT_KNOWN-1 };
+
 // general item function id's
 enum {
     // note some of these functions are for other types of items too
@@ -896,9 +898,10 @@ struct player {
 struct object {
     int id, weight, plus, charge, dmg, hit, aux, number, fragility;
     long basevalue;
-    unsigned char known, used;
+    unsigned char used;
     int blessing;
-    unsigned char type, uniqueness;
+    unsigned char type;
+    unsigned char uniqueness;
     int usef;
     unsigned char level;
     Symbol objchar;

@@ -490,7 +490,7 @@ static void make_hp (pob o)
 	    *o = Objects[HOLY_SYMBOL_OF_DESTINY];
 	    break;
     }
-    o->known = 2;
+    learn_object (o);
     o->charge = 17;		// random hack to convey bit that symbol is functional
     morewait();
     if (Player.patron == DRUID)

@@ -22,7 +22,7 @@ void enchant (int delta)
 	    print1 ("You feel fortunate.");
 	    morewait();
 	} else if (Player.possessions[i]->blessing < 0 || (Player.possessions[i]->objchar == ARTIFACT && random_range (3))) {
-	    if (Player.possessions[i]->uniqueness == COMMON)
+	    if (object_uniqueness(Player.possessions[i]) == COMMON)
 		print1 ("Your ");
 	    nprint1 (itemid (Player.possessions[i]));
 	    nprint1 (" glows, but the glow flickers out...");
@@ -33,7 +33,7 @@ void enchant (int delta)
 		Player.possessions[i]->used = FALSE;
 		item_use (Player.possessions[i]);
 	    }
-	    if (Player.possessions[i]->uniqueness == COMMON)
+	    if (object_uniqueness(Player.possessions[i]) == COMMON)
 		print1 ("Your ");
 	    nprint1 (itemid (Player.possessions[i]));
 	    nprint1 (" radiates an aura of mundanity!");
@@ -116,7 +116,7 @@ void bless (int blessing)
 	    morewait();
 	} else {
 	    print1 ("A foul odor arises from ");
-	    if (Player.possessions[iidx]->uniqueness == COMMON)
+	    if (object_uniqueness(Player.possessions[iidx]) == COMMON)
 		nprint1 ("your ");
 	    nprint1 (itemid (Player.possessions[iidx]));
 	    morewait();
@@ -503,42 +503,21 @@ void identify (int blessing)
 	else if (iidx == ABORT)
 	    setgamestatus (SKIP_MONSTERS);
 	else {
-	    if (Player.possessions[iidx]->objchar == FOOD)
-		Player.possessions[iidx]->known = 1;
-	    else {
-		Player.possessions[iidx]->known = 2;
-		Objects[Player.possessions[iidx]->id].known = 1;
-	    }
+	    learn_object (Player.possessions[iidx]);
 	    print1 ("Identified: ");
 	    mprint (itemid (Player.possessions[iidx]));
 	}
     } else if (blessing < 0) {
 	print2 ("You feel forgetful.");
 	for (iidx = 0; iidx < MAXITEMS; iidx++)
-	    if (Player.possessions[iidx] != NULL) {
-		Player.possessions[iidx]->known = 0;
-		Objects[Player.possessions[iidx]->id].known = 0;
-	    }
+	    if (Player.possessions[iidx] != NULL)
+		forget_object (Player.possessions[iidx]);
     } else {
 	print2 ("You feel encyclopaedic.");
 	for (iidx = 0; iidx < MAXITEMS; iidx++)
-	    if (Player.possessions[iidx] != NULL) {
-		if (Player.possessions[iidx]->objchar == FOOD)
-		    Player.possessions[iidx]->known = 1;
-		else {
-		    Player.possessions[iidx]->known = 2;
-		    Objects[Player.possessions[iidx]->id].known = 1;
-		}
-	    }
+	    learn_object (Player.possessions[iidx]);
 	for (iidx = 0; iidx < Player.packptr; iidx++)
-	    if (Player.pack[iidx] != NULL) {
-		if (Player.pack[iidx]->objchar == FOOD)
-		    Player.pack[iidx]->known = 1;
-		else {
-		    Player.pack[iidx]->known = 2;
-		    Objects[Player.pack[iidx]->id].known = 1;
-		}
-	    }
+	    learn_object (Player.pack[iidx]);
     }
     calc_melee();
 }
@@ -774,10 +753,8 @@ void acquire (int blessing)
 	}
 	xredraw();
 	if (id != ABORT) {
-	    if (blessing > 0) {
-		newthing->known = 2;
-		Objects[id].known = 1;
-	    }
+	    if (blessing > 0)
+		learn_object (newthing);
 	    newthing->used = FALSE;
 	    gain_item (newthing);
 	}
@@ -1660,7 +1637,7 @@ void learnspell (int blessing)
 	for (i = NUMSPELLS; ((i > -1) && (!done)); i--) {
 	    if (spell_is_known (ESpell(i))) {
 		done = TRUE;
-		Objects[SCROLL_SPELLS].known = TRUE;
+		learn_object (SCROLL_SPELLS);
 		mprint ("You feel forgetful.");
 		forget_spell (ESpell(i));
 	    }
@@ -1668,7 +1645,7 @@ void learnspell (int blessing)
 	if (i == ABORT)
 	    mprint ("You feel fortunate.");
     } else {
-	Objects[SCROLL_SPELLS].known = TRUE;
+	learn_object (SCROLL_SPELLS);
 	ESpell spell = (ESpell) random_range (NUMSPELLS);
 	print1 ("Spell Research");
 	if ((random_range (4 * Spells[spell].powerdrain) + Spells[spell].powerdrain) < (4 * Player.iq + 8 * Player.level)) {

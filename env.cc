@@ -224,7 +224,7 @@ static void make_prime (int i, int j)
     ml->next = Level->mlist;
     Level->mlist = ml;
 
-    if (Objects[STAR_GEM].uniqueness != UNIQUE_TAKEN) {
+    if (object_uniqueness(STAR_GEM) != UNIQUE_TAKEN) {
 	ol = ((pol) checkmalloc (sizeof (oltype)));
 	o = ((pob) checkmalloc (sizeof (objtype)));
 	*o = Objects[STAR_GEM];
@@ -2293,11 +2293,11 @@ void l_thieves_guild (void)
 		    count = 0;
 		    for (i = 1; i < MAXITEMS; i++)
 			if (Player.possessions[i] != NULL)
-			    if (Player.possessions[i]->known < 2)
+			    if (!object_is_known(Player.possessions[i]))
 				count++;
 		    for (i = 0; i < Player.packptr; i++)
 			if (Player.pack[i] != NULL)
-			    if (Player.pack[i]->known < 2)
+			    if (!object_is_known(Player.pack[i]))
 				count++;
 		    clearmsg();
 		    print1 ("The fee will be: ");
@@ -2337,8 +2337,8 @@ void l_thieves_guild (void)
 				}
 				Player.cash += number * 2 * item_value (Player.possessions[i]) / 3;
 				// Fenced artifacts could turn up anywhere, really...
-				if (Objects[Player.possessions[i]->id].uniqueness > UNIQUE_UNMADE)
-				    Objects[Player.possessions[i]->id].uniqueness = UNIQUE_UNMADE;
+				if (object_uniqueness(Player.possessions[i]) > UNIQUE_UNMADE)
+				    set_object_uniqueness (Player.possessions[i], UNIQUE_UNMADE);
 				dispose_lost_objects (number, Player.possessions[i]);
 				dataprint();
 			    } else
@@ -2359,8 +2359,8 @@ void l_thieves_guild (void)
 				    Player.pack[i]->number -= number;
 				    if (Player.pack[i]->number < 1) {
 					// Fenced an artifact?  You just might see it again.
-					if (Objects[Player.pack[i]->id].uniqueness > UNIQUE_UNMADE)
-					    Objects[Player.pack[i]->id].uniqueness = UNIQUE_UNMADE;
+					if (object_uniqueness(Player.pack[i]) > UNIQUE_UNMADE)
+					    set_object_uniqueness (Player.pack[i], UNIQUE_UNMADE);
 					free (Player.pack[i]);
 					Player.pack[i] = NULL;
 				    }
@@ -2795,7 +2795,7 @@ void l_order (void)
 		*newitem = Objects[WEAPON_SPEAR];
 		newitem->blessing = 9;
 		newitem->plus = 1;
-		newitem->known = 2;
+		learn_object (newitem);
 		gain_item (newitem);
 	    }
 	}
@@ -2834,7 +2834,7 @@ void l_order (void)
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
 		*newitem = Objects[ARMOR_MITHRIL_PLATE];
 		newitem->blessing = 9;
-		newitem->known = 2;
+		learn_object (newitem);
 		gain_item (newitem);
 		morewait();
 		clearmsg();
@@ -2863,7 +2863,7 @@ void l_order (void)
 		clearmsg();
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
 		*newitem = Objects[WEAPON_MACE_OF_DISRUPTION];
-		newitem->known = 2;
+		learn_object (newitem);
 		gain_item (newitem);
 	    }
 	} else if (Player.rank[ORDER] == GALLANT) {
@@ -2882,7 +2882,7 @@ void l_order (void)
 		Player.rank[ORDER] = GUARDIAN;
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
 		*newitem = Objects[HOLY_HAND_GRENADE];
-		newitem->known = 2;
+		learn_object (newitem);
 		gain_item (newitem);
 	    }
 	}
@@ -3935,7 +3935,7 @@ pmt make_creature (int mid)
     else {
 	if (newmonster->sleep < random_range (100))
 	    m_status_set (newmonster, AWAKE);
-	if (newmonster->startthing > -1 && Objects[newmonster->startthing].uniqueness <= UNIQUE_MADE) {
+	if (newmonster->startthing > -1 && object_uniqueness(newmonster->startthing) <= UNIQUE_MADE) {
 	    ob = ((pob) checkmalloc (sizeof (objtype)));
 	    *ob = Objects[newmonster->startthing];
 	    m_pickup (newmonster, ob);
@@ -3944,8 +3944,8 @@ pmt make_creature (int mid)
 	for (i = 0; i < treasures; i++) {
 	    do {
 		ob = (pob) (create_object (newmonster->level));
-		if (ob->uniqueness != COMMON) {
-		    Objects[ob->id].uniqueness = UNIQUE_UNMADE;
+		if (object_uniqueness(ob) != COMMON) {
+		    set_object_uniqueness (ob, UNIQUE_UNMADE);
 		    free (ob);
 		    ob = NULL;
 		}
@@ -4006,7 +4006,7 @@ static void make_site_treasure (int i, int j, int itemlevel)
 static void make_specific_treasure (int i, int j, int iid)
 {
     pol tmp;
-    if (Objects[iid].uniqueness == UNIQUE_TAKEN)
+    if (object_uniqueness(iid) == UNIQUE_TAKEN)
 	return;
     tmp = ((pol) checkmalloc (sizeof (oltype)));
     tmp->thing = ((pob) checkmalloc (sizeof (objtype)));
@@ -4256,7 +4256,7 @@ static void buyfromstock (int base, int numitems)
 	i = item - 'a';
 	newitem = ((pob) checkmalloc (sizeof (objtype)));
 	*newitem = Objects[base + i];
-	newitem->known = 2;
+	learn_object (newitem);
 	clearmsg();
 	print1 ("I can let you have it for ");
 	mlongprint (2 * true_item_value (newitem));
@@ -5056,8 +5056,8 @@ void l_pawn_shop (void)
 	Pawndate = Date;
 	for (k = 0; k < limit; k++) {
 	    if (Pawnitems[0] != NULL) {
-		if (Objects[Pawnitems[0]->id].uniqueness > UNIQUE_UNMADE)
-		    Objects[Pawnitems[0]->id].uniqueness = UNIQUE_UNMADE;
+		if (object_uniqueness(Pawnitems[0]) > UNIQUE_UNMADE)
+		    set_object_uniqueness (Pawnitems[0], UNIQUE_UNMADE);
 		// could turn up anywhere, really :)
 		free (Pawnitems[0]);
 		Pawnitems[0] = NULL;
@@ -5071,14 +5071,14 @@ void l_pawn_shop (void)
 			if (Pawnitems[i] != NULL)
 			    free (Pawnitems[i]);
 			Pawnitems[i] = create_object (5);
-			Pawnitems[i]->known = 2;
+			learn_object (Pawnitems[i]);
 		    } while ((Pawnitems[i]->objchar == CASH) || (Pawnitems[i]->objchar == ARTIFACT) || (true_item_value (Pawnitems[i]) <= 0));
 	}
 	while (!done) {
 	    print1 ("Knight's Pawn Shop:");
 	    print2 ("Buy item, Sell item, sell Pack contents, Leave [b,s,p,ESCAPE] ");
 	    menuclear();
-	    for (i = 0; i < PAWNITEMS; i++)
+	    for (i = 0; i < PAWNITEMS; i++) {
 		if (Pawnitems[i] != NULL) {
 		    strcpy (Str3, " :");
 		    Str3[0] = i + 'a';
@@ -5086,6 +5086,7 @@ void l_pawn_shop (void)
 		    menuprint (Str3);
 		    menuprint ("\n");
 		}
+	    }
 	    showmenu();
 	    action = (char) mcigetc();
 	    if (action == KEY_ESCAPE)
@@ -5115,7 +5116,7 @@ void l_pawn_shop (void)
 				morewait();
 			    } else {
 				Player.cash -= Pawnitems[i]->number * true_item_value (Pawnitems[i]);
-				Objects[Pawnitems[i]->id].known = 1;
+				learn_object (Pawnitems[i]);
 				gain_item (Pawnitems[i]);
 				Pawnitems[i] = NULL;
 			    }
@@ -5151,7 +5152,7 @@ void l_pawn_shop (void)
 			    Pawnitems[PAWNITEMS - 1] = ((pob) checkmalloc (sizeof (objtype)));
 			    *(Pawnitems[PAWNITEMS - 1]) = *(Player.possessions[i]);
 			    Pawnitems[PAWNITEMS - 1]->number = number;
-			    Pawnitems[PAWNITEMS - 1]->known = 2;
+			    learn_object (Pawnitems[PAWNITEMS - 1]);
 			    dispose_lost_objects (number, Player.possessions[i]);
 			    dataprint();
 			}
@@ -5176,7 +5177,7 @@ void l_pawn_shop (void)
 				Pawnitems[PAWNITEMS - 1] = ((pob) checkmalloc (sizeof (objtype)));
 				*(Pawnitems[PAWNITEMS - 1]) = *(Player.pack[i]);
 				Pawnitems[PAWNITEMS - 1]->number = number;
-				Pawnitems[PAWNITEMS - 1]->known = 2;
+				learn_object (Pawnitems[PAWNITEMS - 1]);
 				Player.pack[i]->number -= number;
 				if (Player.pack[i]->number < 1) {
 				    free (Player.pack[i]);

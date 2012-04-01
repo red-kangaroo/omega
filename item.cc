@@ -159,12 +159,12 @@ pob create_object (int itemlevel)
 	    make_artifact (o, -1);
 	// not ok if object is too good for level, or if unique and already made
 	// 1/100 chance of finding object if too good for level
-	ok = ((o->uniqueness < UNIQUE_MADE) && ((o->level < itemlevel + random_range (3)) || (random_range (100) == 23)));
+	ok = ((object_uniqueness(o) < UNIQUE_MADE) && ((o->level < itemlevel + random_range (3)) || (random_range (100) == 23)));
 	if (!ok)
 	    free (o);
     }
-    if (o->uniqueness == UNIQUE_UNMADE)
-	Objects[o->id].uniqueness = UNIQUE_MADE;
+    if (object_uniqueness(o) == UNIQUE_UNMADE)
+	set_object_uniqueness (o, UNIQUE_MADE);
     return (o);
 }
 
@@ -189,7 +189,7 @@ void make_corpse (pob o, struct monster *m)
     o->charge = m->id;
     o->weight = m->corpseweight;
     o->basevalue = m->corpsevalue;
-    o->known = 2;
+    learn_object (o->id);
     o->objstr = m->corpsestr;
     o->truename = o->cursestr = o->objstr;
     if (m_statusp (m, EDIBLE)) {
@@ -361,7 +361,7 @@ void make_artifact (pob o, int id)
     if (id == -1)
 	do
 	    id = random_range (NUMARTIFACTS);
-	while (Objects[id].uniqueness >= UNIQUE_MADE);
+	while (object_uniqueness(id) >= UNIQUE_MADE);
     *o = Objects[ARTIFACTID + id];
 }
 
@@ -795,7 +795,7 @@ static void i_nothing (pob o UNUSED)
 static void i_knowledge (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     knowledge (o->blessing);
 }
 
@@ -805,7 +805,7 @@ static void i_jane_t (pob o)
     int j = 0, k = 0;
     char v;
 
-    Objects[o->id].known = 1;
+    learn_object (o);
     print1 ("Jane's Guide to the World's Treasures: ");
     switch (volume) {
 	case 0:
@@ -842,7 +842,7 @@ static void i_jane_t (pob o)
     menuclear();
     menuprint ("You could probably now recognise:\n");
     for (int i = j; i < k; i++) {
-	Objects[i].known = 1;
+	learn_object (i);
 	v = Objects[i].truename[0];
 	if ((v >= 'A' && v <= 'Z') || volume == 3)
 	    sprintf (Str1, "   %s\n", Objects[i].truename);
@@ -860,7 +860,7 @@ static void i_jane_t (pob o)
 static void i_flux (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     flux (o->blessing);
 }
 
@@ -868,7 +868,7 @@ static void i_flux (pob o)
 static void i_enchant (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     enchant (o->blessing < 0 ? -1 - o->plus : o->plus + 1);
 }
 
@@ -876,7 +876,7 @@ static void i_enchant (pob o)
 static void i_clairvoyance (struct object *o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     if (o->blessing < 0)
 	amnesia();
     else
@@ -888,7 +888,7 @@ static void i_acquire (pob o)
     int blessing;
 
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     blessing = o->blessing;
     *o = Objects[SCROLL_BLANK];
     acquire (blessing);
@@ -897,14 +897,14 @@ static void i_acquire (pob o)
 static void i_teleport (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     p_teleport (o->blessing);
 }
 
 static void i_spells (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     mprint ("A scroll of spells.");
     morewait();
     learnspell (o->blessing);
@@ -913,7 +913,7 @@ static void i_spells (pob o)
 // scroll of blessing
 static void i_bless (pob o)
 {
-    Objects[o->id].known = 1;
+    learn_object (o);
     bless (o->blessing);
 }
 
@@ -921,7 +921,7 @@ static void i_bless (pob o)
 static void i_wish (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     wish (o->blessing);
     *o = Objects[SCROLL_BLANK];
 }
@@ -930,7 +930,7 @@ static void i_wish (pob o)
 static void i_displace (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     displace (o->blessing);
 }
 
@@ -938,7 +938,7 @@ static void i_displace (pob o)
 static void i_deflect (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     deflection (o->blessing);
 }
 
@@ -946,7 +946,7 @@ static void i_deflect (pob o)
 static void i_id (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     identify (o->blessing);
 }
 
@@ -956,7 +956,7 @@ static void i_id (pob o)
 static void i_heal (pob o)
 {
     if (o->blessing > -1) {
-	Objects[o->id].known = 1;
+	learn_object (o);
 	heal (1 + o->plus);
     } else
 	heal (-1 - absv (o->plus));
@@ -966,7 +966,7 @@ static void i_heal (pob o)
 static void i_mondet (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     mondet (o->blessing);
 }
 
@@ -975,7 +975,7 @@ static void i_objdet (pob o)
 {
 
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     objdet (o->blessing);
 }
 
@@ -983,7 +983,7 @@ static void i_objdet (pob o)
 static void i_neutralize_poison (pob o)
 {
     if (o->blessing > -1) {
-	Objects[o->id].known = 1;
+	learn_object (o);
 	mprint ("You feel vital!");
 	Player.status[POISONED] = 0;
     } else
@@ -994,14 +994,14 @@ static void i_neutralize_poison (pob o)
 static void i_sleep_self (pob o)
 {
     sleep_player (6);
-    Objects[o->id].known = 1;
+    learn_object (o);
 }
 
 // potion of speed
 static void i_speed (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     haste (o->blessing);
 }
 
@@ -1009,14 +1009,14 @@ static void i_speed (pob o)
 static void i_restore (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     recover_stat (o->blessing);
 }
 
 static void i_augment (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     augment (o->blessing);
 }
 
@@ -1059,11 +1059,9 @@ static void i_perm_speed (pob o)
 {
     if (o->blessing > -1) {
 	if (o->used) {
-	    o->known = 2;
-	    Objects[o->id].known = 1;
-	    if (Player.status[SLOWED] > 0) {
+	    learn_object (o);
+	    if (Player.status[SLOWED] > 0)
 		Player.status[SLOWED] = 0;
-	    }
 	    mprint ("The world slows down!");
 	    Player.status[HASTED] += 1500;
 	} else {
@@ -1213,21 +1211,21 @@ static void i_breathing (pob o)
 {
 
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     breathe (o->blessing);
 }
 
 static void i_invisible (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     invisible (o->blessing);
 }
 
 static void i_perm_invisible (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     if (o->used) {
 	if (o->blessing > -1) {
 	    mprint ("You feel transparent!");
@@ -1256,14 +1254,14 @@ static void i_perm_invisible (pob o)
 static void i_warp (pob o)
 {
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     warp (o->blessing);
 }
 
 static void i_alert (pob o)
 {
     if (o->blessing > -1) {
-	Objects[o->id].known = 1;
+	learn_object (o);
 	alert (o->blessing);
     }
 }
@@ -1272,7 +1270,7 @@ static void i_charge (pob o)
 {
     int i;
     if (o->blessing > -1)
-	Objects[o->id].known = 1;
+	learn_object (o);
     mprint ("A scroll of charging.");
     mprint ("Charge: ");
     i = getitem (STICK);
@@ -1292,7 +1290,7 @@ static void i_charge (pob o)
 static void i_fear_resist (pob o)
 {
     if (o->blessing > -1) {
-	Objects[o->id].known = 1;
+	learn_object (o);
 	if (Player.status[AFRAID] > 0) {
 	    mprint ("You feel stauncher now.");
 	    Player.status[AFRAID] = 0;
@@ -1309,35 +1307,34 @@ static void i_pick (pob o)
     int dir;
     int ox, oy;
     o->used = FALSE;
-    if ((!o->known) && (!Player.rank[THIEVES]))
+    if (!object_is_known(o) && !Player.rank[THIEVES]) {
 	mprint ("You have no idea what do with a piece of twisted metal.");
-    else {
-	o->known = 1;
-	Objects[o->id].known = 1;
-	mprint ("Pick lock:");
-	dir = getdir();
-	if (dir == ABORT)
-	    resetgamestatus (SKIP_MONSTERS);
-	else {
-	    ox = Player.x + Dirs[0][dir];
-	    oy = Player.y + Dirs[1][dir];
-	    if ((Level->site[ox][oy].locchar != CLOSED_DOOR) || loc_statusp (ox, oy, SECRET)) {
-		mprint ("You can't unlock that!");
-		resetgamestatus (SKIP_MONSTERS);
-	    } else if (Level->site[ox][oy].aux == LOCKED) {
-		if (Level->depth == MaxDungeonLevels - 1)
-		    mprint ("The lock is too complicated for you!!!");
-		else if (Level->depth * 2 + random_range (50) < Player.dex + Player.level + Player.rank[THIEVES] * 10) {
-		    mprint ("You picked the lock!");
-		    Level->site[ox][oy].aux = UNLOCKED;
-		    lset (ox, oy, CHANGED);
-		    gain_experience (max (3, Level->depth));
-		} else
-		    mprint ("You failed to pick the lock.");
-	    } else
-		mprint ("That door is already unlocked!");
-	}
+	return;
     }
+    learn_object (o);
+    mprint ("Pick lock:");
+    dir = getdir();
+    if (dir == ABORT) {
+	resetgamestatus (SKIP_MONSTERS);
+	return;
+    }
+    ox = Player.x + Dirs[0][dir];
+    oy = Player.y + Dirs[1][dir];
+    if ((Level->site[ox][oy].locchar != CLOSED_DOOR) || loc_statusp (ox, oy, SECRET)) {
+	mprint ("You can't unlock that!");
+	resetgamestatus (SKIP_MONSTERS);
+    } else if (Level->site[ox][oy].aux == LOCKED) {
+	if (Level->depth == MaxDungeonLevels - 1)
+	    mprint ("The lock is too complicated for you!!!");
+	else if (Level->depth * 2 + random_range (50) < Player.dex + Player.level + Player.rank[THIEVES] * 10) {
+	    mprint ("You picked the lock!");
+	    Level->site[ox][oy].aux = UNLOCKED;
+	    lset (ox, oy, CHANGED);
+	    gain_experience (max (3, Level->depth));
+	} else
+	    mprint ("You failed to pick the lock.");
+    } else
+	mprint ("That door is already unlocked!");
 }
 
 // use a magic key
@@ -1463,15 +1460,13 @@ static void i_corpse (pob o)
 
 static void i_accuracy (pob o)
 {
-    o->known = 1;
-    Objects[o->id].known = 1;
+    learn_object (o);
     accuracy (o->blessing);
 }
 
 static void i_perm_accuracy (pob o)
 {
-    o->known = 1;
-    Objects[o->id].known = 1;
+    learn_object (o);
     if ((o->used) && (o->blessing > -1)) {
 	Player.status[ACCURATE] += 1500;
 	mprint ("You feel skillful and see bulls' eyes everywhere.");
@@ -1487,15 +1482,13 @@ static void i_perm_accuracy (pob o)
 
 static void i_hero (pob o)
 {
-    o->known = 1;
-    Objects[o->id].known = 1;
+    learn_object (o);
     hero (o->blessing);
 }
 
 static void i_perm_hero (pob o)
 {
-    o->known = 1;
-    Objects[o->id].known = 1;
+    learn_object (o);
     if (o->used) {
 	if (o->blessing > -1) {
 	    Player.status[HERO] += 1500;
@@ -1529,15 +1522,13 @@ static void i_perm_hero (pob o)
 
 static void i_levitate (pob o)
 {
-    o->known = 1;
-    Objects[o->id].known = 1;
+    learn_object (o);
     levitate (o->blessing);
 }
 
 static void i_perm_levitate (pob o)
 {
-    o->known = 1;
-    Objects[o->id].known = 1;
+    learn_object (o);
     if (o->blessing > -1) {
 	if (o->used) {
 	    Player.status[LEVITATING] += 1400;
@@ -1572,8 +1563,7 @@ static void i_perm_protection (pob o)
 
 static void i_perm_agility (pob o)
 {
-    o->known = 2;
-    Objects[o->id].known = 1;
+    learn_object (o);
     if (o->used) {
 	if (o->blessing > -1)
 	    Player.agi += absv (o->plus) + 1;
@@ -1590,15 +1580,13 @@ static void i_perm_agility (pob o)
 
 static void i_truesight (pob o)
 {
-    o->known = 1;
-    Objects[o->id].known = 1;
+    learn_object (o);
     truesight (o->blessing);
 }
 
 static void i_perm_truesight (pob o)
 {
-    o->known = 1;
-    Objects[o->id].known = 1;
+    learn_object (o);
     if (o->used) {
 	if (o->blessing > -1) {
 	    Player.status[TRUESIGHT] += 1500;
@@ -1626,15 +1614,13 @@ static void i_perm_truesight (pob o)
 
 static void i_illuminate (pob o)
 {
-    o->known = 1;
-    Objects[o->id].known = 1;
+    learn_object (o);
     illuminate (o->blessing);
 }
 
 static void i_perm_illuminate (pob o)
 {
-    o->known = 1;
-    Objects[o->id].known = 1;
+    learn_object (o);
     if (o->used)
 	Player.status[ILLUMINATION] += 1500;
     else
@@ -1643,11 +1629,11 @@ static void i_perm_illuminate (pob o)
 
 static void i_trap (pob o)
 {
-    Objects[o->id].known = 1;
+    learn_object (o);
 
     if ((Level->site[Player.x][Player.y].locchar != FLOOR) || (Level->site[Player.x][Player.y].p_locf != L_NO_OP))
 	mprint ("Your attempt fails.");
-    else if (!o->known) {
+    else if (!object_is_known(o)) {
 	mprint ("Fiddling with the thing, you have a small accident....");
 	p_movefunction (o->aux);
     } else {
@@ -1668,19 +1654,14 @@ static void i_raise_portcullis (pob o)
 // ring functions
 static void i_perm_knowledge (pob o)
 {
-    if (o->known < 1)
-	o->known = 1;
-    if (o->blessing > -1)
-	Objects[o->id].known = 1;
+    learn_object (o);
     if (o->used)
 	knowledge (o->blessing);
 }
 
 static void i_perm_strength (pob o)
 {
-    if (o->known < 1)
-	o->known = 1;
-    Objects[o->id].known = 1;
+    learn_object (o);
     if (o->used) {
 	if (o->blessing > -1)
 	    Player.str += absv (o->plus) + 1;
@@ -1750,10 +1731,7 @@ static void i_perm_poison_resist (pob o)
 
 static void i_perm_regenerate (pob o)
 {
-    if (o->known < 1)
-	o->known = 1;
-    if (o->blessing > -1)
-	Objects[o->id].known = 1;
+    learn_object (o);
     if (o->used) {
 	mprint ("You seem abnormally healthy.");
 	Player.status[REGENERATING] += 1500;
@@ -1809,11 +1787,7 @@ static void i_perm_fear_resist (pob o)
 
 static void i_perm_breathing (pob o)
 {
-    if (o->known < 1)
-	o->known = 1;
-    if (o->blessing > -1)
-	Objects[o->id].known = 1;
-
+    learn_object (o);
     if (o->blessing > -1) {
 	if (o->used) {
 	    mprint ("Your breath is energized!");
@@ -1896,10 +1870,10 @@ void weapon_demonblade (int dmgmod, pob o, struct monster *m)
 
 void weapon_lightsabre (int dmgmod UNUSED, pob o, struct monster *m)
 {
-    if (!o->known) {
+    if (!object_is_known(o)) {
 	mprint ("Fumbling with the cylinder, you press the wrong stud....");
 	p_damage (100, UNSTOPPABLE, "fumbling with a lightsabre");
-	o->known = 1;
+	learn_object (o);
     } else {
 	// test prevents confusing immunity messages....
 	if (!m_immunityp (m, NORMAL_DAMAGE)) {
@@ -1965,7 +1939,7 @@ void weapon_bare_hands (int dmgmod, struct monster *m)
 static void i_demonblade (pob o)
 {
     if (o->used) {
-	o->known = 2;
+	learn_object (o);
 	mprint ("Demonblade's fangs open and bury themselves in your wrist!");
 	mprint ("You hear evil laughter in the distance....");
 	mprint ("You begin to foam at the mouth!");
@@ -1999,7 +1973,7 @@ static void i_mace_disrupt (pob o UNUSED)
 void weapon_vorpal (int dmgmod, pob o, struct monster *m)
 {
     if ((random_range (10) < 3) && (!m_immunityp (m, NORMAL_DAMAGE))) {
-	o->known = 2;
+	learn_object (o);
 	if (random_range (2) == 1)
 	    mprint ("One Two! One Two! And through and through!");
 	else
@@ -2011,7 +1985,7 @@ void weapon_vorpal (int dmgmod, pob o, struct monster *m)
 
 void weapon_desecrate (int dmgmod, pob o, struct monster *m)
 {
-    o->known = 2;
+    learn_object (o);
     if (Player.alignment < 0) {
 	mprint ("Your opponent screams in agony!");
 	p_hit (m, Player.dmg + dmgmod, UNSTOPPABLE);
@@ -2033,7 +2007,7 @@ void weapon_desecrate (int dmgmod, pob o, struct monster *m)
 void weapon_firestar (int dmgmod, pob o, struct monster *m)
 {
     if (random_range (3) == 1) {
-	o->known = 2;
+	learn_object (o);
 	fball (Player.x, Player.y, Player.x, Player.y, max (Player.dmg, 25));
     }
     if (m->hp > 0)
@@ -2071,7 +2045,7 @@ void weapon_victrix (int dmgmod, pob o, struct monster *m)
 
 static void i_defend (pob o)
 {
-    o->known = 2;
+    learn_object (o);
     if (o->used) {
 	mprint ("You feel under an aegis!");
 	Player.status[PROTECTION] += o->hit;
@@ -2081,7 +2055,7 @@ static void i_defend (pob o)
 
 static void i_victrix (pob o)
 {
-    o->known = 2;
+    learn_object (o);
     o->blessing = absv (o->blessing);
     if (o->used) {
 	Player.immunity[POISON]++;
@@ -2096,8 +2070,7 @@ static void i_victrix (pob o)
 
 static void i_desecrate (pob o)
 {
-    if (o->known < 1)
-	o->known = 2;
+    learn_object (o);
     if (o->blessing > 0) {
 	mprint ("How weird, a blessed desecrator... ");
 	mprint ("The structure of reality cannot permit such a thing....");
@@ -2115,8 +2088,7 @@ static void i_normal_shield (pob o)
 
 static void i_perm_deflect (pob o)
 {
-    if (o->known < 1)
-	o->known = 2;
+    learn_object (o);
     if (o->blessing > -1) {
 	if (o->used) {
 	    mprint ("You feel buffered.");
@@ -2186,7 +2158,7 @@ static void i_stargem (pob o)
 	print1 ("The Star Gem glints weakly as if to say:");
 	print2 ("'You have used me overmuch.'");
 	print3 ("and it vanishes a puff of regret.");
-	Objects[o->id].uniqueness = UNIQUE_UNMADE;
+	set_object_uniqueness (o, UNIQUE_UNMADE);
 	// it's now out there, somewhere
 	dispose_lost_objects (1, o);
     } else {
@@ -2224,8 +2196,7 @@ static void i_stargem (pob o)
 static void i_fear (pob o)
 {
     int x = Player.x, y = Player.y;
-    Objects[o->id].known = 1;
-    o->known = max (1, o->known);
+    learn_object (o);
     setspot (&x, &y);
     if (o->blessing < 0) {
 	x = Player.x;
@@ -2241,60 +2212,60 @@ static void i_juggernaut (pob o)
     int tunneled = 0;
 
     print1 ("You activate the Juggernaut of Karnak!");
-    if (!o->known) {
+    if (!object_is_known(o)) {
 	print2 ("Uh, oh, it's coming this way!");
 	p_death ("the Juggernaut of Karnak");
-    } else {
-	d = getdir();
-	if (d == ABORT)
-	    print2 ("You deactivate the Juggernaut before it escapes.");
-	else {
-	    print1 ("Vroom! ");
-	    while (inbounds (x + Dirs[0][d], y + Dirs[1][d])) {
-		x += Dirs[0][d];
-		y += Dirs[1][d];
-		if (!view_unblocked (x, y) || offscreen (y))
-		    seen = 0;
-		if (Level->site[x][y].locchar == WALL)
-		    tunneled++;
-		if (Level->site[x][y].locchar != WATER && Level->site[x][y].locchar != VOID_CHAR && Level->site[x][y].locchar != ABYSS && Level->site[x][y].locchar != SPACE && Level->site[x][y].locchar != LAVA) {
-		    Level->site[x][y].locchar = FLOOR;
-		    Level->site[x][y].p_locf = L_NO_OP;
-		}
-		lreset (x, y, SECRET);
-		lset (x, y, CHANGED);
-		if (Level->site[x][y].creature != NULL) {
-		    if (seen)
-			nprint1 ("Splat! ");
-		    else
-			not_seen++;
-		    setgamestatus (SUPPRESS_PRINTING);
-		    m_death (Level->site[x][y].creature);
-		    resetgamestatus (SUPPRESS_PRINTING);
-		}
-		plotspot (x, y, FALSE);
-		omshowcursor (x, y);
+	return;
+    }
+    d = getdir();
+    if (d == ABORT)
+	print2 ("You deactivate the Juggernaut before it escapes.");
+    else {
+	print1 ("Vroom! ");
+	while (inbounds (x + Dirs[0][d], y + Dirs[1][d])) {
+	    x += Dirs[0][d];
+	    y += Dirs[1][d];
+	    if (!view_unblocked (x, y) || offscreen (y))
+		seen = 0;
+	    if (Level->site[x][y].locchar == WALL)
+		tunneled++;
+	    if (Level->site[x][y].locchar != WATER && Level->site[x][y].locchar != VOID_CHAR && Level->site[x][y].locchar != ABYSS && Level->site[x][y].locchar != SPACE && Level->site[x][y].locchar != LAVA) {
+		Level->site[x][y].locchar = FLOOR;
+		Level->site[x][y].p_locf = L_NO_OP;
 	    }
-	    if (not_seen > 6)
-		print2 ("You hear many distant screams...");
-	    else if (not_seen > 3)
-		print2 ("You hear several distant screams...");
-	    else if (not_seen > 1)
-		print2 ("You hear a couple of distant screams...");
-	    else if (not_seen == 1)
-		print2 ("You hear a distant scream...");
-	    gain_experience (1000);
-	    dispose_lost_objects (1, o);
-	    Level->tunnelled += tunneled - 1;
-	    tunnelcheck();
+	    lreset (x, y, SECRET);
+	    lset (x, y, CHANGED);
+	    if (Level->site[x][y].creature != NULL) {
+		if (seen)
+		    nprint1 ("Splat! ");
+		else
+		    not_seen++;
+		setgamestatus (SUPPRESS_PRINTING);
+		m_death (Level->site[x][y].creature);
+		resetgamestatus (SUPPRESS_PRINTING);
+	    }
+	    plotspot (x, y, FALSE);
+	    omshowcursor (x, y);
 	}
+	if (not_seen > 6)
+	    print2 ("You hear many distant screams...");
+	else if (not_seen > 3)
+	    print2 ("You hear several distant screams...");
+	else if (not_seen > 1)
+	    print2 ("You hear a couple of distant screams...");
+	else if (not_seen == 1)
+	    print2 ("You hear a distant scream...");
+	gain_experience (1000);
+	dispose_lost_objects (1, o);
+	Level->tunnelled += tunneled - 1;
+	tunnelcheck();
     }
 }
 
 static void i_symbol (pob o)
 {
     int i;
-    if (!o->known)
+    if (!object_is_known(o))
 	print1 ("Nothing seems to happen.");
     // if o->charge != 17, then symbol was stolen from own high priest!
     else if ((o->aux != Player.patron) || (o->charge != 17)) {
@@ -2327,27 +2298,27 @@ static void i_symbol (pob o)
 
 static void i_crystal (pob o)
 {
-    if (!o->known)
+    if (!object_is_known(o)) {
 	print1 ("You can't figure out how to activate this orb.");
-    else {
-	print1 ("You gaze into your crystal ball.");
-	if (ViewHour == hour())
-	    print2 ("All you get is Gilligan's Island reruns.");
-	else if ((o->blessing < 0) || (Player.iq + Player.level < random_range (30))) {
-	    ViewHour = hour();
-	    print2 ("Weird interference patterns from the crystal fog your mind....");
-	    amnesia();
-	} else {
-	    ViewHour = hour();
-	    print2 ("You sense the presence of life...");
-	    mondet (1);
-	    morewait();
-	    print2 ("You sense the presence of objects...");
-	    objdet (1);
-	    morewait();
-	    print2 ("You begin to see visions of things beyond your ken....");
-	    hint();
-	}
+	return;
+    }
+    print1 ("You gaze into your crystal ball.");
+    if (ViewHour == hour())
+	print2 ("All you get is Gilligan's Island reruns.");
+    else if (o->blessing < 0 || Player.iq + Player.level < random_range(30)) {
+	ViewHour = hour();
+	print2 ("Weird interference patterns from the crystal fog your mind....");
+	amnesia();
+    } else {
+	ViewHour = hour();
+	print2 ("You sense the presence of life...");
+	mondet (1);
+	morewait();
+	print2 ("You sense the presence of objects...");
+	objdet (1);
+	morewait();
+	print2 ("You begin to see visions of things beyond your ken....");
+	hint();
     }
 }
 
@@ -2355,7 +2326,7 @@ static void i_antioch (pob o)
 {
     int x = Player.x, y = Player.y;
     int count;
-    if (!o->known) {
+    if (!object_is_known(o)) {
 	print1 ("Ka-Boom!");
 	print2 ("You seem to have annihilated yourself.");
 	p_death ("the Holy Hand-Grenade of Antioch");
@@ -2399,7 +2370,7 @@ static void i_antioch (pob o)
 
 static void i_kolwynia (pob o)
 {
-    if (!o->known) {
+    if (!object_is_known(o)) {
 	print1 ("You destroy youself with a mana storm. How sad.");
 	p_death ("Kolwynia, The Key That Was Lost");
     } else {
@@ -2416,7 +2387,7 @@ static void i_enchantment (pob o)
     char response;
     if (ZapHour == hour())
 	print1 ("The staff doesn't seem to have recharged yet.");
-    else if (!o->known) {
+    else if (!object_is_known(o)) {
 	ZapHour = hour();
 	print1 ("You blast the staff backwards....");
 	dispel (-1);
@@ -2438,7 +2409,7 @@ static void i_helm (pob o)
 {
     if (HelmHour == hour())
 	print1 ("The helm doesn't seem to have recharged yet.");
-    else if (!o->known) {
+    else if (!object_is_known(o)) {
 	HelmHour = hour();
 	print1 ("You put the helm on backwards....");
 	p_teleport (-1);
@@ -2492,7 +2463,7 @@ static void i_orbfire (pob o)
 	print1 ("Bad choice!");
 	print2 ("The Orb of Fire blasts you!");
 	fball (Player.x, Player.y, Player.x, Player.y, 250);
-	o->known = 1;
+	learn_object (o);
     } else {
 	print1 ("The Orb of Fire flares a brilliant red!");
 	learn_spell (S_FIREBOLT);
@@ -2512,7 +2483,7 @@ static void i_orbwater (pob o)
 	print1 ("A serious mistake!");
 	print2 ("The Orb of Water blasts you!");
 	heal (-250);
-	o->known = 1;
+	learn_object (o);
     } else {
 	print1 ("The Orb of Water pulses a deep green!");
 	learn_spell (S_DISRUPT);
@@ -2546,7 +2517,7 @@ static void i_orbearth (pob o)
 		    Player.pack[i] = NULL;
 		}
 	    Player.packptr = 0;
-	    o->known = 1;
+	    learn_object (o);
 	}
     } else {
 	print1 ("The Orb of Earth emanates a brownish aura!");
@@ -2567,7 +2538,7 @@ static void i_orbair (pob o)
 	print1 ("You lose!");
 	print2 ("The Orb of Air blasts you!");
 	lball (Player.x, Player.y, Player.x, Player.y, 100);
-	o->known = 1;
+	learn_object (o);
     } else {
 	print1 ("The Orb of Air flashes blue!");
 	learn_spell (S_LBALL);
@@ -2589,7 +2560,7 @@ static void i_orbmastery (pob o)
 	print1 ("A fatal error!");
 	print2 ("The Orb of Mastery blasts you to cinders!");
 	p_death ("playing with the Orb of Mastery");
-	o->known = 1;
+	learn_object (o);
     } else if ((find_and_remove_item (ORB_OF_FIRE, -1)) && (find_and_remove_item (ORB_OF_EARTH, -1)) && (find_and_remove_item (ORB_OF_AIR, -1)) && (find_and_remove_item (ORB_OF_WATER, -1))) {
 	print1 ("The Orb of Mastery radiates rainbow colors!");
 	print2 ("You feel godlike.");
@@ -2645,8 +2616,7 @@ static void i_dispel (pob o)
 // wand of apportation
 static void i_apport (pob o)
 {
-    o->known = max (1, o->known);
-    Objects[o->id].known = 1;
+    learn_object (o);
     apport (o->blessing);
 }
 
@@ -2654,8 +2624,7 @@ static void i_apport (pob o)
 static void i_firebolt (pob o)
 {
     int x = Player.x, y = Player.y;
-    o->known = max (1, o->known);
-    Objects[o->id].known = 1;
+    learn_object (o);
     setspot (&x, &y);
     if (o->blessing < 0) {
 	x = Player.x;
@@ -2667,8 +2636,7 @@ static void i_firebolt (pob o)
 static void i_disintegrate (pob o)
 {
     int x = Player.x, y = Player.y;
-    o->known = max (1, o->known);
-    Objects[o->id].known = 1;
+    learn_object (o);
     setspot (&x, &y);
     if (o->blessing < 0) {
 	x = Player.x;
@@ -2680,8 +2648,7 @@ static void i_disintegrate (pob o)
 static void i_disrupt (pob o)
 {
     int x = Player.x, y = Player.y;
-    o->known = max (1, o->known);
-    Objects[o->id].known = 1;
+    learn_object (o);
     setspot (&x, &y);
     if (o->blessing < 0) {
 	x = Player.x;
@@ -2694,8 +2661,7 @@ static void i_disrupt (pob o)
 static void i_lbolt (pob o)
 {
     int x = Player.x, y = Player.y;
-    o->known = max (1, o->known);
-    Objects[o->id].known = 1;
+    learn_object (o);
     setspot (&x, &y);
     if (o->blessing < 0) {
 	x = Player.x;
@@ -2708,8 +2674,7 @@ static void i_lbolt (pob o)
 static void i_missile (pob o)
 {
     int x = Player.x, y = Player.y;
-    o->known = max (1, o->known);
-    Objects[o->id].known = 1;
+    learn_object (o);
     setspot (&x, &y);
     if (o->blessing < 0) {
 	x = Player.x;
@@ -2722,8 +2687,7 @@ static void i_missile (pob o)
 static void i_fireball (pob o)
 {
     int x = Player.x, y = Player.y;
-    Objects[o->id].known = 1;
-    o->known = max (1, o->known);
+    learn_object (o);
     setspot (&x, &y);
     if (o->blessing < 0) {
 	x = Player.x;
@@ -2736,8 +2700,7 @@ static void i_fireball (pob o)
 static void i_snowball (pob o)
 {
     int x = Player.x, y = Player.y;
-    Objects[o->id].known = 1;
-    o->known = max (1, o->known);
+    learn_object (o);
     setspot (&x, &y);
     if (o->blessing < 0) {
 	x = Player.x;
@@ -2750,8 +2713,7 @@ static void i_snowball (pob o)
 static void i_lball (pob o)
 {
     int x = Player.x, y = Player.y;
-    Objects[o->id].known = 1;
-    o->known = max (1, o->known);
+    learn_object (o);
     setspot (&x, &y);
     if (o->blessing < 0) {
 	x = Player.x;
@@ -2763,8 +2725,7 @@ static void i_lball (pob o)
 // staff of sleep
 static void i_sleep_other (pob o)
 {
-    Objects[o->id].known = 1;
-    o->known = max (1, o->known);
+    learn_object (o);
     sleep_monster (o->blessing);
 }
 
@@ -2772,24 +2733,21 @@ static void i_sleep_other (pob o)
 // rod of summoning now always summons as if cursed
 static void i_summon (pob o)
 {
-    Objects[o->id].known = 1;
-    o->known = max (1, o->known);
+    learn_object (o);
     summon (-1, -1);
 }
 
 static void i_hide (pob o)
 {
     int x = Player.x, y = Player.y;
-    Objects[o->id].known = 1;
-    o->known = max (1, o->known);
+    learn_object (o);
     setspot (&x, &y);
     hide (x, y);
 }
 
 static void i_polymorph (pob o)
 {
-    Objects[o->id].known = 1;
-    o->known = max (1, o->known);
+    learn_object (o);
     polymorph (o->blessing);
 }
 

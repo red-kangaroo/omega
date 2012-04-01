@@ -216,49 +216,42 @@ const char* itemid (pob obj)
 	strcpy (Str4, obj->truename);
 	return (Str4);
     } else {
-	if (Objects[obj->id].known > obj->known)
-	    obj->known = Objects[obj->id].known;
-
 	setnumstr (obj, tstr);
 	strcpy (Str4, tstr);
-	if (obj->known == 0)
+	if (!object_is_known(obj)) {
 	    strcat (Str4, obj->objstr);
-	else if (obj->known == 1) {
-	    if (obj->id == AMULET_OF_YENDOR || obj->id == JUGGERNAUT_OF_KARNAK || obj->id == STAR_GEM)
-		strcat (Str4, "the ");
+	    return (Str4);
+	}
+	if (obj->id == AMULET_OF_YENDOR || obj->id == JUGGERNAUT_OF_KARNAK || obj->id == STAR_GEM)
+	    strcat (Str4, "the ");
+	if (obj->usef == I_NOTHING && Objects[obj->id].usef != I_NOTHING)
+	    strcat (Str4, "disenchanted ");
+	if (obj->blessing < 0) {
+	    strcat (Str4, "cursed ");
+	    strcat (Str4, obj->cursestr);
+	} else if (obj->blessing > 0) {
+	    strcat (Str4, "blessed ");
 	    strcat (Str4, obj->truename);
-	} else {
-	    if (obj->id == AMULET_OF_YENDOR || obj->id == JUGGERNAUT_OF_KARNAK || obj->id == STAR_GEM)
-		strcat (Str4, "the ");
-	    if (obj->usef == I_NOTHING && Objects[obj->id].usef != I_NOTHING)
-		strcat (Str4, "disenchanted ");
-	    if (obj->blessing < 0) {
-		strcat (Str4, "cursed ");
-		strcat (Str4, obj->cursestr);
-	    } else if (obj->blessing > 0) {
-		strcat (Str4, "blessed ");
-		strcat (Str4, obj->truename);
-	    } else
-		strcat (Str4, obj->truename);
-	    if (obj->number > 1)
-		strcat (Str4, "s");
-	    switch (obj->objchar) {
-		case STICK:
-		    setchargestr (obj, tstr);
-		    strcat (Str4, tstr);
-		    break;
-		case MISSILEWEAPON:
-		case ARMOR:
-		case RING:
-		case SHIELD:
-		case WEAPON:
-		    setplustr (obj, tstr);
-		    strcat (Str4, tstr);
-		    break;
-		default:
-		    strcat (Str4, "");
-		    break;
-	    }
+	} else
+	    strcat (Str4, obj->truename);
+	if (obj->number > 1)
+	    strcat (Str4, "s");
+	switch (obj->objchar) {
+	    case STICK:
+		setchargestr (obj, tstr);
+		strcat (Str4, tstr);
+		break;
+	    case MISSILEWEAPON:
+	    case ARMOR:
+	    case RING:
+	    case SHIELD:
+	    case WEAPON:
+		setplustr (obj, tstr);
+		strcat (Str4, tstr);
+		break;
+	    default:
+		strcat (Str4, "");
+		break;
 	}
 	return (Str4);
     }
@@ -561,8 +554,8 @@ int getitem (Symbol itype)
 // formerly add_item_to_pack
 void gain_item (struct object *o)
 {
-    if (o->uniqueness == UNIQUE_MADE)
-	Objects[o->id].uniqueness = UNIQUE_TAKEN;
+    if (object_uniqueness(o) == UNIQUE_MADE)
+	set_object_uniqueness (o, UNIQUE_TAKEN);
     if (o->objchar == CASH) {
 	print2 ("You gained some cash.");
 	Player.cash += o->basevalue;
@@ -854,7 +847,7 @@ void inventory_control (void)
 		    if (!strcmp (itemid (Player.possessions[slot]), Player.possessions[slot]->objstr))
 			print3 ("You notice nothing new about it.");
 		    else {
-			if (Player.possessions[slot]->uniqueness == COMMON)
+			if (object_uniqueness(Player.possessions[slot]) == COMMON)
 			    strcat (Str1, "Your ");
 			strcat (Str1, itemid (Player.possessions[slot]));
 			if (Player.possessions[slot]->objchar == BOOTS)
@@ -1008,7 +1001,7 @@ void top_inventory_control (void)
 		    if (!strcmp (itemid (Player.possessions[slot]), Player.possessions[slot]->objstr))
 			print3 ("You notice nothing new about it.");
 		    else {
-			if (Player.possessions[slot]->uniqueness == COMMON)
+			if (object_uniqueness(Player.possessions[slot]) == COMMON)
 			    strcat (Str1, "Your ");
 			strcat (Str1, itemid (Player.possessions[slot]));
 			if (Player.possessions[slot]->objchar == BOOTS)
@@ -1313,12 +1306,10 @@ static void merge_item (int slot)
 // returns false if either object is null
 static int objequal (struct object *o, struct object *p)
 {
-    if ((o == NULL) || (p == NULL))
-	return (FALSE);
-    else
-	return ((o->id == p->id) && (o->plus == p->plus) && (o->charge == 0) && (p->charge == 0) && (o->dmg == p->dmg) && (o->hit == p->hit) && (o->aux == p->aux) && (o->known == p->known) && (o->blessing == p->blessing) && (o->usef == p->usef)
-	    );
-
+    return (o && p &&
+	    (o->id == p->id) && (o->plus == p->plus) && (o->charge == 0) &&
+	    (p->charge == 0) && (o->dmg == p->dmg) && (o->hit == p->hit) &&
+	    (o->aux == p->aux) && (o->blessing == p->blessing) && (o->usef == p->usef));
 }
 
 // criteria for being able to put some item in some slot

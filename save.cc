@@ -195,10 +195,8 @@ static int save_player (FILE* fd)
     ok &= save_itemlist (fd, Condoitems);
 
     // Save player item knowledge
-    for (i = 0; i < TOTALITEMS; i++) {
-	ok &= (fwrite ((const char*) &(Objects[i].known), sizeof (Objects[i].known), 1, fd) > 0);
-	ok &= (fwrite ((const char*) &(Objects[i].uniqueness), sizeof (Objects[i].uniqueness), 1, fd) > 0);
-    }
+    ok &= (fwrite ((const char*) &SpellKnown, sizeof(SpellKnown), 1, fd) > 0);
+    ok &= (fwrite ((const char*) ObjectAttrs, sizeof(ObjectAttrs), 1, fd) > 0);
     return ok;
 }
 
@@ -578,11 +576,9 @@ static void restore_player (FILE* fd, int ver)
     for (i = 0; i < PAWNITEMS; i++)
 	Pawnitems[i] = restore_item (fd, ver);
     Condoitems = restore_itemlist (fd, ver);
-    for (i = 0; i < TOTALITEMS; i++) {
-	fread ((char*) &(Objects[i].known), sizeof (Objects[i].known), 1, fd);
-	if (ver != 80)
-	    fread ((char*) &(Objects[i].uniqueness), sizeof (Objects[i].uniqueness), 1, fd);
-    }
+
+    fread ((char*) &SpellKnown, sizeof(SpellKnown), 1, fd);
+    fwrite ((char*) ObjectAttrs, sizeof(ObjectAttrs), 1, fd);
 }
 
 // Restore an item, the first byte tells us if it's NULL, and what strings

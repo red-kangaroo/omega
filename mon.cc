@@ -679,44 +679,42 @@ static void m_talk_assassin (struct monster *m)
 
 static void m_talk_im (struct monster *m)
 {
-    if (strcmp (m->monstring, "itinerant merchant") != 0) {
+    if (strcmp (m->monstring, "itinerant merchant") != 0)
 	m->monstring = "itinerant merchant";
-    }
-    if (m->possessions == NULL)
+    if (!m->possessions) {
 	mprint ("The merchant says: Alas! I have nothing to sell!");
-    else {
-	m->possessions->thing->known = 2;
-	clearmsg();
-	mprint ("I have a fine");
-	mprint (itemid (m->possessions->thing));
-	mprint ("for only");
-	mlongprint (max (10, 4 * true_item_value (m->possessions->thing)));
-	mprint ("Au.");
-	mprint ("Want it? [yn] ");
-	if (ynq() == 'y') {
-	    if (Player.cash < (max (10, 4 * true_item_value (m->possessions->thing)))) {
-		if (Player.alignment > 10) {
-		    mprint ("Well, I'll let you have it for what you've got.");
-		    Player.cash = 0;
-		    gain_item (m->possessions->thing);
-		    m->possessions = NULL;
-		} else
-		    mprint ("Beat it, you deadbeat!");
-	    } else {
-		mprint ("Here you are. Have a good day.");
-		Player.cash -= max (10, (4 * item_value (m->possessions->thing)));
+	return;
+    }
+    learn_object (m->possessions->thing);
+    clearmsg();
+    mprint ("I have a fine");
+    mprint (itemid (m->possessions->thing));
+    mprint ("for only");
+    mlongprint (max (10, 4 * true_item_value (m->possessions->thing)));
+    mprint ("Au.");
+    mprint ("Want it? [yn] ");
+    if (ynq() == 'y') {
+	if (Player.cash < (max (10, 4 * true_item_value (m->possessions->thing)))) {
+	    if (Player.alignment > 10) {
+		mprint ("Well, I'll let you have it for what you've got.");
+		Player.cash = 0;
 		gain_item (m->possessions->thing);
 		m->possessions = NULL;
-	    }
-	} else
-	    mprint ("Well then, I must be off. Good day.");
-	m_vanish (m);
-    }
+	    } else
+		mprint ("Beat it, you deadbeat!");
+	} else {
+	    mprint ("Here you are. Have a good day.");
+	    Player.cash -= max (10, (4 * item_value (m->possessions->thing)));
+	    gain_item (m->possessions->thing);
+	    m->possessions = NULL;
+	}
+    } else
+	mprint ("Well then, I must be off. Good day.");
+    m_vanish (m);
 }
 
 static void m_talk_man (struct monster *m)
 {
-
     if (m->uniqueness == COMMON) {
 	strcpy (Str2, "The ");
 	strcat (Str2, m->monstring);
@@ -2850,7 +2848,7 @@ void make_hiscore_npc (pmt npc, int npcid)
 	    strcpy (Str2, Priest[npcid]);
 	    determine_npc_behavior (npc, Priestlevel[npcid], Priestbehavior[npcid]);
 	    st = HOLY_SYMBOL_OF_ODIN-1 + npcid;	// appropriate holy symbol...
-	    Objects[st].uniqueness = UNIQUE_MADE;
+	    set_object_uniqueness (st, UNIQUE_MADE);
 	    if (npcid == DRUID)
 		npc->talkf = M_TALK_DRUID;
 	    if (Player.patron == npcid)
@@ -2914,7 +2912,7 @@ void make_hiscore_npc (pmt npc, int npcid)
 	    m_status_reset (npc, HOSTILE);
 	    break;
     }
-    if (st > -1 && Objects[st].uniqueness == UNIQUE_MADE) {
+    if (st > -1 && object_uniqueness(st) == UNIQUE_MADE) {
 	ob = ((pob) checkmalloc (sizeof (objtype)));
 	*ob = Objects[st];
 	m_pickup (npc, ob);

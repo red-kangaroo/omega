@@ -30,6 +30,7 @@ struct spell Spells[NUMSPELLS + 1] = {
 {/*S_WISH*/ 100}, {0}};
 
 uint64_t SpellKnown = 0;
+uint8_t ObjectAttrs[TOTALITEMS] = {0};
 
 // locations of city sites [0] - found, [1] - x, [2] - y
 int CitySiteList[NUMCITYSITES][3];
