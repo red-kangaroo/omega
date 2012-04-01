@@ -561,7 +561,6 @@ int random_item (void)
 // various kinds of wishes
 void wish (int blessing)
 {
-    int i;
     char wishstr[80];
     clearmsg();
     print1 ("What do you wish for? ");
@@ -598,11 +597,11 @@ void wish (int blessing)
 	strategic_teleport (1);
     else if (strcmp (wishstr, "Knowledge") == 0) {
 	print2 ("You feel more knowledgeable.");
-	i = random_range (NUMSPELLS);
-	if (Spells[i].known)
+	ESpell i = (ESpell) random_range (NUMSPELLS);
+	if (spell_is_known(i))
 	    Spells[i].powerdrain = (max (1, Spells[i].powerdrain / 2));
 	else
-	    Spells[i].known = TRUE;
+	    learn_spell(i);
     } else if (strcmp (wishstr, "Health") == 0) {
 	print2 ("You feel vigorous");
 	Player.hp = max (Player.hp, Player.maxhp);
@@ -1656,30 +1655,31 @@ void aggravate (void)
 
 void learnspell (int blessing)
 {
-    int i, spell, done = FALSE;
+    int i, done = FALSE;
     if (blessing < 0) {
-	for (i = NUMSPELLS; ((i > -1) && (!done)); i--)
-	    if (Spells[i].known) {
+	for (i = NUMSPELLS; ((i > -1) && (!done)); i--) {
+	    if (spell_is_known (ESpell(i))) {
 		done = TRUE;
 		Objects[SCROLL_SPELLS].known = TRUE;
 		mprint ("You feel forgetful.");
-		Spells[i].known = FALSE;
+		forget_spell (ESpell(i));
 	    }
+	}
 	if (i == ABORT)
 	    mprint ("You feel fortunate.");
     } else {
 	Objects[SCROLL_SPELLS].known = TRUE;
-	spell = random_range (NUMSPELLS);
+	ESpell spell = (ESpell) random_range (NUMSPELLS);
 	print1 ("Spell Research");
 	if ((random_range (4 * Spells[spell].powerdrain) + Spells[spell].powerdrain) < (4 * Player.iq + 8 * Player.level)) {
 	    nprint1 (" -- Research successful: ");
 	    nprint1 (spellid (spell));
-	    if (Spells[spell].known) {
+	    if (spell_is_known (spell)) {
 		print2 ("...is now easier to cast.");
 		Spells[spell].powerdrain = ((int) ((Spells[spell].powerdrain + 1) / 2));
 	    } else {
 		print2 ("...is added to your repertoire");
-		Spells[spell].known = TRUE;
+		learn_spell (spell);
 		gain_experience (Spells[spell].powerdrain * 10);
 	    }
 	} else

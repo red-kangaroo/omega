@@ -116,7 +116,7 @@ enum { UNLOADED, LOADED };
 enum { LAWFUL = 1, CHAOTIC, NEUTRAL };
 
 // spells
-enum {
+enum ESpell {
     S_MON_DET, S_OBJ_DET, S_MISSILE, S_FIREBOLT, S_TELEPORT,
     S_LBALL, S_SLEEP, S_DISRUPT, S_DISINTEGRATE, S_POLYMORPH,
     S_HEAL, S_DISPEL, S_IDENTIFY, S_BREATHE, S_INVISIBLE,
@@ -840,11 +840,7 @@ struct room {
     int rsi;			// index into roomname switch
 };
 
-struct spell {
-    char known;
-    char id;
-    char powerdrain;
-};
+struct spell { uint8_t powerdrain; };
 
 struct monster_data {
     unsigned char attacked;

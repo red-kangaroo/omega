@@ -839,7 +839,6 @@ static void l_temple_warning (void)
 static void l_throne (void)
 {
     pob o;
-    int i;
     print1 ("You have come upon a huge ornately appointed throne!");
     print2 ("Sit in it? [yn] ");
     if (ynq1() == 'y') {
@@ -847,8 +846,7 @@ static void l_throne (void)
 	    print1 ("The throne emits an eerie violet-black radiance.");
 	    print2 ("You find, to your horror, that you cannot get up!");
 	    print3 ("You feel an abstract sucking sensation...");
-	    for (i = 0; i < NUMSPELLS; i++)
-		Spells[i].known = FALSE;
+	    forget_all_spells();
 	    Player.pow = 3;
 	    Player.mana = 0;
 	    Player.hp = 1;
@@ -895,7 +893,7 @@ static void l_throne (void)
 			Player.maxpow += 5;
 			break;
 		    default:
-			if (Spells[S_WISH].known) {
+			if (spell_is_known (S_WISH)) {
 			    print1 ("A mysterious voice mutters peevishly....");
 			    print2 ("So what do you want now? A medal?");
 			} else {
@@ -904,7 +902,7 @@ static void l_throne (void)
 			    morewait();
 			    print1 ("You hear a distant voice....");
 			    print2 ("'You may now tread the path of High Magic.'");
-			    Spells[S_WISH].known = TRUE;
+			    learn_spell (S_WISH);
 			}
 			break;
 		    case 17:

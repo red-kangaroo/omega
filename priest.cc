@@ -181,8 +181,7 @@ static int check_sacrilege (int deity)
 			print2 ("The beams leach you of magical power!");
 			Player.maxpow = Player.maxpow / 5;
 			Player.pow = min (Player.pow, Player.maxpow);
-			for (i = 0; i < NUMSPELLS; i++)
-			    Spells[i].known = FALSE;
+			forget_all_spells();
 		    }
 		}
 		morewait();

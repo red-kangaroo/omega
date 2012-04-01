@@ -56,10 +56,10 @@ static void s_wish (void)
 	p_damage (random_range (Spells[S_WISH].powerdrain), UNSTOPPABLE, "a backfired wish spell");
     } else {
 	wish (0);
-	if (Spells[S_WISH].known) {
+	if (spell_is_known (S_WISH)) {
 	    mprint ("The power of the spell is too much for you to withstand!");
 	    mprint ("All memory of the spell is expunged from your brain.");
-	    Spells[S_WISH].known = FALSE;
+	    forget_spell (S_WISH);
 	}
     }
 }
@@ -542,138 +542,6 @@ const char* spellid (int id)
     }
 }
 
-void initspells (void)
-{
-    int i;
-
-    for (i = 0; i < NUMSPELLS; i++)
-	Spells[i].known = FALSE;
-
-    Spells[S_MON_DET].powerdrain = 3;
-    Spells[S_MON_DET].id = S_MON_DET;
-
-    Spells[S_OBJ_DET].powerdrain = 3;
-    Spells[S_OBJ_DET].id = S_OBJ_DET;
-
-    Spells[S_IDENTIFY].powerdrain = 10;
-    Spells[S_IDENTIFY].id = S_IDENTIFY;
-
-    Spells[S_FIREBOLT].powerdrain = 20;
-    Spells[S_FIREBOLT].id = S_FIREBOLT;
-
-    Spells[S_SLEEP].powerdrain = 15;
-    Spells[S_SLEEP].id = S_SLEEP;
-
-    Spells[S_LBALL].powerdrain = 25;
-    Spells[S_LBALL].id = S_LBALL;
-
-    Spells[S_TELEPORT].powerdrain = 20;
-    Spells[S_TELEPORT].id = S_TELEPORT;
-
-    Spells[S_DISRUPT].powerdrain = 30;
-    Spells[S_DISRUPT].id = S_DISRUPT;
-
-    Spells[S_DISINTEGRATE].powerdrain = 40;
-    Spells[S_DISINTEGRATE].id = S_DISINTEGRATE;
-
-    Spells[S_MISSILE].powerdrain = 10;
-    Spells[S_MISSILE].id = S_MISSILE;
-
-    Spells[S_HEAL].powerdrain = 15;
-    Spells[S_HEAL].id = S_HEAL;
-
-    Spells[S_DISPEL].powerdrain = 40;
-    Spells[S_DISPEL].id = S_DISPEL;
-
-    Spells[S_BREATHE].powerdrain = 20;
-    Spells[S_BREATHE].id = S_BREATHE;
-
-    Spells[S_INVISIBLE].powerdrain = 15;
-    Spells[S_INVISIBLE].id = S_INVISIBLE;
-
-    Spells[S_WARP].powerdrain = 50;
-    Spells[S_WARP].id = S_WARP;
-
-    Spells[S_ENCHANT].powerdrain = 30;
-    Spells[S_ENCHANT].id = S_ENCHANT;
-
-    Spells[S_BLESS].powerdrain = 30;
-    Spells[S_BLESS].id = S_BLESS;
-
-    Spells[S_RESTORE].powerdrain = 20;
-    Spells[S_RESTORE].id = S_RESTORE;
-
-    Spells[S_CURE].powerdrain = 20;
-    Spells[S_CURE].id = S_CURE;
-
-    Spells[S_TRUESIGHT].powerdrain = 20;
-    Spells[S_TRUESIGHT].id = S_TRUESIGHT;
-
-    Spells[S_HELLFIRE].powerdrain = 90;
-    Spells[S_HELLFIRE].id = S_HELLFIRE;
-
-    Spells[S_KNOWLEDGE].powerdrain = 10;
-    Spells[S_KNOWLEDGE].id = S_KNOWLEDGE;
-
-    Spells[S_HERO].powerdrain = 20;
-    Spells[S_HERO].id = S_HERO;
-
-    Spells[S_RETURN].powerdrain = 10;
-    Spells[S_RETURN].id = S_RETURN;
-
-    Spells[S_DESECRATE].powerdrain = 50;
-    Spells[S_DESECRATE].id = S_DESECRATE;
-
-    Spells[S_HASTE].powerdrain = 15;
-    Spells[S_HASTE].id = S_HASTE;
-
-    Spells[S_SUMMON].powerdrain = 20;
-    Spells[S_SUMMON].id = S_SUMMON;
-
-    Spells[S_SANCTUARY].powerdrain = 75;
-    Spells[S_SANCTUARY].id = S_SANCTUARY;
-
-    Spells[S_ACCURACY].powerdrain = 20;
-    Spells[S_ACCURACY].id = S_ACCURACY;
-
-    Spells[S_RITUAL].powerdrain = 50;
-    Spells[S_RITUAL].id = S_RITUAL;
-
-    Spells[S_APPORT].powerdrain = 15;
-    Spells[S_APPORT].id = S_APPORT;
-
-    Spells[S_SHADOWFORM].powerdrain = 50;
-    Spells[S_SHADOWFORM].id = S_SHADOWFORM;
-
-    Spells[S_ALERT].powerdrain = 15;
-    Spells[S_ALERT].id = S_ALERT;
-
-    Spells[S_REGENERATE].powerdrain = 20;
-    Spells[S_REGENERATE].id = S_REGENERATE;
-
-    Spells[S_SANCTIFY].powerdrain = 75;
-    Spells[S_SANCTIFY].id = S_SANCTIFY;
-
-    Spells[S_CLAIRVOYANCE].powerdrain = 10;
-    Spells[S_CLAIRVOYANCE].id = S_CLAIRVOYANCE;
-
-    Spells[S_DRAIN].powerdrain = 40;
-    Spells[S_DRAIN].id = S_DRAIN;
-
-    Spells[S_LEVITATE].powerdrain = 25;
-    Spells[S_LEVITATE].id = S_LEVITATE;
-
-    Spells[S_POLYMORPH].powerdrain = 30;
-    Spells[S_POLYMORPH].id = S_POLYMORPH;
-
-    Spells[S_FEAR].powerdrain = 10;
-    Spells[S_FEAR].id = S_FEAR;
-
-    Spells[S_WISH].powerdrain = 100;
-    Spells[S_WISH].id = S_WISH;
-
-}
-
 void cast_spell (int spell)
 {
     switch (spell) {
@@ -817,7 +685,7 @@ static const char* spell_names[] = {	// alphabetical listing
     "summoning", "teleport", "the warp", "true sight", "wishing"
 };
 
-static const int spell_ids[] = {	// in the same order as spell_names[]
+static const ESpell spell_ids[] = {	// in the same order as spell_names[]
     S_ACCURACY, S_ALERT, S_APPORT, S_LBALL, S_BLESS, S_BREATHE, S_CLAIRVOYANCE,
     S_CURE, S_DESECRATE, S_DISINTEGRATE, S_DISPEL, S_DISRUPT, S_ENCHANT, S_DRAIN,
     S_FEAR, S_FIREBOLT, S_HASTE, S_HEAL, S_HELLFIRE, S_HERO, S_IDENTIFY,
@@ -834,7 +702,7 @@ static void showknownspells (int first, int last)
     menuclear();
     menuprint ("\nPossible Spells:\n");
     for (i = first; i <= last; i++)
-	if (Spells[spell_ids[i]].known) {
+	if (spell_is_known (spell_ids[i])) {
 	    printed = TRUE;
 	    menuprint (spell_names[i]);
 	    menuprint (" (");
@@ -855,7 +723,7 @@ static int spellparse (void)
     int f, l;
 
     first = 0;
-    while (first < NUMSPELLS && !Spells[spell_ids[first]].known)
+    while (first < NUMSPELLS && !spell_is_known (spell_ids[first]))
 	first++;
     if (first == NUMSPELLS) {
 	print1 ("You don't know any spells!");
@@ -872,13 +740,13 @@ static int spellparse (void)
 		byte = prefix[pos - 1];
 		f = first;
 		while (f >= 0 && !strncmp (prefix, spell_names[f], pos)) {
-		    if (Spells[spell_ids[f]].known)
+		    if (spell_is_known (spell_ids[f]))
 			first = f;
 		    f--;
 		}
 		l = last;
 		while (l < NUMSPELLS && !strncmp (prefix, spell_names[l], pos)) {
-		    if (Spells[spell_ids[l]].known)
+		    if (spell_is_known (spell_ids[l]))
 			last = l;
 		    l++;
 		}
@@ -904,9 +772,9 @@ static int spellparse (void)
 		continue;
 	    f = first;
 	    l = last;
-	    while (f < NUMSPELLS && (!Spells[spell_ids[f]].known || (int) strlen (spell_names[f]) < pos || spell_names[f][pos] < byte))
+	    while (f < NUMSPELLS && (!spell_is_known(spell_ids[f]) || (int) strlen (spell_names[f]) < pos || spell_names[f][pos] < byte))
 		f++;
-	    while (l >= 0 && (!Spells[spell_ids[l]].known || (int) strlen (spell_names[l]) < pos || spell_names[l][pos] > byte))
+	    while (l >= 0 && (!spell_is_known(spell_ids[l]) || (int) strlen (spell_names[l]) < pos || spell_names[l][pos] > byte))
 		l--;
 	    if (l < f)
 		continue;

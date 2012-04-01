@@ -2484,8 +2484,7 @@ static void outdoors_random_event (void)
 		Player.level = 0;
 		for (i = 0; i < NUMRANKS; i++)
 		    Player.rank[i] = 0;
-		for (i = 0; i < NUMSPELLS; i++)
-		    Spells[i].known = FALSE;
+		forget_all_spells();
 		rename_player();
 	    } else {
 		mprint ("You survive the chaos storm relatively unscathed.");
@@ -3269,11 +3268,12 @@ int stonecheck (int alignment)
 	case 29:
 	    print1 ("The stone glows blue-violet");
 	    print2 ("You feel forgetful.");
-	    for (i = 0; i < NUMSPELLS; i++)
-		if (Spells[i].known) {
-		    Spells[i].known = FALSE;
+	    for (i = 0; i < NUMSPELLS; i++) {
+		if (spell_is_known(ESpell(i))) {
+		    forget_spell(ESpell(i));
 		    break;
 		}
+	    }
 	    break;
 	case 31:
 	    print1 ("The stone glows violet");

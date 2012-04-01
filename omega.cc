@@ -18,7 +18,18 @@ static void fix_phantom(struct monster *m);
 // Objects and Monsters are allocated and initialized in init.c
 
 // one of each spell
-struct spell Spells[NUMSPELLS + 1];
+struct spell Spells[NUMSPELLS + 1] = {
+{/*S_MON_DET*/ 3}, {/*S_OBJ_DET*/ 3}, {/*S_IDENTIFY*/ 10}, {/*S_FIREBOLT*/ 20}, {/*S_SLEEP*/ 15},
+{/*S_LBALL*/ 25}, {/*S_TELEPORT*/ 20}, {/*S_DISRUPT*/ 30}, {/*S_DISINTEGRATE*/ 40}, {/*S_MISSILE*/ 10},
+{/*S_HEAL*/ 15}, {/*S_DISPEL*/ 40}, {/*S_BREATHE*/ 20}, {/*S_INVISIBLE*/ 15}, {/*S_WARP*/ 50},
+{/*S_ENCHANT*/ 30}, {/*S_BLESS*/ 30}, {/*S_RESTORE*/ 20}, {/*S_CURE*/ 20}, {/*S_TRUESIGHT*/ 20},
+{/*S_HELLFIRE*/ 90}, {/*S_KNOWLEDGE*/ 10}, {/*S_HERO*/ 20}, {/*S_RETURN*/ 10}, {/*S_DESECRATE*/ 50},
+{/*S_HASTE*/ 15}, {/*S_SUMMON*/ 20}, {/*S_SANCTUARY*/ 75}, {/*S_ACCURACY*/ 20}, {/*S_RITUAL*/ 50},
+{/*S_APPORT*/ 15}, {/*S_SHADOWFORM*/ 50}, {/*S_ALERT*/ 15}, {/*S_REGENERATE*/ 20}, {/*S_SANCTIFY*/ 75},
+{/*S_CLAIRVOYANCE*/ 10}, {/*S_DRAIN*/ 40}, {/*S_LEVITATE*/ 25}, {/*S_POLYMORPH*/ 30}, {/*S_FEAR*/ 10},
+{/*S_WISH*/ 100}, {0}};
+
+uint64_t SpellKnown = 0;
 
 // locations of city sites [0] - found, [1] - x, [2] - y
 int CitySiteList[NUMCITYSITES][3];
@@ -185,7 +196,6 @@ int main (int argc, const char* argv[])
     initgraf();
     initdirs();
     initrand (E_RANDOM, 0);
-    initspells();
 
     for (count = 0; count < STRING_BUFFER_SIZE; count++)
 	strcpy (Stringbuffer[count], "<nothing>");

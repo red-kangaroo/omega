@@ -2399,7 +2399,6 @@ static void i_antioch (pob o)
 
 static void i_kolwynia (pob o)
 {
-    int i;
     if (!o->known) {
 	print1 ("You destroy youself with a mana storm. How sad.");
 	p_death ("Kolwynia, The Key That Was Lost");
@@ -2407,8 +2406,7 @@ static void i_kolwynia (pob o)
 	gain_experience (5000);
 	print1 ("You seem to have gained complete mastery of magic.");
 	Player.pow = Player.maxpow = 2 * Player.maxpow;
-	for (i = 0; i < NUMSPELLS; i++)
-	    Spells[i].known = TRUE;
+	learn_all_spells();
     }
     dispose_lost_objects (1, o);
 }
@@ -2497,7 +2495,7 @@ static void i_orbfire (pob o)
 	o->known = 1;
     } else {
 	print1 ("The Orb of Fire flares a brilliant red!");
-	Spells[S_FIREBOLT].known = TRUE;
+	learn_spell (S_FIREBOLT);
 	gain_experience (10000);
 	Player.immunity[FLAME] += 100;
 	print2 ("You feel fiery!");
@@ -2517,7 +2515,7 @@ static void i_orbwater (pob o)
 	o->known = 1;
     } else {
 	print1 ("The Orb of Water pulses a deep green!");
-	Spells[S_DISRUPT].known = TRUE;
+	learn_spell (S_DISRUPT);
 	Player.immunity[POISON] += 100;
 	gain_experience (10000);
 	print2 ("You feel wet!");
@@ -2552,7 +2550,7 @@ static void i_orbearth (pob o)
 	}
     } else {
 	print1 ("The Orb of Earth emanates a brownish aura!");
-	Spells[S_DISINTEGRATE].known = TRUE;
+	learn_spell (S_DISINTEGRATE);
 	gain_experience (10000);
 	Player.immunity[NEGENERGY] += 100;
 	print2 ("You feel earthy!");
@@ -2572,7 +2570,7 @@ static void i_orbair (pob o)
 	o->known = 1;
     } else {
 	print1 ("The Orb of Air flashes blue!");
-	Spells[S_LBALL].known = TRUE;	// lball
+	learn_spell (S_LBALL);
 	gain_experience (10000);
 	print2 ("You feel airy!");
 	Player.immunity[ELECTRICITY] += 100;
@@ -2622,8 +2620,7 @@ static void i_orbdead (pob o UNUSED)
 {
     int i;
     print1 ("The burnt-out orb drains all your energy!");
-    for (i = 0; i < NUMSPELLS; i++)
-	Spells[i].known = FALSE;
+    forget_all_spells();
     print2 ("You feel not at all like a mage.");
     for (i = 0; i < MAXITEMS; i++) {
 	if (Player.possessions[i] != NULL) {

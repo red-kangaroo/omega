@@ -1021,86 +1021,86 @@ void learnclericalspells (int deity, int level)
     switch (level) {
 	case LAY:
 	    if (deity == ODIN)
-		Spells[S_MISSILE].known = TRUE;
+		learn_spell (S_MISSILE);
 	    else if (deity == SET)
-		Spells[S_INVISIBLE].known = TRUE;
+		learn_spell (S_INVISIBLE);
 	    else if (deity == ATHENA)
-		Spells[S_IDENTIFY].known = TRUE;
+		learn_spell (S_IDENTIFY);
 	    else if (deity == HECATE)
-		Spells[S_DRAIN].known = TRUE;
+		learn_spell (S_DRAIN);
 	    else if (deity == DRUID) {
-		Spells[S_KNOWLEDGE].known = TRUE;
-		Spells[S_MON_DET].known = TRUE;
+		learn_spell (S_KNOWLEDGE);
+		learn_spell (S_MON_DET);
 	    }
 	    break;
 	case ACOLYTE:
 	    if (deity == ODIN) {
-		Spells[S_LBALL].known = TRUE;
-		Spells[S_TRUESIGHT].known = TRUE;
+		learn_spell (S_LBALL);
+		learn_spell (S_TRUESIGHT);
 	    } else if (deity == SET) {
-		Spells[S_SUMMON].known = TRUE;
-		Spells[S_FIREBOLT].known = TRUE;
+		learn_spell (S_SUMMON);
+		learn_spell (S_FIREBOLT);
 	    } else if (deity == ATHENA) {
-		Spells[S_HEAL].known = TRUE;
-		Spells[S_SANCTUARY].known = TRUE;
+		learn_spell (S_HEAL);
+		learn_spell (S_SANCTUARY);
 	    } else if (deity == HECATE) {
-		Spells[S_SLEEP].known = TRUE;
-		Spells[S_DISPEL].known = TRUE;
+		learn_spell (S_SLEEP);
+		learn_spell (S_DISPEL);
 	    } else if (deity == DRUID) {
-		Spells[S_HEAL].known = TRUE;
-		Spells[S_CURE].known = TRUE;
+		learn_spell (S_HEAL);
+		learn_spell (S_CURE);
 	    } else if (deity == DESTINY)
 		mprint ("An acolyte of the Lords of Destiny. Gee whiz.");
 	    break;
 	case PRIEST:
-	    Spells[S_SANCTIFY].known = TRUE;
+	    learn_spell (S_SANCTIFY);
 	    if (deity == ODIN) {
-		Spells[S_HERO].known = TRUE;
-		Spells[S_HEAL].known = TRUE;
+		learn_spell (S_HERO);
+		learn_spell (S_HEAL);
 	    } else if (deity == SET) {
-		Spells[S_INVISIBLE].known = TRUE;
-		Spells[S_DISPEL].known = TRUE;
+		learn_spell (S_INVISIBLE);
+		learn_spell (S_DISPEL);
 	    } else if (deity == ATHENA) {
-		Spells[S_REGENERATE].known = TRUE;
-		Spells[S_ACCURACY].known = TRUE;
+		learn_spell (S_REGENERATE);
+		learn_spell (S_ACCURACY);
 	    } else if (deity == HECATE) {
-		Spells[S_SHADOWFORM].known = TRUE;
-		Spells[S_CURE].known = TRUE;
+		learn_spell (S_SHADOWFORM);
+		learn_spell (S_CURE);
 	    } else if (deity == DRUID) {
-		Spells[S_DISRUPT].known = TRUE;
-		Spells[S_ALERT].known = TRUE;
-		Spells[S_CLAIRVOYANCE].known = TRUE;
+		learn_spell (S_DISRUPT);
+		learn_spell (S_ALERT);
+		learn_spell (S_CLAIRVOYANCE);
 	    } else if (deity == DESTINY)
 		mprint ("How useless, a new priest of the Lords of Destiny.");
 	    break;
 	case SPRIEST:
-	    Spells[S_BLESS].known = TRUE;
+	    learn_spell (S_BLESS);
 	    if (deity == ODIN)
-		Spells[S_ACCURACY].known = TRUE;
+		learn_spell (S_ACCURACY);
 	    else if (deity == SET)
-		Spells[S_SHADOWFORM].known = TRUE;
+		learn_spell (S_SHADOWFORM);
 	    else if (deity == ATHENA)
-		Spells[S_HERO].known = TRUE;
+		learn_spell (S_HERO);
 	    else if (deity == HECATE)
-		Spells[S_POLYMORPH].known = TRUE;
+		learn_spell (S_POLYMORPH);
 	    else if (deity == DRUID) {
-		Spells[S_POLYMORPH].known = TRUE;
-		Spells[S_LEVITATE].known = TRUE;
+		learn_spell (S_POLYMORPH);
+		learn_spell (S_LEVITATE);
 	    } else if (deity == DESTINY)
 		mprint ("Wow, a new senior priest of the Lords of Destiny.");
 	    break;
 	case HIGHPRIEST:
 	    if (deity == ODIN)
-		Spells[S_RESTORE].known = TRUE;
+		learn_spell (S_RESTORE);
 	    else if (deity == SET)
-		Spells[S_HELLFIRE].known = TRUE;
+		learn_spell (S_HELLFIRE);
 	    else if (deity == ATHENA)
-		Spells[S_HELLFIRE].known = TRUE;
+		learn_spell (S_HELLFIRE);
 	    else if (deity == HECATE)
-		Spells[S_DESECRATE].known = TRUE;
+		learn_spell (S_DESECRATE);
 	    else if (deity == DRUID) {
-		Spells[S_DISINTEGRATE].known = TRUE;
-		Spells[S_HERO].known = TRUE;
+		learn_spell (S_DISINTEGRATE);
+		learn_spell (S_HERO);
 	    } else if (deity == DESTINY) {
 		mprint ("So you're now the high priest of the Lords of Destiny.");
 		mprint ("You didn't think you were going to get anything, did you?");

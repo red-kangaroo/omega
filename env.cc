@@ -1718,7 +1718,7 @@ void l_merc_guild (void)
 		    save_hiscore_npc (8);
 		    clearmsg();
 		    print1 ("You now know the Spell of Regeneration.");
-		    Spells[S_REGENERATE].known = TRUE;
+		    learn_spell (S_REGENERATE);
 		    Player.rank[LEGION] = COMMANDANT;
 		    Player.maxstr += 2;
 		    Player.str += 2;
@@ -1752,7 +1752,7 @@ void l_merc_guild (void)
 		    morewait();
 		    clearmsg();
 		    print1 ("You have been taught the spell of heroism!");
-		    Spells[S_HERO].known = TRUE;
+		    learn_spell (S_HERO);
 		    Player.rank[LEGION] = COLONEL;
 		    Player.maxstr++;
 		    Player.str++;
@@ -2154,7 +2154,7 @@ void l_thieves_guild (void)
 	    save_hiscore_npc (7);
 	    clearmsg();
 	    print1 ("You learn the Spell of Shadowform.");
-	    Spells[S_SHADOWFORM].known = TRUE;
+	    learn_spell (S_SHADOWFORM);
 	    morewait();
 	    clearmsg();
 	    Player.rank[THIEVES] = SHADOWLORD;
@@ -2205,7 +2205,7 @@ void l_thieves_guild (void)
 			    print1 ("As a special bonus, you get a free lockpick.");
 			    print2 ("You are taught the spell of Object Detection.");
 			    morewait();
-			    Spells[S_OBJ_DET].known = TRUE;
+			    learn_spell (S_OBJ_DET);
 			    lockpick = ((pob) checkmalloc (sizeof (objtype)));
 			    *lockpick = Objects[THING_LOCKPICK];
 			    gain_item (lockpick);
@@ -2242,7 +2242,7 @@ void l_thieves_guild (void)
 			morewait();
 			clearmsg();
 			print1 ("The Justiciar's office is just south of the gaol.");
-			Spells[S_APPORT].known = TRUE;
+			learn_spell (S_APPORT);
 			Player.rank[THIEVES] = TMASTER;
 			Player.maxagi++;
 			Player.maxdex++;
@@ -2255,7 +2255,7 @@ void l_thieves_guild (void)
 		    else {
 			print1 ("You are now a ranking Thief of the Guild!");
 			print2 ("You learn the Spell of Invisibility.");
-			Spells[S_INVISIBLE].known = TRUE;
+			learn_spell (S_INVISIBLE);
 			Player.rank[THIEVES] = THIEF;
 			Player.agi++;
 			Player.maxagi++;
@@ -2266,7 +2266,7 @@ void l_thieves_guild (void)
 		    else {
 			print1 ("You are now an Apprentice Thief!");
 			print2 ("You are taught the Spell of Levitation.");
-			Spells[S_LEVITATE].known = TRUE;
+			learn_spell (S_LEVITATE);
 			Player.rank[THIEVES] = ATHIEF;
 			Player.dex++;
 			Player.maxdex++;
@@ -2496,7 +2496,7 @@ void l_college (void)
 			clearmsg();
 			print1 ("Your position allows you to research 4 spells.");
 			Spellsleft += 4;
-			Spells[S_RITUAL].known = TRUE;
+			learn_spell (S_RITUAL);
 			Player.rank[COLLEGE] = PRECEPTOR;
 			Player.maxiq += 1;
 			Player.iq += 1;
@@ -2513,7 +2513,7 @@ void l_college (void)
 			clearmsg();
 			print1 ("Thesis research credit is 2 spells.");
 			Spellsleft += 2;
-			Spells[S_IDENTIFY].known = TRUE;
+			learn_spell (S_IDENTIFY);
 			Player.rank[COLLEGE] = STUDENT;
 			Player.maxiq += 1;
 			Player.iq += 1;
@@ -2578,7 +2578,7 @@ void l_sorcerors (void)
 		print1 ("You learn the Spell of Disintegration!");
 		morewait();
 		clearmsg();
-		Spells[S_DISINTEGRATE].known = TRUE;
+		learn_spell (S_DISINTEGRATE);
 		Player.rank[CIRCLE] = PRIME;
 		Player.maxpow += 10;
 		Player.pow += 10;
@@ -2619,7 +2619,7 @@ void l_sorcerors (void)
 			    morewait();
 			    clearmsg();
 			    print1 ("You learn the Spell of Magic Missiles.");
-			    Spells[S_MISSILE].known = TRUE;
+			    learn_spell (S_MISSILE);
 			    Player.cash -= fee;
 			    dataprint();
 			    Player.rank[CIRCLE] = INITIATE;
@@ -2668,7 +2668,7 @@ void l_sorcerors (void)
 			clearmsg();
 			print1 ("To advance you must return with the LawBringer's Crown!");
 			print2 ("The LawBringer resides on Star Peak.");
-			Spells[S_DISRUPT].known = TRUE;
+			learn_spell (S_DISRUPT);
 			Player.rank[CIRCLE] = HIGHSORCEROR;
 			Player.maxpow += 5;
 			Player.pow += 5;
@@ -2679,7 +2679,7 @@ void l_sorcerors (void)
 		    else {
 			print1 ("You are now a member of the Circle of Sorcerors!");
 			print2 ("You learn the Spell of Ball Lightning!");
-			Spells[S_LBALL].known = TRUE;
+			learn_spell (S_LBALL);
 			Player.rank[CIRCLE] = SORCEROR;
 			Player.maxpow += 2;
 			Player.pow += 2;
@@ -2690,7 +2690,7 @@ void l_sorcerors (void)
 		    else {
 			print1 ("You are now a member of the Circle of Enchanters!");
 			print2 ("You learn the Spell of Firebolts.");
-			Spells[S_FIREBOLT].known = TRUE;
+			learn_spell (S_FIREBOLT);
 			Player.rank[CIRCLE] = ENCHANTER;
 			Player.maxpow += 2;
 			Player.pow += 2;
@@ -2847,7 +2847,7 @@ void l_order (void)
 		print1 ("The Oracle will send you to the Astral Plane if you");
 		print2 ("prove yourself worthy to her.");
 		morewait();
-		Spells[S_HERO].known = TRUE;
+		learn_spell (S_HERO);
 		Player.rank[ORDER] = PALADIN;
 	    }
 	} else if (Player.rank[ORDER] == GUARDIAN) {
@@ -4295,7 +4295,7 @@ void l_club (void)
 		    clearmsg();
 		    print1 ("will transport you down to the lowest level");
 		    print2 ("you have explored, and vice versa.");
-		    Spells[S_RETURN].known = TRUE;
+		    learn_spell (S_RETURN);
 		    Player.cash -= 100;
 		    setgamestatus (CLUB_MEMBER);
 		}

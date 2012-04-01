@@ -3,6 +3,7 @@
 
 extern const struct monster_data Monsters[NUMMONSTERS];	// one of each monster
 extern struct spell Spells[NUMSPELLS + 1];	// one of each spell
+extern uint64_t SpellKnown;			// bit set for known spells
 extern struct object Objects[TOTALITEMS];	// one of each item
 extern int CitySiteList[NUMCITYSITES][3];	// locations of city sites [0] - found, [1] - x, [2] - y
 extern struct player Player;			// the player
@@ -121,5 +122,11 @@ static inline void resetgamestatus (unsigned flag)		{ GameStatus &= ~flag; }
 static inline bool optionp (unsigned o)				{ return (Player.options & o); }
 static inline void optionset (unsigned o)			{ Player.options |= o; }
 static inline void optionreset (unsigned o)			{ Player.options &= ~o; }
+
+static inline bool spell_is_known (ESpell sp)			{ return (SpellKnown & (UINT64_C(1) << sp)); }
+static inline void learn_spell (ESpell sp)			{ SpellKnown |= (UINT64_C(1) << sp); }
+static inline void forget_spell (ESpell sp)			{ SpellKnown &= ~(UINT64_C(1) << sp); }
+static inline void learn_all_spells (void)			{ SpellKnown = UINT64_MAX; }
+static inline void forget_all_spells (void)			{ SpellKnown = 0; }
 
 } // namespace

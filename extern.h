@@ -424,7 +424,6 @@ int ynq2(void);
 // spell.c
 void cast_spell(int spell);
 int getspell(void);
-void initspells(void);
 const char* spellid(int id);
 // trap.c
 void l_trap_abyss(void);
