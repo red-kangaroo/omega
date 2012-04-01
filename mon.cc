@@ -3453,7 +3453,7 @@ static void strengthen_death (struct monster *m)
     m->speed = max (m->speed - 1, 1);
     m->movef = M_MOVE_SMART;
     m->hp = min (100000, 100 + m->dmg * 10);
-    *scythe = Objects[WEAPONID + 39];
+    *scythe = Objects[WEAPON_SCYTHE_OF_DEATH];
     ol->thing = scythe;
     ol->next = NULL;
     m->possessions = ol;

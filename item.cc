@@ -285,7 +285,7 @@ void make_weapon (pob o, int id)
     if (id == -1)
 	id = random_range (NUMWEAPONS);
     *o = Objects[WEAPONID + id];
-    if ((id == 28) || (id == 29))	// bolt or arrow
+    if ((id == WEAPON_BOLT-WEAPONID) || (id == WEAPON_ARROW-WEAPONID))
 	o->number = random_range (20) + 1;
     if (o->blessing == 0)
 	o->blessing = itemblessing();
@@ -766,16 +766,16 @@ static int itemblessing (void)
 int twohandedp (int id)
 {
     switch (id) {
-	case WEAPONID + 5:
-	case WEAPONID + 12:
-	case WEAPONID + 18:
-	case WEAPONID + 20:
-	case WEAPONID + 26:
-	case WEAPONID + 27:
-	case WEAPONID + 32:
-	case WEAPONID + 36:
-	case WEAPONID + 38:
-	case WEAPONID + 39:
+	case WEAPON_GREAT_SWORD:
+	case WEAPON_GREAT_AXE:
+	case WEAPON_QUARTERSTAFF:
+	case WEAPON_HALBERD:
+	case WEAPON_LONGBOW:
+	case WEAPON_CROSSBOW:
+	case WEAPON_DESECRATOR:
+	case WEAPON_GOBLIN_HEWER:
+	case WEAPON_GIANT_CLUB:
+	case WEAPON_SCYTHE_OF_DEATH:
 	    return (TRUE);
 	default:
 	    return (FALSE);
@@ -1925,7 +1925,7 @@ void weapon_tangle (int dmgmod, pob o UNUSED, struct monster *m)
 // if wielding a bow, add bow damage to arrow damage
 void weapon_arrow (int dmgmod, pob o, struct monster *m)
 {
-    if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPONID + 26))	// ie, using a bow
+    if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPON_LONGBOW))
 	p_hit (m, Player.dmg + o->plus + o->dmg + dmgmod, NORMAL_DAMAGE);
     else
 	p_hit (m, o->plus + o->dmg + dmgmod, NORMAL_DAMAGE);
@@ -1934,7 +1934,7 @@ void weapon_arrow (int dmgmod, pob o, struct monster *m)
 // if wielding a crossbow, add bow damage to arrow damage
 void weapon_bolt (int dmgmod, pob o, struct monster *m)
 {
-    if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPONID + 27) &&	// ie using a crossbow
+    if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPON_CROSSBOW) &&
 	(Player.possessions[O_WEAPON_HAND]->aux == LOADED)) {
 	p_hit (m, Player.dmg + o->plus + o->dmg + dmgmod, NORMAL_DAMAGE);
 	Player.possessions[O_WEAPON_HAND]->aux = UNLOADED;

@@ -1777,7 +1777,8 @@ static void fire (void)
     else if (cursed (Player.possessions[ii]) && Player.possessions[ii]->used)
 	print3 ("You can't seem to get rid of it!");
     // load a crossbow
-    else if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPONID + 27) && (Player.possessions[O_WEAPON_HAND]->aux != LOADED) && (Player.possessions[ii]->id == WEAPONID + 29)) {
+    else if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPON_CROSSBOW) &&
+	     (Player.possessions[O_WEAPON_HAND]->aux != LOADED) && (Player.possessions[ii]->id == WEAPON_BOLT)) {
 	mprint ("You crank back the crossbow and load a bolt.");
 	Player.possessions[O_WEAPON_HAND]->aux = LOADED;
     } else {
@@ -1814,7 +1815,7 @@ static void fire (void)
 		    conform_lost_objects (1, obj);
 		} else if (hitp (Player.hit, m->ac)) {	// ok already, hit the damn thing
 		    weapon_use (2 * statmod (Player.str), obj, m);
-		    if ((obj->id == WEAPONID + 28 || obj->id == WEAPONID + 29) && !random_range (4))
+		    if ((obj->id == WEAPON_ARROW || obj->id == WEAPON_BOLT) && !random_range (4))
 			dispose_lost_objects (1, obj);
 		    else {
 			setgamestatus (SUPPRESS_PRINTING);

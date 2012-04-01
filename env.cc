@@ -1698,10 +1698,10 @@ void l_merc_guild (void)
 			morewait();
 			clearmsg();
 			newitem = ((pob) checkmalloc (sizeof (objtype)));
-			*newitem = Objects[WEAPONID + 1];	// shortsword
+			*newitem = Objects[WEAPON_SHORT_SWORD];
 			gain_item (newitem);
 			newitem = ((pob) checkmalloc (sizeof (objtype)));
-			*newitem = Objects[ARMORID + 1];	// leather
+			*newitem = Objects[ARMOR_SOFT_LEATHER];
 			gain_item (newitem);
 			Player.cash += 500;
 			Player.rank[LEGION] = LEGIONAIRE;
@@ -1863,7 +1863,7 @@ void l_castle (void)
 	    } else
 		print2 ("Do not return until you achieve the quest, caitiff!");
 	} else if (Player.rank[NOBILITY] == ESQUIRE) {
-	    if (find_and_remove_item (WEAPONID + 34, -1)) {
+	    if (find_and_remove_item (WEAPON_DEFENDER, -1)) {
 		print1 ("My thanks, squire. In return, I dub thee knight!");
 		Player.rank[NOBILITY] = KNIGHT;
 		gain_experience (1000);
@@ -1874,7 +1874,7 @@ void l_castle (void)
 	    } else
 		print2 ("Greetings, squire. My sword? What, you don't have it?");
 	} else if (Player.rank[NOBILITY] == KNIGHT) {
-	    if (find_and_remove_item (ARMORID + 12, -1)) {
+	    if (find_and_remove_item (ARMOR_DRAGONSCALE, -1)) {
 		print1 ("Thanks, good sir knight.");
 		print2 ("Here are letters patent to a peerage!");
 		Player.rank[NOBILITY] = LORD;
@@ -1959,10 +1959,10 @@ void l_arena (void)
 	    morewait();
 	    clearmsg();
 	    newitem = ((pob) checkmalloc (sizeof (objtype)));
-	    *newitem = Objects[WEAPONID + 17];	// club
+	    *newitem = Objects[WEAPON_CLUB];
 	    gain_item (newitem);
 	    newitem = ((pob) checkmalloc (sizeof (objtype)));
-	    *newitem = Objects[SHIELDID + 2];	// shield
+	    *newitem = Objects[SHIELD_NORMAL];	// shield
 	    gain_item (newitem);
 	    Player.rank[ARENA] = TRAINEE;
 	    Arena_Opponent = 3;
@@ -2119,7 +2119,7 @@ void l_arena (void)
 		    print1 ("You are awarded the Champion's Spear: Victrix!");
 		    morewait();
 		    newitem = ((pob) checkmalloc (sizeof (objtype)));
-		    *newitem = Objects[WEAPONID + 35];
+		    *newitem = Objects[WEAPON_VICTRIX];
 		    gain_item (newitem);
 
 		} else {
@@ -2773,7 +2773,7 @@ void l_order (void)
 	print1 ("You are awarded a blessed shield of deflection!");
 	morewait();
 	newitem = ((pob) checkmalloc (sizeof (objtype)));
-	*newitem = Objects[SHIELDID + 7];	// shield of deflection
+	*newitem = Objects[SHIELD_OF_DEFLECTION];
 	newitem->blessing = 9;
 	gain_item (newitem);
 	morewait();
@@ -2814,7 +2814,7 @@ void l_order (void)
 		Player.guildxp[ORDER] = 1;
 		setgamestatus (MOUNTED);
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
-		*newitem = Objects[WEAPONID + 19];	// spear
+		*newitem = Objects[WEAPON_SPEAR];
 		newitem->blessing = 9;
 		newitem->plus = 1;
 		newitem->known = 2;
@@ -2854,7 +2854,7 @@ void l_order (void)
 		print2 ("You learn the Spell of Heroism and get Mithril Plate!");
 		morewait();
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
-		*newitem = Objects[ARMORID + 11];	// mithril plate armor
+		*newitem = Objects[ARMOR_MITHRIL_PLATE];
 		newitem->blessing = 9;
 		newitem->known = 2;
 		gain_item (newitem);
@@ -2884,7 +2884,7 @@ void l_order (void)
 		morewait();
 		clearmsg();
 		newitem = ((pob) checkmalloc (sizeof (objtype)));
-		*newitem = Objects[WEAPONID + 25];	// mace of disruption
+		*newitem = Objects[WEAPON_MACE_OF_DISRUPTION];
 		newitem->known = 2;
 		gain_item (newitem);
 	    }
