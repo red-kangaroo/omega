@@ -2,7 +2,7 @@
 #include "extern.h"
 
 extern const char* Omegalib;				// This string holds the path to the library files
-extern const struct monster Monsters[NUMMONSTERS];	// one of each monster
+extern const struct monster_data Monsters[NUMMONSTERS];	// one of each monster
 extern struct spell Spells[NUMSPELLS + 1];	// one of each spell
 extern struct object Objects[TOTALITEMS];	// one of each item
 extern int CitySiteList[NUMCITYSITES][3];	// locations of city sites [0] - found, [1] - x, [2] - y

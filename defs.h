@@ -1188,8 +1188,7 @@ struct spell {
     char powerdrain;
 };
 
-struct monster {
-    struct objectlist *possessions;
+struct monster_data {
     unsigned char attacked;
     int aux1, aux2, x, y, click;
     int id, hp, hit, ac, dmg, sense, wakeup, level, speed;
@@ -1203,6 +1202,12 @@ struct monster {
     const char* monstring;
     const char* corpsestr;
     const char* meleestr;
+};
+
+struct monster : public monster_data {
+    struct objectlist *possessions;
+public:
+    inline monster& operator= (const monster_data& v)	{ *implicit_cast<monster_data*>(this) = v; possessions = NULL; return (*this); }
 };
 
 struct monsterlist {
