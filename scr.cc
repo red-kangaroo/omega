@@ -750,7 +750,7 @@ void dataprint (void)
     wclear (Dataw);
     // WDT HACK: I should make these fields spaced and appropriately justified.
     // Maybe I don't feel like it right now.
-    wprintw (Dataw, "Hp:%d/%d Mana:%ld/%ld Au:%ld Level:%d/%ld Carry:%d/%d \n", Player.hp, Player.maxhp, Player.mana, Player.maxmana, Player.cash, Player.level, Player.xp, Player.itemweight, Player.maxweight);
+    wprintw (Dataw, "Hp:%d/%d Mana:%d/%d Au:%d Level:%d/%d Carry:%d/%d \n", Player.hp, Player.maxhp, Player.mana, Player.maxmana, Player.cash, Player.level, Player.xp, Player.itemweight, Player.maxweight);
     wprintw (Dataw, "Str:%d/%d Con:%d/%d Dex:%d/%d Agi:%d/%d Int:%d/%d Pow:%d/%d   ", Player.str, Player.maxstr, Player.con, Player.maxcon, Player.dex, Player.maxdex, Player.agi, Player.maxagi, Player.iq, Player.maxiq, Player.pow, Player.maxpow);
     wrefresh (Dataw);
 }

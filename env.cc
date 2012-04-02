@@ -3087,7 +3087,7 @@ static void make_house_npc (int i, int j)
 	m_status_reset (ml->m, AWAKE);
     else
 	m_status_set (ml->m, AWAKE);
-    if (ml->m->startthing > -1) {
+    if (ml->m->startthing != NO_THING) {
 	ob = ((pob) checkmalloc (sizeof (objtype)));
 	*ob = Objects[ml->m->startthing];
 	m_pickup (ml->m, ob);
@@ -3935,7 +3935,7 @@ pmt make_creature (int mid)
     else {
 	if (newmonster->sleep < random_range (100))
 	    m_status_set (newmonster, AWAKE);
-	if (newmonster->startthing > -1 && object_uniqueness(newmonster->startthing) <= UNIQUE_MADE) {
+	if (newmonster->startthing != NO_THING && object_uniqueness(newmonster->startthing) <= UNIQUE_MADE) {
 	    ob = ((pob) checkmalloc (sizeof (objtype)));
 	    *ob = Objects[newmonster->startthing];
 	    m_pickup (newmonster, ob);
@@ -4861,7 +4861,7 @@ void l_alchemist (void)
 		i = getitem (CORPSE);
 		if ((i != ABORT) && (Player.possessions[i] != NULL)) {
 		    obj = Player.possessions[i];
-		    if (Monsters[obj->charge].transformid == -1) {
+		    if (Monsters[obj->charge].transformid == NO_THING) {
 			print1 ("I don't want such a thing.");
 			if (obj->basevalue > 0)
 			    print2 ("You might be able to sell it to someone else, though.");
@@ -4884,7 +4884,7 @@ void l_alchemist (void)
 		i = getitem (CORPSE);
 		if ((i != ABORT) && (Player.possessions[i] != NULL)) {
 		    obj = Player.possessions[i];
-		    if (Monsters[obj->charge].transformid == -1)
+		    if (Monsters[obj->charge].transformid == NO_THING)
 			print1 ("Oy vey! You want me to transform such a thing?");
 		    else {
 			mlevel = Monsters[obj->charge].level;

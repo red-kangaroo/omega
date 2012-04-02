@@ -530,7 +530,8 @@ enum {
 
     CASHID	= ARTIFACTID+NUMARTIFACTS,
     CORPSEID,	// Corpse's aux field is monster id
-    TOTALITEMS
+    TOTALITEMS,
+    NO_THING = uint8_t(-1)
 };
 
 // describing unique items and monsters
@@ -845,15 +846,30 @@ struct room {
 struct spell { uint8_t powerdrain; };
 
 struct monster_data {
-    unsigned char attacked;
-    int aux1, aux2, x, y, click;
-    int id, hp, hit, ac, dmg, sense, wakeup, level, speed;
-    unsigned char sleep, treasure;
-    long xpv;
-    int corpseweight, corpsevalue, transformid, startthing;
-    unsigned char uniqueness;
-    int talkf, movef, meleef, strikef, specialf;
-    long status, immunity;
+    uint8_t id;
+    uint8_t level;
+    uint16_t hp;
+    uint8_t hit;
+    uint8_t ac;
+    uint8_t dmg;
+    uint8_t sense;
+    uint8_t wakeup;
+    uint8_t speed;
+    uint8_t sleep;
+    uint8_t treasure;
+    uint16_t xpv;
+    uint16_t corpseweight;
+    uint16_t corpsevalue;
+    uint8_t transformid;
+    uint8_t startthing;
+    uint8_t uniqueness;
+    int16_t talkf;
+    int16_t movef;
+    int16_t meleef;
+    int16_t strikef;
+    int16_t specialf;
+    uint32_t status;
+    uint32_t immunity;
     Symbol monchar;
     const char* monstring;
     const char* corpsestr;
@@ -861,6 +877,12 @@ struct monster_data {
 };
 
 struct monster : public monster_data {
+    int attacked;
+    int aux1;
+    int aux2;
+    int click;
+    int x;
+    int y;
     struct objectlist *possessions;
 public:
     inline monster& operator= (const monster_data& v)	{ *implicit_cast<monster_data*>(this) = v; possessions = NULL; return (*this); }
@@ -872,40 +894,73 @@ struct monsterlist {
 };
 
 struct player {
-    int str, con, dex, agi, iq, pow, maxstr, maxcon, maxdex, maxagi, maxiq, maxpow;
-    long xp;
-    int level, hp, maxhp, hit, dmg, absorption, speed, click;
-    int defense, food, alignment;
-    long mana, maxmana;
-    long cash;
-    int patron, birthday;
+    int str;
+    int con;
+    int dex;
+    int agi;
+    int iq;
+    int pow;
+    int maxstr;
+    int maxcon;
+    int maxdex;
+    int maxagi;
+    int maxiq;
+    int maxpow;
+    int xp;
+    int level;
+    int hp;
+    int maxhp;
+    int hit;
+    int dmg;
+    int absorption;
+    int speed;
+    int click;
+    int defense;
+    int food;
+    int alignment;
+    int mana;
+    int maxmana;
+    int cash;
+    int patron;
+    int birthday;
     char preference;
     int sx, sy;			// sanctuary coordinates
     int x, y;			// current player coordinates
-    int itemweight, maxweight;
+    int itemweight;
+    int maxweight;
+    int packptr;
     int immunity[NUMIMMUNITIES];
     int status[NUMSTATI];
-    long options;
+    uint32_t options;
     int rank[NUMRANKS];
-    long guildxp[NUMRANKS];
+    int guildxp[NUMRANKS];
     char name[64];
     char meleestr[64];
     struct object *possessions[MAXITEMS];
     struct object *pack[MAXPACK];
-    int packptr;
 };
 
 struct object {
-    int id, weight, plus, charge, dmg, hit, aux, number, fragility;
-    long basevalue;
-    unsigned char used;
-    int blessing;
-    unsigned char type;
-    unsigned char uniqueness;
-    int usef;
-    unsigned char level;
+    uint8_t id;
+    uint8_t level;
+    uint16_t weight;
+    int8_t plus;
+    uint8_t fragility;
+    int16_t charge;
+    uint8_t dmg;
+    uint8_t hit;
+    int16_t aux;
+    uint16_t number;
+    uint16_t basevalue;
+    uint8_t used;
+    int8_t blessing;
+    uint8_t type;
+    uint8_t uniqueness;
+    int16_t usef;
     Symbol objchar;
-    const char* objstr, *truename, *cursestr;
+    const char* objstr;
+    const char* truename;
+    const char* cursestr;
 };
 
 struct objectlist {
