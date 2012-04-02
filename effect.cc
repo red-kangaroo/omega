@@ -224,7 +224,7 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 {
     int xx, yy;
     struct monster *target;
-    Symbol boltchar;
+    chtype boltchar;
     xx = fx;
     yy = fy;
 
@@ -365,7 +365,7 @@ static void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
 {
     int xx, yy, ex, ey, i;
     struct monster *target;
-    Symbol expchar = ('@' | CLR_LIGHT_PURPLE_BLACK);
+    chtype expchar = ('@' | CLR_LIGHT_PURPLE_BLACK);
 
     xx = fx;
     yy = fy;
@@ -491,13 +491,10 @@ void objdet (int blessing)
 
 void identify (int blessing)
 {
-    int iidx;
-
     clearmsg();
-
     if (blessing == 0) {
 	print1 ("Identify:");
-	iidx = getitem (NULL_ITEM);
+	int iidx = getitem (NULL_ITEM);
 	if (iidx == CASHVALUE)
 	    print3 ("Your money is really money.");
 	else if (iidx == ABORT)
@@ -509,14 +506,14 @@ void identify (int blessing)
 	}
     } else if (blessing < 0) {
 	print2 ("You feel forgetful.");
-	for (iidx = 0; iidx < MAXITEMS; iidx++)
+	for (unsigned iidx = 0; iidx < MAXITEMS; iidx++)
 	    if (Player.possessions[iidx] != NULL)
 		forget_object (Player.possessions[iidx]);
     } else {
 	print2 ("You feel encyclopaedic.");
-	for (iidx = 0; iidx < MAXITEMS; iidx++)
+	for (unsigned iidx = 0; iidx < MAXITEMS; iidx++)
 	    learn_object (Player.possessions[iidx]);
-	for (iidx = 0; iidx < Player.packptr; iidx++)
+	for (unsigned iidx = 0; iidx < Player.packptr; iidx++)
 	    learn_object (Player.pack[iidx]);
     }
     calc_melee();
@@ -559,7 +556,7 @@ void wish (int blessing)
 	if (gamestatusp (CHEATED))
 	    gain_experience (10000);
 	else
-	    gain_experience (min (10000, Player.xp));
+	    gain_experience (min (10000U, Player.xp));
     } else if (strcmp (wishstr, "Wealth") == 0) {
 	print2 ("You are submerged in shower of gold pieces!");
 	Player.cash += 10000;

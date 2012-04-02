@@ -832,16 +832,7 @@ enum {
     O_BOOTS, O_CLOAK, O_RING1, O_RING2, O_RING3, O_RING4
 };
 
-// typedefs needed by structs
-typedef chtype Symbol;
-
 // structure definitions
-
-struct room {
-    int lighted;
-    int left, right, top, bottom;
-    int rsi;			// index into roomname switch
-};
 
 struct spell { uint8_t powerdrain; };
 
@@ -870,7 +861,7 @@ struct monster_data {
     int16_t specialf;
     uint32_t status;
     uint32_t immunity;
-    Symbol monchar;
+    chtype monchar;
     const char* monstring;
     const char* corpsestr;
     const char* meleestr;
@@ -894,50 +885,49 @@ struct monsterlist {
 };
 
 struct player {
-    int str;
-    int con;
-    int dex;
-    int agi;
-    int iq;
-    int pow;
-    int maxstr;
-    int maxcon;
-    int maxdex;
-    int maxagi;
-    int maxiq;
-    int maxpow;
-    int xp;
-    int level;
-    int hp;
-    int maxhp;
-    int hit;
-    int dmg;
-    int absorption;
-    int speed;
-    int click;
-    int defense;
-    int food;
-    int alignment;
-    int mana;
-    int maxmana;
-    int cash;
-    int patron;
-    int birthday;
-    char preference;
-    int sx, sy;			// sanctuary coordinates
-    int x, y;			// current player coordinates
-    int itemweight;
-    int maxweight;
-    int packptr;
-    int immunity[NUMIMMUNITIES];
-    int status[NUMSTATI];
-    uint32_t options;
-    int rank[NUMRANKS];
-    int guildxp[NUMRANKS];
-    char name[64];
-    char meleestr[64];
-    struct object *possessions[MAXITEMS];
-    struct object *pack[MAXPACK];
+    uint8_t	str;
+    uint8_t	con;
+    uint8_t	dex;
+    uint8_t	agi;
+    uint8_t	iq;
+    uint8_t	pow;
+    uint8_t	maxstr;
+    uint8_t	maxcon;
+    uint8_t	maxdex;
+    uint8_t	maxagi;
+    uint8_t	maxiq;
+    uint8_t	maxpow;
+    uint32_t	xp;
+    int16_t	level;
+    int16_t	hp;
+    uint16_t	maxhp;
+    uint16_t	hit;
+    uint16_t	dmg;
+    uint16_t	absorption;
+    uint16_t	click;
+    uint16_t	defense;
+    int16_t	food;
+    int16_t	alignment;
+    uint16_t	mana;
+    uint16_t	maxmana;
+    uint32_t	cash;
+    int		sx, sy;			// sanctuary coordinates
+    int		x, y;			// current player coordinates
+    unsigned	packptr;
+    uint32_t	options;
+    uint16_t	itemweight;
+    uint16_t	maxweight;
+    uint8_t	speed;
+    uint8_t	patron;
+    char	preference;
+    uint16_t	immunity[NUMIMMUNITIES];
+    uint16_t	status[NUMSTATI];
+    int8_t	rank[NUMRANKS];
+    uint16_t	guildxp[NUMRANKS];
+    char	name[32];
+    char	meleestr[64];
+    struct object* possessions[MAXITEMS];
+    struct object* pack[MAXPACK];
 };
 
 struct object {
@@ -957,7 +947,7 @@ struct object {
     uint8_t type;
     uint8_t uniqueness;
     int16_t usef;
-    Symbol objchar;
+    chtype objchar;
     const char* objstr;
     const char* truename;
     const char* cursestr;
@@ -970,8 +960,8 @@ struct objectlist {
 
 // terrain locations
 struct terrain {
-    Symbol base_terrain_type;
-    Symbol current_terrain_type;
+    chtype base_terrain_type;
+    chtype current_terrain_type;
     char aux;
     char status;
 };
@@ -981,8 +971,8 @@ struct location {
     char p_locf;		// function executed when moved on
     unsigned char lstatus;	// seen,stopsrun,lit,secret,
     char roomnumber;		// so room can be named
-    Symbol locchar;		// terrain type
-    Symbol showchar;		// char instantaneously drawn for site
+    chtype locchar;		// terrain type
+    chtype showchar;		// char instantaneously drawn for site
     int aux;			// signifies various things
     unsigned char buildaux;	// used in constructing level
     struct objectlist *things;

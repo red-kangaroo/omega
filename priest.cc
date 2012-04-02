@@ -326,7 +326,7 @@ static int increase_priest_rank (int deity)
 	    print1 ("You have swerved from the One True Path!");
 	    print2 ("Your deity is greatly displeased...");
 	    Player.xp -= Player.level * Player.level;
-	    Player.xp = max (0, Player.xp);
+	    Player.xp = max (0U, Player.xp);
 	} else if (Player.rank[PRIESTHOOD] == HIGHPRIEST)
 	    return 0;
 	else if (Player.rank[PRIESTHOOD] == SPRIEST) {

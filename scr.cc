@@ -550,7 +550,7 @@ void levelrefresh (void)
 // draws a particular spot under if in line-of-sight
 void drawspot (int x, int y)
 {
-    Symbol c;
+    chtype c;
     if (inbounds (x, y)) {
 	c = getspot (x, y, FALSE);
 	if (c != Level->site[x][y].showchar)
@@ -565,7 +565,7 @@ void drawspot (int x, int y)
 // draws a particular spot regardless of line-of-sight
 void dodrawspot (int x, int y)
 {
-    Symbol c;
+    chtype c;
     if (inbounds (x, y)) {
 	c = getspot (x, y, FALSE);
 	if (c != Level->site[x][y].showchar) {
@@ -613,7 +613,7 @@ void plotspot (int x, int y, int showmonster)
 }
 
 // Puts c at x,y on screen. No fuss, no bother.
-void putspot (int x, int y, Symbol c)
+void putspot (int x, int y, chtype c)
 {
     if (!offscreen (y)) {
 	wmove (Levelw, screenmod (y), x);
@@ -666,7 +666,7 @@ void erase_monster (struct monster *m)
 }
 
 // find apt char to display at some location
-Symbol getspot (int x, int y, int showmonster)
+chtype getspot (int x, int y, int showmonster)
 {
     if (loc_statusp (x, y, SECRET))
 	return (WALL);
@@ -856,7 +856,7 @@ void endgraf (void)
     endwin();
 }
 
-void plotchar (Symbol pyx, int x, int y)
+void plotchar (chtype pyx, int x, int y)
 {
     if (!offscreen (y)) {
 	wmove (Levelw, screenmod (y), x);
@@ -867,7 +867,7 @@ void plotchar (Symbol pyx, int x, int y)
     }
 }
 
-void draw_explosion (Symbol pyx, int x, int y)
+void draw_explosion (chtype pyx, int x, int y)
 {
     int i, j;
 
@@ -1277,7 +1277,7 @@ void spreadroomlight (int x, int y, int roomno)
 // illuminate one spot at x y
 static void lightspot (int x, int y)
 {
-    Symbol c;
+    chtype c;
     lset (x, y, LIT);
     lset (x, y, SEEN);
     lset (x, y, CHANGED);
@@ -1300,13 +1300,12 @@ void spreadroomdark (int x, int y, int roomno)
 
 void display_pack (void)
 {
-    int i;
     if (Player.packptr < 1)
 	print3 ("Pack is empty.");
     else {
 	menuclear();
 	menuprint ("Items in Pack:\n");
-	for (i = 0; i < Player.packptr; i++) {
+	for (unsigned i = 0; i < Player.packptr; i++) {
 	    sprintf (Str1, "  %c: %s\n", i + 'A', itemid (Player.pack[i]));
 	    menuprint (Str1);
 	}

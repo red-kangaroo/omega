@@ -830,7 +830,7 @@ void surrender (struct monster *m)
 	    Player.possessions[bestitem] = NULL;
 	}
 	print2 ("You feel less experienced... ");
-	Player.xp = max (0, Player.xp - m->xpv);
+	Player.xp = max (0U, Player.xp - m->xpv);
 	nprint2 ("The monster seems more experienced!");
 	m->level = (min (10, m->level + 1));
 	m->hp += m->level * 20;

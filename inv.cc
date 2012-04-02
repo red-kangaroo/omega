@@ -4,7 +4,7 @@
 //----------------------------------------------------------------------
 
 static void add_to_pack(pob o);
-static int aux_display_pack(int start_item, int slot);
+static int aux_display_pack(unsigned start_item, unsigned slot);
 static int aux_slottable(pob o, int slot);
 static int aux_take_from_pack(int slot);
 static int aux_top_take_from_pack(int slot, int display);
@@ -492,7 +492,7 @@ void conform_unused_object (pob obj)
 // listed in the possibilities.
 // if itype is any other object type (eg SCROLL, POTION, etc.), only
 // that type of item is acceptable or is listed
-int getitem (Symbol itype)
+int getitem (chtype itype)
 {
     char invstr[64];
     char key;
@@ -617,8 +617,7 @@ static int pack_item_cost (int ii)
 static void use_pack_item (int response, int slot)
 {
     pob item;
-    int i;
-    i = pack_item_cost (response);
+    unsigned i = pack_item_cost (response);
     if (i > 10) {
 	print1 ("You begin to rummage through your pack.");
 	morewait();
@@ -652,9 +651,9 @@ static void use_pack_item (int response, int slot)
 
 // WDT HACK!  This ought to be in scr.c, along with its companion.  However,
 // right now it's only used in the function directly below.
-static int aux_display_pack (int start_item, int slot)
+static int aux_display_pack (unsigned start_item, unsigned slot)
 {
-    int i = start_item, items;
+    unsigned i = start_item, items;
     const char* depth_string;
     if (Player.packptr < 1)
 	print3 ("Pack is empty.");
@@ -663,7 +662,7 @@ static int aux_display_pack (int start_item, int slot)
     else {
 	menuclear();
 	items = 0;
-	for (i = start_item; i < Player.packptr && items < ScreenLength - 5; i++) {
+	for (i = start_item; i < Player.packptr && items < ScreenLength - 5U; i++) {
 	    if (aux_slottable (Player.pack[i], slot)) {
 		if (pack_item_cost (i) > 10)
 		    depth_string = "**";
@@ -692,7 +691,7 @@ static int aux_display_pack (int start_item, int slot)
 // or to 'up-in-air', one of which at least must be empty
 static int aux_take_from_pack (int slot)
 {
-    char response, pack_item, last_item;
+    char response, pack_item;
     if (Player.possessions[slot] != NULL)
 	slot = O_UP_IN_AIR;
     if (Player.possessions[slot] != NULL)
@@ -704,7 +703,7 @@ static int aux_take_from_pack (int slot)
 	int quitting = FALSE, ok = TRUE;
 	do {
 	    ok = TRUE;
-	    last_item = aux_display_pack (pack_item, slot);
+	    unsigned last_item = aux_display_pack (pack_item, slot);
 	    if (last_item == Player.packptr && pack_item == 0)
 		print1 ("Enter pack slot letter or ESCAPE to quit.");
 	    else if (last_item == Player.packptr)
@@ -732,7 +731,7 @@ static int aux_take_from_pack (int slot)
 		pack_item = 0;
 		ok = FALSE;
 	    } else {
-		ok = ((response >= 'a') && (response < 'a' + Player.packptr));
+		ok = ((response >= 'a') && (response < char('a' + Player.packptr)));
 		if (ok)
 		    ok = slottable (Player.pack[response - 'a'], slot);
 	    }
@@ -770,7 +769,7 @@ static int aux_top_take_from_pack (int slot, int display)
 	    } else if (response == KEY_ESCAPE)
 		quitting = TRUE;
 	    else {
-		ok = ((response >= 'a') && (response < 'a' + Player.packptr));
+		ok = ((response >= 'a') && (response < char('a' + Player.packptr)));
 		if (ok)
 		    ok = slottable (Player.pack[response - 'a'], slot);
 	    }
@@ -1388,9 +1387,9 @@ int cursed (pob obj)
 // corpses instead of aux, which is their food value.
 int find_item (pob * o, int id, int chargeval)
 {
-    int i, found = FALSE;
+    bool found = FALSE;
     *o = NULL;
-    for (i = 1; ((i < MAXITEMS) && (!found)); i++) {
+    for (unsigned i = 1; i < MAXITEMS && !found; i++) {
 	if (Player.possessions[i] != NULL) {
 	    if ((Player.possessions[i]->id == id) && ((chargeval == -1) || (Player.possessions[i]->charge == chargeval))) {
 		*o = Player.possessions[i];
@@ -1399,7 +1398,7 @@ int find_item (pob * o, int id, int chargeval)
 	}
     }
     if (!found) {
-	for (i = 0; ((i < Player.packptr) && (!found)); i++) {
+	for (unsigned i = 0; i < Player.packptr && !found; i++) {
 	    if (Player.pack[i] != NULL) {
 		if ((Player.pack[i]->id == id) && ((chargeval == -1) || (Player.pack[i]->charge == chargeval))) {
 		    *o = Player.pack[i];
@@ -1416,10 +1415,10 @@ int find_item (pob * o, int id, int chargeval)
 // corpses instead of aux, which is their food value.
 int find_and_remove_item (int id, int chargeval)
 {
-    int i, found = FALSE;
+    bool found = FALSE;
     pob o = NULL;
 
-    for (i = 1; ((i < MAXITEMS) && (!found)); i++) {
+    for (unsigned i = 1; i < MAXITEMS && !found; i++) {
 	if (Player.possessions[i] != NULL) {
 	    if ((Player.possessions[i]->id == id) && ((chargeval == -1) || (Player.possessions[i]->charge == chargeval))) {
 		o = Player.possessions[i];
@@ -1429,7 +1428,7 @@ int find_and_remove_item (int id, int chargeval)
 	}
     }
     if (!found) {
-	for (i = 0; ((i < Player.packptr) && (!found)); i++) {
+	for (unsigned i = 0; i < Player.packptr && !found; i++) {
 	    if (Player.pack[i] != NULL) {
 		if ((Player.pack[i]->id == id) && ((chargeval == -1) || (Player.pack[i]->charge == chargeval))) {
 		    Player.pack[i]->number--;

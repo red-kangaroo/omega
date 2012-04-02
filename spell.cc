@@ -329,7 +329,7 @@ static void s_ritual (void)
 				    gain_item (symbol);
 				    mprint ("You feel uplifted.");
 				} else
-				    gain_experience (min (1000, Player.xp));
+				    gain_experience (min (1000U, Player.xp));
 			    } else if (random_range (3) == 1) {
 				mprint ("You feel Fated.");
 				gain_experience (Player.level * Player.level * 10);

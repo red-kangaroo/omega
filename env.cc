@@ -24,7 +24,7 @@ static void make_sheep(int i, int j);
 static void special_village_site(int i, int j, int villagenum);
 static void buyfromstock(int base, int numitems);
 static void cureforpay(void);
-static void gymtrain(int *maxstat, int *stat);
+static void gymtrain(uint8_t* maxstat, uint8_t* stat);
 static void healforpay(void);
 static void wake_statue(int x, int y, int first);
 static void make_site_treasure(int i, int j, int itemlevel);
@@ -2133,7 +2133,7 @@ void l_arena (void)
 
 void l_thieves_guild (void)
 {
-    int fee, count, i, number, done = FALSE, dues = 1000;
+    unsigned fee, count, number, done = FALSE, dues = 1000;
     char c, action;
     pob lockpick;
     print1 ("You have penetrated to the Lair of the Thieves' Guild.");
@@ -2186,7 +2186,7 @@ void l_thieves_guild (void)
 		else {
 		    dues += dues * (12 - Player.dex) / 9;
 		    dues += Player.alignment * 5;
-		    dues = max (100, dues);
+		    dues = max (100U, dues);
 		    clearmsg();
 		    mprint ("Dues are");
 		    mnumprint (dues);
@@ -2291,11 +2291,11 @@ void l_thieves_guild (void)
 		    }
 		} else {
 		    count = 0;
-		    for (i = 1; i < MAXITEMS; i++)
+		    for (unsigned i = 1; i < MAXITEMS; i++)
 			if (Player.possessions[i] != NULL)
 			    if (!object_is_known(Player.possessions[i]))
 				count++;
-		    for (i = 0; i < Player.packptr; i++)
+		    for (unsigned i = 0; i < Player.packptr; i++)
 			if (Player.pack[i] != NULL)
 			    if (!object_is_known(Player.pack[i]))
 				count++;
@@ -2319,7 +2319,7 @@ void l_thieves_guild (void)
 		else {
 		    print1 ("Fence one item or go through pack? [ip] ");
 		    if ((char) mcigetc() == 'i') {
-			i = getitem (NULL_ITEM);
+			int i = getitem (NULL_ITEM);
 			if ((i == ABORT) || (Player.possessions[i] == NULL))
 			    print2 ("Huh, Is this some kind of set-up?");
 			else if (Player.possessions[i]->blessing < 0)
@@ -2345,7 +2345,7 @@ void l_thieves_guild (void)
 				print2 ("Hey, gimme a break, it was a fair price!");
 			}
 		    } else {
-			for (i = 0; i < Player.packptr; i++) {
+			for (unsigned i = 0; i < Player.packptr; i++) {
 			    if (Player.pack[i]->blessing > -1) {
 				clearmsg();
 				print1 ("Sell ");
@@ -2555,7 +2555,8 @@ void l_college (void)
 void l_sorcerors (void)
 {
     char action;
-    int done = FALSE, fee = 3000;
+    bool done = FALSE;
+    unsigned fee = 3000;
     long total;
     print1 ("The Circle of Sorcerors.");
     if (Player.rank[CIRCLE] == -1) {
@@ -2603,7 +2604,7 @@ void l_sorcerors (void)
 		else {
 		    fee += Player.alignment * 100;
 		    fee += fee * (12 - Player.pow) / 9;
-		    fee = max (100, fee);
+		    fee = max (100U, fee);
 		    clearmsg();
 		    mprint ("For you, there is an initiation fee of");
 		    mnumprint (fee);
@@ -4639,17 +4640,16 @@ void l_casino (void)
 
 void l_commandant (void)
 {
-    int num;
     pob food;
     print1 ("Commandant Sonder's Rampart-fried Lyzzard partes. Open 24 hrs.");
     print2 ("Buy a bucket! Only 5 Au. Make a purchase? [yn] ");
     if (ynq2() == 'y') {
 	clearmsg();
 	print1 ("How many? ");
-	num = (int) parsenum();
+	int num = (int) parsenum();
 	if (num < 1)
 	    print3 ("Cute. Real cute.");
-	else if (num * 5 > Player.cash)
+	else if (num * 5U > Player.cash)
 	    print3 ("No handouts here, mac!");
 	else {
 	    Player.cash -= num * 5;
@@ -4892,11 +4892,11 @@ void l_alchemist (void)
 			mnumprint (max (10, obj->basevalue * 2));
 			nprint1 ("Au for the transformation. Pay it? [yn] ");
 			if (ynq1() == 'y') {
-			    if (Player.cash < max (10, obj->basevalue * 2))
+			    if (Player.cash < max (10U, obj->basevalue * 2U))
 				print2 ("You can't afford it!");
 			    else {
 				print1 ("Voila! A tap of the Philosopher's Stone...");
-				Player.cash -= max (10, obj->basevalue * 2);
+				Player.cash -= max (10U, obj->basevalue * 2U);
 				*obj = Objects[Monsters[obj->charge].transformid];
 				if ((obj->id >= STICKID) && (obj->id < STICKID + NUMSTICKS))
 				    obj->charge = 20;
@@ -4949,8 +4949,9 @@ void l_dpw (void)
 void l_library (void)
 {
     char response;
-    int studied = FALSE;
-    int done = FALSE, fee = 1000;
+    bool studied = FALSE;
+    bool done = FALSE;
+    unsigned fee = 1000;
     print1 ("Rampart Public Library.");
     if (nighttime())
 	print2 ("CLOSED");
@@ -5010,11 +5011,11 @@ void l_library (void)
 				Player.iq++;
 				Player.maxiq++;
 				dataprint();
-				if (Player.maxiq < 19 && fee != max (50, 1000 - (18 - Player.maxiq) * 125)) {
+				if (Player.maxiq < 19 && fee != max (50U, 1000U - (18U - Player.maxiq) * 125U)) {
 				    morewait();
 				    clearmsg();
 				    print1 ("Your revised fee is: ");
-				    mnumprint (fee = max (50, 1000 - (18 - Player.maxiq) * 125));
+				    mnumprint (fee = max (50U, 1000U - (18U - Player.maxiq) * 125U));
 				    nprint1 ("Au.");
 				    morewait();
 				}
@@ -5046,7 +5047,7 @@ void l_library (void)
 
 void l_pawn_shop (void)
 {
-    int i, j, k, limit, number, done = FALSE;
+    unsigned j, k, limit, number, done = FALSE;
     char item, action;
 
     if (nighttime())
@@ -5062,23 +5063,25 @@ void l_pawn_shop (void)
 		free (Pawnitems[0]);
 		Pawnitems[0] = NULL;
 	    }
-	    for (i = 0; i < PAWNITEMS - 1; i++)
+	    for (unsigned i = 0; i < PAWNITEMS - 1; i++)
 		Pawnitems[i] = Pawnitems[i + 1];
 	    Pawnitems[PAWNITEMS - 1] = NULL;
-	    for (i = 0; i < PAWNITEMS; i++)
-		if (Pawnitems[i] == NULL)
+	    for (unsigned i = 0; i < PAWNITEMS; i++) {
+		if (Pawnitems[i] == NULL) {
 		    do {
 			if (Pawnitems[i] != NULL)
 			    free (Pawnitems[i]);
 			Pawnitems[i] = create_object (5);
 			learn_object (Pawnitems[i]);
 		    } while ((Pawnitems[i]->objchar == CASH) || (Pawnitems[i]->objchar == ARTIFACT) || (true_item_value (Pawnitems[i]) <= 0));
+		}
+	    }
 	}
 	while (!done) {
 	    print1 ("Knight's Pawn Shop:");
 	    print2 ("Buy item, Sell item, sell Pack contents, Leave [b,s,p,ESCAPE] ");
 	    menuclear();
-	    for (i = 0; i < PAWNITEMS; i++) {
+	    for (unsigned i = 0; i < PAWNITEMS; i++) {
 		if (Pawnitems[i] != NULL) {
 		    strcpy (Str3, " :");
 		    Str3[0] = i + 'a';
@@ -5097,7 +5100,7 @@ void l_pawn_shop (void)
 		while ((item != KEY_ESCAPE) && ((item < 'a') || (item >= 'a' + PAWNITEMS)))
 		    item = (char) mcigetc();
 		if (item != KEY_ESCAPE) {
-		    i = item - 'a';
+		    unsigned i = item - 'a';
 		    if (Pawnitems[i] == NULL)
 			print3 ("No such item!");
 		    else if (true_item_value (Pawnitems[i]) <= 0) {
@@ -5126,7 +5129,7 @@ void l_pawn_shop (void)
 	    } else if (action == 's') {
 		menuclear();
 		print2 ("Sell which item: ");
-		i = getitem (NULL_ITEM);
+		int i = getitem (NULL_ITEM);
 		if ((i != ABORT) && (Player.possessions[i] != NULL)) {
 		    if (cursed (Player.possessions[i])) {
 			print1 ("No loans on cursed items! I been burned before....");
@@ -5159,7 +5162,7 @@ void l_pawn_shop (void)
 		    }
 		}
 	    } else if (action == 'p') {
-		for (i = 0; i < Player.packptr; i++) {
+		for (unsigned i = 0; i < Player.packptr; i++) {
 		    if (Player.pack[i]->blessing > -1 && true_item_value (Player.pack[i]) > 0) {
 			clearmsg();
 			print1 ("Sell ");
@@ -5315,7 +5318,7 @@ void l_condo (void)
     }
 }
 
-static void gymtrain (int *maxstat, int *stat)
+static void gymtrain (uint8_t *maxstat, uint8_t *stat)
 {
     if (Gymcredit + Player.cash < 2000)
 	print2 ("You can't afford our training!");

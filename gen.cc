@@ -5,7 +5,7 @@
 
 static void build_room(int x, int y, int l, char rsi, int baux);
 static void build_square_room(int x, int y, int l, char rsi, int baux);
-static void corridor_crawl(int *fx, int *fy, int sx, int sy, int n, Symbol loc, char rsi);
+static void corridor_crawl(int *fx, int *fy, int sx, int sy, int n, chtype loc, char rsi);
 static void find_stairs(char fromlevel, char tolevel);
 static plv findlevel(struct level *dungeon, char levelnum);
 static void make_forest(void);
@@ -19,8 +19,8 @@ static void make_swamp(void);
 static void makedoor(int x, int y);
 static void maze_corridor(int fx, int fy, int tx, int ty, int rsi, int num);
 static void room_corridor(int fx, int fy, int tx, int ty, int baux);
-static void sewer_corridor(int x, int y, int dx, int dy, Symbol locchar);
-static void straggle_corridor(int fx, int fy, int tx, int ty, Symbol loc, char rsi);
+static void sewer_corridor(int x, int y, int dx, int dy, chtype locchar);
+static void straggle_corridor(int fx, int fy, int tx, int ty, chtype loc, char rsi);
 
 //----------------------------------------------------------------------
 
@@ -158,7 +158,7 @@ static plv findlevel (struct level* dungeon, char levelnum)
 }
 
 // keep going in one orthogonal direction or another until we hit our destination
-static void straggle_corridor (int fx, int fy, int tx, int ty, Symbol loc, char rsi)
+static void straggle_corridor (int fx, int fy, int tx, int ty, chtype loc, char rsi)
 {
     int dx, dy;
     while ((fx != tx) || (fy != ty)) {
@@ -199,7 +199,7 @@ static void makedoor (int x, int y)
     // prevents water corridors from being instant death in sewers
 }
 
-static void corridor_crawl (int* fx, int* fy, int sx, int sy, int n, Symbol loc, char rsi)
+static void corridor_crawl (int* fx, int* fy, int sx, int sy, int n, chtype loc, char rsi)
 {
     int i;
     for (i = 0; i < n; i++) {
@@ -433,7 +433,7 @@ const char* roomname (int ri)
 static void find_stairs (char fromlevel, char tolevel)
 {
     int i, j, found = FALSE;
-    Symbol sitechar;
+    chtype sitechar;
     if (fromlevel > tolevel)
 	sitechar = STAIRS_DOWN;
     else
@@ -540,7 +540,7 @@ void sewer_level (void)
 {
     int i, tx, ty, t, l, e;
     char rsi;
-    Symbol lchar;
+    chtype lchar;
 
     Level->numrooms = random_range (3) + 3;
     rsi = RS_DRAINED_SEWER;
@@ -575,7 +575,7 @@ void sewer_level (void)
     }
 }
 
-static void sewer_corridor (int x, int y, int dx, int dy, Symbol locchar)
+static void sewer_corridor (int x, int y, int dx, int dy, chtype locchar)
 {
     int continuing = TRUE;
     makedoor (x, y);
