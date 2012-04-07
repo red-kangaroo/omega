@@ -2062,7 +2062,7 @@ void l_arena (void)
 	// procedures to account for this case.  I'm not really concerned.
 	// David Given has proposed a nicer solution, but it still causes a
 	// memory leak.  Obviously, we need a special field just for names
-	// in the monster struct.  Yadda yadda -- I'll mmark this with a 
+	// in the monster struct.  Yadda yadda -- I'll mmark this with a
 	// HACK!, and comme back to it later.
 	// can not free the corpse string... it is referenced in the
 	// corpse string of the corpse object.
@@ -4251,23 +4251,23 @@ static void buyfromstock (int base, int numitems)
     }
     showmenu();
     item = ' ';
-    while ((item != KEY_ESCAPE) && ((item < 'a') || (item >= 'a' + numitems)))
+    while (item != KEY_ESCAPE && (item < 'a' || item >= 'a' + numitems))
 	item = mgetc();
     if (item != KEY_ESCAPE) {
 	i = item - 'a';
 	newitem = new object;
 	*newitem = Objects[base + i];
-	learn_object (newitem);
 	clearmsg();
 	print1 ("I can let you have it for ");
-	mlongprint (2 * true_item_value (newitem));
+	unsigned cost = 2 * true_item_value (newitem);
+	mlongprint (cost);
 	nprint1 ("Au. Buy it? [yn] ");
 	if (ynq1() == 'y') {
-	    if (Player.cash < 2 * true_item_value (newitem)) {
+	    if (Player.cash < cost) {
 		print2 ("Why not try again some time you have the cash?");
 		delete newitem;
 	    } else {
-		Player.cash -= 2 * true_item_value (newitem);
+		Player.cash -= cost;
 		dataprint();
 		gain_item (newitem);
 	    }
@@ -5047,152 +5047,128 @@ void l_library (void)
 
 void l_pawn_shop (void)
 {
-    unsigned j, k, limit, number, done = FALSE;
-    char item, action;
-
-    if (nighttime())
+    if (nighttime()) {
 	print1 ("Shop Closed: Have a Nice (K)Night");
-    else {
-	limit = min (5, Date - Pawndate);
-	Pawndate = Date;
-	for (k = 0; k < limit; k++) {
-	    if (Pawnitems[0] != NULL) {
-		if (object_uniqueness(Pawnitems[0]) > UNIQUE_UNMADE)
-		    set_object_uniqueness (Pawnitems[0], UNIQUE_UNMADE);
-		// could turn up anywhere, really :)
-		delete Pawnitems[0];
-		Pawnitems[0] = NULL;
-	    }
-	    for (unsigned i = 0; i < PAWNITEMS - 1; i++)
-		Pawnitems[i] = Pawnitems[i + 1];
-	    Pawnitems[PAWNITEMS - 1] = NULL;
-	    for (unsigned i = 0; i < PAWNITEMS; i++) {
-		if (Pawnitems[i] == NULL) {
-		    do {
-			if (Pawnitems[i] != NULL)
-			    delete Pawnitems[i];
-			Pawnitems[i] = create_object (5);
-			learn_object (Pawnitems[i]);
-		    } while ((Pawnitems[i]->objchar == CASH) || (Pawnitems[i]->objchar == ARTIFACT) || (true_item_value (Pawnitems[i]) <= 0));
-		}
-	    }
+	return;
+    }
+
+    unsigned limit = min (Pawnitems.size()/4, unsigned(Date - Pawndate));
+    Pawndate = Date;
+    for (unsigned i = 0; i < limit; ++i)
+	if (object_uniqueness(Pawnitems[0]) > UNIQUE_UNMADE)
+	    set_object_uniqueness (Pawnitems[0], UNIQUE_UNMADE);
+    Pawnitems.erase (Pawnitems.begin(), limit);
+    while (Pawnitems.size() < PAWNITEMS) {
+	pob o = create_object (5);
+	if (o->objchar != CASH && o->objchar != ARTIFACT && true_item_value (o) > 0)
+	    Pawnitems.push_back (*o);
+	delete o;
+    }
+
+    while (true) {
+	print1 ("Knight's Pawn Shop:");
+	print2 ("Buy item, Sell item, sell Pack contents, Leave [b,s,p,ESCAPE] ");
+	menuclear();
+	for (unsigned i = 0; i < Pawnitems.size(); i++) {
+	    strcpy (Str3, " :");
+	    Str3[0] = i + 'a';
+	    strcat (Str3, itemid (Pawnitems[i]));
+	    menuprint (Str3);
+	    menuprint ("\n");
 	}
-	while (!done) {
-	    print1 ("Knight's Pawn Shop:");
-	    print2 ("Buy item, Sell item, sell Pack contents, Leave [b,s,p,ESCAPE] ");
+
+	showmenu();
+	char action = (char) mcigetc();
+	if (action == KEY_ESCAPE)
+	    break;
+	else if (action == 'b') {
+	    print2 ("Purchase which item? [ESCAPE to quit] ");
+	    unsigned item = ' ';
+	    while (item != KEY_ESCAPE && (item < 'a' || item >= 'a' + Pawnitems.size()))
+		item = mcigetc();
+	    if (item != KEY_ESCAPE) {
+		unsigned i = item - 'a';
+		if (true_item_value (Pawnitems[i]) <= 0) {
+		    print1 ("Hmm, how did that junk get on my shelves?");
+		    print2 ("I'll just remove it.");
+		    Pawnitems.erase (Pawnitems.iat(i));
+		} else {
+		    clearmsg();
+		    print1 ("The low, low, cost is: ");
+		    unsigned cost = Pawnitems[i].number * true_item_value (Pawnitems[i]);
+		    mlongprint (cost);
+		    nprint1 (" Buy it? [ynq] ");
+		    if (ynq1() == 'y') {
+			if (Player.cash < cost) {
+			    print2 ("No credit! Gwan, Beat it!");
+			    morewait();
+			} else {
+			    Player.cash -= cost;
+			    gain_item (new object (Pawnitems[i]));
+			    Pawnitems.erase (Pawnitems.iat(i));
+			}
+		    }
+		}
+	    }
+	} else if (action == 's') {
 	    menuclear();
-	    for (unsigned i = 0; i < PAWNITEMS; i++) {
-		if (Pawnitems[i] != NULL) {
-		    strcpy (Str3, " :");
-		    Str3[0] = i + 'a';
-		    strcat (Str3, itemid (Pawnitems[i]));
-		    menuprint (Str3);
-		    menuprint ("\n");
+	    print2 ("Sell which item: ");
+	    int i = getitem (NULL_ITEM);
+	    if (i != ABORT && Player.possessions[i] != NULL) {
+		if (cursed (Player.possessions[i])) {
+		    print1 ("No loans on cursed items! I been burned before....");
+		    morewait();
+		} else if (true_item_value (Player.possessions[i]) <= 0) {
+		    print1 ("That looks like a worthless piece of junk to me.");
+		    morewait();
+		} else {
+		    clearmsg();
+		    print1 ("You can get ");
+		    mlongprint (item_value (Player.possessions[i]) / 2);
+		    nprint1 ("Au each. Sell [yn]? ");
+		    if (ynq1() == 'y') {
+			unsigned number = getnumber (Player.possessions[i]->number);
+			if (number >= Player.possessions[i]->number && Player.possessions[i]->used) {
+			    Player.possessions[i]->used = FALSE;
+			    item_use (Player.possessions[i]);
+			}
+			Player.cash += number * item_value (Player.possessions[i]) / 2;
+			Pawnitems.erase (Pawnitems.begin());
+			Pawnitems.emplace_back (*(Player.possessions[i]));
+			Pawnitems.back().number = number;
+			dispose_lost_objects (number, Player.possessions[i]);
+			dataprint();
+		    }
 		}
 	    }
-	    showmenu();
-	    action = (char) mcigetc();
-	    if (action == KEY_ESCAPE)
-		done = TRUE;
-	    else if (action == 'b') {
-		print2 ("Purchase which item? [ESCAPE to quit] ");
-		item = ' ';
-		while ((item != KEY_ESCAPE) && ((item < 'a') || (item >= 'a' + PAWNITEMS)))
-		    item = (char) mcigetc();
-		if (item != KEY_ESCAPE) {
-		    unsigned i = item - 'a';
-		    if (Pawnitems[i] == NULL)
-			print3 ("No such item!");
-		    else if (true_item_value (Pawnitems[i]) <= 0) {
-			print1 ("Hmm, how did that junk get on my shelves?");
-			print2 ("I'll just remove it.");
-			delete Pawnitems[i];
-			Pawnitems[i] = NULL;
-		    } else {
-			clearmsg();
-			print1 ("The low, low, cost is: ");
-			mlongprint (Pawnitems[i]->number * true_item_value (Pawnitems[i]));
-			nprint1 (" Buy it? [ynq] ");
-			if (ynq1() == 'y') {
-			    if (Player.cash < Pawnitems[i]->number * true_item_value (Pawnitems[i])) {
-				print2 ("No credit! Gwan, Beat it!");
-				morewait();
-			    } else {
-				Player.cash -= Pawnitems[i]->number * true_item_value (Pawnitems[i]);
-				learn_object (Pawnitems[i]);
-				gain_item (Pawnitems[i]);
-				Pawnitems[i] = NULL;
-			    }
+	} else if (action == 'p') {
+	    for (unsigned i = 0; i < Player.packptr; i++) {
+		if (Player.pack[i]->blessing <= 0 || true_item_value (Player.pack[i]) <= 0)
+		    continue;
+		clearmsg();
+		print1 ("Sell ");
+		nprint1 (itemid (Player.pack[i]));
+		nprint1 (" for ");
+		unsigned cost = item_value (Player.pack[i]) / 2;
+		mlongprint (cost);
+		nprint1 ("Au each? [yn] ");
+		if (ynq1() == 'y') {
+		    unsigned number = getnumber (Player.pack[i]->number);
+		    if (number > 0) {
+			Player.cash += number * cost;
+			Pawnitems.erase (Pawnitems.begin());
+			Pawnitems.emplace_back (*(Player.possessions[i]));
+			Pawnitems.back().number = number;
+			Player.pack[i]->number -= number;
+			if (Player.pack[i]->number < 1) {
+			    delete Player.pack[i];
+			    Player.pack[i] = NULL;
 			}
+			dataprint();
 		    }
 		}
-	    } else if (action == 's') {
-		menuclear();
-		print2 ("Sell which item: ");
-		int i = getitem (NULL_ITEM);
-		if ((i != ABORT) && (Player.possessions[i] != NULL)) {
-		    if (cursed (Player.possessions[i])) {
-			print1 ("No loans on cursed items! I been burned before....");
-			morewait();
-		    } else if (true_item_value (Player.possessions[i]) <= 0) {
-			print1 ("That looks like a worthless piece of junk to me.");
-			morewait();
-		    } else {
-			clearmsg();
-			print1 ("You can get ");
-			mlongprint (item_value (Player.possessions[i]) / 2);
-			nprint1 ("Au each. Sell [yn]? ");
-			if (ynq1() == 'y') {
-			    number = getnumber (Player.possessions[i]->number);
-			    if ((number >= Player.possessions[i]->number) && Player.possessions[i]->used) {
-				Player.possessions[i]->used = FALSE;
-				item_use (Player.possessions[i]);
-			    }
-			    Player.cash += number * item_value (Player.possessions[i]) / 2;
-			    delete Pawnitems[0];
-			    for (j = 0; j < PAWNITEMS - 1; j++)
-				Pawnitems[j] = Pawnitems[j + 1];
-			    Pawnitems[PAWNITEMS - 1] = new object;
-			    *(Pawnitems[PAWNITEMS - 1]) = *(Player.possessions[i]);
-			    Pawnitems[PAWNITEMS - 1]->number = number;
-			    learn_object (Pawnitems[PAWNITEMS - 1]);
-			    dispose_lost_objects (number, Player.possessions[i]);
-			    dataprint();
-			}
-		    }
-		}
-	    } else if (action == 'p') {
-		for (unsigned i = 0; i < Player.packptr; i++) {
-		    if (Player.pack[i]->blessing > -1 && true_item_value (Player.pack[i]) > 0) {
-			clearmsg();
-			print1 ("Sell ");
-			nprint1 (itemid (Player.pack[i]));
-			nprint1 (" for ");
-			mlongprint (item_value (Player.pack[i]) / 2);
-			nprint1 ("Au each? [yn] ");
-			if (ynq1() == 'y') {
-			    number = getnumber (Player.pack[i]->number);
-			    if (number > 0) {
-				Player.cash += number * item_value (Player.pack[i]) / 2;
-				delete Pawnitems[0];
-				for (j = 0; j < PAWNITEMS - 1; j++)
-				    Pawnitems[j] = Pawnitems[j + 1];
-				Pawnitems[PAWNITEMS - 1] = new object;
-				*(Pawnitems[PAWNITEMS - 1]) = *(Player.pack[i]);
-				Pawnitems[PAWNITEMS - 1]->number = number;
-				learn_object (Pawnitems[PAWNITEMS - 1]);
-				Player.pack[i]->number -= number;
-				if (Player.pack[i]->number < 1) {
-				    delete Player.pack[i];
-				    Player.pack[i] = NULL;
-				}
-				dataprint();
-			    }
-			}
-		    }
-		}
-		fixpack();
 	    }
+	    fixpack();
 	}
     }
     calc_melee();
@@ -5207,7 +5183,7 @@ void l_condo (void)
 
     if (!gamestatusp (SOLD_CONDO)) {
 	print1 ("Rampart Arms. Weekly Rentals and Purchases");
-	print2 ("Which are you interested in [r,p, or KEY_ESCAPE] ");
+	print2 ("Which are you interested in [r,p, or ESCAPE] ");
 	response = mgetc();
 	if (response == 'p') {
 	    print2 ("Only 50,000Au. Buy it? [yn] ");
@@ -5243,7 +5219,7 @@ void l_condo (void)
 	    menuprint ("b: Retrieve items.\n");
 	    menuprint ("c: Take a week off to rest.\n");
 	    menuprint ("d: Retire permanently.\n");
-	    menuprint ("KEY_ESCAPE: Leave this place.\n");
+	    menuprint ("ESCAPE: Leave this place.\n");
 	    showmenu();
 	    response = (char) mcigetc();
 	    if (response == 'a') {
@@ -5645,7 +5621,7 @@ void l_brothel (void)
 	menuprint ("a:knock on the door.\n");
 	menuprint ("b:try to pick the lock.\n");
 	menuprint ("c:bash down the door.\n");
-	menuprint ("KEY_ESCAPE: Leave this house of ill repute.\n");
+	menuprint ("ESCAPE: Leave this house of ill repute.\n");
 	showmenu();
 	do
 	    response = menugetc();
@@ -5957,7 +5933,7 @@ void l_oracle (void)
 	}
     } else {
 	print1 ("You come before a blue crystal dais. There is a bell and a mirror.");
-	print2 ("Ring the bell [b], look in the mirror [m], or leave [KEY_ESCAPE] ");
+	print2 ("Ring the bell [b], look in the mirror [m], or leave [ESCAPE] ");
 	do
 	    response = (char) mcigetc();
 	while ((response != 'b') && (response != 'm') && (response != KEY_ESCAPE));
@@ -6044,7 +6020,7 @@ void l_safe (void)
     pob newitem;
     int attempt = 0;
     print1 ("You have discovered a safe!");
-    print2 ("Pick the lock [p], Force the door [f], or ignore [KEY_ESCAPE]");
+    print2 ("Pick the lock [p], Force the door [f], or ignore [ESCAPE]");
     do
 	response = (char) mcigetc();
     while ((response != 'p') && (response != 'f') && (response != KEY_ESCAPE));

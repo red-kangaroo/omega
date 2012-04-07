@@ -924,11 +924,11 @@ struct player {
     int16_t	level;
     int16_t	hp;
     uint16_t	maxhp;
-    uint16_t	hit;
-    uint16_t	dmg;
-    uint16_t	absorption;
+    int16_t	hit;
+    int16_t	dmg;
+    int16_t	absorption;
     uint16_t	click;
-    uint16_t	defense;
+    int16_t	defense;
     int16_t	food;
     int16_t	alignment;
     uint16_t	mana;

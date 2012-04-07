@@ -237,8 +237,9 @@ static void save_player (ostream& os)
 	save_item (os, Player.possessions[i]);
     for (unsigned i = 0; i < MAXPACK; i++)
 	save_item (os, Player.pack[i]);
-    for (unsigned i = 0; i < PAWNITEMS; i++)
-	save_item (os, Pawnitems[i]);
+    os << uint8_t(Pawnitems.size());
+    foreach (i, Pawnitems)
+	save_item (os, i);
 
     // Save items in condo vault
     save_itemlist (os, Condoitems);
@@ -329,8 +330,11 @@ static void restore_player (istream& is, int ver)
 
     for (i = 0; i < MAXPACK; i++)
 	Player.pack[i] = restore_item (is, ver);
-    for (i = 0; i < PAWNITEMS; i++)
-	Pawnitems[i] = restore_item (is, ver);
+    uint8_t nPawnItems;
+    is >> nPawnItems;
+    Pawnitems.resize (nPawnItems);
+    for (i = 0; i < nPawnItems; i++)
+	Pawnitems[i] = *restore_item (is, ver);
     Condoitems = restore_itemlist (is, ver);
 }
 

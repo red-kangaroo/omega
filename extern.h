@@ -33,7 +33,9 @@ void moon_check(void);
 void torch_check(void);
 void tenminute_status_check(void);
 long item_value(pob item);
+inline long item_value (object& o) { return (item_value(&o)); }
 long true_item_value(pob item);
+inline long true_item_value (object& o) { return (true_item_value(&o)); }
 void p_drown(void);
 void weapon_use(int dmgmod, pob weapon, struct monster *m);
 const char* actionlocstr(int dir);
@@ -247,6 +249,7 @@ void givemonster(struct monster *m, struct object *o);
 signed char index_to_key (int i);
 void inventory_control(void);
 const char* itemid(pob obj);
+inline const char* itemid(object& obj) { return (itemid(&obj)); }
 void lose_all_items(void);
 void p_drop_at(int x, int y, int n, pob o);
 void pickup_at(int x, int y);

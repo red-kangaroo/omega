@@ -35,7 +35,7 @@ extern int Phase;				// Phase of the moon
 extern int Lunarity;				// How player is affected by moon
 extern int Date;				// day of the year
 extern int Pawndate;				// Pawn Shop item generation date
-extern pob Pawnitems[PAWNITEMS];		// items in pawn shop
+extern vector<object> Pawnitems;		// items in pawn shop
 extern int ViewHour;				// crystal ball use marker
 extern int ZapHour;				// staff of enchantment use marker
 extern int HelmHour;				// helm of teleportation use marker
@@ -135,5 +135,11 @@ static inline void learn_object (object* o)			{ learn_object (o->id); }
 static inline void forget_object (object* o)			{ forget_object (o->id); }
 static inline uint8_t object_uniqueness (const object* o)	{ return (object_uniqueness (o->id)); }
 static inline void set_object_uniqueness (object* o, EUniqueness u)	{ set_object_uniqueness (o->id, u); }
+
+static inline bool object_is_known (const object& o)		{ return (object_is_known(o.id)); }
+static inline void learn_object (object& o)			{ learn_object (o.id); }
+static inline void forget_object (object& o)			{ forget_object (o.id); }
+static inline uint8_t object_uniqueness (const object& o)	{ return (object_uniqueness (o.id)); }
+static inline void set_object_uniqueness (object& o, EUniqueness u)	{ set_object_uniqueness (o.id, u); }
 
 } // namespace
