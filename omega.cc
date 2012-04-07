@@ -53,7 +53,10 @@ int MaxDungeonLevels = 0;	// Deepest level allowed in dungeon
 int Current_Dungeon = -1;	// What is Dungeon now
 int Current_Environment = E_CITY;	// Which environment are we in
 int Last_Environment = E_COUNTRYSIDE;	// Which environment were we in
-int Dirs[2][9];			// 9 xy directions
+const int8_t Dirs[2][9] = {	// 9 xy directions
+    { 1, 1, -1, -1, 1, -1, 0, 0, 0 },
+    { 1, -1, 1, -1, 0, 0, 1, -1, 0 }
+};
 char Cmd = 's';			// last player command
 int Command_Duration = 0;	// how long does current command take
 struct monster *Arena_Monster = NULL;	// Opponent in arena
@@ -189,7 +192,6 @@ int main (int argc, const char* argv[])
 
     // all kinds of initialization
     initgraf();
-    initdirs();
     initrand (E_RANDOM, 0);
 
     for (count = 0; count < STRING_BUFFER_SIZE; count++)

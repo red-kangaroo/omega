@@ -453,7 +453,6 @@ void hint(void);
 int hitp(int hit, int ac);
 int hour(void);
 int inbounds(int x, int y);
-void initdirs(void);
 void learnclericalspells(int deity, int level);
 int los_p(int x1, int y1, int x2, int y2);
 int m_unblocked(struct monster *m, int x, int y);

@@ -23,7 +23,7 @@ extern int ScreenOffset;			// Offset of displayed screen to level
 extern int MaxDungeonLevels;			// Deepest level allowed in dungeon
 extern int Current_Environment;			// Which environment are we in (an E_ constant)
 extern int Last_Environment;			// Which environment were we in last (an E_ constant)
-extern int Dirs[2][9];				// 9 xy directions
+extern const int8_t Dirs[2][9];			// 9 xy directions
 extern char Cmd;				// last player command
 extern int Command_Duration;			// how long does current command take
 extern struct monster *Arena_Monster;		// Opponent in arena
