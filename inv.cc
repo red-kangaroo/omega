@@ -257,24 +257,6 @@ const char* itemid (pob obj)
     }
 }
 
-const char* cashstr (void)
-{
-    if (difficulty() < 3)
-	return ("copper pieces");
-    else if (difficulty() < 5)
-	return ("silver pieces");
-    else if (difficulty() < 7)
-	return ("gold pieces");
-    else if (difficulty() < 8)
-	return ("semiprecious gems");
-    else if (difficulty() < 9)
-	return ("mithril pieces");
-    else if (difficulty() < 10)
-	return ("precious gems");
-    else
-	return ("orichalc pieces");
-}
-
 // return an object's plus as a string
 static void setplustr (pob obj, char* pstr)
 {

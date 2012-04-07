@@ -445,11 +445,8 @@ int nighttime (void)
 
 const char* getarticle (const char* str)
 {
-    if ((str[0] == 'a') || (str[0] == 'A') || (str[0] == 'e') || (str[0] == 'E') || (str[0] == 'i') || (str[0] == 'I') || (str[0] == 'o') || (str[0] == 'O') || (str[0] == 'u') || (str[0] == 'U')
-	|| (((str[0] == 'h') || (str[0] == 'H')) && ((str[1] == 'i') || (str[1] == 'e'))))
-	return ("an ");
-    else
-	return ("a ");
+    static const char _ans[] = "aAeEiIoOuUhH";
+    return (strchr(_ans, str[0]) ? "an " : "a ");
 }
 
 int day (void)
@@ -459,53 +456,17 @@ int day (void)
 
 const char* ordinal (int number)
 {
-    if ((number == 11) || (number == 12) || (number == 13))
-	return ("th");
-    else
-	switch (number % 10) {
-	    case 1:
-		return ("st");
-	    case 2:
-		return ("nd");
-	    case 3:
-		return ("rd");
-	    default:
-		return ("th");
-	}
+    static const char _ends[4][3] = {"st","nd","rd","th"};
+    return (_ends[min(3,(number >= 11 && number <= 13)?3:number%10)]);
 }
 
 const char* month (void)
 {
-    switch ((Date % 360) / 30) {
-	case 0:
-	    return ("Freeze");
-	case 1:
-	    return ("Ice");
-	case 2:
-	    return ("Mud");
-	case 3:
-	    return ("Storm");
-	case 4:
-	    return ("Breeze");
-	case 5:
-	    return ("Light");
-	case 6:
-	    return ("Flame");
-	case 7:
-	    return ("Broil");
-	case 8:
-	    return ("Cool");
-	case 9:
-	    return ("Haunt");
-	case 10:
-	    return ("Chill");
-	case 11:
-	    return ("Dark");
-	case 12:
-	    return ("Twixt");
-	default:
-	    return ("***Error***");
-    }
+    static const char _months[] =
+	"Freeze\0" "Ice\0" "Mud\0" "Storm\0" "Breeze\0"
+	"Light\0" "Flame\0" "Broil\0" "Cool\0" "Haunt\0"
+	"Chill\0" "Dark\0" "Twixt\0";
+    return (zstrn (_months, (Date % 360) / 30, 13));
 }
 
 // WDT: code for the following two functions contributed by Sheldon 
@@ -558,20 +519,12 @@ void findspace (int *x, int *y, int baux)
 
 int confirmation (void)
 {
-    switch (random_range (4)) {
-	case 0:
-	    mprint ("Are you sure? [yn] ");
-	    break;
-	case 1:
-	    mprint ("Certain about that? [yn] ");
-	    break;
-	case 2:
-	    mprint ("Do you really mean it? [yn] ");
-	    break;
-	case 3:
-	    mprint ("Confirm that, would you? [yn] ");
-	    break;
-    }
+    static const char _areyousure[] =
+	"Are you sure? [yn] \0"
+	"Certain about that? [yn] \0"
+	"Do you really mean it? [yn] \0"
+	"Confirm that, would you? [yn] \0";
+    mprint (zstrn (_areyousure, random_range(4), 4));
     return (ynq() == 'y');
 }
 
@@ -656,296 +609,104 @@ char cryptkey (const char* fname)
 // there are various ways for the player to receive one of these hints
 void hint (void)
 {
-    switch (random_range (96)) {
-	case 0:
-	    mprint ("There is an entrance to the sewers in the Garden.");
-	    break;
-	case 1:
-	    mprint ("Statues can be dangerous.");
-	    break;
-	case 2:
-	    mprint ("Unidentified Artifacts can be dangerous.");
-	    break;
-	case 3:
-	    mprint ("The higher form of mercury is desirable.");
-	    break;
-	case 4:
-	    mprint ("A sense of unease is a good thing to have.");
-	    break;
-	case 5:
-	    mprint ("If you dig too much, you might cause a cave-in!");
-	    break;
-	case 6:
-	    mprint ("Be Lawful: Live and Let Live.");
-	    break;
-	case 7:
-	    mprint ("Be Chaotic: Live and Let Die.");
-	    break;
-	case 8:
-	    mprint ("The world doesn't slow down; you speed up.");
-	    break;
-	case 9:
-	    mprint ("Security is a sense of dislocation.");
-	    break;
-	case 10:
-	    mprint ("Tullimore Dew is a panacea.");
-	    break;
-	case 11:
-	    mprint ("Thieves hide behind closed doors.");
-	    break;
-	case 12:
-	    mprint ("`No jail is escapeproof' -- John Dillinger.");
-	    break;
-	case 13:
-	    mprint ("Oh, to have an apartment of your own!");
-	    break;
-	case 14:
-	    mprint ("Some homes have money and treasure.");
-	    break;
-	case 15:
-	    mprint ("Some homes are defended.");
-	    break;
-	case 16:
-	    mprint ("Sometimes you could just wish for Death.");
-	    break;
-	case 17:
-	    mprint ("A cursed wish can be fatal.");
-	    break;
-	case 18:
-	    mprint ("The way you play, you should wish for Skill.");
-	    break;
-	case 19:
-	    mprint ("A druid might wish for Balance.");
-	    break;
-	case 20:
-	    mprint ("Mages always wish for Knowledge.");
-	    break;
-	case 21:
-	    mprint ("Some fairies are good.");
-	    break;
-	case 22:
-	    mprint ("An affair with a demon can be heartbreaking.");
-	    break;
-	case 23:
-	    mprint ("The Explorer's Club knows a useful spell.");
-	    break;
-	case 24:
-	    mprint ("They say some famous people live in mansions.");
-	    break;
-	case 25:
-	    mprint ("Magic pools are totally random.");
-	    break;
-	case 26:
-	    mprint ("There are five elements, including Void.");
-	    break;
-	case 27:
-	    mprint ("Humans can be good or evil, lawful or chaotic.");
-	    break;
-	case 28:
-	    mprint ("There are many kinds of wishes. Case counts, you know.");
-	    break;
-	case 29:
-	    mprint ("There are caves due south of Rampart");
-	    break;
-	case 30:
-	    mprint ("Donaldson's Giants can withstand lava.");
-	    break;
-	case 31:
-	    mprint ("Ritual magic can have many different effects.");
-	    break;
-	case 32:
-	    mprint ("The Mercenaries are the best equipped fighters.");
-	    break;
-	case 33:
-	    mprint ("The Gladiators are the most skilled fighters.");
-	    break;
-	case 34:
-	    mprint ("Rent a flat and lose any bad stati you may have.");
-	    break;
-	case 35:
-	    mprint ("Some junk may be worth a fortune if identified.");
-	    break;
-	case 36:
-	    mprint ("Identify humans by talking to them.");
-	    break;
-	case 37:
-	    mprint ("They say the Duke has a treasure trove.");
-	    break;
-	case 38:
-	    mprint ("If you yield, your opponent will gain experience.");
-	    break;
-	case 39:
-	    mprint ("The Dragon Lord lives in the Waste of Time.");
-	    break;
-	case 40:
-	    mprint ("A full moon bodes well for the followers of Law.");
-	    break;
-	case 41:
-	    mprint ("A new moon omens evil for the Law-abiding.");
-	    break;
-	case 42:
-	    mprint ("Druids revere the half-moon.");
-	    break;
-	case 43:
-	    mprint ("Most grot is useless.");
-	    break;
-	case 44:
-	    mprint ("Cash can sometimes be found in the walls.");
-	    break;
-	case 45:
-	    mprint ("Pointy weapons break often but dig better.");
-	    break;
-	case 46:
-	    mprint ("The DREADED AQUAE MORTIS is invulnerable.");
-	    break;
-	case 47:
-	    mprint ("There must be *some* reason to worship Destiny!");
-	    break;
-	case 48:
-	    mprint ("Kill a trifid? A puzzle! Try a saline solution!");
-	    break;
-	case 49:
-	    mprint ("Beware! The Eater of Souls inhabits the abyss!");
-	    break;
-	case 50:
-	    mprint ("They say there's a red-light district in town.");
-	    break;
-	case 51:
-	    mprint ("The House of the Eclipse is behind a closed door.");
-	    break;
-	case 52:
-	    mprint ("The Orbs may be encountered on the Astral Plane.");
-	    break;
-	case 53:
-	    mprint ("The Champion should never refuse a challenge.");
-	    break;
-	case 54:
-	    mprint ("They say that the autoteller program is buggy.");
-	    break;
-	case 55:
-	    mprint ("It's better not to sleep on the ground.");
-	    break;
-	case 56:
-	    mprint ("Try ritual magic in different kinds of rooms.");
-	    break;
-	case 57:
-	    mprint ("Breaking down a wall by bashing it is a bad idea!");
-	    break;
-	case 58:
-	    mprint ("Follow the Oracle's advice; she is all-wise.");
-	    break;
-	case 59:
-	    mprint ("The ArchDruid lives in the northern forest.");
-	    break;
-	case 60:
-	    mprint ("A search of the mountains may reveal a secret pass.");
-	    break;
-	case 61:
-	    mprint ("Star Peak is to the far North-East.");
-	    break;
-	case 62:
-	    mprint ("The Archmage lives in the far North-West beyond a pass.");
-	    break;
-	case 63:
-	    mprint ("There is a volcano in the southern marshes.");
-	    break;
-	case 64:
-	    mprint ("The Demon Emperor resides in the Volcano.");
-	    break;
-	case 65:
-	    mprint ("The Lawgiver can be found at Star Peak.");
-	    break;
-	case 66:
-	    mprint ("The Temple of Athena is to the North-East.");
-	    break;
-	case 67:
-	    mprint ("The Temple of Set can be found in a desert.");
-	    break;
-	case 68:
-	    mprint ("The Temple of Hecate is in the swamp.");
-	    break;
-	case 69:
-	    mprint ("The Temple of Odin is to the South in some mountains.");
-	    break;
-	case 70:
-	    mprint ("There is a curious island off a promontory of the swamp.");
-	    break;
-	case 71:
-	    mprint ("The Eater of Magic can be found on an island.");
-	    break;
-	case 72:
-	    mprint ("The Temple of Destiny is practically inaccessible.");
-	    break;
-	case 73:
-	    mprint ("Each sect has its own main temple outside the city.");
-	    break;
-	case 74:
-	    mprint ("The aligned temples are dangerous to unbelievers.");
-	    break;
-	case 75:
-	    mprint ("If you are poor, maybe you should wish for Wealth.");
-	    break;
-	case 76:
-	    mprint ("Need mana? Wish for Power.");
-	    break;
-	case 77:
-	    mprint ("Wishing for Law, Balance, or Chaos alters alignment.");
-	    break;
-	case 78:
-	    mprint ("Feeling out of sorts? Wish for Health.");
-	    break;
-	case 79:
-	    mprint ("Challenge the abyss at the Temple of Destiny.");
-	    break;
-	case 80:
-	    mprint ("The Circle of Sorcerors has an Astral HQ");
-	    break;
-	case 81:
-	    mprint ("The Star Gem is the only way back from the Astral Plane.");
-	    break;
-	case 82:
-	    mprint ("The Star Gem is guarded by the Circle of Sorcerors.");
-	    break;
-	case 83:
-	    mprint ("The Star Gem is rightfully the property of the LawBringer.");
-	    break;
-	case 84:
-	    mprint ("They say the Demon Emperor owns the Amulet of the Planes.");
-	    break;
-	case 85:
-	    mprint ("An Amulet might get you to the Temple of Destiny.");
-	    break;
-	case 86:
-	    mprint ("A wish for Location might help you become Adept.");
-	    break;
-	case 87:
-	    mprint ("Some Artifacts may be used only once per day.");
-	    break;
-	case 88:
-	    mprint ("Overusing Artifacts can be a bad move.");
-	    break;
-	case 89:
-	    mprint ("You might starve in the Swamp or the Mountains!");
-	    break;
-	case 90:
-	    mprint ("You would have to be very chaotic to attack a guard!");
-	    break;
-	case 91:
-	    mprint ("You would have to be very foolhardy to attack a guard!");
-	    break;
-	case 92:
-	    mprint ("Only a master of chaos would kill all the city guards!");
-	    break;
-	case 93:
-	    mprint ("The Order depends on the force of the LawGiver.");
-	    break;
-	case 94:
-	    mprint ("City Guards are employees of the Order.");
-	    break;
-	case 95:
-	    mprint ("Disenchanted Artifacts can be restored.");
-	    break;
-    }
+    static const char _hints[] =
+	"There is an entrance to the sewers in the Garden.\0"
+	"Statues can be dangerous.\0"
+	"Unidentified Artifacts can be dangerous.\0"
+	"The higher form of mercury is desirable.\0"
+	"A sense of unease is a good thing to have.\0"
+	"If you dig too much, you might cause a cave-in!\0"
+	"Be Lawful: Live and Let Live.\0"
+	"Be Chaotic: Live and Let Die.\0"
+	"The world doesn't slow down; you speed up.\0"
+	"Security is a sense of dislocation.\0"
+	"Tullimore Dew is a panacea.\0"
+	"Thieves hide behind closed doors.\0"
+	"`No jail is escapeproof' -- John Dillinger.\0"
+	"Oh, to have an apartment of your own!\0"
+	"Some homes have money and treasure.\0"
+	"Some homes are defended.\0"
+	"Sometimes you could just wish for Death.\0"
+	"A cursed wish can be fatal.\0"
+	"The way you play, you should wish for Skill.\0"
+	"A druid might wish for Balance.\0"
+	"Mages always wish for Knowledge.\0"
+	"Some fairies are good.\0"
+	"An affair with a demon can be heartbreaking.\0"
+	"The Explorer's Club knows a useful spell.\0"
+	"They say some famous people live in mansions.\0"
+	"Magic pools are totally random.\0"
+	"There are five elements, including Void.\0"
+	"Humans can be good or evil, lawful or chaotic.\0"
+	"There are many kinds of wishes. Case counts, you know.\0"
+	"There are caves due south of Rampart\0"
+	"Donaldson's Giants can withstand lava.\0"
+	"Ritual magic can have many different effects.\0"
+	"The Mercenaries are the best equipped fighters.\0"
+	"The Gladiators are the most skilled fighters.\0"
+	"Rent a flat and lose any bad stati you may have.\0"
+	"Some junk may be worth a fortune if identified.\0"
+	"Identify humans by talking to them.\0"
+	"They say the Duke has a treasure trove.\0"
+	"If you yield, your opponent will gain experience.\0"
+	"The Dragon Lord lives in the Waste of Time.\0"
+	"A full moon bodes well for the followers of Law.\0"
+	"A new moon omens evil for the Law-abiding.\0"
+	"Druids revere the half-moon.\0"
+	"Most grot is useless.\0"
+	"Cash can sometimes be found in the walls.\0"
+	"Pointy weapons break often but dig better.\0"
+	"The DREADED AQUAE MORTIS is invulnerable.\0"
+	"There must be *some* reason to worship Destiny!\0"
+	"Kill a trifid? A puzzle! Try a saline solution!\0"
+	"Beware! The Eater of Souls inhabits the abyss!\0"
+	"They say there's a red-light district in town.\0"
+	"The House of the Eclipse is behind a closed door.\0"
+	"The Orbs may be encountered on the Astral Plane.\0"
+	"The Champion should never refuse a challenge.\0"
+	"They say that the autoteller program is buggy.\0"
+	"It's better not to sleep on the ground.\0"
+	"Try ritual magic in different kinds of rooms.\0"
+	"Breaking down a wall by bashing it is a bad idea!\0"
+	"Follow the Oracle's advice; she is all-wise.\0"
+	"The ArchDruid lives in the northern forest.\0"
+	"A search of the mountains may reveal a secret pass.\0"
+	"Star Peak is to the far North-East.\0"
+	"The Archmage lives in the far North-West beyond a pass.\0"
+	"There is a volcano in the southern marshes.\0"
+	"The Demon Emperor resides in the Volcano.\0"
+	"The Lawgiver can be found at Star Peak.\0"
+	"The Temple of Athena is to the North-East.\0"
+	"The Temple of Set can be found in a desert.\0"
+	"The Temple of Hecate is in the swamp.\0"
+	"The Temple of Odin is to the South in some mountains.\0"
+	"There is a curious island off a promontory of the swamp.\0"
+	"The Eater of Magic can be found on an island.\0"
+	"The Temple of Destiny is practically inaccessible.\0"
+	"Each sect has its own main temple outside the city.\0"
+	"The aligned temples are dangerous to unbelievers.\0"
+	"If you are poor, maybe you should wish for Wealth.\0"
+	"Need mana? Wish for Power.\0"
+	"Wishing for Law, Balance, or Chaos alters alignment.\0"
+	"Feeling out of sorts? Wish for Health.\0"
+	"Challenge the abyss at the Temple of Destiny.\0"
+	"The Circle of Sorcerors has an Astral HQ\0"
+	"The Star Gem is the only way back from the Astral Plane.\0"
+	"The Star Gem is guarded by the Circle of Sorcerors.\0"
+	"The Star Gem is rightfully the property of the LawBringer.\0"
+	"They say the Demon Emperor owns the Amulet of the Planes.\0"
+	"An Amulet might get you to the Temple of Destiny.\0"
+	"A wish for Location might help you become Adept.\0"
+	"Some Artifacts may be used only once per day.\0"
+	"Overusing Artifacts can be a bad move.\0"
+	"You might starve in the Swamp or the Mountains!\0"
+	"You would have to be very chaotic to attack a guard!\0"
+	"You would have to be very foolhardy to attack a guard!\0"
+	"Only a master of chaos would kill all the city guards!\0"
+	"The Order depends on the force of the LawGiver.\0"
+	"City Guards are employees of the Order.\0"
+	"Disenchanted Artifacts can be restored.\0";
+    mprint (zstrn (_hints, random_range(96), 96));
 }
 
 // for when a deity teaches spells to a devotee
@@ -1047,186 +808,33 @@ void learnclericalspells (int deity, int level)
 // for the use of the casino slot machine
 const char* slotstr (int num)
 {
-    switch (num) {
-	case 0:
-	    return ("<Slime Mold>");
-	case 1:
-	    return ("<Lemon>");
-	case 2:
-	    return ("<Copper>");
-	case 3:
-	    return ("<Nymph>");
-	case 4:
-	    return ("<Sword>");
-	case 5:
-	    return ("<Shield>");
-	case 6:
-	    return ("<Chest>");
-	case 7:
-	    return ("<Bar>");
-	case 8:
-	    return ("<Orb>");
-	case 9:
-	    return ("<Mithril Nugget>");
-    }
-    return "Error - you should never see this...";
+    static const char _slots[] =
+	"<Slime Mold>\0" "<Lemon>\0" "<Copper>\0" "<Nymph>\0" "<Sword>\0"
+	"<Shield>\0" "<Chest>\0" "<Bar>\0" "<Orb>\0" "<Mithril Nugget>\0";
+    return (zstrn (_slots, num, 10));
 }
 
 // random names for various uses
 const char* nameprint (void)
 {
-    switch (random_range (40)) {
-	case 0:
-	    strcpy (Str3, "Orion Splash");
-	    break;
-	case 1:
-	    strcpy (Str3, "Gorgar");
-	    break;
-	case 2:
-	    strcpy (Str3, "Hieronymous");
-	    break;
-	case 3:
-	    strcpy (Str3, "Quantifor Quotron");
-	    break;
-	case 4:
-	    strcpy (Str3, "Leon");
-	    break;
-	case 5:
-	    strcpy (Str3, "Joyce");
-	    break;
-	case 6:
-	    strcpy (Str3, "Leticia Smiley");
-	    break;
-	case 7:
-	    strcpy (Str3, "Ogilvy the Grim");
-	    break;
-	case 8:
-	    strcpy (Str3, "Salara Storn");
-	    break;
-	case 9:
-	    strcpy (Str3, "Murgo");
-	    break;
-	case 10:
-	    strcpy (Str3, "Jonathan Atwilder");
-	    break;
-	case 11:
-	    strcpy (Str3, "Xylos the Tan");
-	    break;
-	case 12:
-	    strcpy (Str3, "Terence");
-	    break;
-	case 13:
-	    strcpy (Str3, "Toronado");
-	    break;
-	case 14:
-	    strcpy (Str3, "Kelly");
-	    break;
-	case 15:
-	    strcpy (Str3, "Cantinflas");
-	    break;
-	case 16:
-	    strcpy (Str3, "Ixel");
-	    break;
-	case 17:
-	    strcpy (Str3, "Toto");
-	    break;
-	case 18:
-	    strcpy (Str3, "Frost");
-	    break;
-	case 19:
-	    strcpy (Str3, "Aliera Erinyes");
-	    break;
-	case 20:
-	    strcpy (Str3, "Godel");
-	    break;
-	case 21:
-	    strcpy (Str3, "Kerst Blackblade");
-	    break;
-	case 22:
-	    strcpy (Str3, "Ebenezer");
-	    break;
-	case 23:
-	    strcpy (Str3, "Jeremiah");
-	    break;
-	case 24:
-	    strcpy (Str3, "Triskelion Shadow");
-	    break;
-	case 25:
-	    strcpy (Str3, "Eleskir Eremar");
-	    break;
-	case 26:
-	    strcpy (Str3, "Tyron");
-	    break;
-	case 27:
-	    strcpy (Str3, "Morgon");
-	    break;
-	case 28:
-	    strcpy (Str3, "Achmed");
-	    break;
-	case 29:
-	    strcpy (Str3, "Chin");
-	    break;
-	case 30:
-	    strcpy (Str3, "Fujimoto");
-	    break;
-	case 31:
-	    strcpy (Str3, "Dos Santos");
-	    break;
-	case 32:
-	    strcpy (Str3, "Federico");
-	    break;
-	case 33:
-	    strcpy (Str3, "Jaime");
-	    break;
-	case 34:
-	    strcpy (Str3, "Siobhan");
-	    break;
-	case 35:
-	    strcpy (Str3, "Hans");
-	    break;
-	case 36:
-	    strcpy (Str3, "Gurkov");
-	    break;
-	case 37:
-	    strcpy (Str3, "Krilos the Slayer");
-	    break;
-	case 38:
-	    strcpy (Str3, "Oxxblud");
-	    break;
-	case 39:
-	    strcpy (Str3, "Dorian");
-	    break;
-    }
-    return (Str3);
+    static const char _names[] = 
+	"Orion Splash\0" "Gorgar\0" "Hieronymous\0" "Quantifor Quotron\0" "Leon\0"
+	"Joyce\0" "Leticia Smiley\0" "Ogilvy the Grim\0" "Salara Storn\0" "Murgo\0"
+	"Jonathan Atwilder\0" "Xylos the Tan\0" "Terence\0" "Toronado\0" "Kelly\0"
+	"Cantinflas\0" "Ixel\0" "Toto\0" "Frost\0" "Aliera Erinyes\0"
+	"Godel\0" "Kerst Blackblade\0" "Ebenezer\0" "Jeremiah\0" "Triskelion Shadow\0"
+	"Eleskir Eremar\0" "Tyron\0" "Morgon\0" "Achmed\0" "Chin\0"
+	"Fujimoto\0" "Dos Santos\0" "Federico\0" "Jaime\0" "Siobhan\0"
+	"Hans\0" "Gurkov\0" "Krilos the Slayer\0" "Oxxblud\0" "Dorian\0";
+    return (zstrn (_names, random_range(40), 40));
 }
 
 // returns english string equivalent of number
 const char* wordnum (int num)
 {
-    switch (num) {
-	case 0:
-	    return ("zero ");
-	case 1:
-	    return ("one ");
-	case 2:
-	    return ("two ");
-	case 3:
-	    return ("three ");
-	case 4:
-	    return ("four ");
-	case 5:
-	    return ("five ");
-	case 6:
-	    return ("six ");
-	case 7:
-	    return ("seven ");
-	case 8:
-	    return ("eight ");
-	case 9:
-	    return ("nine ");
-	case 10:
-	    return ("ten ");
-	default:
-	    return ("");
-    }
+    static const char _numnames[] =
+	"zero \0" "one \0" "two \0" "three \0" "four \0"
+	"five \0" "six \0" "seven \0" "eight \0" "nine \0"
+	"ten \0";
+    return (zstrn (_numnames, num, 11));
 }

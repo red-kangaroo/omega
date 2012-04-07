@@ -222,7 +222,7 @@ const struct object Objects[TOTALITEMS] = {
     {212, 7, 10, 0,  0, 0, 0, 0,  0, 1,10000, 0, 0, 0, UNIQUE_MADE, I_STARGEM, ARTIFACT, "Strangely Glowing Crystal", "Star Gem", "Star Gem"},
     {213,10,1000,0, 10, 0, 0, 0,  0, 1, 1000, 0, 0, 0, UNIQUE_MADE, I_SCEPTRE, ARTIFACT, "Extremely Heavy Stick ", "Sceptre of High Magic", "Sceptre of High Magic"},
     {214,10, 10, 0, 10, 0, 0, 0,  0, 1, 1000, 0, 0, 0, UNIQUE_MADE, I_PLANES, ARTIFACT, "Octagonal Copper Amulet ", "Amulet of the Planes", "Amulet of the Planes"},
-    {215, 0,  0, 0, 10, 0, 0, 0,  0, 1,    0, 0, 0, 0, COMMON, I_NO_OP, CASH, "money", "money", "money (the root of all evil)"},
+    {215, 0,  0, 0, 10, 0, 0, 0,  0, 1,    0, 0, 0, 0, COMMON, I_NO_OP, CASH, "money", "money", "money"},
     {216, 0,100, 0, 10, 0, 0, 0,  0, 1,    0, 0, 0, 0, COMMON, I_CORPSE, CORPSE, "a mysterious corpse", "a mysterious corpse", "a mysterious corpse"}
 };
 

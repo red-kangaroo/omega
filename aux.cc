@@ -2939,72 +2939,40 @@ void countrysearch (void)
 
 const char* countryid (int terrain)
 {
-    switch (terrain & 0xff) {
-	case MOUNTAINS & 0xff:
-	    strcpy (Str1, "Almost impassable mountains");
+    static const uint8_t _terrains[] =  {
+	MOUNTAINS & 0xff, PLAINS & 0xff, TUNDRA & 0xff, ROAD & 0xff, PASS & 0xff,
+	RIVER & 0xff, CITY & 0xff, VILLAGE & 0xff, FOREST & 0xff, JUNGLE & 0xff,
+	SWAMP & 0xff, VOLCANO & 0xff, CASTLE & 0xff, STARPEAK & 0xff, DRAGONLAIR & 0xff,
+	MAGIC_ISLE & 0xff, CAVES & 0xff, TEMPLE & 0xff, DESERT & 0xff, CHAOS_SEA & 0xff
+    };
+    static const char _terrain_names[] =
+	"Almost impassable mountains\0"
+	"Seemingly endless plains\0"
+	"A frosty stretch of tundra\0"
+	"A paved highway\0"
+	"A secret mountain pass\0"
+	"A rolling river\0"
+	"The city of Rampart\0"
+	"A rural village\0"
+	"A verdant forest\0"
+	"A densely overgrown jungle\0"
+	"A swampy fen\0"
+	"A huge active volcano\0"
+	"An imposing castle\0"
+	"A mysterious mountain.\0"
+	"A cavern filled with treasure.\0"
+	"An island emanating magic.\0"
+	"A hidden cave entrance\0"
+	"A neoclassical temple\0"
+	"A sere desert\0"
+	"The Sea of Chaos\0"
+	"I have no idea.\0";
+
+    unsigned i; const uint8_t tval = terrain & 0xff;
+    for (i = 0; i < ArraySize(_terrains); ++i)
+	if (_terrains[i] == tval)
 	    break;
-	case PLAINS & 0xff:
-	    strcpy (Str1, "Seemingly endless plains");
-	    break;
-	case TUNDRA & 0xff:
-	    strcpy (Str1, "A frosty stretch of tundra");
-	    break;
-	case ROAD & 0xff:
-	    strcpy (Str1, "A paved highway");
-	    break;
-	case PASS & 0xff:
-	    strcpy (Str1, "A secret mountain pass");
-	    break;
-	case RIVER & 0xff:
-	    strcpy (Str1, "A rolling river");
-	    break;
-	case CITY & 0xff:
-	    strcpy (Str1, "The city of Rampart");
-	    break;
-	case VILLAGE & 0xff:
-	    strcpy (Str1, "A rural village");
-	    break;
-	case FOREST & 0xff:
-	    strcpy (Str1, "A verdant forest");
-	    break;
-	case JUNGLE & 0xff:
-	    strcpy (Str1, "A densely overgrown jungle");
-	    break;
-	case SWAMP & 0xff:
-	    strcpy (Str1, "A swampy fen");
-	    break;
-	case VOLCANO & 0xff:
-	    strcpy (Str1, "A huge active volcano");
-	    break;
-	case CASTLE & 0xff:
-	    strcpy (Str1, "An imposing castle");
-	    break;
-	case STARPEAK & 0xff:
-	    strcpy (Str1, "A mysterious mountain.");
-	    break;
-	case DRAGONLAIR & 0xff:
-	    strcpy (Str1, "A cavern filled with treasure.");
-	    break;
-	case MAGIC_ISLE & 0xff:
-	    strcpy (Str1, "An island emanating magic.");
-	    break;
-	case CAVES & 0xff:
-	    strcpy (Str1, "A hidden cave entrance");
-	    break;
-	case TEMPLE & 0xff:
-	    strcpy (Str1, "A neoclassical temple");
-	    break;
-	case DESERT & 0xff:
-	    strcpy (Str1, "A sere desert");
-	    break;
-	case CHAOS_SEA & 0xff:
-	    strcpy (Str1, "The Sea of Chaos");
-	    break;
-	default:
-	    strcpy (Str1, "I have no idea.");
-	    break;
-    }
-    return (Str1);
+    return (zstrn (_terrain_names, i, ArraySize(_terrains)+1));
 }
 
 static const char* sitenames[] = {	// alphabetical listing

@@ -130,24 +130,10 @@ int level_seed[E_MAX + 1];	// random number seed that generated level
 
 static void signalexit (int sig);
 
-// This may be implementation dependent
-// environment is the environment about to be generated, or -1 for the first
-// time, or -2 if we want to restore the random number point
 void initrand (int environment, int level)
 {
-    static int store;
-    int seed;
-
     if (environment >= 0)
-	store = rand();
-    // Pseudo Random Seed
-    if (environment == E_RANDOM)
-	seed = (int) time (NULL);
-    else if (environment == E_RESTORE)
-	seed = store;
-    else
-	seed = level_seed[environment] + 1000 * level;
-    srand (seed);
+	srand (level_seed[environment] + level);
 }
 
 static int game_restore (int argc, const char* argv[])
@@ -191,8 +177,8 @@ int main (int argc, const char* argv[])
 	exit (0);
 
     // all kinds of initialization
+    srandrand();
     initgraf();
-    initrand (E_RANDOM, 0);
 
     for (count = 0; count < STRING_BUFFER_SIZE; count++)
 	strcpy (Stringbuffer[count], "<nothing>");
@@ -208,7 +194,7 @@ int main (int argc, const char* argv[])
     if (!continuing) {
 	Date = random_range (360);
 	Phase = random_range (24);
-	strcpy (Password, "");
+	Password[0] = 0;
 	initplayer();
 	init_world();
 	mprint ("'?' for help or commandlist, 'Q' to quit.");
@@ -256,13 +242,11 @@ static void signalexit (int sig UNUSED)
 // Start up game with new dungeons; start with player in city
 static void init_world (void)
 {
-    int env, i;
-
     City = Level = TempLevel = Dungeon = NULL;
-    for (env = 0; env <= E_MAX; env++)
+    for (int env = 0; env <= E_MAX; env++)
 	level_seed[env] = rand();
     load_country();
-    for (i = 0; i < NUMCITYSITES; i++)
+    for (int i = 0; i < NUMCITYSITES; i++)
 	CitySiteList[i][0] = FALSE;
     load_city (TRUE);
     WIDTH = 64;
@@ -312,10 +296,9 @@ void time_clock (int reset)
     // Level appropriately, so only have to check for countryside
 
     if (Current_Environment != E_COUNTRYSIDE) {
-
 	prev = &(Level->mlist);
 	ml = *prev;
-	while (ml)
+	while (ml) {
 	    if (ml->m->hp > 0) {
 		// following is a hack until I discover source of phantom monsters
 		if (Level->site[ml->m->x][ml->m->y].creature != ml->m)
@@ -335,6 +318,7 @@ void time_clock (int reset)
 		ml = *prev;
 	    } else
 		ml = ml->next;
+	}
     }
 }
 

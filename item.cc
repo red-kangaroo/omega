@@ -172,8 +172,6 @@ void make_cash (pob o, int level)
 {
     *o = Objects[CASHID];
     o->basevalue = random_range (level * level + 10) + 1;	// aux is AU value
-    o->objstr = cashstr();
-    o->cursestr = o->truename = o->objstr;
 }
 
 void make_food (pob o, int id)

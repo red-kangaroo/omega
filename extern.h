@@ -229,7 +229,6 @@ void room_level(void);
 const char* roomname(int ri);
 void sewer_level(void);
 // inv.c
-const char* cashstr(void);
 void conform_lost_object(pob obj);
 void conform_lost_objects(int n, pob obj);
 void conform_unused_object(pob obj);
