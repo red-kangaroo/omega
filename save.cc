@@ -4,20 +4,18 @@
 
 //----------------------------------------------------------------------
 
-static int ok_outdated(int ver);
-static void restore_country(FILE *fd, int ver);
-static void restore_hiscore_npc(pmt npc, int npcid);
-static pob restore_item(FILE *fd, int ver);
-static pol restore_itemlist(FILE *fd, int ver);
-static void restore_level(FILE *fd, int ver);
-static void restore_monsters(FILE *fd, plv level, int ver);
-static void restore_player(FILE *fd, int ver);
-static int save_country(FILE *fd);
-static int save_item(FILE *fd, pob o);
-static int save_itemlist(FILE *fd, pol ol);
-static int save_level(FILE *fd, plv level);
-static int save_monsters(FILE *fd, pml ml);
-static int save_player(FILE *fd);
+static void restore_country(istream& is, int ver);
+static pob restore_item(istream& is, int ver);
+static pol restore_itemlist(istream& is, int ver);
+static void restore_level(istream& is, int ver);
+static void restore_monsters(istream& is, plv level, int ver);
+static void restore_player(istream& is, int ver);
+static void save_country(ostream& os);
+static void save_item (ostream& os, pob o);
+static void save_itemlist (ostream& os, pol ol);
+static void save_level(ostream& os, plv level);
+static void save_monsters(ostream& os, pml ml);
+static void save_player(ostream& os);
 
 //----------------------------------------------------------------------
 
@@ -33,41 +31,30 @@ static int save_player(FILE *fd);
 
 int save_game (const char* savestr)
 {
-    FILE *fd;
-    int i, writeok = TRUE;
     plv current, levelToSave;
 
     if (access (savestr, R_OK) == 0) {
 	if (access (savestr, W_OK) == 0) {
 	    mprint (" Overwrite old file?");
-	    writeok = (ynq() == 'y');
+	    if (ynq() != 'y')
+		return (FALSE);
 	} else {
 	    mprint (" File already exists.");
-	    writeok = FALSE;
+	    return (FALSE);
 	}
     }
-    if (writeok) {
-	fd = fopen (savestr, "wb");
-	if (fd == NULL) {
-	    writeok = FALSE;
-	    mprint (" Error opening file.");
-	}
-    }
-    if (!writeok) {
-	morewait();
-	print2 ("Save aborted.");
-    } else {
-
-	print1 ("Saving Game....");
+    print1 ("Saving Game....");
+    bool writeok = false;
+    try {
+	memblock buf (UINT16_MAX);
+	ostream os (buf);
 
 	// write the version number
-	i = OMEGA_VERSION;
-	fwrite ((const char*) &i, sizeof (int), 1, fd);
-	// write game id to save file
+	os << unsigned(OMEGA_VERSION);
 
-	writeok &= save_player (fd);
-	writeok &= save_country (fd);
-	writeok &= save_level (fd, City);
+	save_player (os);
+	save_country (os);
+	save_level (os, City);
 
 	if (Current_Environment == E_CITY || Current_Environment == E_COUNTRYSIDE)
 	    levelToSave = Dungeon;
@@ -75,319 +62,25 @@ int save_game (const char* savestr)
 	    levelToSave = Dungeon;
 	else
 	    levelToSave = Level;
+	int i;
 	for (i = 0, current = levelToSave; current; current = current->next, i++);
-	if (!fwrite ((const char*) &i, sizeof (int), 1, fd))
-	    writeok = FALSE;
+	os << i;
 	for (current = levelToSave; current; current = current->next)
 	    if (current != Level)
-		writeok &= save_level (fd, current);
+		save_level (os, current);
 	if (levelToSave)
-	    writeok &= save_level (fd, Level);	// put current level last
-	fclose (fd);
-	if (writeok)
-	    print1 ("Game Saved.");
-	else
-	    print1 ("Something didn't work... save aborted.");
-	morewait();
-	clearmsg();
-    }
-    return (writeok);
-}
+	    save_level (os, Level);	// put current level last
 
-// saves game on SIGHUP
-// no longer tries to compress, which hangs
-void signalsave (int sig UNUSED)
-{
-    save_game ("omega.sav");
-    print1 ("Signal - Saving file 'omega.sav'.");
+	buf.resize (os.pos());
+	buf.write_file (savestr);
+	print1 ("Game Saved.");
+	writeok = true;
+    } catch (...) {
+	print1 ("Something didn't work... save aborted.");
+    }
     morewait();
-    endgraf();
-    exit (0);
-}
-
-// also saves some globals like Level->depth...
-
-static int save_player (FILE* fd)
-{
-    int i;
-    int ok = 1;
-
-    // Save random global state information
-
-    Player.click = (Tick + 1) % 60;
-    ok &= (fwrite ((const char*) &Player, sizeof (Player), 1, fd) > 0);
-    ok &= (fprintf (fd, "%s\n", Password) >= 0);
-    ok &= (fprintf (fd, "%s\n", Player.name) >= 0);
-    ok &= (fwrite ((const char*) CitySiteList, sizeof (CitySiteList), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &GameStatus, sizeof (long), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Current_Environment, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Last_Environment, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Current_Dungeon, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Villagenum, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Verbosity, sizeof (char), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Time, sizeof (long), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Tick, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Searchnum, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Behavior, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Phase, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Date, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Spellsleft, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &SymbolUseHour, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &ViewHour, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &HelmHour, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Constriction, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Blessing, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &LastDay, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &RitualHour, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Lawstone, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Chaostone, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Mindstone, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Arena_Opponent, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Imprisonment, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Gymcredit, sizeof (long), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Balance, sizeof (long), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &StarGemUse, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &HiMagicUse, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &HiMagic, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &FixedPoints, sizeof (long), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &LastCountryLocX, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &LastCountryLocY, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &LastTownLocX, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &LastTownLocY, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Pawndate, sizeof (int), 1, fd) > 0);
-
-    ok &= (fwrite ((const char*) Spells, sizeof (Spells), 1, fd) > 0);
-
-    ok &= (fwrite ((const char*) &Command_Duration, sizeof (Command_Duration), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Precipitation, sizeof (Precipitation), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &Lunarity, sizeof (Lunarity), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &ZapHour, sizeof (ZapHour), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &RitualRoom, sizeof (RitualRoom), 1, fd) > 0);
-
-    // stuff which used to be statics
-    ok &= (fwrite ((const char*) &twiddle, sizeof (twiddle), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &saved, sizeof (saved), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &onewithchaos, sizeof (onewithchaos), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &club_hinthour, sizeof (club_hinthour), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &winnings, sizeof (winnings), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &tavern_hinthour, sizeof (tavern_hinthour), 1, fd) > 0);
-    ok &= (fwrite ((const char*) deepest, sizeof (int), E_MAX + 1, fd) > 0);
-    ok &= (fwrite ((const char*) level_seed, sizeof (int), E_MAX + 1, fd) > 0);
-
-    // Save player possessions
-
-    if (Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND])
-	Player.possessions[O_READY_HAND] = NULL;
-    for (i = 0; i < MAXITEMS; i++)
-	ok &= save_item (fd, Player.possessions[i]);
-    for (i = 0; i < MAXPACK; i++)
-	ok &= save_item (fd, Player.pack[i]);
-    for (i = 0; i < PAWNITEMS; i++)
-	ok &= save_item (fd, Pawnitems[i]);
-
-    // Save items in condo vault
-    ok &= save_itemlist (fd, Condoitems);
-
-    // Save player item knowledge
-    ok &= (fwrite ((const char*) &SpellKnown, sizeof(SpellKnown), 1, fd) > 0);
-    ok &= (fwrite ((const char*) ObjectAttrs, sizeof(ObjectAttrs), 1, fd) > 0);
-    return ok;
-}
-
-// Save whatever is pointed to by level
-static int save_level (FILE* fd, plv level)
-{
-    unsigned i, j, run;
-    unsigned long int mask;
-    int ok = 1;
-
-    ok &= (fwrite ((const char*) &level->depth, sizeof (char), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &level->numrooms, sizeof (char), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &level->tunnelled, sizeof (char), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &level->environment, sizeof (int), 1, fd) > 0);
-    for (j = 0; j < MAXLENGTH; j++)
-	for (i = 0; i < MAXWIDTH; i++)
-	    if (level->site[i][j].lstatus & CHANGED) {	// this loc has been changed
-		for (run = i + 1; run < MAXWIDTH &&	// find how many in a row
-		     level->site[run][j].lstatus & CHANGED; run++);
-		ok &= (fwrite ((const char*) &i, sizeof (int), 1, fd) > 0);
-		ok &= (fwrite ((const char*) &j, sizeof (int), 1, fd) > 0);
-		ok &= (fwrite ((const char*) &run, sizeof (int), 1, fd) > 0);
-		for (; i < run; i++)
-		    ok &= (fwrite ((const char*) &level->site[i][j], sizeof (struct location), 1, fd) > 0);
-	    }
-    ok &= (fwrite ((const char*) &i, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &j, sizeof (int), 1, fd) > 0);	// signify end
-    // since we don't mark the 'seen' bits as CHANGED, need to save a bitmask
-    run = 8 * sizeof (long int);
-    mask = 0;
-    for (j = 0; j < MAXLENGTH; j++)
-	for (i = 0; i < MAXWIDTH; i++) {
-	    if (run == 0) {
-		run = 8 * sizeof (long int);
-		ok &= (fwrite ((const char*) &mask, sizeof (long int), 1, fd) > 0);
-		mask = 0;
-	    }
-	    mask >>= 1;
-	    if (level->site[i][j].lstatus & SEEN)
-		mask |= (1UL << (sizeof (long int) * 8 - 1));
-	    run--;
-	}
-    if (run < 8 * sizeof (long int))
-	ok &= (fwrite ((const char*) &mask, sizeof (long int), 1, fd) > 0);
-    ok &= save_monsters (fd, level->mlist);
-    for (i = 0; i < MAXWIDTH; i++)
-	for (j = 0; j < MAXLENGTH; j++)
-	    if (level->site[i][j].things) {
-		ok &= (fwrite ((const char*) &i, sizeof (int), 1, fd) > 0);
-		ok &= (fwrite ((const char*) &j, sizeof (int), 1, fd) > 0);
-		ok &= save_itemlist (fd, level->site[i][j].things);
-	    }
-    ok &= (fwrite ((const char*) &i, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &j, sizeof (int), 1, fd) > 0);	// signify end
-    return ok;
-}
-
-static int save_monsters (FILE* fd, pml ml)
-{
-    pml tml;
-    int nummonsters = 0;
-    int ok = 1;
-    unsigned char type;
-
-    // First count monsters
-    for (tml = ml; tml != NULL; tml = tml->next)
-	if (tml->m->hp > 0)
-	    nummonsters++;
-
-    ok &= (fwrite ((const char*) &nummonsters, sizeof (int), 1, fd) > 0);
-
-    // Now save monsters
-    for (tml = ml; tml != NULL; tml = tml->next) {
-	if (tml->m->hp > 0) {
-	    ok &= (fwrite ((const char*) tml->m, sizeof (montype), 1, fd) > 0);
-	    if (tml->m->id != HISCORE_NPC) {
-		type = 0x0;
-		if (strcmp (tml->m->monstring, Monsters[tml->m->id].monstring))
-		    type |= 0x1;
-		if (strcmp (tml->m->corpsestr, Monsters[tml->m->id].corpsestr))
-		    type |= 0x2;
-		ok &= (fwrite ((const char*) &type, sizeof (unsigned char), 1, fd) > 0);
-		if (type & 1)
-		    ok &= (fprintf (fd, "%s\n", tml->m->monstring) >= 0);
-		if (type & 2)
-		    ok &= (fprintf (fd, "%s\n", tml->m->corpsestr) >= 0);
-		// WDT: line moved from here...
-	    }
-	    // else it'll be reloaded from the hiscore file on restore
-	    // WDT: to here.  This bug fix is Sheldon Simm's suggestion
-	    // to fix the well-known 'Star Gem' bug; it should allow the
-	    // possessions of hiscore NPCs to be restored from the savefile.
-	    // See also the complementary change in restore_monsters.
-	    ok &= save_itemlist (fd, tml->m->possessions);
-	}
-    }
-    return ok;
-}
-
-// Save o unless it's null, then save a special flag byte instead
-// Use other values of flag byte to indicate what strings are saved
-static int save_item (FILE* fd, pob o)
-{
-    int ok = 1;
-    unsigned char type;
-
-    if (o == NULL) {
-	type = 0xff;
-	ok &= (fwrite ((const char*) &type, sizeof (type), 1, fd) > 0);
-    } else {
-	type = 0;
-	if (strcmp (o->objstr, Objects[o->id].objstr))
-	    type |= 1;
-	if (strcmp (o->truename, Objects[o->id].truename))
-	    type |= 2;
-	if (strcmp (o->cursestr, Objects[o->id].cursestr))
-	    type |= 4;
-	ok &= (fwrite ((const char*) &type, sizeof (type), 1, fd) > 0);
-	ok &= (fwrite ((const char*) o, sizeof (objtype), 1, fd) > 0);
-	if (type & 1)
-	    ok &= (fprintf (fd, "%s\n", o->objstr) >= 0);
-	if (type & 2)
-	    ok &= (fprintf (fd, "%s\n", o->truename) >= 0);
-	if (type & 4)
-	    ok &= (fprintf (fd, "%s\n", o->cursestr) >= 0);
-    }
-    return ok;
-}
-
-static int save_itemlist (FILE* fd, pol ol)
-{
-    int numitems = 0;
-    pol tol;
-    int ok = 1;
-
-    for (tol = ol; tol != NULL; tol = tol->next)
-	numitems++;
-    ok &= (fwrite ((const char*) &numitems, sizeof (int), 1, fd) > 0);
-    for (tol = ol; tol != NULL; tol = tol->next)
-	ok &= save_item (fd, tol->thing);
-    return ok;
-}
-
-static int save_country (FILE* fd)
-{
-    int i, j;
-    int ok = 1;
-    int run;
-    unsigned long int mask;
-
-    for (i = 0; i < MAXWIDTH; i++)
-	for (j = 0; j < MAXLENGTH; j++)
-	    if (c_statusp (i, j, CHANGED)) {
-		ok &= (fwrite ((const char*) &i, sizeof (int), 1, fd) > 0);
-		ok &= (fwrite ((const char*) &j, sizeof (int), 1, fd) > 0);
-		ok &= (fwrite ((const char*) &Country[i][j], sizeof (struct terrain), 1, fd) > 0);
-	    }
-    ok &= (fwrite ((const char*) &i, sizeof (int), 1, fd) > 0);
-    ok &= (fwrite ((const char*) &j, sizeof (int), 1, fd) > 0);
-    // since we don't mark the 'seen' bits as CHANGED, need to save a bitmask
-    run = 8 * sizeof (long int);
-    mask = 0;
-    for (i = 0; i < MAXWIDTH; i++)
-	for (j = 0; j < MAXLENGTH; j++) {
-	    if (run == 0) {
-		run = 8 * sizeof (long int);
-		ok &= (fwrite ((const char*) &mask, sizeof (long int), 1, fd) > 0);
-		mask = 0;
-	    }
-	    mask >>= 1;
-	    if (c_statusp (i, j, SEEN))
-		mask |= (1UL << (sizeof (long int) * 8 - 1));
-	    run--;
-	}
-    if (run < (int)(8 * sizeof(long int)))
-	ok &= (fwrite ((const char*) &mask, sizeof (long int), 1, fd) > 0);
-    return ok;
-}
-
-// returns TRUE if the given version can be restored by this version
-static int ok_outdated (int ver)
-{
-    switch (ver) {
-	case 80:
-	    print1 ("Converting version 0.80 savefile to current.");
-	    morewait();
-	    return TRUE;
-	    break;
-	case 81:
-	    print1 ("Loading version 0.81 savefile.");
-	    morewait();
-	    return TRUE;
-	    break;
-	default:
-	    return FALSE;
-	    break;
-    }
+    clearmsg();
+    return (writeok);
 }
 
 // read player data, city level, dungeon level,
@@ -395,7 +88,6 @@ static int ok_outdated (int ver)
 // return TRUE if game restored, FALSE otherwise
 int restore_game (const char* savestr)
 {
-    int i, ver;
     if (access (savestr, F_OK | R_OK | W_OK) == -1) {	// access uses real uid
 	print1 ("Unable to access save file: ");
 	nprint1 (savestr);
@@ -403,36 +95,23 @@ int restore_game (const char* savestr)
 	return FALSE;
     }
 
-    FILE* fd = fopen (savestr, "rb");
+    memblock buf;
+    try {
+	buf.read_file (savestr);
+	istream is (buf);
 
-    if (fd == NULL) {
-	print1 ("Error restoring game -- aborted.");
-	print2 ("File name was: ");
-	nprint2 (savestr);
-	morewait();
-	return (FALSE);
-    } else {
 	print1 ("Restoring...");
 
-	fread ((char*) &ver, sizeof (int), 1, fd);
+	int ver;
+	is >> ver;
 
-	if (OMEGA_VERSION != ver && !ok_outdated (ver)) {
-	    fclose (fd);
-	    clearmsg();
-	    mprint (" Sorry, I can't restore an outdated save file!");
-	    mprint (" savefile is version ");
-	    mnumprint (ver / 100);
-	    nprint2 (".");
-	    mnumprint (ver % 100);
-	    morewait();
-	    return (FALSE);
-	}
-	restore_player (fd, ver);
-	restore_country (fd, ver);
-	restore_level (fd, ver);	// the city level
-	fread ((char*) &i, sizeof (int), 1, fd);
+	restore_player (is, ver);
+	restore_country (is, ver);
+	restore_level (is, ver);	// the city level
+	int i;
+	is >> i;
 	for (; i > 0; i--) {
-	    restore_level (fd, ver);
+	    restore_level (is, ver);
 	    if (Level->environment == Current_Dungeon) {
 		Level->next = Dungeon;
 		Dungeon = Level;
@@ -463,26 +142,167 @@ int restore_game (const char* savestr)
 		LENGTH = 64;
 		break;
 	}
-	fclose (fd);
 	print3 ("Restoration complete.");
 	ScreenOffset = -1000;	// to force a redraw
 	setgamestatus (SKIP_MONSTERS);
-	return (TRUE);
+    } catch (const exception& e) {
+	char errbuf[80];
+	snprintf (ArrayBlock(errbuf), "Error restoring %s: %s", savestr, e.what().c_str());
+	print1 (errbuf);
+	morewait();
+	return (FALSE);
     }
+    return (TRUE);
 }
 
-static void restore_player (FILE* fd, int ver)
+// saves game on SIGHUP
+// no longer tries to compress, which hangs
+void signalsave (int sig UNUSED)
+{
+    save_game ("omega.sav");
+    print1 ("Signal - Saving file 'omega.sav'.");
+    morewait();
+    endgraf();
+    exit (0);
+}
+
+// also saves some globals like Level->depth...
+
+static void save_player (ostream& os)
+{
+    // Save random global state information
+    Player.click = (Tick + 1) % 60;
+    os.write (&Player, sizeof(Player));
+    os.write (Password, sizeof(Password));
+    os.write (CitySiteList, sizeof (CitySiteList));
+    os << ios::align(alignof(GameStatus)) << GameStatus;
+    os << Time;
+    os << Gymcredit;
+    os << Balance;
+    os << FixedPoints;
+    os << SpellKnown;
+    os << Current_Environment;
+    os << Last_Environment;
+    os << Current_Dungeon;
+    os << Villagenum;
+    os << Verbosity;
+    os << Tick;
+    os << Searchnum;
+    os << Behavior;
+    os << Phase;
+    os << Date;
+    os << Spellsleft;
+    os << SymbolUseHour;
+    os << ViewHour;
+    os << HelmHour;
+    os << Constriction;
+    os << Blessing;
+    os << LastDay;
+    os << RitualHour;
+    os << Lawstone;
+    os << Chaostone;
+    os << Mindstone;
+    os << Arena_Opponent;
+    os << Imprisonment;
+    os << StarGemUse;
+    os << HiMagicUse;
+    os << HiMagic;
+    os << LastCountryLocX;
+    os << LastCountryLocY;
+    os << LastTownLocX;
+    os << LastTownLocY;
+    os << Pawndate;
+    os << Command_Duration;
+    os << Precipitation;
+    os << Lunarity;
+    os << ZapHour;
+    os << RitualRoom;
+    os << twiddle;
+    os << saved;
+    os << onewithchaos;
+    os << club_hinthour;
+    os << winnings;
+    os << tavern_hinthour;
+    os.write (deepest, sizeof(deepest));
+    os.write (level_seed, sizeof(level_seed));
+
+    // Save player item knowledge
+    os.write (Spells, sizeof (Spells));
+    os.write (ObjectAttrs, sizeof(ObjectAttrs));
+
+    // Save player possessions
+    if (Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND])
+	Player.possessions[O_READY_HAND] = NULL;
+    for (unsigned i = 0; i < MAXITEMS; i++)
+	save_item (os, Player.possessions[i]);
+    for (unsigned i = 0; i < MAXPACK; i++)
+	save_item (os, Player.pack[i]);
+    for (unsigned i = 0; i < PAWNITEMS; i++)
+	save_item (os, Pawnitems[i]);
+
+    // Save items in condo vault
+    save_itemlist (os, Condoitems);
+}
+
+static void restore_player (istream& is, int ver)
 {
     int i;
-    fread ((char*) &Player, sizeof (Player), 1, fd);
-    filescanstring (fd, Password);
-    filescanstring (fd, Player.name);
-    fread ((char*) CitySiteList, sizeof (CitySiteList), 1, fd);
-    fread ((char*) &GameStatus, sizeof (long), 1, fd);
-    fread ((char*) &Current_Environment, sizeof (int), 1, fd);
-    fread ((char*) &Last_Environment, sizeof (int), 1, fd);
-    fread ((char*) &Current_Dungeon, sizeof (int), 1, fd);
-    fread ((char*) &Villagenum, sizeof (int), 1, fd);
+    is.read (&Player, sizeof(Player));
+    is.read (Password, sizeof(Password));
+    is.read (CitySiteList, sizeof(CitySiteList));
+    is >> ios::align(alignof(GameStatus)) >> GameStatus;
+    is >> Time;
+    is >> Gymcredit;
+    is >> Balance;
+    is >> FixedPoints;
+    is >> SpellKnown;
+    is >> Current_Environment;
+    is >> Last_Environment;
+    is >> Current_Dungeon;
+    is >> Villagenum;
+    is >> Verbosity;
+    is >> Tick;
+    is >> Searchnum;
+    is >> Behavior;
+    is >> Phase;
+    is >> Date;
+    is >> Spellsleft;
+    is >> SymbolUseHour;
+    is >> ViewHour;
+    is >> HelmHour;
+    is >> Constriction;
+    is >> Blessing;
+    is >> LastDay;
+    is >> RitualHour;
+    is >> Lawstone;
+    is >> Chaostone;
+    is >> Mindstone;
+    is >> Arena_Opponent;
+    is >> Imprisonment;
+    is >> StarGemUse;
+    is >> HiMagicUse;
+    is >> HiMagic;
+    is >> LastCountryLocX;
+    is >> LastCountryLocY;
+    is >> LastTownLocX;
+    is >> LastTownLocY;
+    is >> Pawndate;
+    is >> Command_Duration;
+    is >> Precipitation;
+    is >> Lunarity;
+    is >> ZapHour;
+    is >> RitualRoom;
+    is >> twiddle;
+    is >> saved;
+    is >> onewithchaos;
+    is >> club_hinthour;
+    is >> winnings;
+    is >> tavern_hinthour;
+    is.read (deepest, sizeof(deepest));
+    is.read (level_seed, sizeof(level_seed));
+    is.read (Spells, sizeof(Spells));
+    is.read (ObjectAttrs, sizeof(ObjectAttrs));
+
     switch (Current_Dungeon) {
 	case E_ASTRAL:
 	    MaxDungeonLevels = ASTRALLEVELS;
@@ -500,135 +320,77 @@ static void restore_player (FILE* fd, int ver)
 	    MaxDungeonLevels = VOLCANOLEVELS;
 	    break;
     }
-    fread ((char*) &Verbosity, sizeof (char), 1, fd);
-    fread ((char*) &Time, sizeof (long), 1, fd);
-    fread ((char*) &Tick, sizeof (int), 1, fd);
-    fread ((char*) &Searchnum, sizeof (int), 1, fd);
-    fread ((char*) &Behavior, sizeof (int), 1, fd);
-    fread ((char*) &Phase, sizeof (int), 1, fd);
-    fread ((char*) &Date, sizeof (int), 1, fd);
-    fread ((char*) &Spellsleft, sizeof (int), 1, fd);
-    fread ((char*) &SymbolUseHour, sizeof (int), 1, fd);
-    fread ((char*) &ViewHour, sizeof (int), 1, fd);
-    fread ((char*) &HelmHour, sizeof (int), 1, fd);
-    fread ((char*) &Constriction, sizeof (int), 1, fd);
-    fread ((char*) &Blessing, sizeof (int), 1, fd);
-    fread ((char*) &LastDay, sizeof (int), 1, fd);
-    fread ((char*) &RitualHour, sizeof (int), 1, fd);
-    fread ((char*) &Lawstone, sizeof (int), 1, fd);
-    fread ((char*) &Chaostone, sizeof (int), 1, fd);
-    fread ((char*) &Mindstone, sizeof (int), 1, fd);
-    fread ((char*) &Arena_Opponent, sizeof (int), 1, fd);
-    fread ((char*) &Imprisonment, sizeof (int), 1, fd);
-    fread ((char*) &Gymcredit, sizeof (long), 1, fd);
-    fread ((char*) &Balance, sizeof (long), 1, fd);
-    fread ((char*) &StarGemUse, sizeof (int), 1, fd);
-    fread ((char*) &HiMagicUse, sizeof (int), 1, fd);
-    fread ((char*) &HiMagic, sizeof (int), 1, fd);
-    fread ((char*) &FixedPoints, sizeof (long), 1, fd);
-    fread ((char*) &LastCountryLocX, sizeof (int), 1, fd);
-    fread ((char*) &LastCountryLocY, sizeof (int), 1, fd);
-    fread ((char*) &LastTownLocX, sizeof (int), 1, fd);
-    fread ((char*) &LastTownLocY, sizeof (int), 1, fd);
-    fread ((char*) &Pawndate, sizeof (int), 1, fd);
-
-    fread ((char*) Spells, sizeof (Spells), 1, fd);
-
-    fread ((char*) &Command_Duration, sizeof (Command_Duration), 1, fd);
-    fread ((char*) &Precipitation, sizeof (Precipitation), 1, fd);
-    fread ((char*) &Lunarity, sizeof (Lunarity), 1, fd);
-    fread ((char*) &ZapHour, sizeof (ZapHour), 1, fd);
-    fread ((char*) &RitualRoom, sizeof (RitualRoom), 1, fd);
-
-    // stuff which used to be statics
-    fread ((char*) &twiddle, sizeof (twiddle), 1, fd);
-    fread ((char*) &saved, sizeof (saved), 1, fd);
-    fread ((char*) &onewithchaos, sizeof (onewithchaos), 1, fd);
-    fread ((char*) &club_hinthour, sizeof (club_hinthour), 1, fd);
-    fread ((char*) &winnings, sizeof (winnings), 1, fd);
-    fread ((char*) &tavern_hinthour, sizeof (tavern_hinthour), 1, fd);
-    fread ((char*) deepest, sizeof (int), E_MAX + 1, fd);
-    fread ((char*) level_seed, sizeof (int), E_MAX + 1, fd);
 
     for (i = 0; i < MAXITEMS; i++)
-	Player.possessions[i] = restore_item (fd, ver);
+	Player.possessions[i] = restore_item (is, ver);
 
     if (!Player.possessions[O_READY_HAND] && Player.possessions[O_WEAPON_HAND] && twohandedp (Player.possessions[O_WEAPON_HAND]->id))
 	Player.possessions[O_READY_HAND] = Player.possessions[O_WEAPON_HAND];
 
     for (i = 0; i < MAXPACK; i++)
-	Player.pack[i] = restore_item (fd, ver);
+	Player.pack[i] = restore_item (is, ver);
     for (i = 0; i < PAWNITEMS; i++)
-	Pawnitems[i] = restore_item (fd, ver);
-    Condoitems = restore_itemlist (fd, ver);
-
-    fread ((char*) &SpellKnown, sizeof(SpellKnown), 1, fd);
-    fwrite ((char*) ObjectAttrs, sizeof(ObjectAttrs), 1, fd);
+	Pawnitems[i] = restore_item (is, ver);
+    Condoitems = restore_itemlist (is, ver);
 }
 
-// Restore an item, the first byte tells us if it's NULL, and what strings
-// have been saved as different from the typical
-static pob restore_item (FILE* fd, int ver UNUSED)
+// Save whatever is pointed to by level
+static void save_level (ostream& os, plv level)
 {
-    char tempstr[80];
-    unsigned char type;
-    pob obj = NULL;
-
-    fread ((char*) &type, sizeof (type), 1, fd);
-    if (type != 0xff) {
-	obj = ((pob) checkmalloc (sizeof (objtype)));
-	fread ((char*) obj, sizeof (objtype), 1, fd);
-	if (type & 1) {
-	    filescanstring (fd, tempstr);
-	    obj->objstr = salloc (tempstr);
-	} else
-	    obj->objstr = Objects[obj->id].objstr;
-	if (type & 2) {
-	    filescanstring (fd, tempstr);
-	    obj->truename = salloc (tempstr);
-	} else
-	    obj->truename = Objects[obj->id].truename;
-	if (type & 4) {
-	    filescanstring (fd, tempstr);
-	    obj->cursestr = salloc (tempstr);
-	} else
-	    obj->cursestr = Objects[obj->id].cursestr;
-    }
-    return obj;
-}
-
-static pol restore_itemlist (FILE* fd, int ver)
-{
-    pol ol = NULL, cur = NULL, o = NULL;
-    int i, numitems, firsttime = TRUE;
-    fread ((char*) &numitems, sizeof (int), 1, fd);
-    for (i = 0; i < numitems; i++) {
-	o = ((pol) checkmalloc (sizeof (oltype)));
-	o->thing = restore_item (fd, ver);
-	o->next = NULL;
-	if (firsttime == TRUE) {
-	    ol = cur = o;
-	    firsttime = FALSE;
-	} else {
-	    cur->next = o;
-	    cur = o;
+    unsigned i, j, run;
+    os << ios::align(alignof(level->environment)) << level->environment << level->depth << level->numrooms << level->tunnelled;
+    for (j = 0; j < MAXLENGTH; j++) {
+	for (i = 0; i < MAXWIDTH; i++) {
+	    if (level->site[i][j].lstatus & CHANGED) {	// this loc has been changed
+		for (run = i + 1; run < MAXWIDTH &&	// find how many in a row
+		     level->site[run][j].lstatus & CHANGED; run++);
+		os << ios::align(alignof(i)) << i << j << run;
+		for (; i < run; i++)
+		    os.write (&level->site[i][j], sizeof (struct location));
+	    }
 	}
     }
-    return (ol);
+    os << ios::align(alignof(i)) << i << j;	// signify end
+    // since we don't mark the 'seen' bits as CHANGED, need to save a bitmask
+    unsigned long mask = 0;
+    run = 8 * sizeof (mask);
+    os.align (alignof(mask));
+    for (j = 0; j < MAXLENGTH; j++) {
+	for (i = 0; i < MAXWIDTH; i++) {
+	    if (run == 0) {
+		run = 8 * sizeof(mask);
+		os << mask;
+		mask = 0;
+	    }
+	    mask >>= 1;
+	    if (level->site[i][j].lstatus & SEEN)
+		mask |= (1UL << (sizeof(mask)*8 - 1));
+	    run--;
+	}
+    }
+    if (run < 8*sizeof (mask))
+	os << mask;
+    save_monsters (os, level->mlist);
+    for (i = 0; i < MAXWIDTH; i++) {
+	for (j = 0; j < MAXLENGTH; j++) {
+	    if (level->site[i][j].things) {
+		os << ios::align(alignof(i)) << i << j;
+		save_itemlist (os, level->site[i][j].things);
+	    }
+	}
+    }
+    os << ios::align(alignof(i)) << i << j;	// signify end
 }
 
-static void restore_level (FILE* fd, int ver)
+static void restore_level (istream& is, int ver)
 {
     int i, j, run;
-    unsigned long int mask;
+    unsigned long int mask = 0;
     int temp_env;
 
     Level = (plv) checkmalloc (sizeof (levtype));
     clear_level (Level);
-    fread ((char*) &Level->depth, sizeof (char), 1, fd);
-    fread ((char*) &Level->numrooms, sizeof (char), 1, fd);
-    fread ((char*) &Level->tunnelled, sizeof (char), 1, fd);
-    fread ((char*) &Level->environment, sizeof (int), 1, fd);
+    is >> ios::align(alignof(Level->environment)) >> Level->environment >> Level->depth >> Level->numrooms >> Level->tunnelled;
     Level->generated = TRUE;
     temp_env = Current_Environment;
     Current_Environment = Level->environment;
@@ -713,189 +475,215 @@ static void restore_level (FILE* fd, int ver)
 	initrand (E_RESTORE, 0);
     }
     Current_Environment = temp_env;
-    fread ((char*) &i, sizeof (int), 1, fd);
-    fread ((char*) &j, sizeof (int), 1, fd);
+    is >> ios::align(alignof(i)) >> i >> j;
     while (j < MAXLENGTH && i < MAXWIDTH) {
-	fread ((char*) &run, sizeof (int), 1, fd);
+	is >> run;
 	for (; i < run; i++) {
-	    fread ((char*) &Level->site[i][j], sizeof (struct location), 1, fd);
+	    is.read (&Level->site[i][j], sizeof(Level->site[i][j]));
 	    Level->site[i][j].creature = NULL;
 	    Level->site[i][j].things = NULL;
 	}
-	fread ((char*) &i, sizeof (int), 1, fd);
-	fread ((char*) &j, sizeof (int), 1, fd);
+	is >> ios::align(alignof(i)) >> i >> j;
     }
     run = 0;
+    is.align (alignof(mask));
     for (j = 0; j < MAXLENGTH; j++)
 	for (i = 0; i < MAXWIDTH; i++) {
 	    if (run == 0) {
-		run = 8 * sizeof (long int);
-		fread ((char*) &mask, sizeof (long int), 1, fd);
+		run = 8 * sizeof(mask);
+		is >> mask;
 	    }
 	    if (mask & 1)
 		lset (i, j, SEEN);
 	    mask >>= 1;
 	    run--;
 	}
-    restore_monsters (fd, Level, ver);
-    fread ((char*) &i, sizeof (int), 1, fd);
-    fread ((char*) &j, sizeof (int), 1, fd);
+    restore_monsters (is, Level, ver);
+    is >> ios::align(alignof(i)) >> i >> j;
     while (j < MAXLENGTH && i < MAXWIDTH) {
-	Level->site[i][j].things = restore_itemlist (fd, ver);
-	fread ((char*) &i, sizeof (int), 1, fd);
-	fread ((char*) &j, sizeof (int), 1, fd);
+	Level->site[i][j].things = restore_itemlist (is, ver);
+	is >> ios::align(alignof(i)) >> i >> j;
     }
 }
 
-static void restore_hiscore_npc (pmt npc, int npcid)
+static void save_monsters (ostream& os, pml ml)
 {
-    int level = Hilevel, behavior = Hibehavior;
-    long status;
+    int nummonsters = 0;
+    // First count monsters
+    for (pml tml = ml; tml; tml = tml->next)
+	nummonsters++;
+    os << ios::align(alignof(nummonsters)) << nummonsters;
 
-    switch (npcid) {
-	case 0:
-	    strcpy (Str2, Hiscorer);
-	    break;
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	    strcpy (Str2, Priest[npcid]);
-	    level = Priestlevel[npcid];
-	    behavior = Priestbehavior[npcid];
-	    break;
-	case 7:
-	    strcpy (Str2, Shadowlord);
-	    level = Shadowlordlevel;
-	    behavior = Shadowlordbehavior;
-	    break;
-	case 8:
-	    strcpy (Str2, Commandant);
-	    level = Commandantlevel;
-	    behavior = Commandantbehavior;
-	    break;
-	case 9:
-	    strcpy (Str2, Archmage);
-	    level = Archmagelevel;
-	    behavior = Archmagebehavior;
-	    break;
-	case 10:
-	    strcpy (Str2, Prime);
-	    level = Primelevel;
-	    behavior = Primebehavior;
-	    break;
-	case 11:
-	    strcpy (Str2, Champion);
-	    level = Championlevel;
-	    behavior = Championbehavior;
-	    break;
-	case 12:
-	    strcpy (Str2, Duke);
-	    level = Dukelevel;
-	    behavior = Dukebehavior;
-	    break;
-	case 13:
-	    strcpy (Str2, Chaoslord);
-	    level = Chaoslordlevel;
-	    behavior = Chaoslordbehavior;
-	    break;
-	case 14:
-	    strcpy (Str2, Lawlord);
-	    level = Lawlordlevel;
-	    behavior = Lawlordbehavior;
-	    break;
-	case 15:
-	    strcpy (Str2, Justiciar);
-	    level = Justiciarlevel;
-	    behavior = Justiciarbehavior;
-	    break;
-    }
-    npc->monstring = salloc (Str2);
-    strcpy (Str1, "The body of ");
-    strcat (Str1, Str2);
-    npc->corpsestr = salloc (Str1);
-    if (!m_statusp (npc, HOSTILE)) {
-	status = npc->status;
-	determine_npc_behavior (npc, level, behavior);
-	npc->status = status;
+    // Now save monsters
+    for (pml tml = ml; tml; tml = tml->next) {
+	os.write (tml->m, sizeof(*(tml->m)));
+	uint8_t type = 0;
+	if (strcmp (tml->m->monstring, Monsters[tml->m->id].monstring))
+	    type |= 1;
+	if (strcmp (tml->m->corpsestr, Monsters[tml->m->id].corpsestr))
+	    type |= 2;
+	os << type;
+	if (type & 1)
+	    os.write_strz (tml->m->monstring);
+	if (type & 2)
+	    os.write_strz (tml->m->corpsestr);
+	save_itemlist (os, tml->m->possessions);
     }
 }
 
-static void restore_monsters (FILE* fd, plv level, int ver)
+static void restore_monsters (istream& is, plv level, int ver)
 {
     pml ml = NULL;
     int i, nummonsters;
-    char tempstr[80];
-    int temp_x, temp_y;
     unsigned char type;
+    string s;
 
     level->mlist = NULL;
 
-    fread ((char*) &nummonsters, sizeof (int), 1, fd);
+    is >> ios::align(alignof(nummonsters)) >> nummonsters;
 
     for (i = 0; i < nummonsters; i++) {
 	ml = ((pml) checkmalloc (sizeof (mltype)));
 	ml->m = ((pmt) checkmalloc (sizeof (montype)));
-	ml->next = NULL;
-	fread ((char*) ml->m, sizeof (montype), 1, fd);
-	if (ml->m->id == HISCORE_NPC)
-	    if (ver == 80) {
-		temp_x = ml->m->x;
-		temp_y = ml->m->y;
-		make_hiscore_npc (ml->m, ml->m->aux2);
-		ml->m->x = temp_x;
-		ml->m->y = temp_y;
-	    } else
-		restore_hiscore_npc (ml->m, ml->m->aux2);
-	else {
-	    fread ((char*) &type, sizeof (unsigned char), 1, fd);
-	    if (type & 1) {
-		filescanstring (fd, tempstr);
-		ml->m->monstring = salloc (tempstr);
-	    } else
-		ml->m->monstring = Monsters[ml->m->id].monstring;
-	    if (type & 2) {
-		filescanstring (fd, tempstr);
-		ml->m->corpsestr = salloc (tempstr);
-	    } else
-		ml->m->corpsestr = Monsters[ml->m->id].corpsestr;
-	    // WDT: As suggested by Sheldon Simms, I'm moving this line...
-	    if (ver <= 80)
-		ml->m->possessions = restore_itemlist (fd, ver);
-	    ml->m->meleestr = Monsters[ml->m->id].meleestr;
-	}
-	// WDT: ...to here, so that all creatures will have their stuff
-	// restored to them.  Savefile versioning added by David Given.
-	if (ver > 80)
-	    ml->m->possessions = restore_itemlist (fd, ver);
+	is.read (ml->m, sizeof(*(ml->m)));
+	is >> type;
+	if (ml->m->id >= ArraySize(Monsters))
+	    throw runtime_error ("invalid monster");
+	ml->m->monstring = Monsters[ml->m->id].monstring;
+	ml->m->corpsestr = Monsters[ml->m->id].corpsestr;
+	ml->m->meleestr = Monsters[ml->m->id].meleestr;
+	if (type & 1) { is.read_strz (s); ml->m->monstring = salloc (s); }
+	if (type & 2) { is.read_strz (s); ml->m->corpsestr = salloc (s); }
+	ml->m->possessions = restore_itemlist (is, ver);
+	if (ml->m->x >= MAXWIDTH || ml->m->y >= MAXLENGTH)
+	    throw runtime_error ("invalid monster location");
 	level->site[ml->m->x][ml->m->y].creature = ml->m;
 	ml->next = level->mlist;
 	level->mlist = ml;
     }
 }
 
-static void restore_country (FILE* fd, int ver UNUSED)
+// Save o unless it's null, then save a special flag byte instead
+// Use other values of flag byte to indicate what strings are saved
+static void save_item (ostream& os, pob o)
 {
-    int i, j;
-    int run;
-    unsigned long int mask;
+    uint8_t type = 0;
+    if (!o) { os << type; return; }
+    type = 8;
+    if (strcmp (o->objstr, Objects[o->id].objstr))	type |= 1;
+    if (strcmp (o->truename, Objects[o->id].truename))	type |= 2;
+    if (strcmp (o->cursestr, Objects[o->id].cursestr))	type |= 4;
+    os << type;
+    os.write (o, sizeof(*o));
+    if (type & 1)	os.write_strz (o->objstr);
+    if (type & 2)	os.write_strz (o->truename);
+    if (type & 4)	os.write_strz (o->cursestr);
+}
 
-    load_country();
-    fread ((char*) &i, sizeof (int), 1, fd);
-    fread ((char*) &j, sizeof (int), 1, fd);
-    while (i < MAXWIDTH && j < MAXLENGTH) {
-	fread ((char*) &Country[i][j], sizeof (struct terrain), 1, fd);
-	fread ((char*) &i, sizeof (int), 1, fd);
-	fread ((char*) &j, sizeof (int), 1, fd);
+// Restore an item, the first byte tells us if it's NULL, and what strings
+// have been saved as different from the typical
+static pob restore_item (istream& is, int ver UNUSED)
+{
+    uint8_t type;
+    is >> type;
+    if (!type)
+	return (NULL);
+    pob obj = (pob) checkmalloc (sizeof (objtype));
+    is.read (obj, sizeof(*obj));
+    if (obj->id >= ArraySize(Objects))
+	throw runtime_error ("invalid item");
+    obj->objstr = Objects[obj->id].objstr;
+    obj->truename = Objects[obj->id].truename;
+    obj->cursestr = Objects[obj->id].cursestr;
+    string s;
+    if (type & 1) { is.read_strz (s); obj->objstr = salloc (s); }
+    if (type & 2) { is.read_strz (s); obj->truename = salloc (s); }
+    if (type & 4) { is.read_strz (s); obj->cursestr = salloc (s); }
+    return obj;
+}
+
+static void save_itemlist (ostream& os, pol ol)
+{
+    uint32_t numitems = 0;
+    for (pol tol = ol; tol != NULL; tol = tol->next)
+	numitems++;
+    os << ios::align(alignof(numitems)) << numitems;
+    for (pol tol = ol; tol != NULL; tol = tol->next)
+	save_item (os, tol->thing);
+}
+
+static pol restore_itemlist (istream& is, int ver)
+{
+    pol ol = NULL, cur = NULL, o = NULL;
+    int numitems, firsttime = TRUE;
+    is >> ios::align(alignof(numitems)) >> numitems;
+    for (int i = 0; i < numitems; i++) {
+	o = (pol) checkmalloc (sizeof (oltype));
+	o->thing = restore_item (is, ver);
+	o->next = NULL;
+	if (firsttime == TRUE) {
+	    ol = cur = o;
+	    firsttime = FALSE;
+	} else {
+	    cur->next = o;
+	    cur = o;
+	}
     }
-    run = 0;
+    return (ol);
+}
+
+static void save_country (ostream& os)
+{
+    unsigned i, j;
+    for (i = 0; i < MAXWIDTH; i++) {
+	for (j = 0; j < MAXLENGTH; j++) {
+	    if (c_statusp (i, j, CHANGED)) {
+		os << ios::align(alignof(i)) << i << j;
+		os.write (&Country[i][j], sizeof(Country[i][j]));
+	    }
+	}
+    }
+    os << ios::align(alignof(i)) << i << j;
+    // since we don't mark the 'seen' bits as CHANGED, need to save a bitmask
+    unsigned long mask = 0;
+    int run = 8*sizeof (mask);
+    os.align (alignof(mask));
     for (i = 0; i < MAXWIDTH; i++) {
 	for (j = 0; j < MAXLENGTH; j++) {
 	    if (run == 0) {
-		run = 8 * sizeof (long int);
-		fread ((char*) &mask, sizeof (long int), 1, fd);
+		run = 8 * sizeof(mask);
+		os << mask;
+		mask = 0;
+	    }
+	    mask >>= 1;
+	    if (c_statusp (i, j, SEEN))
+		mask |= (1UL << (sizeof(mask)*8 - 1));
+	    --run;
+	}
+    }
+    if (run < (int)(8 * sizeof(long int)))
+	os << mask;
+}
+
+static void restore_country (istream& is, int ver UNUSED)
+{
+    int i, j;
+    int run;
+    unsigned long int mask = 0;
+
+    load_country();
+    is >> ios::align(alignof(i)) >> i >> j;
+    while (i < MAXWIDTH && j < MAXLENGTH) {
+	is.read (&Country[i][j], sizeof(Country[i][j]));
+	is >> ios::align(alignof(i)) >> i >> j;
+    }
+    run = 0;
+    is.align (alignof(mask));
+    for (i = 0; i < MAXWIDTH; i++) {
+	for (j = 0; j < MAXLENGTH; j++) {
+	    if (run == 0) {
+		run = 8*sizeof(mask);
+		is >> mask;
 	    }
 	    if (mask & 1)
 		c_set (i, j, SEEN);

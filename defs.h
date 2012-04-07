@@ -836,6 +836,29 @@ enum {
 
 struct spell { uint8_t powerdrain; };
 
+struct object {
+    uint8_t id;
+    uint8_t level;
+    uint16_t weight;
+    int8_t plus;
+    uint8_t fragility;
+    int16_t charge;
+    uint8_t dmg;
+    uint8_t hit;
+    int16_t aux;
+    uint16_t number;
+    uint16_t basevalue;
+    uint8_t used;
+    int8_t blessing;
+    uint8_t type;
+    uint8_t uniqueness;
+    int16_t usef;
+    chtype objchar;
+    const char* objstr;
+    const char* truename;
+    const char* cursestr;
+};
+
 struct monster_data {
     uint8_t id;
     uint8_t level;
@@ -928,29 +951,6 @@ struct player {
     char	meleestr[64];
     struct object* possessions[MAXITEMS];
     struct object* pack[MAXPACK];
-};
-
-struct object {
-    uint8_t id;
-    uint8_t level;
-    uint16_t weight;
-    int8_t plus;
-    uint8_t fragility;
-    int16_t charge;
-    uint8_t dmg;
-    uint8_t hit;
-    int16_t aux;
-    uint16_t number;
-    uint16_t basevalue;
-    uint8_t used;
-    int8_t blessing;
-    uint8_t type;
-    uint8_t uniqueness;
-    int16_t usef;
-    chtype objchar;
-    const char* objstr;
-    const char* truename;
-    const char* cursestr;
 };
 
 struct objectlist {

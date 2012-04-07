@@ -694,7 +694,7 @@ static void m_talk_im (struct monster *m)
     mprint ("Au.");
     mprint ("Want it? [yn] ");
     if (ynq() == 'y') {
-	if (Player.cash < (max (10, 4 * true_item_value (m->possessions->thing)))) {
+	if (Player.cash < (max (10U, 4 * true_item_value (m->possessions->thing)))) {
 	    if (Player.alignment > 10) {
 		mprint ("Well, I'll let you have it for what you've got.");
 		Player.cash = 0;
