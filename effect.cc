@@ -617,7 +617,7 @@ void acquire (int blessing)
 	    dispose_lost_objects (1, Player.possessions[iidx]);
 	}
     } else {
-	newthing = ((pob) checkmalloc (sizeof (objtype)));
+	newthing = new object;
 	newthing->id = -1;
 	if (gamestatusp (CHEATED))
 	    print1 ("Acquire which kind of item: !?][}{)/=%%\\& ");
@@ -1413,7 +1413,7 @@ void summon (int blessing, int id)
 	    Level->site[x][y].creature = make_creature (id);
 	Level->site[x][y].creature->x = x;
 	Level->site[x][y].creature->y = y;
-	tml = ((pml) checkmalloc (sizeof (mltype)));
+	tml = new monsterlist;
 	tml->m = Level->site[x][y].creature;
 	if (blessing > 0)
 	    m_status_reset (tml->m, HOSTILE);

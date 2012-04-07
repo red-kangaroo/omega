@@ -131,7 +131,7 @@ pob create_object (int itemlevel)
     int ok = FALSE;
 
     while (!ok) {
-	o = ((pob) checkmalloc (sizeof (objtype)));
+	o = new object;
 	r = random_range (135);
 	if (r < 20)
 	    make_thing (o, -1);
@@ -161,7 +161,7 @@ pob create_object (int itemlevel)
 	// 1/100 chance of finding object if too good for level
 	ok = ((object_uniqueness(o) < UNIQUE_MADE) && ((o->level < itemlevel + random_range (3)) || (random_range (100) == 23)));
 	if (!ok)
-	    free (o);
+	    delete o;
     }
     if (object_uniqueness(o) == UNIQUE_UNMADE)
 	set_object_uniqueness (o, UNIQUE_MADE);
@@ -2204,7 +2204,7 @@ static void i_orbearth (pob o)
 		    dispose_lost_objects (Player.possessions[i]->number, Player.possessions[i]);
 	    for (i = 0; i < MAXPACK; i++)
 		if (Player.pack[i] != NULL) {
-		    free (Player.pack[i]);
+		    delete Player.pack[i];
 		    Player.pack[i] = NULL;
 		}
 	    Player.packptr = 0;

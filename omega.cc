@@ -328,8 +328,8 @@ void time_clock (int reset)
 		ml = ml->next;
 	    } else if (ml->m != Arena_Monster) {
 		*prev = ml->next;
-		free (ml->m);
-		free (ml);
+		delete ml->m;
+		delete ml;
 		ml = *prev;
 	    } else
 		ml = ml->next;

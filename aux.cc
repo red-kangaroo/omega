@@ -1569,7 +1569,7 @@ void p_drown (void)
 			if (Player.pack[i] != NULL)
 			    if (Level->site[Player.x][Player.y].p_locf != L_WATER)
 				p_drop_at (Player.x, Player.y, Player.pack[i]->number, Player.pack[i]);
-			free (Player.pack[i]);
+			delete Player.pack[i];
 			Player.pack[i] = NULL;
 		    }
 		    if (Level->site[Player.x][Player.y].p_locf == L_WATER)
@@ -2293,7 +2293,7 @@ static void indoors_random_event (void)
 	case 10:
 	    print3 ("You trip over something hidden in a shadow...");
 	    morewait();
-	    ol = ((pol) checkmalloc (sizeof (oltype)));
+	    ol = new objectlist;
 	    ol->thing = create_object (difficulty());
 	    assert (ol->thing);	// WDT I want to make sure...
 	    ol->next = Level->site[Player.x][Player.y].things;
@@ -2367,7 +2367,7 @@ static void outdoors_random_event (void)
 	    morewait();
 	    mprint ("Using your herbalist lore you cook a cake of lembas....");
 	    morewait();
-	    ob = ((pob) checkmalloc (sizeof (objtype)));
+	    ob = new object;
 	    *ob = Objects[FOOD_LEMBAS];
 	    gain_item (ob);
 	    break;
@@ -2445,7 +2445,7 @@ static void outdoors_random_event (void)
 	    } else if (num < 70) {
 		mprint ("A tendril of the storm condenses and falls into your hands.");
 		morewait();
-		ob = ((pob) checkmalloc (sizeof (objtype)));
+		ob = new object;
 		make_artifact (ob, -1);
 		gain_item (ob);
 	    } else if (num < 80) {
@@ -3179,7 +3179,7 @@ int stonecheck (int alignment)
 	    print3 ("Your pack has disintegrated!");
 	    for (i = 0; i < MAXPACK; i++)
 		if (Player.pack[i] != NULL) {
-		    free (Player.pack[i]);
+		    delete Player.pack[i];
 		    Player.pack[i] = NULL;
 		}
 	    Player.packptr = 0;

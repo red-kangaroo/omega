@@ -634,79 +634,38 @@ int ok_to_free (plv level)
 
 void free_objlist (pol pobjlist)
 {
-    pol tmp;
-
     while (pobjlist) {
-	free ((tmp = pobjlist)->thing);
+	delete pobjlist->thing;
+	pol tmp = pobjlist;
 	pobjlist = pobjlist->next;
-	free (tmp);
+	delete tmp;
     }
 }
 
 static void free_mons_and_objs (pml mlist)
 {
-    pml tmp;
-
     while (mlist) {
-	free_objlist ((tmp = mlist)->m->possessions);
-	free (tmp->m);
+	free_objlist (mlist->m->possessions);
+	delete mlist->m;
+	pml tmp = mlist;
 	mlist = mlist->next;
-	free (tmp);
+	delete tmp;
     }
 }
 
 // Free up monsters and items on a level
 void free_level (plv level)
 {
-    int i, j;
-
     free_mons_and_objs (level->mlist);
-    for (i = 0; i < MAXWIDTH; i++)
-	for (j = 0; j < MAXLENGTH; j++)
+    for (int i = 0; i < MAXWIDTH; i++) {
+	for (int j = 0; j < MAXLENGTH; j++) {
 	    if (level->site[i][j].things) {
 		free_objlist (level->site[i][j].things);
 		level->site[i][j].things = NULL;
 	    }
-    free (level);
-}
-
-// malloc function that checks its return value - if NULL, tries to free
-// some memory...
-void* checkmalloc (unsigned int bytes)
-{
-    void *ptr = malloc (bytes);
-    struct level *curr, **prev, **oldest;
-
-    if (ptr)
-	return ptr;
-    for (curr = Dungeon, oldest = prev = &Dungeon; curr; curr = curr->next) {
-	if ((*oldest)->last_visited > curr->last_visited)
-	    oldest = prev;
-	prev = &(curr->next);
+	}
     }
-    if (*oldest && *oldest != Level) {
-	curr = *oldest;
-	*oldest = (*oldest)->next;
-	free_level (curr);
-	ptr = malloc (bytes);
-    }
-    if (ptr)
-	return ptr;
-    else {
-	print1 ("Out of memory!  Saving and quitting.");
-	morewait();
-	save (FALSE, TRUE);
-	endgraf();
-	exit (0);
-    }
-}
-
-// alloc just enough string space for str, strcpy, and return pointer
-char* salloc (const char* str)
-{
-    char* s = (char*) checkmalloc ((unsigned) (strlen (str) + 1));
-    strcpy (s, str);
-    return (s);
+    delete level;
 }
 
 char cryptkey (const char* fname)

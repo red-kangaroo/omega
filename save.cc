@@ -388,7 +388,7 @@ static void restore_level (istream& is, int ver)
     unsigned long int mask = 0;
     int temp_env;
 
-    Level = (plv) checkmalloc (sizeof (levtype));
+    Level = new level;
     clear_level (Level);
     is >> ios::align(alignof(Level->environment)) >> Level->environment >> Level->depth >> Level->numrooms >> Level->tunnelled;
     Level->generated = TRUE;
@@ -543,8 +543,8 @@ static void restore_monsters (istream& is, plv level, int ver)
     is >> ios::align(alignof(nummonsters)) >> nummonsters;
 
     for (i = 0; i < nummonsters; i++) {
-	ml = ((pml) checkmalloc (sizeof (mltype)));
-	ml->m = ((pmt) checkmalloc (sizeof (montype)));
+	ml = new monsterlist;
+	ml->m = new monster;
 	is.read (ml->m, sizeof(*(ml->m)));
 	is >> type;
 	if (ml->m->id >= ArraySize(Monsters))
@@ -552,8 +552,8 @@ static void restore_monsters (istream& is, plv level, int ver)
 	ml->m->monstring = Monsters[ml->m->id].monstring;
 	ml->m->corpsestr = Monsters[ml->m->id].corpsestr;
 	ml->m->meleestr = Monsters[ml->m->id].meleestr;
-	if (type & 1) { is.read_strz (s); ml->m->monstring = salloc (s); }
-	if (type & 2) { is.read_strz (s); ml->m->corpsestr = salloc (s); }
+	if (type & 1) { is.read_strz (s); ml->m->monstring = strdup (s); }
+	if (type & 2) { is.read_strz (s); ml->m->corpsestr = strdup (s); }
 	ml->m->possessions = restore_itemlist (is, ver);
 	if (ml->m->x >= MAXWIDTH || ml->m->y >= MAXLENGTH)
 	    throw runtime_error ("invalid monster location");
@@ -588,7 +588,7 @@ static pob restore_item (istream& is, int ver UNUSED)
     is >> type;
     if (!type)
 	return (NULL);
-    pob obj = (pob) checkmalloc (sizeof (objtype));
+    pob obj = new object;
     is.read (obj, sizeof(*obj));
     if (obj->id >= ArraySize(Objects))
 	throw runtime_error ("invalid item");
@@ -596,9 +596,9 @@ static pob restore_item (istream& is, int ver UNUSED)
     obj->truename = Objects[obj->id].truename;
     obj->cursestr = Objects[obj->id].cursestr;
     string s;
-    if (type & 1) { is.read_strz (s); obj->objstr = salloc (s); }
-    if (type & 2) { is.read_strz (s); obj->truename = salloc (s); }
-    if (type & 4) { is.read_strz (s); obj->cursestr = salloc (s); }
+    if (type & 1) { is.read_strz (s); obj->objstr = strdup (s); }
+    if (type & 2) { is.read_strz (s); obj->truename = strdup (s); }
+    if (type & 4) { is.read_strz (s); obj->cursestr = strdup (s); }
     return obj;
 }
 
@@ -618,7 +618,7 @@ static pol restore_itemlist (istream& is, int ver)
     int numitems, firsttime = TRUE;
     is >> ios::align(alignof(numitems)) >> numitems;
     for (int i = 0; i < numitems; i++) {
-	o = (pol) checkmalloc (sizeof (oltype));
+	o = new objectlist;
 	o->thing = restore_item (is, ver);
 	o->next = NULL;
 	if (firsttime == TRUE) {

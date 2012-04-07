@@ -783,7 +783,7 @@ static void disarm (void)
 	    if (random_range (50 + difficulty() * 5) < Player.dex * 2 + Player.level * 3 + Player.rank[THIEVES] * 10) {
 		print1 ("You disarmed the trap!");
 		if (random_range (100) < Player.dex + Player.rank[THIEVES] * 10) {
-		    o = ((pob) checkmalloc (sizeof (objtype)));
+		    o = new object;
 		    switch (Level->site[x][y].p_locf) {
 			case L_TRAP_DART:
 			    *o = Objects[THING_DART_TRAP_COMPONENT];
@@ -813,7 +813,7 @@ static void disarm (void)
 			    *o = Objects[THING_MANADRAIN_TRAP_COMPONENT];
 			    break;
 			default:
-			    free (o);
+			    delete o;
 			    o = NULL;
 			    break;
 		    }
@@ -872,7 +872,7 @@ static void give (void)
 	    else if (iidx == CASHVALUE)
 		give_money (m);
 	    else if (!cursed (Player.possessions[iidx])) {
-		obj = ((pob) checkmalloc (sizeof (objtype)));
+		obj = new object;
 		*obj = *(Player.possessions[iidx]);
 		obj->used = FALSE;
 		conform_lost_objects (1, Player.possessions[iidx]);
@@ -1467,7 +1467,7 @@ static void movepincountry (int dx, int dy)
 		print2 ("were kept in your steed's saddlebags!");
 		for (i = 0; i < MAXPACK; i++) {
 		    if (Player.pack[i] != NULL)
-			free (Player.pack[i]);
+			delete Player.pack[i];
 		    Player.pack[i] = NULL;
 		}
 		Player.packptr = 0;
@@ -2485,8 +2485,8 @@ void dismount_steed (void)
 	    resetgamestatus (MOUNTED);
     } else {
 	resetgamestatus (MOUNTED);;
-	ml = ((pml) checkmalloc (sizeof (mltype)));
-	ml->m = ((pmt) checkmalloc (sizeof (montype)));
+	ml = new monsterlist;
+	ml->m = new monster;
 	*(ml->m) = Monsters[HORSE];
 	ml->m->x = Player.x;
 	ml->m->y = Player.y;

@@ -75,7 +75,7 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
     thislevel = findlevel (Dungeon, tolevel);
     deepest[Current_Environment] = max (deepest[Current_Environment], tolevel);
     if (thislevel == NULL) {
-	thislevel = ((plv) checkmalloc (sizeof (levtype)));
+	thislevel = new level;
 	clear_level (thislevel);
 	Level = thislevel;
 	Level->next = Dungeon;
@@ -518,7 +518,7 @@ void cavern_level (void)
     if (Current_Dungeon == E_CAVES) {
 	if ((Level->depth == CAVELEVELS) && (!gamestatusp (COMPLETED_CAVES))) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
+	    Level->mlist = new monsterlist;
 	    Level->mlist->next = NULL;
 	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GOBLIN_KING));	// goblin king
 	    Level->mlist->m->x = tx;
@@ -527,7 +527,7 @@ void cavern_level (void)
     } else if (Current_Environment == E_VOLCANO) {
 	if (Level->depth == VOLCANOLEVELS) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
+	    Level->mlist = new monsterlist;
 	    Level->mlist->next = NULL;
 	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	// The dark emp
 	    Level->mlist->m->x = tx;
@@ -566,7 +566,7 @@ void sewer_level (void)
     if (Current_Dungeon == E_SEWERS) {
 	if ((Level->depth == SEWERLEVELS) && (!gamestatusp (COMPLETED_SEWERS))) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
+	    Level->mlist = new monsterlist;
 	    Level->mlist->next = NULL;
 	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GREAT_WYRM));	// The Great Wyrm
 	    Level->mlist->m->x = tx;
@@ -707,7 +707,7 @@ void make_country_screen (int terrain)
 	free_level (TempLevel);
 	TempLevel = NULL;
     }
-    Level = ((plv) checkmalloc (sizeof (levtype)));
+    Level = new level;
     clear_level (Level);
     Level->environment = E_TACTICAL_MAP;
     Level->generated = TRUE;
@@ -929,7 +929,7 @@ void room_level (void)
     if (Current_Dungeon == E_SEWERS) {
 	if (Level->depth == SEWERLEVELS) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
+	    Level->mlist = new monsterlist;
 	    Level->mlist->next = NULL;
 	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GREAT_WYRM));	// The Great Wyrm
 	    Level->mlist->m->x = tx;
@@ -944,7 +944,7 @@ void room_level (void)
     } else if (Current_Environment == E_VOLCANO) {
 	if (Level->depth == VOLCANOLEVELS && !gamestatusp (COMPLETED_VOLCANO)) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
+	    Level->mlist = new monsterlist;
 	    Level->mlist->next = NULL;
 	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	// The demon emp
 	    Level->mlist->m->x = tx;
@@ -1056,7 +1056,7 @@ void maze_level (void)
 	}
 	if (!gamestatusp (COMPLETED_ASTRAL)) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
+	    Level->mlist = new monsterlist;
 	    Level->mlist->next = NULL;
 	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (mid));
 	    Level->mlist->m->x = tx;
@@ -1065,7 +1065,7 @@ void maze_level (void)
     } else if (Current_Environment == E_VOLCANO) {
 	if (Level->depth == VOLCANOLEVELS && !gamestatusp (COMPLETED_VOLCANO)) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = ((pml) checkmalloc (sizeof (mltype)));
+	    Level->mlist = new monsterlist;
 	    Level->mlist->next = NULL;
 	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	// The demon emp
 	    Level->mlist->m->x = tx;

@@ -41,7 +41,7 @@ void load_arena (void)
     char site;
     FILE *fd;
 
-    pob openerBox = (pob) checkmalloc (sizeof (objtype));
+    pob openerBox = new object;
     *openerBox = Objects[THING_DOOR_OPENER];
 
     TempLevel = Level;
@@ -49,7 +49,7 @@ void load_arena (void)
 	free_level (TempLevel);
 	TempLevel = NULL;
     }
-    Level = ((plv) checkmalloc (sizeof (levtype)));
+    Level = new level;
     clear_level (Level);
     Level->environment = E_ARENA;
     fd = checkfopen (OMEGALIB "arena.dat", "rb");
@@ -87,7 +87,7 @@ void load_arena (void)
     Arena_Monster->sense = 50;
     m_pickup (Arena_Monster, openerBox);
     m_status_set (Arena_Monster, AWAKE);
-    Level->mlist = (pml) checkmalloc (sizeof (mltype));
+    Level->mlist = new monsterlist;
     Level->mlist->m = Arena_Monster;
     Level->mlist->next = NULL;
     // hehehehe cackled the dungeon master....
@@ -110,7 +110,7 @@ void load_circle (int populate)
 	free_level (TempLevel);
 	TempLevel = NULL;
     }
-    Level = ((plv) checkmalloc (sizeof (levtype)));
+    Level = new level;
     clear_level (Level);
     Level->environment = E_CIRCLE;
     fd = checkfopen (OMEGALIB "circle.dat", "rb");
@@ -212,8 +212,8 @@ void load_circle (int populate)
 // make the prime sorceror
 static void make_prime (int i, int j)
 {
-    pml ml = ((pml) checkmalloc (sizeof (mltype)));
-    pmt m = ((pmt) checkmalloc (sizeof (montype)));
+    pml ml = new monsterlist;
+    pmt m = new monster;
     pol ol;
     pob o;
     make_hiscore_npc (m, 10);	// 10 is index for prime
@@ -225,8 +225,8 @@ static void make_prime (int i, int j)
     Level->mlist = ml;
 
     if (object_uniqueness(STAR_GEM) != UNIQUE_TAKEN) {
-	ol = ((pol) checkmalloc (sizeof (oltype)));
-	o = ((pob) checkmalloc (sizeof (objtype)));
+	ol = new objectlist;
+	o = new object;
 	*o = Objects[STAR_GEM];
 	ol->thing = o;
 	ol->next = NULL;
@@ -246,7 +246,7 @@ void load_court (int populate)
 	free_level (TempLevel);
 	TempLevel = NULL;
     }
-    Level = ((plv) checkmalloc (sizeof (levtype)));
+    Level = new level;
     clear_level (Level);
     Level->environment = E_COURT;
     fd = checkfopen (OMEGALIB "court.dat", "rb");
@@ -321,8 +321,8 @@ void load_court (int populate)
 // make the archmage
 static void make_archmage (int i, int j)
 {
-    pml ml = ((pml) checkmalloc (sizeof (mltype)));
-    pmt m = ((pmt) checkmalloc (sizeof (montype)));
+    pml ml = new monsterlist;
+    pmt m = new monster;
     make_hiscore_npc (m, 9);	// 9 is index for archmage
     m->x = i;
     m->y = j;
@@ -346,7 +346,7 @@ void load_abyss (void)
 	free_level (TempLevel);
 	TempLevel = NULL;
     }
-    Level = ((plv) checkmalloc (sizeof (levtype)));
+    Level = new level;
 
     clear_level (Level);
 
@@ -425,7 +425,7 @@ void load_city (int populate)
 	free_level (TempLevel);
 	TempLevel = NULL;
     }
-    Level = ((plv) checkmalloc (sizeof (levtype)));
+    Level = new level;
     clear_level (Level);
     Level->depth = 0;
     Level->environment = E_CITY;
@@ -848,8 +848,8 @@ static void assign_city_function (int x, int y)
 // makes a hiscore npc for mansions
 static void make_justiciar (int i, int j)
 {
-    pml ml = ((pml) checkmalloc (sizeof (mltype)));
-    ml->m = ((pmt) checkmalloc (sizeof (montype)));
+    pml ml = new monsterlist;
+    ml->m = new monster;
     *(ml->m) = Monsters[NPC];
     make_hiscore_npc (ml->m, 15);
     ml->m->x = i;
@@ -1165,7 +1165,7 @@ void load_dlair (int empty, int populate)
 	free_level (TempLevel);
 	TempLevel = NULL;
     }
-    Level = ((plv) checkmalloc (sizeof (levtype)));
+    Level = new level;
     clear_level (Level);
     Level->environment = E_DLAIR;
     fd = checkfopen (OMEGALIB "dlair.dat", "rb");
@@ -1281,7 +1281,7 @@ void load_speak (int empty, int populate)
 	free_level (TempLevel);
 	TempLevel = NULL;
     }
-    Level = ((plv) checkmalloc (sizeof (levtype)));
+    Level = new level;
     clear_level (Level);
     Level->environment = E_STARPEAK;
     fd = checkfopen (OMEGALIB "speak.dat", "rb");
@@ -1397,7 +1397,7 @@ void load_misle (int empty, int populate)
 	free_level (TempLevel);
 	TempLevel = NULL;
     }
-    Level = ((plv) checkmalloc (sizeof (levtype)));
+    Level = new level;
     clear_level (Level);
     Level->environment = E_MAGIC_ISLE;
     fd = checkfopen (OMEGALIB "misle.dat", "rb");
@@ -1477,7 +1477,7 @@ void load_temple (int deity, int populate)
 	free_level (TempLevel);
 	TempLevel = NULL;
     }
-    Level = ((plv) checkmalloc (sizeof (levtype)));
+    Level = new level;
     clear_level (Level);
     Level->environment = E_TEMPLE;
     fd = checkfopen (OMEGALIB "temple.dat", "rb");
@@ -1613,8 +1613,8 @@ static void random_temple_site (int i, int j, int deity UNUSED, int populate)
 
 static void make_high_priest (int i, int j, int deity)
 {
-    pml ml = ((pml) checkmalloc (sizeof (mltype)));
-    pmt m = ((pmt) checkmalloc (sizeof (montype)));
+    pml ml = new monsterlist;
+    pmt m = new monster;
     make_hiscore_npc (m, deity);
     m->x = i;
     m->y = j;
@@ -1675,10 +1675,10 @@ void l_merc_guild (void)
 			print2 ("You are now a Legionaire.");
 			morewait();
 			clearmsg();
-			newitem = ((pob) checkmalloc (sizeof (objtype)));
+			newitem = new object;
 			*newitem = Objects[WEAPON_SHORT_SWORD];
 			gain_item (newitem);
-			newitem = ((pob) checkmalloc (sizeof (objtype)));
+			newitem = new object;
 			*newitem = Objects[ARMOR_SOFT_LEATHER];
 			gain_item (newitem);
 			Player.cash += 500;
@@ -1936,10 +1936,10 @@ void l_arena (void)
 	    print2 ("Here's a wooden sword, and a shield");
 	    morewait();
 	    clearmsg();
-	    newitem = ((pob) checkmalloc (sizeof (objtype)));
+	    newitem = new object;
 	    *newitem = Objects[WEAPON_CLUB];
 	    gain_item (newitem);
-	    newitem = ((pob) checkmalloc (sizeof (objtype)));
+	    newitem = new object;
 	    *newitem = Objects[SHIELD_NORMAL];	// shield
 	    gain_item (newitem);
 	    Player.rank[ARENA] = TRAINEE;
@@ -1952,7 +1952,7 @@ void l_arena (void)
     } else if (response == 'e') {
 	print1 ("OK, we're arranging a match....");
 	morewait();
-	Arena_Monster = ((pmt) checkmalloc (sizeof (montype)));
+	Arena_Monster = new monster;
 	Arena_Victory = FALSE;
 	switch (Arena_Opponent) {
 	    case 0:
@@ -2008,10 +2008,10 @@ void l_arena (void)
 		    strcpy (Str1, Champion);
 		    strcat (Str1, ", the arena champion");
 		    *Arena_Monster = Monsters[HISCORE_NPC];
-		    Arena_Monster->monstring = salloc (Str1);
+		    Arena_Monster->monstring = strdup (Str1);
 		    strcpy (Str2, "The corpse of ");
 		    strcat (Str2, Str1);
-		    Arena_Monster->corpsestr = salloc (Str2);
+		    Arena_Monster->corpsestr = strdup (Str2);
 		    Arena_Monster->level = 20;
 		    Arena_Monster->hp = Championlevel * Championlevel * 5;
 		    Arena_Monster->hit = Championlevel * 4;
@@ -2035,10 +2035,10 @@ void l_arena (void)
 	    strcpy (Str1, nameprint());
 	    strcat (Str1, " the ");
 	    strcat (Str1, Arena_Monster->monstring);
-	    Arena_Monster->monstring = salloc (Str1);
+	    Arena_Monster->monstring = strdup (Str1);
 	    strcpy (Str2, "The corpse of ");
 	    strcat (Str2, Str1);
-	    Arena_Monster->corpsestr = salloc (Str2);
+	    Arena_Monster->corpsestr = strdup (Str2);
 	}
 	Arena_Monster->uniqueness = UNIQUE_MADE;
 	print1 ("You have a challenger: ");
@@ -2069,7 +2069,7 @@ void l_arena (void)
 	// Unfortunately, this will cause a memory leak, but I don't see
 	// any way to avoid it.  This fixes the munged arena corpse names
 	// problem. -DAG
-	// free(corpse);
+	// delete corpse;
 
 	if (!Arena_Victory) {
 	    print1 ("The crowd boos your craven behavior!!!");
@@ -2096,7 +2096,7 @@ void l_arena (void)
 		    save_hiscore_npc (11);
 		    print1 ("You are awarded the Champion's Spear: Victrix!");
 		    morewait();
-		    newitem = ((pob) checkmalloc (sizeof (objtype)));
+		    newitem = new object;
 		    *newitem = Objects[WEAPON_VICTRIX];
 		    gain_item (newitem);
 
@@ -2206,7 +2206,7 @@ void l_thieves_guild (void)
 			    print2 ("You are taught the spell of Object Detection.");
 			    morewait();
 			    learn_spell (S_OBJ_DET);
-			    lockpick = ((pob) checkmalloc (sizeof (objtype)));
+			    lockpick = new object;
 			    *lockpick = Objects[THING_LOCKPICK];
 			    gain_item (lockpick);
 			    Player.cash -= dues;
@@ -2361,7 +2361,7 @@ void l_thieves_guild (void)
 					// Fenced an artifact?  You just might see it again.
 					if (object_uniqueness(Player.pack[i]) > UNIQUE_UNMADE)
 					    set_object_uniqueness (Player.pack[i], UNIQUE_UNMADE);
-					free (Player.pack[i]);
+					delete Player.pack[i];
 					Player.pack[i] = NULL;
 				    }
 				    dataprint();
@@ -2751,7 +2751,7 @@ void l_order (void)
 	clearmsg();
 	print1 ("You are awarded a blessed shield of deflection!");
 	morewait();
-	newitem = ((pob) checkmalloc (sizeof (objtype)));
+	newitem = new object;
 	*newitem = Objects[SHIELD_OF_DEFLECTION];
 	newitem->blessing = 9;
 	gain_item (newitem);
@@ -2792,7 +2792,7 @@ void l_order (void)
 		Player.rank[ORDER] = GALLANT;
 		Player.guildxp[ORDER] = 1;
 		setgamestatus (MOUNTED);
-		newitem = ((pob) checkmalloc (sizeof (objtype)));
+		newitem = new object;
 		*newitem = Objects[WEAPON_SPEAR];
 		newitem->blessing = 9;
 		newitem->plus = 1;
@@ -2832,7 +2832,7 @@ void l_order (void)
 		print1 ("You are made a Paladin of the Order!");
 		print2 ("You learn the Spell of Heroism and get Mithril Plate!");
 		morewait();
-		newitem = ((pob) checkmalloc (sizeof (objtype)));
+		newitem = new object;
 		*newitem = Objects[ARMOR_MITHRIL_PLATE];
 		newitem->blessing = 9;
 		learn_object (newitem);
@@ -2862,7 +2862,7 @@ void l_order (void)
 		print2 ("You are given a Mace of Disruption!");
 		morewait();
 		clearmsg();
-		newitem = ((pob) checkmalloc (sizeof (objtype)));
+		newitem = new object;
 		*newitem = Objects[WEAPON_MACE_OF_DISRUPTION];
 		learn_object (newitem);
 		gain_item (newitem);
@@ -2881,7 +2881,7 @@ void l_order (void)
 		morewait();
 		clearmsg();
 		Player.rank[ORDER] = GUARDIAN;
-		newitem = ((pob) checkmalloc (sizeof (objtype)));
+		newitem = new object;
 		*newitem = Objects[HOLY_HAND_GRENADE];
 		learn_object (newitem);
 		gain_item (newitem);
@@ -2905,7 +2905,7 @@ void load_house (int kind, int populate)
 	free_level (TempLevel);
 	TempLevel = NULL;
     }
-    Level = ((plv) checkmalloc (sizeof (levtype)));
+    Level = new level;
     clear_level (Level);
     switch (kind) {
 	case E_HOUSE:
@@ -3067,9 +3067,9 @@ void load_house (int kind, int populate)
 // makes a log npc for houses and hovels
 static void make_house_npc (int i, int j)
 {
-    pml ml = ((pml) checkmalloc (sizeof (mltype)));
+    pml ml = new monsterlist;
     pob ob;
-    ml->m = ((pmt) checkmalloc (sizeof (montype)));
+    ml->m = new monster;
     *(ml->m) = Monsters[NPC];
     make_log_npc (ml->m);
     if (ml->m->id == NPC)
@@ -3089,7 +3089,7 @@ static void make_house_npc (int i, int j)
     else
 	m_status_set (ml->m, AWAKE);
     if (ml->m->startthing != NO_THING) {
-	ob = ((pob) checkmalloc (sizeof (objtype)));
+	ob = new object;
 	*ob = Objects[ml->m->startthing];
 	m_pickup (ml->m, ob);
     }
@@ -3098,8 +3098,8 @@ static void make_house_npc (int i, int j)
 // makes a hiscore npc for mansions
 static void make_mansion_npc (int i, int j)
 {
-    pml ml = ((pml) checkmalloc (sizeof (mltype)));
-    ml->m = ((pmt) checkmalloc (sizeof (montype)));
+    pml ml = new monsterlist;
+    ml->m = new monster;
     *(ml->m) = Monsters[NPC];
     make_hiscore_npc (ml->m, random_range (14) + 1);
     mprint ("You detect signs of life in this house.");
@@ -3134,7 +3134,7 @@ void load_village (int villagenum, int populate)
 
     assign_village_function (0, 0, TRUE);
 
-    Level = ((plv) checkmalloc (sizeof (levtype)));
+    Level = new level;
     clear_level (Level);
     Level->environment = E_VILLAGE;
     strcpy (Str3, OMEGALIB);
@@ -3263,7 +3263,7 @@ void load_village (int villagenum, int populate)
 
 static void make_guard (int i, int j)
 {
-    pml tml = ((pml) (checkmalloc (sizeof (mltype))));
+    pml tml = new monsterlist;
     tml->m = (Level->site[i][j].creature = make_creature (GUARD));
     tml->m->x = i;
     tml->m->y = j;
@@ -3273,7 +3273,7 @@ static void make_guard (int i, int j)
 
 static void make_sheep (int i, int j)
 {
-    pml tml = ((pml) (checkmalloc (sizeof (mltype))));
+    pml tml = new monsterlist;
     tml->m = (Level->site[i][j].creature = make_creature (SHEEP));
     tml->m->x = i;
     tml->m->y = j;
@@ -3287,8 +3287,8 @@ static void make_food_bin (int i, int j)
     int k;
 
     for (k = 0; k < 10; k++) {
-	tol = ((pol) checkmalloc (sizeof (oltype)));
-	tol->thing = ((pob) checkmalloc (sizeof (objtype)));
+	tol = new objectlist;
+	tol->thing = new object;
 	make_food (tol->thing, 15);	// grain
 	tol->next = Level->site[i][j].things;
 	Level->site[i][j].things = tol;
@@ -3297,7 +3297,7 @@ static void make_food_bin (int i, int j)
 
 static void make_horse (int i, int j)
 {
-    pml tml = ((pml) (checkmalloc (sizeof (mltype))));
+    pml tml = new monsterlist;
     tml->m = (Level->site[i][j].creature = make_creature (HORSE));
     tml->m->x = i;
     tml->m->y = j;
@@ -3307,7 +3307,7 @@ static void make_horse (int i, int j)
 
 static void make_merchant (int i, int j)
 {
-    pml tml = ((pml) (checkmalloc (sizeof (mltype))));
+    pml tml = new monsterlist;
     tml->m = (Level->site[i][j].creature = make_creature (MERCHANT));
     tml->m->x = i;
     tml->m->y = j;
@@ -3449,8 +3449,8 @@ void make_country_monsters (int terrain)
 	    monsters = NULL;
     }
     for (i = 0; i < nummonsters; i++) {
-	tml = ((pml) checkmalloc (sizeof (mltype)));
-	tml->m = ((pmt) checkmalloc (sizeof (montype)));
+	tml = new monsterlist;
+	tml->m = new monster;
 	if (monsters == NULL)
 	    tml->m = m_create (random_range (WIDTH), random_range (LENGTH), TRUE, difficulty());
 	else {
@@ -3488,7 +3488,7 @@ void populate_level (int monstertype)
     else if (monstertype == E_VOLCANO)
 	nummonsters += 20;
 
-    head = tml = ((pml) checkmalloc (sizeof (mltype)));
+    head = tml = new monsterlist;
 
     for (k = 0; k < nummonsters; k++) {
 
@@ -3764,7 +3764,7 @@ void populate_level (int monstertype)
 	    lset (i, j, CHANGED);
 	}
 
-	tml->next = ((pml) checkmalloc (sizeof (mltype)));
+	tml->next = new monsterlist;
 	tml->next->m = Level->site[i][j].creature;
 	tml = tml->next;
     }
@@ -3785,7 +3785,7 @@ void wandercheck (void)
     pml tml;
     if (random_range (MaxDungeonLevels) < difficulty()) {
 	findspace (&x, &y, -1);
-	tml = ((pml) checkmalloc (sizeof (mltype)));
+	tml = new monsterlist;
 	tml->next = Level->mlist;
 	tml->m = Level->site[x][y].creature = m_create (x, y, WANDERING, difficulty());
 	Level->mlist = tml;
@@ -3795,7 +3795,7 @@ void wandercheck (void)
 // call make_creature and place created monster on Level->mlist and Level
 void make_site_monster (int i, int j, int mid)
 {
-    pml ml = ((pml) checkmalloc (sizeof (mltype)));
+    pml ml = new monsterlist;
     pmt m;
     if (mid > -1)
 	Level->site[i][j].creature = (m = make_creature (mid));
@@ -3870,7 +3870,7 @@ pmt m_create (int x, int y, int kind, int level)
 // make creature allocates space for the creature
 pmt make_creature (int mid)
 {
-    pmt newmonster = ((pmt) checkmalloc (sizeof (montype)));
+    pmt newmonster = new monster;
     pob ob;
     int i, treasures;
 
@@ -3904,13 +3904,13 @@ pmt make_creature (int mid)
 		strcat (Str3, " of the Balance");
 		break;
 	}
-	newmonster->monstring = salloc (Str3);
+	newmonster->monstring = strdup (Str3);
     } else if (mid == ZERO_NPC || mid == WEREHUMAN) {
 	// generic 0th level human, or a were-human
 	newmonster->monstring = mantype();
 	strcpy (Str1, "dead ");
 	strcat (Str1, newmonster->monstring);
-	newmonster->corpsestr = salloc (Str1);
+	newmonster->corpsestr = strdup (Str1);
     } else if ((newmonster->monchar & 0xff) == '!') {
 	// the nymph/satyr and incubus/succubus
 	if (Player.preference == 'f' || (Player.preference != 'm' && random_range (2))) {
@@ -3937,7 +3937,7 @@ pmt make_creature (int mid)
 	if (newmonster->sleep < random_range (100))
 	    m_status_set (newmonster, AWAKE);
 	if (newmonster->startthing != NO_THING && object_uniqueness(newmonster->startthing) <= UNIQUE_MADE) {
-	    ob = ((pob) checkmalloc (sizeof (objtype)));
+	    ob = new object;
 	    *ob = Objects[newmonster->startthing];
 	    m_pickup (newmonster, ob);
 	}
@@ -3947,7 +3947,7 @@ pmt make_creature (int mid)
 		ob = (pob) (create_object (newmonster->level));
 		if (object_uniqueness(ob) != COMMON) {
 		    set_object_uniqueness (ob, UNIQUE_UNMADE);
-		    free (ob);
+		    delete ob;
 		    ob = NULL;
 		}
 	    } while (!ob);
@@ -3972,22 +3972,22 @@ void stock_level (void)
 	make_site_treasure (i, j, difficulty());
 	i = random_range (WIDTH);
 	j = random_range (LENGTH);
-	Level->site[i][j].things = ((pol) checkmalloc (sizeof (oltype)));
-	Level->site[i][j].things->thing = ((pob) checkmalloc (sizeof (objtype)));
+	Level->site[i][j].things = new objectlist;
+	Level->site[i][j].things->thing = new object;
 	make_cash (Level->site[i][j].things->thing, difficulty());
 	Level->site[i][j].things->next = NULL;
 	// caves have more random cash strewn around
 	if (Current_Dungeon == E_CAVES) {
 	    i = random_range (WIDTH);
 	    j = random_range (LENGTH);
-	    Level->site[i][j].things = ((pol) checkmalloc (sizeof (oltype)));
-	    Level->site[i][j].things->thing = ((pob) checkmalloc (sizeof (objtype)));
+	    Level->site[i][j].things = new objectlist;
+	    Level->site[i][j].things->thing = new object;
 	    make_cash (Level->site[i][j].things->thing, difficulty());
 	    Level->site[i][j].things->next = NULL;
 	    i = random_range (WIDTH);
 	    j = random_range (LENGTH);
-	    Level->site[i][j].things = ((pol) checkmalloc (sizeof (oltype)));
-	    Level->site[i][j].things->thing = ((pob) checkmalloc (sizeof (objtype)));
+	    Level->site[i][j].things = new objectlist;
+	    Level->site[i][j].things->thing = new object;
 	    make_cash (Level->site[i][j].things->thing, difficulty());
 	    Level->site[i][j].things->next = NULL;
 	}
@@ -3997,7 +3997,7 @@ void stock_level (void)
 // make a new object (of at most level itemlevel) at site i,j on level
 static void make_site_treasure (int i, int j, int itemlevel)
 {
-    pol tmp = ((pol) checkmalloc (sizeof (oltype)));
+    pol tmp = new objectlist;
     tmp->thing = ((pob) create_object (itemlevel));
     tmp->next = Level->site[i][j].things;
     Level->site[i][j].things = tmp;
@@ -4009,8 +4009,8 @@ static void make_specific_treasure (int i, int j, int iid)
     pol tmp;
     if (object_uniqueness(iid) == UNIQUE_TAKEN)
 	return;
-    tmp = ((pol) checkmalloc (sizeof (oltype)));
-    tmp->thing = ((pob) checkmalloc (sizeof (objtype)));
+    tmp = new objectlist;
+    tmp->thing = new object;
     *(tmp->thing) = Objects[iid];
     tmp->next = Level->site[i][j].things;
     Level->site[i][j].things = tmp;
@@ -4255,7 +4255,7 @@ static void buyfromstock (int base, int numitems)
 	item = mgetc();
     if (item != KEY_ESCAPE) {
 	i = item - 'a';
-	newitem = ((pob) checkmalloc (sizeof (objtype)));
+	newitem = new object;
 	*newitem = Objects[base + i];
 	learn_object (newitem);
 	clearmsg();
@@ -4265,14 +4265,14 @@ static void buyfromstock (int base, int numitems)
 	if (ynq1() == 'y') {
 	    if (Player.cash < 2 * true_item_value (newitem)) {
 		print2 ("Why not try again some time you have the cash?");
-		free (newitem);
+		delete newitem;
 	    } else {
 		Player.cash -= 2 * true_item_value (newitem);
 		dataprint();
 		gain_item (newitem);
 	    }
 	} else
-	    free (newitem);
+	    delete newitem;
     }
 }
 
@@ -4499,7 +4499,7 @@ static void wake_statue (int x, int y, int first)
 	    mprint ("A statue springs to life!");
 	Level->site[x][y].locchar = FLOOR;
 	lset (x, y, CHANGED);
-	tml = ((pml) checkmalloc (sizeof (mltype)));
+	tml = new monsterlist;
 	tml->m = (Level->site[x][y].creature = m_create (x, y, 0, difficulty() + 1));
 	m_status_set (Level->site[x][y].creature, HOSTILE);
 	tml->next = Level->mlist;
@@ -4653,7 +4653,7 @@ void l_commandant (void)
 	    print3 ("No handouts here, mac!");
 	else {
 	    Player.cash -= num * 5;
-	    food = ((pob) checkmalloc (sizeof (objtype)));
+	    food = new object;
 	    *food = Objects[FOOD_RATION];
 	    food->number = num;
 	    if (num == 1)
@@ -5060,7 +5060,7 @@ void l_pawn_shop (void)
 		if (object_uniqueness(Pawnitems[0]) > UNIQUE_UNMADE)
 		    set_object_uniqueness (Pawnitems[0], UNIQUE_UNMADE);
 		// could turn up anywhere, really :)
-		free (Pawnitems[0]);
+		delete Pawnitems[0];
 		Pawnitems[0] = NULL;
 	    }
 	    for (unsigned i = 0; i < PAWNITEMS - 1; i++)
@@ -5070,7 +5070,7 @@ void l_pawn_shop (void)
 		if (Pawnitems[i] == NULL) {
 		    do {
 			if (Pawnitems[i] != NULL)
-			    free (Pawnitems[i]);
+			    delete Pawnitems[i];
 			Pawnitems[i] = create_object (5);
 			learn_object (Pawnitems[i]);
 		    } while ((Pawnitems[i]->objchar == CASH) || (Pawnitems[i]->objchar == ARTIFACT) || (true_item_value (Pawnitems[i]) <= 0));
@@ -5106,7 +5106,7 @@ void l_pawn_shop (void)
 		    else if (true_item_value (Pawnitems[i]) <= 0) {
 			print1 ("Hmm, how did that junk get on my shelves?");
 			print2 ("I'll just remove it.");
-			free (Pawnitems[i]);
+			delete Pawnitems[i];
 			Pawnitems[i] = NULL;
 		    } else {
 			clearmsg();
@@ -5149,10 +5149,10 @@ void l_pawn_shop (void)
 				item_use (Player.possessions[i]);
 			    }
 			    Player.cash += number * item_value (Player.possessions[i]) / 2;
-			    free (Pawnitems[0]);
+			    delete Pawnitems[0];
 			    for (j = 0; j < PAWNITEMS - 1; j++)
 				Pawnitems[j] = Pawnitems[j + 1];
-			    Pawnitems[PAWNITEMS - 1] = ((pob) checkmalloc (sizeof (objtype)));
+			    Pawnitems[PAWNITEMS - 1] = new object;
 			    *(Pawnitems[PAWNITEMS - 1]) = *(Player.possessions[i]);
 			    Pawnitems[PAWNITEMS - 1]->number = number;
 			    learn_object (Pawnitems[PAWNITEMS - 1]);
@@ -5174,16 +5174,16 @@ void l_pawn_shop (void)
 			    number = getnumber (Player.pack[i]->number);
 			    if (number > 0) {
 				Player.cash += number * item_value (Player.pack[i]) / 2;
-				free (Pawnitems[0]);
+				delete Pawnitems[0];
 				for (j = 0; j < PAWNITEMS - 1; j++)
 				    Pawnitems[j] = Pawnitems[j + 1];
-				Pawnitems[PAWNITEMS - 1] = ((pob) checkmalloc (sizeof (objtype)));
+				Pawnitems[PAWNITEMS - 1] = new object;
 				*(Pawnitems[PAWNITEMS - 1]) = *(Player.pack[i]);
 				Pawnitems[PAWNITEMS - 1]->number = number;
 				learn_object (Pawnitems[PAWNITEMS - 1]);
 				Player.pack[i]->number -= number;
 				if (Player.pack[i]->number < 1) {
-				    free (Player.pack[i]);
+				    delete Player.pack[i];
 				    Player.pack[i] = NULL;
 				}
 				dataprint();
@@ -5252,7 +5252,7 @@ void l_condo (void)
 		    if (Player.possessions[i]->blessing < 0)
 			print2 ("The item just doesn't want to be stored away...");
 		    else {
-			ol = ((pol) checkmalloc (sizeof (oltype)));
+			ol = new objectlist;
 			ol->thing = Player.possessions[i];
 			ol->next = Condoitems;
 			Condoitems = ol;

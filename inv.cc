@@ -57,7 +57,7 @@ static pob detach_money (void)
     c = get_money (Player.cash);
     if (c != ABORT) {
 	Player.cash -= c;
-	cash = ((pob) checkmalloc (sizeof (objtype)));
+	cash = new object;
 	make_cash (cash, difficulty());
 	cash->basevalue = c;
     }
@@ -107,7 +107,7 @@ void pickup_at (int x, int y)
 	ol = ol->next;
 	temp->thing = NULL;
 	temp->next = NULL;
-	free (temp);
+	delete temp;
     }
 }
 
@@ -175,8 +175,8 @@ void drop_at (int x, int y, pob o)
 
     if (Current_Environment != E_COUNTRYSIDE) {
 	if ((Level->site[x][y].locchar != VOID_CHAR) && (Level->site[x][y].locchar != ABYSS)) {
-	    cpy = ((pob) checkmalloc (sizeof (objtype)));
-	    tmp = ((pol) checkmalloc (sizeof (oltype)));
+	    cpy = new object;
+	    tmp = new objectlist;
 	    *cpy = *o;
 	    cpy->used = FALSE;
 	    tmp->thing = cpy;
@@ -193,8 +193,8 @@ void p_drop_at (int x, int y, int n, pob o)
     pol tmp;
     if (Current_Environment != E_COUNTRYSIDE) {
 	if ((Level->site[x][y].locchar != VOID_CHAR) && (Level->site[x][y].locchar != ABYSS)) {
-	    tmp = ((pol) checkmalloc (sizeof (oltype)));
-	    tmp->thing = ((pob) checkmalloc (sizeof (objtype)));
+	    tmp = new objectlist;
+	    tmp->thing = new object;
 	    *(tmp->thing) = *o;
 	    tmp->thing->used = FALSE;
 	    tmp->thing->number = n;
@@ -367,7 +367,7 @@ void givemonster (struct monster *m, struct object *o)
 	gain_experience (2000);
 	setgamestatus (GAVE_STARGEM);
 	// WDT HACK!!!  Where else would this ever get freed??
-	free (o);
+	delete o;
     } else {
 	if (m->uniqueness == COMMON) {
 	    strcpy (Str3, "The ");
@@ -407,7 +407,7 @@ void givemonster (struct monster *m, struct object *o)
 		} else
 		    nprint1 ("...and now seems satiated.");
 		morewait();
-		free (o);
+		delete o;
 	    } else {
 		strcat (Str3, " spurns your offering and leaves it on the ground.");
 		print1 (Str3);
@@ -450,7 +450,7 @@ void dispose_lost_objects (int n, pob obj)
 	    }
 	}
     if (obj->number < 1)
-	free (obj);
+	delete obj;
 }
 
 // removes n of object from inventory without freeing object.
@@ -559,7 +559,7 @@ void gain_item (struct object *o)
     if (o->objchar == CASH) {
 	print2 ("You gained some cash.");
 	Player.cash += o->basevalue;
-	free (o);
+	delete o;
 	dataprint();
     } else if (optionp (PACKADD)) {
 	if (!get_to_pack (o)) {
@@ -1179,7 +1179,7 @@ pob split_item (int num, pob item)
 {
     pob newitem = NULL;
     if (item != NULL) {
-	newitem = ((pob) checkmalloc (sizeof (objtype)));
+	newitem = new object;
 	*newitem = *item;
 	if (num <= item->number)
 	    newitem->number = num;
@@ -1433,7 +1433,7 @@ int find_and_remove_item (int id, int chargeval)
 		if ((Player.pack[i]->id == id) && ((chargeval == -1) || (Player.pack[i]->charge == chargeval))) {
 		    Player.pack[i]->number--;
 		    if (Player.pack[i]->number == 0) {
-			free (Player.pack[i]);
+			delete Player.pack[i];
 			Player.pack[i] = NULL;
 		    }
 		    found = TRUE;
@@ -1457,7 +1457,7 @@ void lose_all_items (void)
 	}
     for (i = 0; i < MAXPACK; i++) {
 	if (Player.pack[i] != NULL)
-	    free (Player.pack[i]);
+	    delete Player.pack[i];
 	Player.pack[i] = NULL;
     }
     Player.packptr = 0;
@@ -1468,7 +1468,7 @@ void lose_all_items (void)
 // prevents people from wielding 3 short swords, etc.
 static void pack_extra_items (pob item)
 {
-    pob extra = ((pob) checkmalloc (sizeof (objtype)));
+    pob extra = new object;
     *extra = *item;
     extra->number = item->number - 1;
     extra->used = FALSE;

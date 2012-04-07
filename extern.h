@@ -436,7 +436,6 @@ void l_trap_teleport(void);
 // util.c
 long calc_points(void);
 void calc_weight(void);
-void* checkmalloc(unsigned int bytes);
 int confirmation(void);
 char cryptkey(const char* fname);
 int day(void);
@@ -462,7 +461,6 @@ int offscreen(int y);
 int ok_to_free(plv level);
 const char* ordinal(int number);
 int random_range(int k);
-char* salloc(const char* str);
 int screenmod(int y);
 int showhour(void);
 int showminute(void);

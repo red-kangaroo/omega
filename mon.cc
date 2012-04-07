@@ -145,7 +145,7 @@ void m_pulse (struct monster *m)
 		m_pickup (m, Level->site[m->x][m->y].things->thing);
 		prev = Level->site[m->x][m->y].things;
 		Level->site[m->x][m->y].things = Level->site[m->x][m->y].things->next;
-		free (prev);
+		delete prev;
 	    }
 	// prevents monsters from casting spells from other side of dungeon
 	if ((range < max (5, m->level)) && (m->hp > 0) && (random_range (2) == 1))
@@ -1166,7 +1166,7 @@ static void m_talk_prime (struct monster *m)
 // give object o to monster m
 void m_pickup (struct monster *m, struct object *o)
 {
-    pol tmp = ((pol) checkmalloc (sizeof (oltype)));
+    pol tmp = new objectlist;
     tmp->thing = o;
     tmp->next = m->possessions;
     m->possessions = tmp;
@@ -1951,8 +1951,8 @@ static void m_sp_were (struct monster *m)
 	strcat (Str1, Monsters[mid].monstring);
 	strcpy (Str2, "dead were-");
 	strcat (Str2, Monsters[mid].monstring);
-	m->monstring = salloc (Str1);
-	m->corpsestr = salloc (Str2);
+	m->monstring = strdup (Str1);
+	m->corpsestr = strdup (Str2);
 	m->immunity += pow2 (NORMAL_DAMAGE);
 	if (los_p (m->x, m->y, Player.x, Player.y))
 	    mprint ("You witness a hideous transformation!");
@@ -2059,7 +2059,7 @@ static void m_sp_raise (struct monster *m)
 			summon (-1, Level->site[x][y].things->thing->charge);
 			t = Level->site[x][y].things;
 			Level->site[x][y].things = Level->site[x][y].things->next;
-			free (t);
+			delete t;
 		    }
 		}
 	    }
@@ -2336,7 +2336,7 @@ void m_death (struct monster *m)
 	if (m == Arena_Monster)
 	    Arena_Victory = TRUE;	// won this round of arena combat
 	if (random_range (2) || (m->uniqueness != COMMON)) {
-	    corpse = ((pob) checkmalloc (sizeof (objtype)));
+	    corpse = new object;
 	    make_corpse (corpse, m);
 	    drop_at (m->x, m->y, corpse);
 	}
@@ -2435,7 +2435,7 @@ void m_death (struct monster *m)
 					prev->next = curr->next;
 				    else
 					Level->site[m->x][m->y].things = curr->next;
-				    free (curr);
+				    delete curr;
 				} else
 				    mprint ("materializes, sheds a tear, and leaves.");
 				mprint ("A new justiciar has been promoted!");
@@ -2913,15 +2913,15 @@ void make_hiscore_npc (pmt npc, int npcid)
 	    break;
     }
     if (st > -1 && object_uniqueness(st) == UNIQUE_MADE) {
-	ob = ((pob) checkmalloc (sizeof (objtype)));
+	ob = new object;
 	*ob = Objects[st];
 	m_pickup (npc, ob);
     }
-    npc->monstring = salloc (Str2);
+    npc->monstring = strdup (Str2);
     char buf[80];
     strcpy (buf, "The body of ");
     strcat (buf, Str2);
-    npc->corpsestr = salloc (buf);
+    npc->corpsestr = strdup (buf);
 }
 
 // sets npc behavior given level and behavior code
@@ -3038,15 +3038,15 @@ void make_log_npc (struct monster *npc)
 	    strcpy (Str1, "lich named ");
 	}
 	strcat (Str1, Str2);
-	npc->monstring = salloc (Str1);
+	npc->monstring = strdup (Str1);
 	strcpy (Str3, "the mortal remains of ");
 	strcat (Str3, Str2);
-	npc->corpsestr = salloc (Str3);
+	npc->corpsestr = strdup (Str3);
     } else {
-	npc->monstring = salloc (Str2);
+	npc->monstring = strdup (Str2);
 	strcpy (Str3, "the corpse of ");
 	strcat (Str3, Str2);
-	npc->corpsestr = salloc (Str3);
+	npc->corpsestr = strdup (Str3);
     }
     determine_npc_behavior (npc, level, behavior);
 }
@@ -3440,8 +3440,8 @@ const char* mantype (void)
 
 static void strengthen_death (struct monster *m)
 {
-    pol ol = ((pol) checkmalloc (sizeof (oltype)));
-    pob scythe = ((pob) checkmalloc (sizeof (objtype)));
+    pol ol = new objectlist;
+    pob scythe = new object;
     m->xpv += min (10000, m->xpv + 1000);
     m->hit += min (1000, m->hit + 10);
     m->dmg = min (10000, m->dmg * 2);
