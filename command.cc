@@ -27,7 +27,6 @@ static void help(void);
 static void version(void);
 static void fire(void);
 static void nap(void);
-static void charid(void);
 static void wizard(void);
 static void vault(void);
 static void tacoptions(void);
@@ -242,10 +241,6 @@ void p_process (void)
 		p_movefunction (Level->site[Player.x][Player.y].p_locf);
 		Command_Duration = 5;
 		break;
-	    case '/':
-		charid();
-		setgamestatus (SKIP_MONSTERS);
-		break;
 	    case '?':
 		help();
 		setgamestatus (SKIP_MONSTERS);
@@ -444,10 +439,6 @@ void p_country_process (void)
 		break;
 	    case '>':
 		enter_site (Country[Player.x][Player.y].base_terrain_type);
-		break;
-	    case '/':
-		charid();
-		no_op = TRUE;
 		break;
 	    case '?':
 		help();
@@ -1874,146 +1865,6 @@ static void nap (void)
 	    setgamestatus (FAST_MOVE);
 	    mprint ("Resting.... ");
 	}
-    }
-}
-
-static void charid (void)
-{
-    char id;
-    int countryside = FALSE;
-    char cstr[80];
-
-    clearmsg();
-    mprint ("Character to identify: ");
-    id = mgetc();
-    if (Current_Environment == E_COUNTRYSIDE) {
-	countryside = TRUE;
-	strcpy (cstr, countryid (id));
-	if (strcmp (cstr, "I have no idea.") == 0)
-	    countryside = FALSE;
-	else
-	    mprint (cstr);
-    }
-    if (!countryside) {
-	if ((id >= 'a' && id <= 'z') || (id >= 'A' && id <= 'Z') || id == '@')
-	    mprint ("A monster or NPC -- examine (x) to find out exactly.");
-	else
-	    switch (id) {
-		case (SPACE & 0xff):
-		    mprint (" : An airless void (if seen) or unknown region (if unseen)");
-		    break;
-		case (WALL & 0xff):
-		    mprint (" : An (impenetrable?) wall");
-		    break;
-		case (OPEN_DOOR & 0xff):
-		    mprint (" : An open door");
-		    break;
-		case (CLOSED_DOOR & 0xff):
-		    mprint (" : A closed (possibly locked) door");
-		    break;
-		case (LAVA & 0xff):
-		    mprint (" : A pool of lava");
-		    break;
-		case (HEDGE & 0xff):
-		    mprint (" : A dense hedge");
-		    break;
-		case (WATER & 0xff):
-		    mprint (" : A deep body of water");
-		    break;
-		case (FIRE & 0xff):
-		    mprint (" : A curtain of fire");
-		    break;
-		case (TRAP & 0xff):
-		    mprint (" : An uncovered trap");
-		    break;
-		case (STAIRS_UP & 0xff):
-		    mprint (" : A stairway leading up");
-		    break;
-		case (STAIRS_DOWN & 0xff):
-		    mprint (" : A stairway leading down");
-		    break;
-		case (FLOOR & 0xff):
-		    mprint (" : The dungeon floor");
-		    break;
-		case (PORTCULLIS & 0xff):
-		    mprint (" : A heavy steel portcullis");
-		    break;
-		case (ABYSS & 0xff):
-		    mprint (" : An entrance to the infinite abyss");
-		    break;
-		case (PLAYER & 0xff):
-		    mprint (" : You, the player");
-		    break;
-		case (CORPSE & 0xff):
-		    mprint (" : The remains of some creature");
-		    break;
-		case (THING & 0xff):
-		    mprint (" : Some random miscellaneous object");
-		    break;
-		case (SAFE & 0xff):
-		    mprint (" : A steel safe inset into the floor");
-		    break;
-		case (RUBBLE & 0xff):
-		    mprint (" : A dangerous-looking pile of rubble");
-		    break;
-		case (STATUE & 0xff):
-		    mprint (" : A statue");
-		    break;
-		case (ALTAR & 0xff):
-		    mprint (" : A (un?)holy altar");
-		    break;
-		case (CASH & 0xff):
-		    mprint (" : Bills, specie, gems: cash");
-		    break;
-		case (PILE & 0xff):
-		    mprint (" : A pile of objects");
-		    break;
-		case (FOOD & 0xff):
-		    mprint (" : Something edible");
-		    break;
-		case (WEAPON & 0xff):
-		    mprint (" : Some kind of weapon");
-		    break;
-		case (MISSILEWEAPON & 0xff):
-		    mprint (" : Some kind of missile weapon");
-		    break;
-		case (SCROLL & 0xff):
-		    mprint (" : Something readable");
-		    break;
-		case (POTION & 0xff):
-		    mprint (" : Something drinkable");
-		    break;
-		case (ARMOR & 0xff):
-		    mprint (" : A suit of armor");
-		    break;
-		case (SHIELD & 0xff):
-		    mprint (" : A shield");
-		    break;
-		case (CLOAK & 0xff):
-		    mprint (" : A cloak");
-		    break;
-		case (BOOTS & 0xff):
-		    mprint (" : A pair of boots");
-		    break;
-		case (STICK & 0xff):
-		    mprint (" : A stick");
-		    break;
-		case (RING & 0xff):
-		    mprint (" : A ring");
-		    break;
-		case (ARTIFACT & 0xff):
-		    mprint (" : An artifact");
-		    break;
-		case (CHAIR & 0xff):
-		    mprint (" : A chair");
-		    break;
-		case (WHIRLWIND & 0xff):
-		    mprint (" : A whirlwind");
-		    break;
-		default:
-		    mprint ("That character is unused.");
-		    break;
-	    }
     }
 }
 

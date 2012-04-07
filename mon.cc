@@ -2344,54 +2344,54 @@ void m_death (struct monster *m)
 	switch (m->id) {
 	    case HISCORE_NPC:
 		switch (m->aux2) {
-		    case 0:
+		    case NPC_HIGHSCORE:
 			mprint ("You hear a faroff dirge. You feel a sense of triumph.");
 			break;
-		    case 1:
-		    case 2:
-		    case 3:
-		    case 4:
-		    case 5:
-		    case 6:
+		    case NPC_HIGHPRIEST_ODIN:
+		    case NPC_HIGHPRIEST_SET:
+		    case NPC_HIGHPRIEST_ATHENA:
+		    case NPC_HIGHPRIEST_HECATE:
+		    case NPC_HIGHPRIEST_DRUID:
+		    case NPC_HIGHPRIEST_DESTINY:
 			mprint ("You hear a faroff sound like angels crying....");
 			strcpy (Priest[m->aux2], nameprint());
 			Priestbehavior[m->aux2] = 2933;
 			break;
-		    case 7:
+		    case NPC_SHADOWLORD:
 			mprint ("A furtive figure dashes out of the shadows, takes a look at");
 			mprint ("the corpse, and runs away!");
 			strcpy (Shadowlord, nameprint());
 			Shadowlordbehavior = 2912;
 			break;
-		    case 8:
+		    case NPC_COMMANDANT:
 			mprint ("An aide-de-camp approaches, removes the corpse's insignia,");
 			mprint ("and departs.");
 			strcpy (Commandant, nameprint());
 			Commandantbehavior = 2912;
 			break;
-		    case 9:
+		    case NPC_ARCHMAGE:
 			mprint ("An odd glow surrounds the corpse, and slowly fades.");
 			strcpy (Archmage, nameprint());
 			Archmagebehavior = 2933;
 			break;
-		    case 10:
+		    case NPC_PRIME:
 			mprint ("A demon materializes, takes a quick look at the corpse,");
 			mprint ("and teleports away with a faint popping noise.");
 			strcpy (Prime, nameprint());
 			Primebehavior = 2932;
 			break;
-		    case 11:
+		    case NPC_CHAMPION:
 			mprint ("A sports columnist rushes forward and takes a quick photo");
 			mprint ("of the corpse and rushes off muttering about a deadline.");
 			strcpy (Champion, nameprint());
 			Championbehavior = 2913;
 			break;
-		    case 12:
+		    case NPC_DUKE:
 			mprint ("You hear a fanfare in the distance, and feel dismayed.");
 			strcpy (Duke, nameprint());
 			Dukebehavior = 2911;
 			break;
-		    case 13:
+		    case NPC_LORD_OF_CHAOS:
 			if (Player.alignment > 10)
 			    mprint ("You feel smug.");
 			else if (Player.alignment < 10)
@@ -2399,7 +2399,7 @@ void m_death (struct monster *m)
 			strcpy (Chaoslord, nameprint());
 			Chaoslordbehavior = 2912;
 			break;
-		    case 14:
+		    case NPC_LORD_OF_LAW:
 			if (Player.alignment < 10)
 			    mprint ("You feel smug.");
 			else if (Player.alignment > 10)
@@ -2407,7 +2407,7 @@ void m_death (struct monster *m)
 			strcpy (Lawlord, nameprint());
 			Lawlordbehavior = 2911;
 			break;
-		    case 15:
+		    case NPC_JUSTICIAR:
 			// just a tad complicated. Promote a new justiciar if any
 			// guards are left in the city, otherwise Destroy the Order!
 			Player.alignment -= 100;
@@ -2441,7 +2441,7 @@ void m_death (struct monster *m)
 				mprint ("A new justiciar has been promoted!");
 				x = ml->m->x;
 				y = ml->m->y;
-				make_hiscore_npc (ml->m, 15);
+				make_hiscore_npc (ml->m, NPC_JUSTICIAR);
 				ml->m->x = x;
 				ml->m->y = y;
 				ml->m->click = (Tick + 1) % 60;
@@ -2835,16 +2835,17 @@ void make_hiscore_npc (pmt npc, int npcid)
     npc->aux2 = npcid;
     // each of the high score npcs can be created here
     switch (npcid) {
-	case 0:
+	default:
+	case NPC_HIGHSCORE:
 	    strcpy (Str2, Hiscorer);
 	    determine_npc_behavior (npc, Hilevel, Hibehavior);
 	    break;
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
+	case NPC_HIGHPRIEST_ODIN:
+	case NPC_HIGHPRIEST_SET:
+	case NPC_HIGHPRIEST_ATHENA:
+	case NPC_HIGHPRIEST_HECATE:
+	case NPC_HIGHPRIEST_DRUID:
+	case NPC_HIGHPRIEST_DESTINY:
 	    strcpy (Str2, Priest[npcid]);
 	    determine_npc_behavior (npc, Priestlevel[npcid], Priestbehavior[npcid]);
 	    st = HOLY_SYMBOL_OF_ODIN-1 + npcid;	// appropriate holy symbol...
@@ -2854,17 +2855,17 @@ void make_hiscore_npc (pmt npc, int npcid)
 	    if (Player.patron == npcid)
 		m_status_reset (npc, HOSTILE);
 	    break;
-	case 7:
+	case NPC_SHADOWLORD:
 	    strcpy (Str2, Shadowlord);
 	    determine_npc_behavior (npc, Shadowlordlevel, Shadowlordbehavior);
 	    break;
-	case 8:
+	case NPC_COMMANDANT:
 	    strcpy (Str2, Commandant);
 	    determine_npc_behavior (npc, Commandantlevel, Commandantbehavior);
 	    if (Player.rank[LEGION])
 		m_status_reset (npc, HOSTILE);
 	    break;
-	case 9:
+	case NPC_ARCHMAGE:
 	    strcpy (Str2, Archmage);
 	    determine_npc_behavior (npc, Archmagelevel, Archmagebehavior);
 	    st = KEY_OF_KOLWYNIA;
@@ -2872,7 +2873,7 @@ void make_hiscore_npc (pmt npc, int npcid)
 	    m_status_reset (npc, WANDERING);
 	    m_status_reset (npc, HOSTILE);
 	    break;
-	case 10:
+	case NPC_PRIME:
 	    strcpy (Str2, Prime);
 	    determine_npc_behavior (npc, Primelevel, Primebehavior);
 	    npc->talkf = M_TALK_PRIME;
@@ -2880,29 +2881,29 @@ void make_hiscore_npc (pmt npc, int npcid)
 	    if (Player.alignment < 0)
 		m_status_reset (npc, HOSTILE);
 	    break;
-	case 11:
+	case NPC_CHAMPION:
 	    strcpy (Str2, Champion);
 	    determine_npc_behavior (npc, Championlevel, Championbehavior);
 	    if (Player.rank[ARENA])
 		m_status_reset (npc, HOSTILE);
 	    break;
-	case 12:
+	case NPC_DUKE:
 	    strcpy (Str2, Duke);
 	    determine_npc_behavior (npc, Dukelevel, Dukebehavior);
 	    break;
-	case 13:
+	case NPC_LORD_OF_CHAOS:
 	    strcpy (Str2, Chaoslord);
 	    determine_npc_behavior (npc, Chaoslordlevel, Chaoslordbehavior);
 	    if (Player.alignment < 0 && random_range (2))
 		m_status_reset (npc, HOSTILE);
 	    break;
-	case 14:
+	case NPC_LORD_OF_LAW:
 	    strcpy (Str2, Lawlord);
 	    determine_npc_behavior (npc, Lawlordlevel, Lawlordbehavior);
 	    if (Player.alignment > 0)
 		m_status_reset (npc, HOSTILE);
 	    break;
-	case 15:
+	case NPC_JUSTICIAR:
 	    strcpy (Str2, Justiciar);
 	    determine_npc_behavior (npc, Justiciarlevel, Justiciarbehavior);
 	    st = THING_JUSTICIAR_BADGE;

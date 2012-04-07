@@ -216,7 +216,7 @@ static void make_prime (int i, int j)
     pmt m = new monster;
     pol ol;
     pob o;
-    make_hiscore_npc (m, 10);	// 10 is index for prime
+    make_hiscore_npc (m, NPC_PRIME);
     m->x = i;
     m->y = j;
     Level->site[i][j].creature = m;
@@ -323,7 +323,7 @@ static void make_archmage (int i, int j)
 {
     pml ml = new monsterlist;
     pmt m = new monster;
-    make_hiscore_npc (m, 9);	// 9 is index for archmage
+    make_hiscore_npc (m, NPC_ARCHMAGE);
     m->x = i;
     m->y = j;
     Level->site[i][j].creature = m;
@@ -851,7 +851,7 @@ static void make_justiciar (int i, int j)
     pml ml = new monsterlist;
     ml->m = new monster;
     *(ml->m) = Monsters[NPC];
-    make_hiscore_npc (ml->m, 15);
+    make_hiscore_npc (ml->m, NPC_JUSTICIAR);
     ml->m->x = i;
     ml->m->y = j;
     Level->site[i][j].creature = ml->m;
@@ -2737,7 +2737,7 @@ void l_order (void)
 	print1 ("The previous Justiciar steps down in your favor.");
 	print2 ("You are now the Justiciar of Rampart and the Order!");
 	strcpy (Justiciar, Player.name);
-	for (ml = Level->mlist; ml && (ml->m->id != HISCORE_NPC || ml->m->aux2 != 15); ml = ml->next)
+	for (ml = Level->mlist; ml && (ml->m->id != HISCORE_NPC || ml->m->aux2 != NPC_JUSTICIAR); ml = ml->next)
 	    // just scan for current Justicar */ ;
 	if (ml) {
 	    Level->site[ml->m->x][ml->m->y].creature = NULL;
@@ -3101,7 +3101,7 @@ static void make_mansion_npc (int i, int j)
     pml ml = new monsterlist;
     ml->m = new monster;
     *(ml->m) = Monsters[NPC];
-    make_hiscore_npc (ml->m, random_range (14) + 1);
+    make_hiscore_npc (ml->m, random_range (NPC_MAX) + 1);
     mprint ("You detect signs of life in this house.");
     ml->m->x = i;
     ml->m->y = j;
@@ -3932,7 +3932,7 @@ pmt make_creature (int mid)
     if (mid == NPC)
 	make_log_npc (newmonster);
     else if (mid == HISCORE_NPC)
-	make_hiscore_npc (newmonster, random_range (15));
+	make_hiscore_npc (newmonster, random_range (NPC_MAX));
     else {
 	if (newmonster->sleep < random_range (100))
 	    m_status_set (newmonster, AWAKE);
@@ -5352,8 +5352,7 @@ void pacify_guards (void)
     pml ml;
 
     for (ml = Level->mlist; ml != NULL; ml = ml->next)
-	if ((ml->m->id == GUARD) ||
-	    ((ml->m->id == HISCORE_NPC) && (ml->m->aux2 == 15))) {	// justiciar
+	if (ml->m->id == GUARD || (ml->m->id == HISCORE_NPC && ml->m->aux2 == NPC_JUSTICIAR)) {
 	    m_status_reset (ml->m, HOSTILE);
 	    ml->m->specialf = M_NO_OP;
 	    if (ml->m->id == GUARD && ml->m->hp > 0 && ml->m->aux1 > 0) {

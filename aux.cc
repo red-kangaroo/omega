@@ -3297,13 +3297,14 @@ void alert_guards (void)
     int foundguard = FALSE;
     pml ml;
     int suppress = 0;
-    for (ml = Level->mlist; ml != NULL; ml = ml->next)
-	if (((ml->m->id == GUARD) || ((ml->m->id == HISCORE_NPC) && (ml->m->aux2 == 15))) &&	// justiciar
+    for (ml = Level->mlist; ml != NULL; ml = ml->next) {
+	if ((ml->m->id == GUARD || (ml->m->id == HISCORE_NPC && ml->m->aux2 == NPC_JUSTICIAR)) &&
 	    (ml->m->hp > 0)) {
 	    foundguard = TRUE;
 	    m_status_set (ml->m, AWAKE);
 	    m_status_set (ml->m, HOSTILE);
 	}
+    }
     if (foundguard) {
 	mprint ("You hear a whistle and the sound of running feet!");
 	if (Current_Environment == E_CITY)
