@@ -2354,58 +2354,40 @@ void m_death (struct monster *m)
 		    case NPC_HIGHPRIEST_DRUID:
 		    case NPC_HIGHPRIEST_DESTINY:
 			mprint ("You hear a faroff sound like angels crying....");
-			strcpy (Priest[m->aux2], nameprint());
-			Priestbehavior[m->aux2] = 2933;
 			break;
 		    case NPC_SHADOWLORD:
 			mprint ("A furtive figure dashes out of the shadows, takes a look at");
 			mprint ("the corpse, and runs away!");
-			strcpy (Shadowlord, nameprint());
-			Shadowlordbehavior = 2912;
 			break;
 		    case NPC_COMMANDANT:
 			mprint ("An aide-de-camp approaches, removes the corpse's insignia,");
 			mprint ("and departs.");
-			strcpy (Commandant, nameprint());
-			Commandantbehavior = 2912;
 			break;
 		    case NPC_ARCHMAGE:
 			mprint ("An odd glow surrounds the corpse, and slowly fades.");
-			strcpy (Archmage, nameprint());
-			Archmagebehavior = 2933;
 			break;
 		    case NPC_PRIME:
 			mprint ("A demon materializes, takes a quick look at the corpse,");
 			mprint ("and teleports away with a faint popping noise.");
-			strcpy (Prime, nameprint());
-			Primebehavior = 2932;
 			break;
 		    case NPC_CHAMPION:
 			mprint ("A sports columnist rushes forward and takes a quick photo");
 			mprint ("of the corpse and rushes off muttering about a deadline.");
-			strcpy (Champion, nameprint());
-			Championbehavior = 2913;
 			break;
 		    case NPC_DUKE:
 			mprint ("You hear a fanfare in the distance, and feel dismayed.");
-			strcpy (Duke, nameprint());
-			Dukebehavior = 2911;
 			break;
 		    case NPC_LORD_OF_CHAOS:
 			if (Player.alignment > 10)
 			    mprint ("You feel smug.");
 			else if (Player.alignment < 10)
 			    mprint ("You feel ashamed.");
-			strcpy (Chaoslord, nameprint());
-			Chaoslordbehavior = 2912;
 			break;
 		    case NPC_LORD_OF_LAW:
 			if (Player.alignment < 10)
 			    mprint ("You feel smug.");
 			else if (Player.alignment > 10)
 			    mprint ("You feel ashamed.");
-			strcpy (Lawlord, nameprint());
-			Lawlordbehavior = 2911;
 			break;
 		    case NPC_JUSTICIAR:
 			// just a tad complicated. Promote a new justiciar if any
@@ -2417,8 +2399,6 @@ void m_death (struct monster *m)
 				prev = curr;
 				curr = curr->next;
 			    }
-			    strcpy (Justiciar, nameprint());
-			    Justiciarbehavior = 2911;
 			    mprint ("In the distance you hear a trumpet. A Servant of Law");
 			    // promote one of the city guards to be justiciar
 			    ml = City->mlist;
@@ -2459,7 +2439,6 @@ void m_death (struct monster *m)
 			}
 			break;
 		}
-		save_hiscore_npc (m->aux2);
 		break;
 	    case GUARD:	// guard
 		Player.alignment -= 10;
@@ -3001,55 +2980,17 @@ void determine_npc_behavior (pmt npc, int level, int behavior)
 // makes an ordinary npc (maybe undead)
 void make_log_npc (struct monster *npc)
 {
-    int i, n;
-    int behavior, status, level;
-    FILE *fd;
-
-    // in case the log file is null
-    behavior = 2718;
-    level = 1;
-    status = 2;
-    strcpy (Str2, "Malaprop the Misnamed");
-
-    fd = checkfopen (OMEGALIB "omega.log", "r");
-    n = 1;
-    while (fgets (Str1, STRING_LEN, fd)) {
-	if (random_range (n) == 0) {	// this algo. from Knuth 2 - cute, eh?
-	    sscanf (Str1, "%d %d %d", &status, &level, &behavior);
-	    for (i = 0; (Str1[i] < 'a' || Str1[i] > 'z') && (Str1[i] < 'A' || Str1[i] > 'Z'); i++);
-	    strcpy (Str2, Str1 + i);
-	    Str2[strlen (Str2) - 1] = '\0';	// 'cos fgets reads in the \n
-	}
-	n++;
-    }
-    fclose (fd);
+    int level = random_range(16);
     npc->hp = level * 20;
-    if (status == 1) {
-	if (level < 3) {
-	    *npc = Monsters[GHOST];
-	    strcpy (Str1, "ghost named ");
-	} else if (level < 7) {
-	    *npc = Monsters[HAUNT];
-	    strcpy (Str1, "haunt named ");
-	} else if (level < 12) {
-	    *npc = Monsters[SPECTRE];
-	    strcpy (Str1, "spectre named ");
-	} else {
-	    *npc = Monsters[LICHE];
-	    strcpy (Str1, "lich named ");
-	}
-	strcat (Str1, Str2);
-	npc->monstring = strdup (Str1);
-	strcpy (Str3, "the mortal remains of ");
-	strcat (Str3, Str2);
-	npc->corpsestr = strdup (Str3);
-    } else {
-	npc->monstring = strdup (Str2);
-	strcpy (Str3, "the corpse of ");
-	strcat (Str3, Str2);
-	npc->corpsestr = strdup (Str3);
-    }
-    determine_npc_behavior (npc, level, behavior);
+    uint8_t ghostid = LICHE;
+    if (level < 3)
+	ghostid = GHOST;
+    else if (level < 7)
+	ghostid = HAUNT;
+    else if (level < 12)
+	ghostid = SPECTRE;
+    *npc = Monsters[ghostid];
+    determine_npc_behavior (npc, level, 2718);
 }
 
 void m_trap_dart (struct monster *m)

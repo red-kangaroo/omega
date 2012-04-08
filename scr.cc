@@ -1026,7 +1026,6 @@ void display_death (const char* source)
     clear();
     touchwin (stdscr);
     refresh();
-    extendlog (Str4, DEAD);
 }
 
 void display_win (void)
@@ -1048,10 +1047,6 @@ void display_win (void)
     clear();
     touchwin (stdscr);
     refresh();
-    if (Player.rank[ADEPT])
-	extendlog (Str4, BIGWIN);
-    else
-	extendlog (Str4, WIN);
 }
 
 void display_quit (void)
@@ -1068,7 +1063,6 @@ void display_quit (void)
     clear();
     touchwin (stdscr);
     refresh();
-    extendlog (Str4, QUIT);
 }
 
 void display_bigwin (void)
@@ -1085,7 +1079,6 @@ void display_bigwin (void)
     clear();
     touchwin (stdscr);
     refresh();
-    extendlog (Str4, BIGWIN);
 }
 
 void mnumprint (int n)

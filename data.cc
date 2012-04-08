@@ -4,6 +4,8 @@
 //----------------------------------------------------------------------
 //{{{ Objects
 
+const object NullObject = { NO_THING, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, COMMON, I_NO_OP, NULL_ITEM, NULL, NULL, NULL };
+
 const struct object Objects[TOTALITEMS] = {
 //     lev    plus frg   dmg    aux   frag     used  type  unique             	    objstr              cursestr
 //   id  weight      chrg   hit    num     value bless             usef         objchar          truename

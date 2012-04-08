@@ -106,16 +106,20 @@ char Str1[STRING_LEN], Str2[STRING_LEN], Str3[STRING_LEN], Str4[STRING_LEN]; // 
 pol Condoitems = NULL;		// Items in condo
 
 // high score names, levels, behavior
-int Shadowlordbehavior, Archmagebehavior, Primebehavior, Commandantbehavior;
-int Championbehavior, Priestbehavior[7], Hibehavior, Dukebehavior;
-int Chaoslordbehavior, Lawlordbehavior, Justiciarbehavior;
-char Shadowlord[80], Archmage[80], Prime[80], Commandant[80], Duke[80];
-char Champion[80], Priest[7][80], Hiscorer[80], Hidescrip[80];
-char Chaoslord[80], Lawlord[80], Justiciar[80];
-int Shadowlordlevel, Archmagelevel, Primelevel, Commandantlevel, Dukelevel;
-int Championlevel, Priestlevel[7], Hilevel, Justiciarlevel;
-long Hiscore = 0L;
-int Chaoslordlevel = 0, Lawlordlevel = 0, Chaos = 0, Law = 0;
+const char Archmage[] = "Oz";
+const char Champion[] = "Spartacus";
+const char Chaoslord[] = "Arioch";
+const char Commandant[] = "Sonders";
+const char Duke[] = "Cormorant";
+const char Hidescrip[] = "Killed by a pun";
+const char Hiscorer[] = "Zippy";
+const char Justiciar[] = "Morgon";
+const char Lawlord[] = "Ariel";
+const char Priest[7][12] = { "", "Gallow", "Kharst", "Allana", "Dara", "Thistleman", "Humperdinck" };
+const int Priestbehavior[7] = { 0, 2711, 2712, 2931, 2932, 2933, 5718 };
+const int Priestlevel[7] = { 0, 10, 10, 10, 10, 10, 10 };
+const char Prime[] = "Blackskull";
+const char Shadowlord[] = "Shadowspawn";
 
 // New globals which used to be statics
 int twiddle = FALSE;
@@ -184,7 +188,6 @@ int main (int argc, const char* argv[])
 	strcpy (Stringbuffer[count], "<nothing>");
 
     omega_title();
-    showscores();
 
     // game restore attempts to restore game if there is an argument
     continuing = game_restore (argc, argv);

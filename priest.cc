@@ -470,26 +470,7 @@ static void make_hp (pob o)
 {
     print1 ("A full-scale heavenly choir chants 'Hallelujah' all around you!");
     print2 ("You notice a change in the symbol you carry....");
-    switch (Player.patron) {
-	case ODIN:
-	    *o = Objects[HOLY_SYMBOL_OF_ODIN];
-	    break;
-	case SET:
-	    *o = Objects[HOLY_SYMBOL_OF_SET];
-	    break;
-	case ATHENA:
-	    *o = Objects[HOLY_SYMBOL_OF_ATHENA];
-	    break;
-	case HECATE:
-	    *o = Objects[HOLY_SYMBOL_OF_HECATE];
-	    break;
-	case DRUID:
-	    *o = Objects[HOLY_SYMBOL_OF_DRUIDISM];
-	    break;
-	case DESTINY:
-	    *o = Objects[HOLY_SYMBOL_OF_DESTINY];
-	    break;
-    }
+    *o = Objects[HOLY_SYMBOL_OF_ODIN-1+Player.patron];
     learn_object (o);
     o->charge = 17;		// random hack to convey bit that symbol is functional
     morewait();
@@ -498,11 +479,7 @@ static void make_hp (pob o)
     else
 	print1 ("Your deity raises you to the post of High Priest!");
     print2 ("You feel holy.");
-    strcpy (Priest[Player.patron], Player.name);
-    Priestlevel[Player.patron] = Player.level;
     Player.rank[PRIESTHOOD] = HIGHPRIEST;
     morewait();
-    Priestbehavior[Player.patron] = fixnpc (4);
-    save_hiscore_npc (Player.patron);
     learnclericalspells (Player.patron, HIGHPRIEST);
 }

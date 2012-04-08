@@ -11,7 +11,7 @@ static void restore_level(istream& is, int ver);
 static void restore_monsters(istream& is, plv level, int ver);
 static void restore_player(istream& is, int ver);
 static void save_country(ostream& os);
-static void save_item (ostream& os, pob o);
+static void save_item (ostream& os, const object* o);
 static void save_itemlist (ostream& os, pol ol);
 static void save_level(ostream& os, plv level);
 static void save_monsters(ostream& os, pml ml);
@@ -521,16 +521,14 @@ static void save_monsters (ostream& os, pml ml)
     // Now save monsters
     for (pml tml = ml; tml; tml = tml->next) {
 	os.write (tml->m, sizeof(*(tml->m)));
-	uint8_t type = 0;
 	if (strcmp (tml->m->monstring, Monsters[tml->m->id].monstring))
-	    type |= 1;
-	if (strcmp (tml->m->corpsestr, Monsters[tml->m->id].corpsestr))
-	    type |= 2;
-	os << type;
-	if (type & 1)
 	    os.write_strz (tml->m->monstring);
-	if (type & 2)
+	else
+	    os << '\0';
+	if (strcmp (tml->m->corpsestr, Monsters[tml->m->id].corpsestr))
 	    os.write_strz (tml->m->corpsestr);
+	else
+	    os << '\0';
 	save_itemlist (os, tml->m->possessions);
     }
 }
@@ -539,7 +537,6 @@ static void restore_monsters (istream& is, plv level, int ver)
 {
     pml ml = NULL;
     int i, nummonsters;
-    unsigned char type;
     string s;
 
     level->mlist = NULL;
@@ -550,14 +547,16 @@ static void restore_monsters (istream& is, plv level, int ver)
 	ml = new monsterlist;
 	ml->m = new monster;
 	is.read (ml->m, sizeof(*(ml->m)));
-	is >> type;
 	if (ml->m->id >= ArraySize(Monsters))
 	    throw runtime_error ("invalid monster");
 	ml->m->monstring = Monsters[ml->m->id].monstring;
 	ml->m->corpsestr = Monsters[ml->m->id].corpsestr;
 	ml->m->meleestr = Monsters[ml->m->id].meleestr;
-	if (type & 1) { is.read_strz (s); ml->m->monstring = strdup (s); }
-	if (type & 2) { is.read_strz (s); ml->m->corpsestr = strdup (s); }
+
+	// FIXME: These will create memory leaks, but no easy way to find these
+	unsigned nlen = strlen(is.ipos()); if (nlen) ml->m->monstring = strdup(is.ipos()); is.skip(nlen+1);
+	nlen = strlen(is.ipos()); if (nlen) ml->m->corpsestr = strdup(is.ipos()); is.skip(nlen+1);
+
 	ml->m->possessions = restore_itemlist (is, ver);
 	if (ml->m->x >= MAXWIDTH || ml->m->y >= MAXLENGTH)
 	    throw runtime_error ("invalid monster location");
@@ -569,40 +568,42 @@ static void restore_monsters (istream& is, plv level, int ver)
 
 // Save o unless it's null, then save a special flag byte instead
 // Use other values of flag byte to indicate what strings are saved
-static void save_item (ostream& os, pob o)
+static void save_item (ostream& os, const object* o)
 {
-    uint8_t type = 0;
-    if (!o) { os << type; return; }
-    type = 8;
-    if (strcmp (o->objstr, Objects[o->id].objstr))	type |= 1;
-    if (strcmp (o->truename, Objects[o->id].truename))	type |= 2;
-    if (strcmp (o->cursestr, Objects[o->id].cursestr))	type |= 4;
-    os << type;
+    if (!o)
+	o = &NullObject;
     os.write (o, sizeof(*o));
-    if (type & 1)	os.write_strz (o->objstr);
-    if (type & 2)	os.write_strz (o->truename);
-    if (type & 4)	os.write_strz (o->cursestr);
+    if (o->id >= ArraySize(Objects))
+	os.write ("\0\0", 3);
+    else {
+	if (strcmp (o->objstr, Objects[o->id].objstr))
+	    os.write_strz (o->objstr);
+	else os << '\0';
+	if (strcmp (o->truename, Objects[o->id].truename))
+	    os.write_strz (o->truename);
+	else os << '\0';
+	if (strcmp (o->cursestr, Objects[o->id].cursestr))
+	    os.write_strz (o->cursestr);
+	else os << '\0';
+    }
 }
 
 // Restore an item, the first byte tells us if it's NULL, and what strings
 // have been saved as different from the typical
 static pob restore_item (istream& is, int ver UNUSED)
 {
-    uint8_t type;
-    is >> type;
-    if (!type)
-	return (NULL);
     pob obj = new object;
     is.read (obj, sizeof(*obj));
-    if (obj->id >= ArraySize(Objects))
-	throw runtime_error ("invalid item");
+    if (obj->id >= ArraySize(Objects)) {
+	delete obj;
+	return (NULL);
+    }
     obj->objstr = Objects[obj->id].objstr;
     obj->truename = Objects[obj->id].truename;
     obj->cursestr = Objects[obj->id].cursestr;
-    string s;
-    if (type & 1) { is.read_strz (s); obj->objstr = strdup (s); }
-    if (type & 2) { is.read_strz (s); obj->truename = strdup (s); }
-    if (type & 4) { is.read_strz (s); obj->cursestr = strdup (s); }
+    unsigned nlen = strlen(is.ipos()); if (nlen) obj->objstr = strdup(is.ipos()); is.skip(nlen+1);
+    nlen = strlen(is.ipos()); if (nlen) obj->truename = strdup(is.ipos()); is.skip(nlen+1);
+    nlen = strlen(is.ipos()); if (nlen) obj->cursestr = strdup(is.ipos()); is.skip(nlen+1);
     return obj;
 }
 

@@ -6,6 +6,7 @@ extern struct spell Spells[NUMSPELLS + 1];	// one of each spell
 extern uint64_t SpellKnown;			// bit set for known spells
 extern const struct object Objects[TOTALITEMS];	// one of each item
 extern uint8_t ObjectAttrs[TOTALITEMS];		// attributes such as known and uniqueness
+extern const struct object NullObject;
 extern int CitySiteList[NUMCITYSITES][3];	// locations of city sites [0] - found, [1] - x, [2] - y
 extern struct player Player;			// the player
 extern int LENGTH;				// level y dimension
@@ -71,16 +72,34 @@ extern pol Condoitems;				// items in condo
 extern char Str1[100], Str2[100], Str3[100], Str4[100];	// Some string space, random uses
 
 // high score names, levels, behavior
-extern int Shadowlordbehavior, Archmagebehavior, Primebehavior, Justiciarbehavior;
-extern int Commandantbehavior, Chaoslordbehavior, Lawlordbehavior;
-extern int Championbehavior, Priestbehavior[7], Hibehavior, Dukebehavior;
-extern char Shadowlord[80], Archmage[80], Prime[80], Commandant[80], Duke[80];
-extern char Champion[80], Priest[7][80], Hiscorer[80], Hidescrip[80];
-extern char Chaoslord[80], Lawlord[80], Justiciar[80];
-extern int Shadowlordlevel, Archmagelevel, Primelevel, Commandantlevel, Dukelevel;
-extern int Championlevel, Priestlevel[7], Hilevel, Justiciarlevel;
-extern long Hiscore;
-extern int Chaoslordlevel, Lawlordlevel, Chaos, Law;
+const int Archmagebehavior = 2933;
+const int Archmagelevel = 10;
+const int Championbehavior = 2713;
+const int Championlevel = 10;
+const int Chaos = -100;
+const int Chaoslordbehavior = 2712;
+const int Chaoslordlevel = 10;
+const int Commandantbehavior = 2713;
+const int Commandantlevel = 10;
+const int Dukebehavior = 2718;
+const int Dukelevel = 10;
+const int Hibehavior = 2713;
+const int Hilevel = 0;
+const int Justiciarbehavior = 2718;
+const int Justiciarlevel = 10;
+const int Law = 100;
+const int Lawlordbehavior = 2711;
+const int Lawlordlevel = 10;
+const int Primebehavior = 2932;
+const int Primelevel = 10;
+const int Shadowlordbehavior = 2712;
+const int Shadowlordlevel = 10;
+const int Hiscore = 0L;
+extern const int Priestbehavior[7];
+extern const char Shadowlord[], Archmage[], Prime[], Commandant[], Duke[];
+extern const char Champion[], Priest[7][12], Hiscorer[], Hidescrip[];
+extern const char Chaoslord[], Lawlord[], Justiciar[];
+extern const int Priestlevel[7];
 
 // New globals which used to be statics
 extern int twiddle;

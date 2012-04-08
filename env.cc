@@ -1711,11 +1711,7 @@ void l_merc_guild (void)
 		    clearmsg();
 		    print1 ("You are the new Commandant of the Legion!");
 		    print2 ("The Emperor's Regalia is sold for a ridiculous sum.");
-		    strcpy (Commandant, Player.name);
-		    Commandantlevel = Player.level;
 		    morewait();
-		    Commandantbehavior = fixnpc (4);
-		    save_hiscore_npc (8);
 		    clearmsg();
 		    print1 ("You now know the Spell of Regeneration.");
 		    learn_spell (S_REGENERATE);
@@ -1874,10 +1870,7 @@ void l_castle (void)
 		print2 ("Oh, you can keep the Orb, by the way....");
 		Player.rank[NOBILITY] = DUKE;
 		gain_experience (10000);
-		strcpy (Duke, Player.name);
 		morewait();
-		Dukebehavior = fixnpc (4);
-		save_hiscore_npc (12);
 		for (y = 52; y < 63; y++)
 		    for (x = 2; x < 52; x++) {
 			if (Level->site[x][y].p_locf == L_TRAP_SIREN) {
@@ -2088,12 +2081,8 @@ void l_arena (void)
 		print1 ("The crowd roars its approval!");
 		if (Player.rank[ARENA]) {
 		    print2 ("You are the new Arena Champion!");
-		    Championlevel = Player.level;
-		    strcpy (Champion, Player.name);
 		    Player.rank[ARENA] = 5;
 		    morewait();
-		    Championbehavior = fixnpc (4);
-		    save_hiscore_npc (11);
 		    print1 ("You are awarded the Champion's Spear: Victrix!");
 		    morewait();
 		    newitem = new object;
@@ -2147,11 +2136,7 @@ void l_thieves_guild (void)
 	    print2 ("You are now the Shadowlord of the Thieves' Guild!");
 	    morewait();
 	    print1 ("Who says there's no honor among thieves?");
-	    strcpy (Shadowlord, Player.name);
-	    Shadowlordlevel = Player.level;
 	    morewait();
-	    Shadowlordbehavior = fixnpc (4);
-	    save_hiscore_npc (7);
 	    clearmsg();
 	    print1 ("You learn the Spell of Shadowform.");
 	    learn_spell (S_SHADOWFORM);
@@ -2394,16 +2379,12 @@ void l_college (void)
 		print2 ("The Board of Trustees appoints you Archmage!");
 		morewait();
 		clearmsg();
-		strcpy (Archmage, Player.name);
-		Archmagelevel = Player.level;
 		Player.rank[COLLEGE] = ARCHMAGE;
 		Player.maxiq += 5;
 		Player.iq += 5;
 		Player.maxpow += 5;
 		Player.pow += 5;
 		morewait();
-		Archmagebehavior = fixnpc (4);
-		save_hiscore_npc (9);
 	    }
 	    menuclear();
 	    menuprint ("May we help you?\n\n");
@@ -2570,11 +2551,7 @@ void l_sorcerors (void)
 		morewait();
 		print1 ("The Crown is ritually sacrificed to the Lords of Chaos.");
 		print2 ("You are now the Prime Sorceror of the Inner Circle!");
-		strcpy (Prime, Player.name);
-		Primelevel = Player.level;
 		morewait();
-		Primebehavior = fixnpc (4);
-		save_hiscore_npc (10);
 		clearmsg();
 		print1 ("You learn the Spell of Disintegration!");
 		morewait();
@@ -2736,7 +2713,6 @@ void l_order (void)
 	morewait();
 	print1 ("The previous Justiciar steps down in your favor.");
 	print2 ("You are now the Justiciar of Rampart and the Order!");
-	strcpy (Justiciar, Player.name);
 	for (ml = Level->mlist; ml && (ml->m->id != HISCORE_NPC || ml->m->aux2 != NPC_JUSTICIAR); ml = ml->next)
 	    // just scan for current Justicar */ ;
 	if (ml) {
@@ -2744,10 +2720,7 @@ void l_order (void)
 	    erase_monster (ml->m);
 	    ml->m->hp = -1;	// signals "death" -- no credit to player, though
 	}
-	Justiciarlevel = Player.level;
 	morewait();
-	Justiciarbehavior = fixnpc (4);
-	save_hiscore_npc (15);
 	clearmsg();
 	print1 ("You are awarded a blessed shield of deflection!");
 	morewait();
