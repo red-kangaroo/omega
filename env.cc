@@ -5150,8 +5150,7 @@ void l_pawn_shop (void)
 
 void l_condo (void)
 {
-    pol ol, prev = NULL;
-    int i, done = FALSE, over = FALSE, weeksleep = FALSE;
+    int done = FALSE, weeksleep = FALSE;
     char response;
 
     if (!gamestatusp (SOLD_CONDO)) {
@@ -5168,7 +5167,7 @@ void l_condo (void)
 		    Player.cash -= 50000;
 		    dataprint();
 		    print2 ("You are the proud owner of a luxurious condo penthouse.");
-		    Condoitems = NULL;
+		    Condoitems.clear();
 		}
 	    }
 	} else if (response == 'r') {
@@ -5196,36 +5195,29 @@ void l_condo (void)
 	    showmenu();
 	    response = (char) mcigetc();
 	    if (response == 'a') {
-		i = getitem (NULL_ITEM);
+		int i = getitem (NULL_ITEM);
 		if (i != ABORT) {
 		    if (Player.possessions[i]->blessing < 0)
 			print2 ("The item just doesn't want to be stored away...");
 		    else {
-			ol = new objectlist;
-			ol->thing = Player.possessions[i];
-			ol->next = Condoitems;
-			Condoitems = ol;
+			Condoitems.push_back (*(Player.possessions[i]));
 			conform_unused_object (Player.possessions[i]);
+			delete Player.possessions[i];
 			Player.possessions[i] = NULL;
 		    }
 		}
 	    } else if (response == 'b') {
-		ol = Condoitems;
-		while ((ol != NULL) && (!over)) {
+		foreach (i, Condoitems) {
 		    print1 ("Retrieve ");
-		    nprint1 (itemid (ol->thing));
+		    nprint1 (itemid(i));
 		    nprint1 (" [ynq] ");
 		    response = (char) mcigetc();
-		    if (response == 'y') {
-			gain_item (ol->thing);
-			if (ol == Condoitems)
-			    Condoitems = Condoitems->next;
-			else if (prev != NULL)
-			    prev->next = ol->next;
-		    } else if (response == 'q')
-			over = TRUE;
-		    prev = ol;
-		    ol = ol->next;
+		    if (response == 'q')
+			break;
+		    else if (response == 'y') {
+			gain_item (new object (*i));
+			--(i = Condoitems.erase(i));
+		    }
 		}
 	    } else if (response == 'c') {
 		weeksleep = TRUE;
@@ -5254,7 +5246,7 @@ void l_condo (void)
 	Player.dex = Player.maxdex;
 	Player.iq = Player.maxiq;
 	Player.pow = Player.maxpow;
-	for (i = 0; i < NUMSTATI; i++)
+	for (unsigned i = 0; i < NUMSTATI; i++)
 	    if (Player.status[i] < 1000)
 		Player.status[i] = 0;
 	toggle_item_use (FALSE);

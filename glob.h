@@ -68,7 +68,7 @@ extern int LastCountryLocY;			// previous position in countryside
 extern int LastTownLocX;			// previous position in village or city
 extern int LastTownLocY;			// previous position in village or city
 extern char Password[64];			// autoteller password
-extern pol Condoitems;				// items in condo
+extern vector<object> Condoitems;		// items in condo
 extern char Str1[100], Str2[100], Str3[100], Str4[100];	// Some string space, random uses
 
 // high score names, levels, behavior

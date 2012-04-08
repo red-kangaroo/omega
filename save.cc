@@ -242,12 +242,13 @@ static void save_player (ostream& os)
 	save_item (os, i);
 
     // Save items in condo vault
-    save_itemlist (os, Condoitems);
+    os << ios::align(alignof(Condoitems.size())) << Condoitems.size();
+    foreach (i, Condoitems)
+	save_item (os, i);
 }
 
 static void restore_player (istream& is, int ver)
 {
-    int i;
     is.read (&Player, sizeof(Player));
     is.read (Password, sizeof(Password));
     is.read (CitySiteList, sizeof(CitySiteList));
@@ -322,20 +323,24 @@ static void restore_player (istream& is, int ver)
 	    break;
     }
 
-    for (i = 0; i < MAXITEMS; i++)
+    for (unsigned i = 0; i < MAXITEMS; i++)
 	Player.possessions[i] = restore_item (is, ver);
 
     if (!Player.possessions[O_READY_HAND] && Player.possessions[O_WEAPON_HAND] && twohandedp (Player.possessions[O_WEAPON_HAND]->id))
 	Player.possessions[O_READY_HAND] = Player.possessions[O_WEAPON_HAND];
 
-    for (i = 0; i < MAXPACK; i++)
+    for (unsigned i = 0; i < MAXPACK; i++)
 	Player.pack[i] = restore_item (is, ver);
     uint8_t nPawnItems;
     is >> nPawnItems;
     Pawnitems.resize (nPawnItems);
-    for (i = 0; i < nPawnItems; i++)
+    for (unsigned i = 0; i < nPawnItems; i++)
 	Pawnitems[i] = *restore_item (is, ver);
-    Condoitems = restore_itemlist (is, ver);
+    uint32_t nCondoItems;
+    is >> ios::align(alignof(nCondoItems)) >> nCondoItems;
+    Condoitems.resize (nCondoItems);
+    for (unsigned i = 0; i < nCondoItems; i++)
+	Condoitems[i] = *restore_item (is, ver);
 }
 
 // Save whatever is pointed to by level
