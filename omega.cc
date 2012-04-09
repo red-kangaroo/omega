@@ -9,7 +9,6 @@
 
 static int game_restore(int argc, const char* argv[]);
 static void init_world(void);
-static void fix_phantom(struct monster *m);
 
 //----------------------------------------------------------------------
 
@@ -59,7 +58,6 @@ const int8_t Dirs[2][9] = {	// 9 xy directions
 };
 char Cmd = 's';			// last player command
 int Command_Duration = 0;	// how long does current command take
-struct monster *Arena_Monster = NULL;	// Opponent in arena
 int Arena_Opponent = 0;		// case label of opponent in l_arena()
 int Arena_Victory = 0;		// did player win in arena?
 int Imprisonment = 0;		// amount of time spent in jail
@@ -136,7 +134,9 @@ static void signalexit (int sig);
 
 void initrand (int environment, int level)
 {
-    if (environment >= 0)
+    if (environment == E_RESTORE)
+	srandrand();
+    else if (environment >= 0)
 	srand (level_seed[environment] + level);
 }
 
@@ -266,20 +266,16 @@ static void init_world (void)
 // the minute and 60 minutes to the hour.
 void time_clock (int reset)
 {
-    int env;
-    pml ml, *prev;
-
     if (++Tick > 60) {
 	Tick = 0;
 	minute_status_check();	// see about some player statuses each minute
 	if (++Time % 10 == 0)
 	    tenminute_check();
     }
-
     if (reset)
 	Tick = (Player.click = 0);
 
-    env = Current_Environment;
+    int env = Current_Environment;
     while ((Tick == Player.click) && (Current_Environment != E_COUNTRYSIDE) && Current_Environment == env) {
 	if (!gamestatusp (SKIP_PLAYER))
 	    do {
@@ -291,50 +287,14 @@ void time_clock (int reset)
 	    resetgamestatus (SKIP_PLAYER);
 	Player.click = (Player.click + Command_Duration) % 60;
     }
-
-    // klugy but what the heck. w/o this line, if the player caused
-    // a change-environment to the country, the monsters on the old Level
-    // will still act, causing all kinds of anomalies and core dumps,
-    // intermittently. However, any other environment change will reset
-    // Level appropriately, so only have to check for countryside
-
     if (Current_Environment != E_COUNTRYSIDE) {
-	prev = &(Level->mlist);
-	ml = *prev;
-	while (ml) {
-	    if (ml->m->hp > 0) {
-		// following is a hack until I discover source of phantom monsters
-		if (Level->site[ml->m->x][ml->m->y].creature != ml->m)
-		    fix_phantom (ml->m);
-		if (Tick == ml->m->click) {
-		    ml->m->click += ml->m->speed;
-		    while (ml->m->click > 60)
-			ml->m->click -= 60;
-		    m_pulse (ml->m);
-		}
-		prev = &(ml->next);
-		ml = ml->next;
-	    } else if (ml->m != Arena_Monster) {
-		*prev = ml->next;
-		delete ml->m;
-		delete ml;
-		ml = *prev;
-	    } else
-		ml = ml->next;
+	foreach (m, Level->mlist) {
+	    if (m->hp <= 0)
+		--(m = Level->mlist.erase(m));
+	    if (Tick == m->click) {
+		m->click = (m->click + m->speed) % 60;
+		m_pulse (m);
+	    }
 	}
-    }
-}
-
-// remedies occasional defective monsters
-static void fix_phantom (struct monster *m)
-{
-    if (Level->site[m->x][m->y].creature == NULL) {
-	mprint ("You hear a sound like a sigh of relief....");
-	Level->site[m->x][m->y].creature = m;
-    } else {
-	mprint ("You hear a puff of displaced air....");
-	findspace (&(m->x), &(m->y), -1);
-	Level->site[m->x][m->y].creature = m;
-	m_death (m);
     }
 }

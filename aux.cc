@@ -16,6 +16,7 @@ static void outdoors_random_event(void);
 static void showknownsites(int first, int last);
 static void destroy_order(void);
 static void default_maneuvers(void);
+static void fight_monster (monster *m);
 
 //----------------------------------------------------------------------
 
@@ -177,9 +178,9 @@ int p_moveable (int x, int y)
 	if (!gamestatusp (FAST_MOVE))
 	    print3 ("Ouch!");
 	return (FALSE);
-    } else if (Level->site[x][y].creature != NULL) {
+    } else if (Level->creature(x,y)) {
 	if (!gamestatusp (FAST_MOVE)) {
-	    fight_monster (Level->site[x][y].creature);
+	    fight_monster (Level->creature(x,y));
 	    resetgamestatus (SKIP_MONSTERS);
 	    return (FALSE);
 	} else
@@ -337,7 +338,7 @@ void calc_melee (void)
 }
 
 // player attacks monster m
-void fight_monster (struct monster *m)
+static void fight_monster (struct monster *m)
 {
     int hitmod = 0;
     int reallyfight = TRUE;
@@ -351,16 +352,11 @@ void fight_monster (struct monster *m)
     } else if (Player.status[SHADOWFORM]) {
 	print3 ("Your attack has no effect in your shadowy state.");
 	reallyfight = FALSE;
-    } else if ((Player.status[BERSERK] < 1) && (!m_statusp (m, HOSTILE))) {
-	if (optionp (BELLICOSE))
-	    reallyfight = TRUE;
-	else
+    } else if (Player.status[BERSERK] < 1 && !m_statusp (m, HOSTILE)) {
+	if (!optionp (BELLICOSE))
 	    reallyfight = confirmation();
-    } else
-	reallyfight = TRUE;
-
+    }
     if (reallyfight) {
-
 	if (Lunarity == 1)
 	    hitmod += Player.level;
 	else if (Lunarity == -1)
@@ -368,8 +364,8 @@ void fight_monster (struct monster *m)
 
 	if (!m->attacked)
 	    Player.alignment -= 2;	// chaotic action
-	m_status_set (m, AWAKE);
-	m_status_set (m, HOSTILE);
+	m_status_set (*m, AWAKE);
+	m_status_set (*m, HOSTILE);
 	m->attacked = TRUE;
 	Player.hit += hitmod;
 	tacplayer (m);
@@ -676,12 +672,14 @@ int goberserk (void)
     char meleestr[80];
     strcpy (meleestr, Player.meleestr);
     strcpy (Player.meleestr, "lLlClH");
-    for (i = 0; i < 8; i++)
-	if (Level->site[Player.x + Dirs[0][i]][Player.y + Dirs[1][i]].creature != NULL) {
+    for (i = 0; i < 8; i++) {
+	monster* m = Level->creature(Player.x + Dirs[0][i], Player.y + Dirs[1][i]);
+	if (m) {
 	    wentberserk = TRUE;
-	    fight_monster (Level->site[Player.x + Dirs[0][i]][Player.y + Dirs[1][i]].creature);
+	    fight_monster(m);
 	    morewait();
 	}
+    }
     strcpy (Player.meleestr, meleestr);
     return (wentberserk);
 }
@@ -895,8 +893,7 @@ void threaten (struct monster *m)
 	    Player.alignment -= 2;
 	    print2 ("It drops its treasure and flees.");
 	    m_dropstuff (m);
-	    m->hp = -1;
-	    Level->site[m->x][m->y].creature = NULL;
+	    Level->mlist.erase (m);
 	    putspot (m->x, m->y, getspot (m->x, m->y, FALSE));
 	} else {
 	    Player.alignment += 2;
@@ -906,8 +903,7 @@ void threaten (struct monster *m)
 		print2 ("'...If it doesn't come back, hunt it down and kill it.'");
 	    }
 	    print3 ("It departs with a renewed sense of its own mortality.");
-	    m->hp = -1;
-	    Level->site[m->x][m->y].creature = NULL;
+	    Level->mlist.erase (m);
 	    putspot (m->x, m->y, getspot (m->x, m->y, FALSE));
 	}
     }
@@ -2238,8 +2234,6 @@ void hourly_check (void)
 
 static void indoors_random_event (void)
 {
-    pml ml;
-    pol ol;
     switch (random_range (1000)) {
 	case 0:
 	    print3 ("You feel an unexplainable elation.");
@@ -2259,11 +2253,11 @@ static void indoors_random_event (void)
 	    break;
 	case 4:
 	    print3 ("A mysterious healing flux settles over the level.");
-	    morewait();
-	    for (ml = Level->mlist; ml != NULL; ml = ml->next)
-		if (ml->m->hp > 0)
-		    ml->m->hp = Monsters[ml->m->id].hp;
+	    foreach (m, Level->mlist)
+		if (m->hp > 0)
+		    m->hp = Monsters[m->id].hp;
 	    Player.hp = max (Player.hp, Player.maxhp);
+	    morewait();
 	    break;
 	case 5:
 	    print3 ("You discover an itch just where you can't scratch it.");
@@ -2283,23 +2277,22 @@ static void indoors_random_event (void)
 	    break;
 	case 8:
 	    print3 ("You find some spare change in a hidden pocket.");
-	    morewait();
 	    Player.cash += Player.level * Player.level + 1;
+	    morewait();
 	    break;
 	case 9:
 	    print3 ("You feel strangely lucky.");
 	    morewait();
 	    break;
-	case 10:
+	case 10: {
 	    print3 ("You trip over something hidden in a shadow...");
 	    morewait();
-	    ol = new objectlist;
+	    pol ol = new objectlist;
 	    ol->thing = create_object (difficulty());
-	    assert (ol->thing);	// WDT I want to make sure...
 	    ol->next = Level->site[Player.x][Player.y].things;
 	    Level->site[Player.x][Player.y].things = ol;
 	    pickup();
-	    break;
+	    } break;
 	case 11:
 	    print3 ("A mysterious voice echoes all around you....");
 	    morewait();
@@ -3087,14 +3080,12 @@ int parsecitysite (void)
 // are there hostile monsters within 2 moves?
 int hostilemonstersnear (void)
 {
-    int i, j, hostile = FALSE;
-
-    for (i = Player.x - 2; ((i < Player.x + 3) && (!hostile)); i++)
-	for (j = Player.y - 2; ((j < Player.y + 3) && (!hostile)); j++)
+    int hostile = FALSE;
+    for (int i = Player.x - 2; ((i < Player.x + 3) && (!hostile)); i++)
+	for (int j = Player.y - 2; ((j < Player.y + 3) && (!hostile)); j++)
 	    if (inbounds (i, j))
-		if (Level->site[i][j].creature != NULL)
-		    hostile = m_statusp (Level->site[i][j].creature, HOSTILE);
-
+		if (Level->creature(i,j))
+		    hostile = m_statusp (Level->creature(i,j), HOSTILE);
     return (hostile);
 }
 
@@ -3295,14 +3286,11 @@ int stonecheck (int alignment)
 void alert_guards (void)
 {
     int foundguard = FALSE;
-    pml ml;
-    int suppress = 0;
-    for (ml = Level->mlist; ml != NULL; ml = ml->next) {
-	if ((ml->m->id == GUARD || (ml->m->id == HISCORE_NPC && ml->m->aux2 == NPC_JUSTICIAR)) &&
-	    (ml->m->hp > 0)) {
+    foreach (m, Level->mlist) {
+	if ((m->id == GUARD || (m->id == HISCORE_NPC && m->aux2 == NPC_JUSTICIAR)) && m->hp > 0) {
 	    foundguard = TRUE;
-	    m_status_set (ml->m, AWAKE);
-	    m_status_set (ml->m, HOSTILE);
+	    m_status_set (*m, AWAKE);
+	    m_status_set (*m, HOSTILE);
 	}
     }
     if (foundguard) {
@@ -3310,8 +3298,8 @@ void alert_guards (void)
 	if (Current_Environment == E_CITY)
 	    Level->site[40][60].p_locf = L_NO_OP;	// pacify_guards restores this
     }
-    if ((!foundguard) && (Current_Environment == E_CITY) && !gamestatusp (DESTROYED_ORDER)) {
-	suppress = gamestatusp (SUPPRESS_PRINTING);
+    if (!foundguard && Current_Environment == E_CITY && !gamestatusp (DESTROYED_ORDER)) {
+	int suppress = gamestatusp (SUPPRESS_PRINTING);
 	resetgamestatus (SUPPRESS_PRINTING);
 	print2 ("The last member of the Order of Paladins dies....");
 	morewait();
@@ -3344,39 +3332,37 @@ void alert_guards (void)
 	    gain_experience (5000);
 	    destroy_order();
 	}
+	if (suppress)
+	    setgamestatus (SUPPRESS_PRINTING);
     }
-    if (suppress)
-	resetgamestatus (SUPPRESS_PRINTING);
 }
 
 // can only occur when player is in city, so OK to use Level
 static void destroy_order (void)
 {
-    int i, j;
     setgamestatus (DESTROYED_ORDER);
-    if (Level != City)
+    if (Level != City) {
 	print1 ("Zounds! A Serious Mistake!");
-    else
-	for (i = 35; i < 46; i++)
-	    for (j = 60; j < 63; j++) {
-		if (i == 40 && (j == 60 || j == 61)) {
-		    lreset (i, j, SECRET);
-		    Level->site[i][j].locchar = FLOOR;
-		    Level->site[i][j].p_locf = L_NO_OP;
-		    lset (i, j, CHANGED);
-		} else {
-		    Level->site[i][j].locchar = RUBBLE;
-		    Level->site[i][j].p_locf = L_RUBBLE;
-		    lset (i, j, CHANGED);
-		}
-		if (Level->site[i][j].creature != NULL) {
-		    Level->site[i][j].creature->hp = -1;
-		    Level->site[i][j].creature = NULL;
-		}
-		make_site_monster (i, j, GHOST);
-		Level->site[i][j].creature->monstring = "ghost of a Paladin";
-		m_status_set (Level->site[i][j].creature, HOSTILE);
+	return;
+    }
+    Level->mlist.clear();
+    for (int i = 35; i < 46; i++) {
+	for (int j = 60; j < 63; j++) {
+	    if (i == 40 && (j == 60 || j == 61)) {
+		lreset (i, j, SECRET);
+		Level->site[i][j].locchar = FLOOR;
+		Level->site[i][j].p_locf = L_NO_OP;
+		lset (i, j, CHANGED);
+	    } else {
+		Level->site[i][j].locchar = RUBBLE;
+		Level->site[i][j].p_locf = L_RUBBLE;
+		lset (i, j, CHANGED);
 	    }
+	    monster& m = make_site_monster (i, j, GHOST);
+	    m.monstring = "ghost of a Paladin";
+	    m_status_set (m, HOSTILE);
+	}
+    }
 }
 
 int maneuvers (void)

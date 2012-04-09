@@ -131,7 +131,7 @@ enum ESpell {
 // ranks in guilds, etc
 enum { LEGION, ARENA, COLLEGE, THIEVES, ORDER, CIRCLE, NOBILITY, PRIESTHOOD, ADEPT, NUMRANKS };
 enum { NOT_IN_LEGION,	LEGIONAIRE, CENTURION, FORCE_LEADER, COLONEL, COMMANDANT };
-enum { NOT_IN_ARENA,	TRAINEE, BESTIARIUS, RETIARIUS, GLADIATOR, CHAMPION };
+enum { NOT_IN_ARENA,	TRAINEE, BESTIARIUS, RETIARIUS, GLADIATOR, CHAMPION, FORMER_GLADIATOR = -1 };
 enum { NOT_IN_COLLEGE,	NOVICE, STUDENT, PRECEPTOR, MAGE, ARCHMAGE };
 enum { NOT_A_THIEF,	TMEMBER, ATHIEF, THIEF, TMASTER, SHADOWLORD };
 enum { NOT_IN_ORDER,	GALLANT, GUARDIAN, CHEVALIER, PALADIN, JUSTICIAR };
@@ -883,7 +883,7 @@ struct object {
 struct monster_data {
     uint8_t id;
     uint8_t level;
-    uint16_t hp;
+    int16_t hp;
     uint8_t hit;
     uint8_t ac;
     uint8_t dmg;
@@ -921,11 +921,11 @@ struct monster : public monster_data {
     struct objectlist *possessions;
 public:
     inline monster& operator= (const monster_data& v)	{ *implicit_cast<monster_data*>(this) = v; possessions = NULL; return (*this); }
-};
-
-struct monsterlist {
-    struct monster *m;
-    struct monsterlist *next;
+    inline const char* name (void) const PURE;
+    inline const char* by_name (void) const PURE;
+    void read (istream& is);
+    void write (ostream& os) const;
+    streamsize stream_size (void) const;
 };
 
 struct player {
@@ -992,34 +992,28 @@ struct location {
     char p_locf;		// function executed when moved on
     unsigned char lstatus;	// seen,stopsrun,lit,secret,
     char roomnumber;		// so room can be named
+    unsigned char buildaux;	// used in constructing level
+    int aux;			// signifies various things
     chtype locchar;		// terrain type
     chtype showchar;		// char instantaneously drawn for site
-    int aux;			// signifies various things
-    unsigned char buildaux;	// used in constructing level
-    struct objectlist *things;
-    struct monster *creature;
+    struct objectlist* things;
 };
 
 struct level {
-    char depth;			// which level is this
-    struct level *next;		// pointer to next level in dungeon
     struct location site[MAXWIDTH][MAXLENGTH];	// dungeon data
+    vector<monster> mlist;	// List of monsters on level
+    struct level *next;		// pointer to next level in dungeon
+    int environment;		// where kind of level is this?
+    int last_visited;		// time player was last on this level
+    char depth;			// which level is this
     char generated;		// has the level been made (visited) yet?
     char numrooms;		// number of rooms on level
     char tunnelled;		// amount of tunnelling done on this level
-    struct monsterlist *mlist;	// List of monsters on level
-    int environment;		// where kind of level is this?
-    int last_visited;		// time player was last on this level
+public:
+    monster* creature (int x, int y);
 };
 
 // random typedefs
-
-typedef struct monsterlist mltype;
-typedef mltype *pml;
-
-typedef struct monster montype;
-typedef montype *pmt;
-
 typedef struct location loctype;
 typedef loctype *plc;
 

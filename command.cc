@@ -699,51 +699,43 @@ static void talk (void)
 {
     int dx, dy, iidx = 0;
     char response;
-    struct monster *m;
 
     clearmsg();
 
     print1 ("Talk --");
     iidx = getdir();
 
-    if (iidx == ABORT)
+    if (iidx == ABORT) {
 	setgamestatus (SKIP_MONSTERS);
-    else {
-	dx = Dirs[0][iidx];
-	dy = Dirs[1][iidx];
+	xredraw();
+	return;
+    }
+    dx = Dirs[0][iidx];
+    dy = Dirs[1][iidx];
 
-	if ((!inbounds (Player.x + dx, Player.y + dy)) || (Level->site[Player.x + dx][Player.y + dy].creature == NULL)) {
-	    print3 ("There's nothing there to talk to!!!");
-	    setgamestatus (SKIP_MONSTERS);
-	} else {
-	    m = Level->site[Player.x + dx][Player.y + dy].creature;
-	    menuclear();
-	    strcpy (Str1, "     Talk to ");
-	    strcat (Str1, m->monstring);
-	    strcat (Str1, ":");
-	    menuprint (Str1);
-	    menuprint ("\na: Greet.");
-	    menuprint ("\nb: Threaten.");
-	    menuprint ("\nc: Surrender.");
-	    menuprint ("\nESCAPE: Clam up.");
-	    showmenu();
-	    do
-		response = menugetc();
-	    while ((response != 'a') && (response != 'b') && (response != 'c') && (response != KEY_ESCAPE));
-	    switch (response) {
-		case 'a':
-		    monster_talk (m);
-		    break;
-		case 'b':
-		    threaten (m);
-		    break;
-		case 'c':
-		    surrender (m);
-		    break;
-		default:
-		    setgamestatus (SKIP_MONSTERS);
-		    break;
-	    }
+    monster* m = Level->creature(Player.x+dx,Player.y+dy);
+    if (!m) {
+	print3 ("There's nothing there to talk to!!!");
+	setgamestatus (SKIP_MONSTERS);
+    } else {
+	menuclear();
+	strcpy (Str1, "     Talk to ");
+	strcat (Str1, m->monstring);
+	strcat (Str1, ":");
+	menuprint (Str1);
+	menuprint ("\na: Greet.");
+	menuprint ("\nb: Threaten.");
+	menuprint ("\nc: Surrender.");
+	menuprint ("\nESCAPE: Clam up.");
+	showmenu();
+	do
+	    response = menugetc();
+	while (response != 'a' && response != 'b' && response != 'c' && response != KEY_ESCAPE);
+	switch (response) {
+	    case 'a':	monster_talk (m); break;
+	    case 'b':	threaten (m); break;
+	    case 'c':	surrender (m); break;
+	    default:	setgamestatus (SKIP_MONSTERS); break;
 	}
     }
     xredraw();
@@ -834,84 +826,72 @@ static void disarm (void)
 // is it more blessed to give, or receive?
 static void give (void)
 {
-    int iidx;
-    int dx, dy, dindex = 0;
-    struct monster *m;
-    pob obj;
-
     clearmsg();
-
     print1 ("Give to monster --");
-    dindex = getdir();
-    if (dindex == ABORT)
+    int dindex = getdir();
+    if (dindex == ABORT) {
 	setgamestatus (SKIP_MONSTERS);
-    else {
-	dx = Dirs[0][dindex];
-	dy = Dirs[1][dindex];
-	if (!inbounds (Player.x + dx, Player.y + dy))
-	    print3 ("Whoa, off the map...");
-	else if (Level->site[Player.x + dx][Player.y + dy].creature == NULL) {
-	    print3 ("There's nothing there to give something to!!!");
-	    setgamestatus (SKIP_MONSTERS);
-	} else {
-	    m = Level->site[Player.x + dx][Player.y + dy].creature;
-	    clearmsg();
-	    print1 ("Give what? ");
-	    iidx = getitem (CASH);
-	    if (iidx == ABORT)
-		setgamestatus (SKIP_MONSTERS);
-	    else if (iidx == CASHVALUE)
-		give_money (m);
-	    else if (!cursed (Player.possessions[iidx])) {
-		obj = new object;
-		*obj = *(Player.possessions[iidx]);
-		obj->used = FALSE;
-		conform_lost_objects (1, Player.possessions[iidx]);
-		obj->number = 1;
-		print2 ("Given: ");
-		nprint2 (itemid (obj));
-		morewait();
-		// WDT bug fix: I moved the print above the givemonster
-		// call.  If that turns out looking ugly, I should change it to
-		// a sprintf or strcat.  At any rate, it was wrong before because
-		// it was accessing an object which had already been freed as part
-		// of givemonster.
-		givemonster (m, obj);
-		calc_melee();
-	    } else {
-		print3 ("You can't even give away: ");
-		nprint3 (itemid (Player.possessions[iidx]));
-	    }
-	}
+	return;
+    }
+    int dx = Dirs[0][dindex];
+    int dy = Dirs[1][dindex];
+    monster* m = Level->creature(Player.x+dx,Player.y+dy);
+    if (!m) {
+	print3 ("There's nothing there to give something to!!!");
+	setgamestatus (SKIP_MONSTERS);
+	return;
+    }
+    clearmsg();
+    print1 ("Give what? ");
+    int iidx = getitem (CASH);
+    if (iidx == ABORT)
+	setgamestatus (SKIP_MONSTERS);
+    else if (iidx == CASHVALUE)
+	give_money (m);
+    else if (cursed (Player.possessions[iidx])) {
+	print3 ("You can't even give away: ");
+	nprint3 (itemid (Player.possessions[iidx]));
+    } else {
+	pob obj = new object;
+	*obj = *(Player.possessions[iidx]);
+	obj->used = FALSE;
+	conform_lost_objects (1, Player.possessions[iidx]);
+	obj->number = 1;
+	print2 ("Given: ");
+	nprint2 (itemid (obj));
+	morewait();
+	// WDT bug fix: I moved the print above the givemonster
+	// call.  If that turns out looking ugly, I should change it to
+	// a sprintf or strcat.  At any rate, it was wrong before because
+	// it was accessing an object which had already been freed as part
+	// of givemonster.
+	givemonster (m, obj);
+	calc_melee();
     }
 }
 
 // zap a wand, of course
 static void zapwand (void)
 {
-    int iidx;
-    struct object *obj;
-
     clearmsg();
-
-    if (Player.status[AFRAID] > 0)
+    if (Player.status[AFRAID] > 0) {
 	print3 ("You are so terror-stricken you can't hold a wand straight!");
+	return;
+    }
+    print1 ("Zap --");
+    int iidx = getitem (STICK);
+    if (iidx == ABORT)
+	setgamestatus (SKIP_MONSTERS);
     else {
-	print1 ("Zap --");
-	iidx = getitem (STICK);
-	if (iidx == ABORT)
-	    setgamestatus (SKIP_MONSTERS);
+	object* obj = Player.possessions[iidx];
+	if (obj->objchar != STICK) {
+	    print3 ("You can't zap: ");
+	    nprint3 (itemid (obj));
+	} else if (obj->charge < 1)
+	    print3 ("Fizz.... Pflpt. Out of charges. ");
 	else {
-	    obj = Player.possessions[iidx];
-	    if (obj->objchar != STICK) {
-		print3 ("You can't zap: ");
-		nprint3 (itemid (obj));
-	    } else if (obj->charge < 1)
-		print3 ("Fizz.... Pflpt. Out of charges. ");
-	    else {
-		obj->charge--;
-		item_use (obj);
-	    }
+	    obj->charge--;
+	    item_use (obj);
 	}
     }
 }
@@ -921,29 +901,29 @@ static void magic (void)
 {
     int iidx, pwrdrain;
     clearmsg();
-    if (Player.status[AFRAID] > 0)
+    if (Player.status[AFRAID] > 0) {
 	print3 ("You are too afraid to concentrate on a spell!");
-    else {
-	iidx = getspell();
-	xredraw();
-	if (iidx == ABORT)
-	    setgamestatus (SKIP_MONSTERS);
-	else {
-	    pwrdrain = Spells[iidx].powerdrain;
-	    if (Lunarity == 1)
-		pwrdrain = pwrdrain / 2;
-	    else if (Lunarity == -1)
-		pwrdrain = pwrdrain * 2;
-	    if (pwrdrain > Player.mana)
-		if (Lunarity == -1 && Player.mana >= pwrdrain / 2)
-		    print3 ("The contrary moon has made that spell too draining! ");
-		else
-		    print3 ("You lack the power for that spell! ");
-	    else {
-		Player.mana -= pwrdrain;
-		cast_spell (iidx);
-	    }
-	}
+	return;
+    }
+    iidx = getspell();
+    xredraw();
+    if (iidx == ABORT) {
+	setgamestatus (SKIP_MONSTERS);
+	return;
+    }
+    pwrdrain = Spells[iidx].powerdrain;
+    if (Lunarity == 1)
+	pwrdrain = pwrdrain / 2;
+    else if (Lunarity == -1)
+	pwrdrain = pwrdrain * 2;
+    if (pwrdrain > Player.mana) {
+	if (Lunarity == -1 && Player.mana >= pwrdrain / 2)
+	    print3 ("The contrary moon has made that spell too draining! ");
+	else
+	    print3 ("You lack the power for that spell! ");
+    } else {
+	Player.mana -= pwrdrain;
+	cast_spell (iidx);
     }
     dataprint();
 }
@@ -1549,8 +1529,9 @@ static void examine (void)
 	    print3 ("I refuse to examine something I can't see.");
 	else {
 	    clearmsg();
-	    if (Level->site[x][y].creature != NULL)
-		mprint (mstatus_string (Level->site[x][y].creature));
+	    monster* sm = Level->creature(x,y);
+	    if (sm)
+		mprint (mstatus_string (sm));
 	    else if ((Player.x == x) && (Player.y == y))
 		describe_player();
 	    if (loc_statusp (x, y, SECRET))
@@ -1778,7 +1759,7 @@ static void fire (void)
 	    mprint ("You practice juggling for a moment or two.");
 	else {
 	    do_object_los (obj->objchar, &x1, &y1, x2, y2);
-	    if ((m = Level->site[x1][y1].creature) != NULL) {
+	    if ((m = Level->creature(x1,y1))) {
 		if (obj->dmg == 0) {
 		    if (m->treasure > 0) {	// the monster can have treasure/objects
 			mprint ("Your gift is caught!");
@@ -1906,7 +1887,7 @@ static void vault (void)
 	    print3 ("You are too burdened to jump anywhere.");
 	else if (distance (x, y, Player.x, Player.y) > max (2, statmod (Player.agi) + 2) + jumper)
 	    print3 ("The jump is too far for you.");
-	else if (Level->site[x][y].creature != NULL)
+	else if (Level->creature(x,y))
 	    print3 ("You can't jump on another creature.");
 	else if (!p_moveable (x, y))
 	    print3 ("You can't jump there.");
@@ -2103,52 +2084,46 @@ static void tacoptions (void)
 // Do the Artful Dodger trick
 static void pickpocket (void)
 {
-    int dx, dy, ii = 0;
-    struct monster *m;
-
     clearmsg();
-
     mprint ("Pickpocketing --");
-
-    ii = getdir();
-
-    if (ii == ABORT)
+    int ii = getdir();
+    if (ii == ABORT) {
 	setgamestatus (SKIP_MONSTERS);
-    else {
-	dx = Dirs[0][ii];
-	dy = Dirs[1][ii];
+	return;
+    }
+    int dx = Dirs[0][ii];
+    int dy = Dirs[1][ii];
 
-	if ((!inbounds (Player.x + dx, Player.y + dy)) || (Level->site[Player.x + dx][Player.y + dy].creature == NULL)) {
-	    print3 ("There's nothing there to steal from!!!");
-	    setgamestatus (SKIP_MONSTERS);
+    monster* m = Level->creature(Player.x + dx, Player.y + dy);
+    if (!m) {
+	print3 ("There's nothing there to steal from!!!");
+	setgamestatus (SKIP_MONSTERS);
+	return;
+    }
+    if (m->id == GUARD) {
+	mprint ("Trying to steal from a guardsman, eh?");
+	mprint ("Not a clever idea.");
+	if (Player.cash > 0) {
+	    mprint ("As a punitive fine, the guard takes all your money.");
+	    Player.cash = 0;
+	    dataprint();
 	} else {
-	    m = Level->site[Player.x + dx][Player.y + dy].creature;
-	    if (m->id == GUARD) {
-		mprint ("Trying to steal from a guardsman, eh?");
-		mprint ("Not a clever idea.");
-		if (Player.cash > 0) {
-		    mprint ("As a punitive fine, the guard takes all your money.");
-		    Player.cash = 0;
-		    dataprint();
-		} else {
-		    mprint ("The guardsman places you under arrest.");
-		    morewait();
-		    send_to_jail();
-		}
-	    } else if (m->possessions == NULL) {
-		mprint ("You couldn't find anything worth taking!");
-		mprint ("But you managed to annoy it...");
-		m_status_set (m, HOSTILE);
-	    } else if (Player.dex * 5 + Player.rank[THIEVES] * 20 + random_range (100) > random_range (100) + m->level * 20) {
-		mprint ("You successfully complete your crime!");
-		mprint ("You stole:");
-		mprint (itemid (m->possessions->thing));
-		Player.alignment--;
-		gain_experience (m->level * m->level);
-		gain_item (m->possessions->thing);
-		m->possessions = m->possessions->next;
-	    }
+	    mprint ("The guardsman places you under arrest.");
+	    morewait();
+	    send_to_jail();
 	}
+    } else if (!m->possessions) {
+	mprint ("You couldn't find anything worth taking!");
+	mprint ("But you managed to annoy it...");
+	m_status_set (m, HOSTILE);
+    } else if (Player.dex * 5 + Player.rank[THIEVES] * 20 + random_range (100) > random_range (100) + m->level * 20) {
+	mprint ("You successfully complete your crime!");
+	mprint ("You stole:");
+	mprint (itemid (m->possessions->thing));
+	--Player.alignment;
+	gain_experience (m->level * m->level);
+	gain_item (m->possessions->thing);
+	m->possessions = m->possessions->next;
     }
 }
 
@@ -2326,7 +2301,6 @@ static void hunt (int terrain)
 
 void dismount_steed (void)
 {
-    pml ml;
     if (!gamestatusp (MOUNTED))
 	print3 ("You're on foot already!");
     else if (Current_Environment == E_COUNTRYSIDE) {
@@ -2336,15 +2310,8 @@ void dismount_steed (void)
 	    resetgamestatus (MOUNTED);
     } else {
 	resetgamestatus (MOUNTED);;
-	ml = new monsterlist;
-	ml->m = new monster;
-	*(ml->m) = Monsters[HORSE];
-	ml->m->x = Player.x;
-	ml->m->y = Player.y;
-	ml->m->status = MOBILE + SWIMMING;
-	ml->next = Level->mlist;
-	Level->site[Player.x][Player.y].creature = ml->m;
-	Level->mlist = ml;
+	monster& m = make_site_monster (Player.x, Player.y, HORSE);
+	m.status = MOBILE + SWIMMING;
     }
     calc_melee();
 }

@@ -1924,13 +1924,13 @@ static void i_juggernaut (pob o)
 	    }
 	    lreset (x, y, SECRET);
 	    lset (x, y, CHANGED);
-	    if (Level->site[x][y].creature != NULL) {
+	    if (Level->creature(x,y) != NULL) {
 		if (seen)
 		    nprint1 ("Splat! ");
 		else
 		    not_seen++;
 		setgamestatus (SUPPRESS_PRINTING);
-		m_death (Level->site[x][y].creature);
+		m_death (Level->creature(x,y));
 		resetgamestatus (SUPPRESS_PRINTING);
 	    }
 	    plotspot (x, y, FALSE);
@@ -2026,7 +2026,7 @@ static void i_antioch (pob o)
 	morewait();
 	print1 ("What do you count up to? ");
 	count = (int) parsenum();
-	if ((count < 3) && (Level->site[x][y].creature != NULL)) {
+	if (count < 3 && Level->creature(x,y)) {
 	    print1 ("`Three shall be the number of thy counting....");
 	    print2 ("And the number of thy counting shall be three.'");
 	    print3 ("Your target picks up the grenade and throws it back!");
@@ -2047,8 +2047,8 @@ static void i_antioch (pob o)
 	    Level->site[x][y].locchar = TRAP;
 	    Level->site[x][y].p_locf = L_TRAP_DOOR;
 	    lset (x, y, CHANGED);
-	    if (Level->site[x][y].creature != NULL) {
-		m_death (Level->site[x][y].creature);
+	    if (Level->creature(x,y)) {
+		m_death (Level->creature(x,y));
 		print2 ("You are covered with gore.");
 	    }
 	    Level->site[x][y].things = NULL;

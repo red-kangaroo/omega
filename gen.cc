@@ -43,14 +43,13 @@ void clear_level (struct level *dungeon_level)
 	dungeon_level->numrooms = 0;
 	dungeon_level->tunnelled = 0;
 	dungeon_level->depth = 0;
-	dungeon_level->mlist = NULL;
+	dungeon_level->mlist.clear();
 	dungeon_level->next = NULL;
 	dungeon_level->last_visited = time(NULL);
 	for (i = 0; i < MAXWIDTH; i++) {
 	    for (j = 0; j < MAXLENGTH; j++) {
 		dungeon_level->site[i][j].locchar = WALL;
 		dungeon_level->site[i][j].showchar = SPACE;
-		dungeon_level->site[i][j].creature = NULL;
 		dungeon_level->site[i][j].things = NULL;
 		dungeon_level->site[i][j].aux = difficulty() * 20;
 		dungeon_level->site[i][j].buildaux = 0;
@@ -518,20 +517,12 @@ void cavern_level (void)
     if (Current_Dungeon == E_CAVES) {
 	if ((Level->depth == CAVELEVELS) && (!gamestatusp (COMPLETED_CAVES))) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = new monsterlist;
-	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GOBLIN_KING));	// goblin king
-	    Level->mlist->m->x = tx;
-	    Level->mlist->m->y = ty;
+	    make_site_monster (tx, ty, GOBLIN_KING);
 	}
     } else if (Current_Environment == E_VOLCANO) {
 	if (Level->depth == VOLCANOLEVELS) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = new monsterlist;
-	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	// The dark emp
-	    Level->mlist->m->x = tx;
-	    Level->mlist->m->y = ty;
+	    make_site_monster (tx, ty, DEMON_EMP);
 	}
     }
 }
@@ -566,11 +557,7 @@ void sewer_level (void)
     if (Current_Dungeon == E_SEWERS) {
 	if ((Level->depth == SEWERLEVELS) && (!gamestatusp (COMPLETED_SEWERS))) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = new monsterlist;
-	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GREAT_WYRM));	// The Great Wyrm
-	    Level->mlist->m->x = tx;
-	    Level->mlist->m->y = ty;
+	    make_site_monster (tx, ty, GREAT_WYRM);
 	}
     }
 }
@@ -929,11 +916,7 @@ void room_level (void)
     if (Current_Dungeon == E_SEWERS) {
 	if (Level->depth == SEWERLEVELS) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = new monsterlist;
-	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (GREAT_WYRM));	// The Great Wyrm
-	    Level->mlist->m->x = tx;
-	    Level->mlist->m->y = ty;
+	    make_site_monster (tx, ty, GREAT_WYRM);
 	}
     } else if (Current_Environment == E_CASTLE) {
 	if (Level->depth == CASTLELEVELS) {
@@ -944,11 +927,7 @@ void room_level (void)
     } else if (Current_Environment == E_VOLCANO) {
 	if (Level->depth == VOLCANOLEVELS && !gamestatusp (COMPLETED_VOLCANO)) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = new monsterlist;
-	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	// The demon emp
-	    Level->mlist->m->x = tx;
-	    Level->mlist->m->y = ty;
+	    make_site_monster (tx, ty, DEMON_EMP);
 	}
     }
 }
@@ -990,7 +969,7 @@ void maze_level (void)
 {
     int i, j, tx, ty;
     char rsi = RS_VOLCANO;
-    if (Current_Environment == E_ASTRAL)
+    if (Current_Environment == E_ASTRAL) {
 	switch (Level->depth) {
 	    case 1:
 		rsi = RS_EARTHPLANE;
@@ -1007,12 +986,13 @@ void maze_level (void)
 	    case 5:
 		rsi = RS_HIGHASTRAL;
 		break;
+	}
     }
     maze_corridor (random_range (WIDTH - 1) + 1, random_range (LENGTH - 1) + 1, random_range (WIDTH - 1) + 1, random_range (LENGTH - 1) + 1, rsi, 0);
     if (Current_Dungeon == E_ASTRAL) {
-	for (i = 0; i < WIDTH; i++)
-	    for (j = 0; j < LENGTH; j++)
-		if (Level->site[i][j].locchar == WALL)
+	for (i = 0; i < WIDTH; i++) {
+	    for (j = 0; j < LENGTH; j++) {
+		if (Level->site[i][j].locchar == WALL) {
 		    switch (Level->depth) {
 			case 1:
 			    Level->site[i][j].aux = 500;
@@ -1034,20 +1014,15 @@ void maze_level (void)
 			    Level->site[i][j].p_locf = L_ABYSS;
 			    break;
 		    }
+		}
+	    }
+	}
 	int mid = ELEM_MASTER;
 	switch (Level->depth) {
-	    case 1:
-		mid = LORD_EARTH;
-		break;
-	    case 2:
-		mid = LORD_AIR;
-		break;
-	    case 3:
-		mid = LORD_WATER;
-		break;
-	    case 4:
-		mid = LORD_FIRE;
-		break;
+	    case 1: mid = LORD_EARTH; break;
+	    case 2: mid = LORD_AIR; break;
+	    case 3: mid = LORD_WATER; break;
+	    case 4: mid = LORD_FIRE; break;
 	}
 	if (Level->depth == 5) {
 	    findspace (&tx, &ty, -1);
@@ -1056,20 +1031,12 @@ void maze_level (void)
 	}
 	if (!gamestatusp (COMPLETED_ASTRAL)) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = new monsterlist;
-	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (mid));
-	    Level->mlist->m->x = tx;
-	    Level->mlist->m->y = ty;
+	    make_site_monster (tx, ty, mid);
 	}
     } else if (Current_Environment == E_VOLCANO) {
 	if (Level->depth == VOLCANOLEVELS && !gamestatusp (COMPLETED_VOLCANO)) {
 	    findspace (&tx, &ty, -1);
-	    Level->mlist = new monsterlist;
-	    Level->mlist->next = NULL;
-	    Level->mlist->m = Level->site[tx][ty].creature = ((pmt) make_creature (DEMON_EMP));	// The demon emp
-	    Level->mlist->m->x = tx;
-	    Level->mlist->m->y = ty;
+	    make_site_monster (tx, ty, DEMON_EMP);
 	}
     }
 }
@@ -1080,6 +1047,5 @@ static void maze_corridor (int fx, int fy, int tx, int ty, int rsi, int num)
     if (num < 6) {
 	straggle_corridor (fx, fy, tx, ty, FLOOR, rsi);
 	maze_corridor (tx, ty, random_range (WIDTH - 1) + 1, random_range (LENGTH - 1) + 1, rsi, num + 1);
-
     }
 }

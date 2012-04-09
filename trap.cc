@@ -5,7 +5,6 @@
 // note special function on different levels
 void l_trap_siren (void)
 {
-    pml ml;
     Level->site[Player.x][Player.y].locchar = TRAP;
     lset (Player.x, Player.y, CHANGED);
     print1 ("A klaxon goes off!");
@@ -13,14 +12,15 @@ void l_trap_siren (void)
     print3 ("You have the feeling you have been discovered....");
     morewait();
     clearmsg();
-    if ((Current_Environment == E_HOUSE) || (Current_Environment == E_MANSION)) {
-	if (!gamestatusp (DESTROYED_ORDER)) {
+    if (Current_Environment == E_HOUSE || Current_Environment == E_MANSION) {
+	if (gamestatusp (DESTROYED_ORDER))
+	    print1 ("Nobody answers the alarm.");
+	else {
 	    print1 ("The city guard arrives!");
 	    print2 ("You are apprehended....");
 	    morewait();
 	    send_to_jail();
-	} else
-	    print1 ("Nobody answers the alarm.");
+	}
     } else if (Current_Environment == E_HOVEL)
 	print1 ("Nobody answers the alarm.");
     else {
@@ -29,11 +29,11 @@ void l_trap_siren (void)
 	    summon (-1, DEMON_PRINCE);
 	    summon (-1, DEMON_PRINCE);
 	}
-	for (ml = Level->mlist; ml != NULL; ml = ml->next) {
-	    m_status_set (ml->m, AWAKE);
-	    ml->m->sense *= 2;
-	    if ((Current_Environment == E_CIRCLE) || ((Current_Environment == E_VILLAGE) && (ml->m->id == GUARD)) || ((Current_Environment == E_CITY) && (ml->m->id == GUARD)))
-		m_status_set (ml->m, HOSTILE);
+	foreach (m, Level->mlist) {
+	    m_status_set (*m, AWAKE);
+	    m->sense *= 2;
+	    if (Current_Environment == E_CIRCLE || (m->id == GUARD && (Current_Environment == E_VILLAGE || Current_Environment == E_CITY)))
+		m_status_set (*m, HOSTILE);
 	}
     }
 }

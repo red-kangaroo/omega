@@ -27,7 +27,6 @@ extern int Last_Environment;			// Which environment were we in last (an E_ const
 extern const int8_t Dirs[2][9];			// 9 xy directions
 extern char Cmd;				// last player command
 extern int Command_Duration;			// how long does current command take
-extern struct monster *Arena_Monster;		// Opponent in arena
 extern int Arena_Opponent;			// case label of opponent in l_arena()
 extern int Arena_Victory;			// did player win in arena?
 extern int Imprisonment;			// amount of time spent in jail
@@ -127,7 +126,11 @@ static inline void c_reset(int x, int y, unsigned stat)		{ Country[x][y].status 
 static inline bool m_statusp (const monster_data* m,unsigned s)	{ return (m->status & s); }
 static inline void m_status_set (monster* m, unsigned s)	{ m->status |= s; }
 static inline void m_status_reset (monster* m, unsigned s)	{ m->status &= ~s; }
-static inline bool m_immunityp (monster* m, unsigned s)		{ return (m->immunity & pow2(s)); }
+static inline bool m_immunityp (const monster* m, unsigned s)	{ return (m->immunity & pow2(s)); }
+static inline bool m_statusp (const monster_data& m,unsigned s)	{ return (m.status & s); }
+static inline void m_status_set (monster& m, unsigned s)	{ m.status |= s; }
+static inline void m_status_reset (monster& m, unsigned s)	{ m.status &= ~s; }
+static inline bool m_immunityp (const monster& m, unsigned s)	{ return (m.immunity & pow2(s)); }
 
 static inline bool gamestatusp (unsigned flag)			{ return (GameStatus & flag); }
 static inline void setgamestatus (unsigned flag)		{ GameStatus |= flag; }

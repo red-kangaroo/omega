@@ -349,6 +349,17 @@ void mprint (const char* s)
     }
 }
 
+void mprintf (const char* fmt, ...)
+{
+    char buf [128];
+    va_list args;
+    va_start (args, fmt);
+    vsnprintf (ArrayBlock(buf), fmt, args);
+    buf[ArraySize(buf)-1] = 0;
+    mprint (buf);
+    va_end (args);
+}
+
 void omega_title (void)
 {
     showmotd();
@@ -637,22 +648,20 @@ void plotmon (struct monster *m)
 // if display, displays monsters, otherwise erases them
 void drawmonsters (int display)
 {
-    pml ml;
-    for (ml = Level->mlist; ml != NULL; ml = ml->next) {
-	if (ml->m->hp > 0) {
-	    if (display) {
-		if (view_los_p (Player.x, Player.y, ml->m->x, ml->m->y)) {
-		    if (Player.status[TRUESIGHT] || (!m_statusp (ml->m, M_INVISIBLE))) {
-			if (!optionp (SHOW_COLOUR) && (ml->m->level > 5) && ((ml->m->monchar & 0xff) != '@') && ((ml->m->monchar & 0xff) != '|'))
-			    wstandout (Levelw);
-			putspot (ml->m->x, ml->m->y, ml->m->monchar);
-			if (!optionp (SHOW_COLOUR))
-			    wstandend (Levelw);
-		    }
+    foreach (m, Level->mlist) {
+	if (m->hp < 0) continue;
+	if (display) {
+	    if (view_los_p (Player.x, Player.y, m->x, m->y)) {
+		if (Player.status[TRUESIGHT] || (!m_statusp (m, M_INVISIBLE))) {
+		    if (!optionp (SHOW_COLOUR) && (m->level > 5) && ((m->monchar & 0xff) != '@') && ((m->monchar & 0xff) != '|'))
+			wstandout (Levelw);
+		    putspot (m->x, m->y, m->monchar);
+		    if (!optionp (SHOW_COLOUR))
+			wstandend (Levelw);
 		}
-	    } else
-		erase_monster (ml->m);
-	}
+	    }
+	} else
+	    erase_monster (m);
     }
 }
 
@@ -670,48 +679,48 @@ chtype getspot (int x, int y, int showmonster)
 {
     if (loc_statusp (x, y, SECRET))
 	return (WALL);
-    else
-	switch (Level->site[x][y].locchar) {
-	    case WATER:
-		if (Level->site[x][y].creature == NULL)
-		    return (WATER);
-		else if (m_statusp (Level->site[x][y].creature, SWIMMING))
-		    return (WATER);
-		else if (showmonster)
-		    return (Level->site[x][y].creature->monchar);
+    monster* m = Level->creature(x,y);
+    switch (Level->site[x][y].locchar) {
+	case WATER:
+	    if (!m)
+		return (WATER);
+	    else if (m_statusp (*m, SWIMMING))
+		return (WATER);
+	    else if (showmonster)
+		return (m->monchar);
+	    else
+		return (WATER);
+	    // these sites never show anything but their location char's
+	case CLOSED_DOOR:
+	case LAVA:
+	case FIRE:
+	case ABYSS:
+	    return (Level->site[x][y].locchar);
+	    // rubble and hedge don't show items on their location
+	case RUBBLE:
+	case HEDGE:
+	    if (showmonster && m) {
+		if (m_statusp (*m, M_INVISIBLE) && !Player.status[TRUESIGHT])
+		    return (getspot (x, y, FALSE));
 		else
-		    return (WATER);
-		// these sites never show anything but their location char's
-	    case CLOSED_DOOR:
-	    case LAVA:
-	    case FIRE:
-	    case ABYSS:
+		    return (m->monchar);
+	    } else
 		return (Level->site[x][y].locchar);
-		// rubble and hedge don't show items on their location
-	    case RUBBLE:
-	    case HEDGE:
-		if (showmonster && (Level->site[x][y].creature != NULL)) {
-		    if ((m_statusp (Level->site[x][y].creature, M_INVISIBLE)) && (!Player.status[TRUESIGHT]))
-			return (getspot (x, y, FALSE));
-		    else
-			return (Level->site[x][y].creature->monchar);
-		} else
-		    return (Level->site[x][y].locchar);
-		// everywhere else, first try to show monster, next show items, next show location char
-	    default:
-		if (showmonster && (Level->site[x][y].creature != NULL)) {
-		    if ((m_statusp (Level->site[x][y].creature, M_INVISIBLE)) && (!Player.status[TRUESIGHT]))
-			return (getspot (x, y, FALSE));
-		    else
-			return (Level->site[x][y].creature->monchar);
-		} else if (Level->site[x][y].things != NULL) {
-		    if (Level->site[x][y].things->next != NULL)
-			return (PILE);
-		    else
-			return (Level->site[x][y].things->thing->objchar);
-		} else
-		    return (Level->site[x][y].locchar);
-	}
+	    // everywhere else, first try to show monster, next show items, next show location char
+	default:
+	    if (showmonster && m) {
+		if (m_statusp (*m, M_INVISIBLE) && !Player.status[TRUESIGHT])
+		    return (getspot (x, y, FALSE));
+		else
+		    return (m->monchar);
+	    } else if (Level->site[x][y].things != NULL) {
+		if (Level->site[x][y].things->next != NULL)
+		    return (PILE);
+		else
+		    return (Level->site[x][y].things->thing->objchar);
+	    } else
+		return (Level->site[x][y].locchar);
+    }
 }
 
 void commanderror (void)

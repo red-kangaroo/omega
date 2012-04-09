@@ -271,7 +271,7 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 		    break;
 	    }
 	}
-    } else if (NULL != (target = Level->site[xx][yy].creature)) {
+    } else if ((target = Level->creature(xx,yy))) {
 	if (hitp (hit, target->ac)) {
 	    if (target->uniqueness == COMMON) {
 		strcpy (Str1, "The ");
@@ -408,7 +408,7 @@ static void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
 		    break;
 	    }
 	}
-	if (NULL != (target = Level->site[ex][ey].creature)) {
+	if ((target = Level->creature(ex,ey))) {
 	    if (los_p (Player.x, Player.y, target->x, target->y)) {
 		if (target->uniqueness == COMMON) {
 		    strcpy (Str1, "The ");
@@ -459,14 +459,12 @@ static void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
 
 void mondet (int blessing)
 {
-    pml ml;
-    for (ml = Level->mlist; ml != NULL; ml = ml->next) {
-	if (ml->m->hp > 0) {
-	    if (blessing > -1)
-		plotmon (ml->m);
-	    else
-		putspot (random_range (WIDTH), random_range (LENGTH), Monsters[random_range (NUMMONSTERS)].monchar);
-	}
+    foreach (m, Level->mlist) {
+	if (m->hp <= 0) continue;
+	if (blessing > -1)
+	    plotmon (m);
+	else
+	    putspot (random_range (WIDTH), random_range (LENGTH), Monsters[random_range (NUMMONSTERS)].monchar);
     }
     levelrefresh();
     morewait();
@@ -475,15 +473,16 @@ void mondet (int blessing)
 
 void objdet (int blessing)
 {
-    int i, j;
-    for (i = 0; i < WIDTH; i++)
-	for (j = 0; j < LENGTH; j++)
+    for (int i = 0; i < WIDTH; i++) {
+	for (int j = 0; j < LENGTH; j++) {
 	    if (Level->site[i][j].things != NULL) {
 		if (blessing < 0)
 		    putspot (random_range (WIDTH), random_range (LENGTH), Level->site[i][j].things->thing->objchar);
 		else
 		    putspot (i, j, Level->site[i][j].things->thing->objchar);
 	    }
+	}
+    }
     levelrefresh();
     morewait();
     show_screen();
@@ -1388,8 +1387,7 @@ void accuracy (int blessing)
 // if know id, then summon that monster; else (if < 0) get one.
 void summon (int blessing, int id)
 {
-    int i, looking = TRUE, x, y;
-    pml tml;
+    int looking = TRUE, x = 0, y = 0;
 
     if (id < 0) {
 	if (blessing > 0) {
@@ -1400,27 +1398,18 @@ void summon (int blessing, int id)
 	else if (blessing < 0)
 	    id = random_range (NUMMONSTERS);
     }
-    for (i = 0; ((i < 8) && looking); i++) {
+    for (int i = 0; ((i < 8) && looking); i++) {
 	x = Player.x + Dirs[0][i];
 	y = Player.y + Dirs[1][i];
-	looking = ((!inbounds (x, y)) || (Level->site[x][y].locchar != FLOOR) || (Level->site[x][y].creature != NULL));
+	looking = (!inbounds (x, y) || Level->site[x][y].locchar != FLOOR || Level->creature(x,y));
     }
 
     if (!looking) {
-	if ((blessing == 0) && (id < 0))
-	    Level->site[x][y].creature = m_create (x, y, WANDERING, difficulty());
-	else
-	    Level->site[x][y].creature = make_creature (id);
-	Level->site[x][y].creature->x = x;
-	Level->site[x][y].creature->y = y;
-	tml = new monsterlist;
-	tml->m = Level->site[x][y].creature;
+	monster& m = make_site_monster (x, y, (!blessing && id == RANDOM) ? RANDOM : id);
 	if (blessing > 0)
-	    m_status_reset (tml->m, HOSTILE);
+	    m_status_reset (m, HOSTILE);
 	else if (blessing < 0)
-	    m_status_set (tml->m, HOSTILE);
-	tml->next = Level->mlist;
-	Level->mlist = tml;
+	    m_status_set (m, HOSTILE);
     }
 }
 
@@ -1512,14 +1501,12 @@ void cleanse (int blessing)
 
 void annihilate (int blessing)
 {
-    pml ml;
-    int i;
-
     if (blessing == 0) {
 	mprint ("Lightning strikes flash all around you!!!");
-	for (i = 0; i < 9; i++)
-	    if (Level->site[Player.x + Dirs[0][i]][Player.y + Dirs[1][i]].creature != NULL)
-		m_death (Level->site[Player.x + Dirs[0][i]][Player.y + Dirs[1][i]].creature);
+	for (int i = 0; i < 9; i++) {
+	    monster* m = Level->creature(Player.x + Dirs[0][i],Player.y + Dirs[1][i]);
+	    if (m) m_death (m);
+	}
     }
     if (blessing > 0) {
 	if (Current_Environment == E_COUNTRYSIDE) {
@@ -1531,9 +1518,9 @@ void annihilate (int blessing)
 	    Player.alignment -= 3;
 	} else {
 	    mprint ("Thousands of bolts of lightning flash throughout the level!!!");
-	    for (ml = Level->mlist; ml != NULL; ml = ml->next)
-		if (ml->m != NULL && ml->m->hp > 0)
-		    m_death (ml->m);
+	    foreach (m, Level->mlist)
+		if (m->hp > 0)
+		    m_death (m);
 	}
     } else {
 	mprint ("You are hit by a bolt of mystic lightning!");
@@ -1543,7 +1530,6 @@ void annihilate (int blessing)
 
 void sleep_monster (int blessing)
 {
-    pml ml;
     int x = Player.x, y = Player.y;
     struct monster *target;
 
@@ -1554,12 +1540,12 @@ void sleep_monster (int blessing)
 	sleep_player (absv (blessing) + 2);
     else if (blessing > 0) {
 	mprint ("A silence pervades the area.");
-	for (ml = Level->mlist; ml != NULL; ml = ml->next) {
-	    m_status_reset (ml->m, AWAKE);
-	    ml->m->wakeup = 0;
+	foreach (m, Level->mlist) {
+	    m_status_reset (*m, AWAKE);
+	    m->wakeup = 0;
 	}
     } else {
-	target = Level->site[x][y].creature;
+	target = Level->creature(x,y);
 	if (target != NULL) {
 	    if (target->uniqueness == COMMON) {
 		strcpy (Str1, "The ");
@@ -1619,11 +1605,9 @@ void clairvoyance (int vision)
 
 void aggravate (void)
 {
-    pml tm;
-
-    for (tm = Level->mlist; tm != NULL; tm = tm->next) {
-	m_status_set (tm->m, AWAKE);
-	m_status_set (tm->m, HOSTILE);
+    foreach (m, Level->mlist) {
+	m_status_set (*m, AWAKE);
+	m_status_set (*m, HOSTILE);
     }
 }
 
@@ -1694,7 +1678,7 @@ void disrupt (int x, int y, int amount)
 	mprint ("You feel disrupted!");
 	p_damage (amount, NORMAL_DAMAGE, "magical disruption");
     } else {
-	target = Level->site[x][y].creature;
+	target = Level->creature(x,y);
 	if (target != NULL) {
 	    if (target->uniqueness == COMMON) {
 		strcpy (Str1, "The ");
@@ -1734,7 +1718,7 @@ void disintegrate (int x, int y)
     } else {
 	if (!view_los_p (Player.x, Player.y, x, y))
 	    setgamestatus (SUPPRESS_PRINTING);
-	if ((target = Level->site[x][y].creature) != NULL) {
+	if ((target = Level->creature(x,y)) != NULL) {
 	    if (target->uniqueness == COMMON) {
 		strcpy (Str1, "The ");
 		strcat (Str1, target->monstring);
@@ -1841,7 +1825,7 @@ void p_teleport (int type)
 	findspace (&(Player.x), &(Player.y), -1);
     else {
 	setspot (&Player.x, &Player.y);
-	if ((Level->site[Player.x][Player.y].locchar != FLOOR) || (Level->site[Player.x][Player.y].creature != NULL)) {
+	if (Level->site[Player.x][Player.y].locchar != FLOOR || Level->creature(Player.x,Player.y)) {
 	    mprint ("You feel deflected.");
 	    p_teleport (0);
 	}
@@ -2123,6 +2107,7 @@ void dispel (int blessing)
 {
     int i, x = Player.x, y = Player.y;
     pob o;
+    monster* target;
     if (blessing > -1) {
 	setspot (&x, &y);
 	if ((x == Player.x) && (y == Player.y)) {
@@ -2148,15 +2133,15 @@ void dispel (int blessing)
 			}
 		    }
 	    }
-	} else if (Level->site[x][y].creature != NULL) {
-	    if (Level->site[x][y].creature->level < blessing * 3) {
-		Level->site[x][y].creature->specialf = M_NO_OP;
-		if (Level->site[x][y].creature->meleef != M_NO_OP)
-		    Level->site[x][y].creature->meleef = M_MELEE_NORMAL;
-		Level->site[x][y].creature->strikef = M_NO_OP;
-		Level->site[x][y].creature->immunity = 0;
-		m_status_reset (Level->site[x][y].creature, M_INVISIBLE);
-		m_status_reset (Level->site[x][y].creature, INTANGIBLE);
+	} else if ((target = Level->creature(x,y))) {
+	    if (target->level < blessing * 3) {
+		target->specialf = M_NO_OP;
+		if (target->meleef != M_NO_OP)
+		    target->meleef = M_MELEE_NORMAL;
+		target->strikef = M_NO_OP;
+		target->immunity = 0;
+		m_status_reset (*target, M_INVISIBLE);
+		m_status_reset (*target, INTANGIBLE);
 	    } else
 		mprint ("The monster ignores the effect!");
 	} else if ((Level->site[x][y].p_locf == L_TRAP_FIRE) || (Level->site[x][y].p_locf == L_STATUE_WAKE) || (Level->site[x][y].p_locf == L_TRAP_TELEPORT) || (Level->site[x][y].p_locf == L_TRAP_DISINTEGRATE)) {
@@ -2209,7 +2194,7 @@ void polymorph (int blessing)
 	mprint (Monsters[random_range (NUMMONSTERS)].monstring);
 	mprint ("But your game is over....");
 	p_death ("polymorphing oneself");
-    } else if ((m = Level->site[x][y].creature) == NULL)
+    } else if ((m = Level->creature(x,y)) == NULL)
 	mprint ("Nothing happens.");
     else {
 	if (m_immunityp (m, OTHER_MAGIC) || (m->level > random_range (12))) {
@@ -2267,7 +2252,7 @@ void hellfire (int x, int y, int blessing)
     if ((x == Player.x) && (y == Player.y)) {
 	mprint ("You have been completely annihilated. Congratulations.");
 	p_death ("hellfire");
-    } else if ((m = Level->site[x][y].creature) == NULL) {
+    } else if ((m = Level->creature(x,y)) == NULL) {
 	mprint ("The gods are angry over your waste of power...");
 	level_drain (5, "indiscriminate use of hellfire");
     } else {
@@ -2304,7 +2289,7 @@ void drain (int blessing)
 	mprint ("You drain your own energy....");
 	mprint ("Uh, oh, positive feedback....");
 	level_drain (Player.level, "self-vampirism");
-    } else if ((m = Level->site[x][y].creature) != NULL) {
+    } else if ((m = Level->creature(x,y)) != NULL) {
 	if ((blessing > -1) && (!m_immunityp (m, NEGENERGY))) {
 	    mprint ("The monster seems weaker...");
 	    m_damage (m, m->level * m->level, NEGENERGY);
@@ -2445,7 +2430,7 @@ void inflict_fear (int x, int y)
 	    mprint ("You panic!");
 	    Player.status[AFRAID] += 10;
 	}
-    } else if ((m = Level->site[x][y].creature) != NULL) {
+    } else if ((m = Level->creature(x,y)) != NULL) {
 	if (m->uniqueness == COMMON) {
 	    strcpy (Str2, "The ");
 	    strcat (Str2, m->monstring);

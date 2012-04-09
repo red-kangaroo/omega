@@ -8,13 +8,11 @@ static void restore_country(istream& is, int ver);
 static pob restore_item(istream& is, int ver);
 static pol restore_itemlist(istream& is, int ver);
 static void restore_level(istream& is, int ver);
-static void restore_monsters(istream& is, plv level, int ver);
 static void restore_player(istream& is, int ver);
 static void save_country(ostream& os);
 static void save_item (ostream& os, const object* o);
 static void save_itemlist (ostream& os, pol ol);
 static void save_level(ostream& os, plv level);
-static void save_monsters(ostream& os, pml ml);
 static void save_player(ostream& os);
 
 //----------------------------------------------------------------------
@@ -379,7 +377,7 @@ static void save_level (ostream& os, plv level)
     }
     if (run < 8*sizeof (mask))
 	os << mask;
-    save_monsters (os, level->mlist);
+    os << level->mlist;
     for (i = 0; i < MAXWIDTH; i++) {
 	for (j = 0; j < MAXLENGTH; j++) {
 	    if (level->site[i][j].things) {
@@ -489,14 +487,13 @@ static void restore_level (istream& is, int ver)
 	is >> run;
 	for (; i < run; i++) {
 	    is.read (&Level->site[i][j], sizeof(Level->site[i][j]));
-	    Level->site[i][j].creature = NULL;
 	    Level->site[i][j].things = NULL;
 	}
 	is >> ios::align(alignof(i)) >> i >> j;
     }
     run = 0;
     is.align (alignof(mask));
-    for (j = 0; j < MAXLENGTH; j++)
+    for (j = 0; j < MAXLENGTH; j++) {
 	for (i = 0; i < MAXWIDTH; i++) {
 	    if (run == 0) {
 		run = 8 * sizeof(mask);
@@ -507,7 +504,8 @@ static void restore_level (istream& is, int ver)
 	    mask >>= 1;
 	    run--;
 	}
-    restore_monsters (is, Level, ver);
+    }
+    is >> Level->mlist;
     is >> ios::align(alignof(i)) >> i >> j;
     while (j < MAXLENGTH && i < MAXWIDTH) {
 	Level->site[i][j].things = restore_itemlist (is, ver);
@@ -515,60 +513,46 @@ static void restore_level (istream& is, int ver)
     }
 }
 
-static void save_monsters (ostream& os, pml ml)
+void monster::write (ostream& os) const
 {
-    int nummonsters = 0;
-    // First count monsters
-    for (pml tml = ml; tml; tml = tml->next)
-	nummonsters++;
-    os << ios::align(alignof(nummonsters)) << nummonsters;
-
-    // Now save monsters
-    for (pml tml = ml; tml; tml = tml->next) {
-	os.write (tml->m, sizeof(*(tml->m)));
-	if (strcmp (tml->m->monstring, Monsters[tml->m->id].monstring))
-	    os.write_strz (tml->m->monstring);
-	else
-	    os << '\0';
-	if (strcmp (tml->m->corpsestr, Monsters[tml->m->id].corpsestr))
-	    os.write_strz (tml->m->corpsestr);
-	else
-	    os << '\0';
-	save_itemlist (os, tml->m->possessions);
-    }
+    os.write (this, sizeof(*this));
+    if (strcmp (monstring, Monsters[id].monstring))
+	os.write_strz (monstring);
+    else
+	os << '\0';
+    if (strcmp (corpsestr, Monsters[id].corpsestr))
+	os.write_strz (corpsestr);
+    else
+	os << '\0';
+    save_itemlist (os, possessions);
 }
 
-static void restore_monsters (istream& is, plv level, int ver)
+void monster::read (istream& is)
 {
-    pml ml = NULL;
-    int i, nummonsters;
-    string s;
+    is.read (this, sizeof(*this));
+    if (id >= ArraySize(Monsters))
+	throw runtime_error ("invalid monster");
+    monstring = Monsters[id].monstring;
+    corpsestr = Monsters[id].corpsestr;
+    meleestr = Monsters[id].meleestr;
 
-    level->mlist = NULL;
+    // FIXME: These will create memory leaks, but no easy way to find these
+    unsigned nlen = strlen(is.ipos()); if (nlen) monstring = strdup(is.ipos()); is.skip(nlen+1);
+    nlen = strlen(is.ipos()); if (nlen) corpsestr = strdup(is.ipos()); is.skip(nlen+1);
 
-    is >> ios::align(alignof(nummonsters)) >> nummonsters;
+    possessions = restore_itemlist (is, OMEGA_VERSION);
+}
 
-    for (i = 0; i < nummonsters; i++) {
-	ml = new monsterlist;
-	ml->m = new monster;
-	is.read (ml->m, sizeof(*(ml->m)));
-	if (ml->m->id >= ArraySize(Monsters))
-	    throw runtime_error ("invalid monster");
-	ml->m->monstring = Monsters[ml->m->id].monstring;
-	ml->m->corpsestr = Monsters[ml->m->id].corpsestr;
-	ml->m->meleestr = Monsters[ml->m->id].meleestr;
-
-	// FIXME: These will create memory leaks, but no easy way to find these
-	unsigned nlen = strlen(is.ipos()); if (nlen) ml->m->monstring = strdup(is.ipos()); is.skip(nlen+1);
-	nlen = strlen(is.ipos()); if (nlen) ml->m->corpsestr = strdup(is.ipos()); is.skip(nlen+1);
-
-	ml->m->possessions = restore_itemlist (is, ver);
-	if (ml->m->x >= MAXWIDTH || ml->m->y >= MAXLENGTH)
-	    throw runtime_error ("invalid monster location");
-	level->site[ml->m->x][ml->m->y].creature = ml->m;
-	ml->next = level->mlist;
-	level->mlist = ml;
-    }
+streamsize monster::stream_size (void) const
+{
+    streamsize r = sizeof(*this);
+    ++r;
+    if (strcmp (monstring, Monsters[id].monstring))
+	r += strlen(monstring);
+    ++r;
+    if (strcmp (corpsestr, Monsters[id].corpsestr))
+	r += strlen(corpsestr);
+    return (r);
 }
 
 // Save o unless it's null, then save a special flag byte instead

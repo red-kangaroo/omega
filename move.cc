@@ -498,7 +498,7 @@ static void l_void (void)
     morewait();
     clearmsg();
     print1 ("You leap into the void.");
-    if (Level->mlist) {
+    if (!Level->mlist.empty()) {
 	print2 ("Death peers over the edge and gazes quizzically at you....");
 	morewait();
 	print3 ("'Bye-bye,' he says... 'We'll meet again.'");
@@ -695,7 +695,7 @@ static void l_void_station (void)
     int i, something = FALSE;
     print1 ("You are at the brink of an endless void. Enter it? [yn] ");
     if (ynq() == 'y') {
-	if (Level->mlist == NULL) {
+	if (Level->mlist.empty()) {
 	    print2 ("You fall forever. Eventually you die of starvation.");
 	    morewait();
 	    while (Player.hp > 0) {
@@ -709,7 +709,7 @@ static void l_void_station (void)
 	    morewait();
 	    something = (Player.packptr > 0);
 	    if (!something)
-		for (i = 0; ((i < MAXITEMS) && (!something)); i++)
+		for (i = 0; i < MAXITEMS && !something; i++)
 		    if (Player.possessions[i] != NULL)
 			something = TRUE;
 	    if (something) {

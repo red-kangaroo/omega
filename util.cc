@@ -7,7 +7,6 @@
 
 //----------------------------------------------------------------------
 
-static void free_mons_and_objs(pml mlist);
 static int spaceok(int i, int j, int baux);
 
 //----------------------------------------------------------------------
@@ -43,7 +42,7 @@ int hitp (int hit, int ac)
     else if (roll == 19)
 	return (FALSE);
     else
-	return ((roll < (hit - ac)) ? TRUE : FALSE);
+	return (roll < (hit - ac));
 }
 
 // number of moves from x1,y1 to x2,y2
@@ -55,11 +54,14 @@ int distance (int x1, int y1, int x2, int y2)
 // can you shoot, or move monsters through a spot?
 int unblocked (int x, int y)
 {
-    if ((!inbounds (x, y)) || (Level->site[x][y].creature != NULL) || (Level->site[x][y].locchar == WALL) || (Level->site[x][y].locchar == PORTCULLIS) || (Level->site[x][y].locchar == STATUE) || (Level->site[x][y].locchar == HEDGE)
-	|| (Level->site[x][y].locchar == CLOSED_DOOR) || loc_statusp (x, y, SECRET) || ((x == Player.x) && (y == Player.y)))
-	return (FALSE);
-    else
-	return (TRUE);
+    return (inbounds (x, y) &&
+	!Level->creature(x,y) &&
+	Level->site[x][y].locchar != WALL &&
+	Level->site[x][y].locchar != PORTCULLIS &&
+	Level->site[x][y].locchar != STATUE &&
+	Level->site[x][y].locchar != HEDGE &&
+	Level->site[x][y].locchar != CLOSED_DOOR &&
+	!loc_statusp (x, y, SECRET) && (x != Player.x || y != Player.y));
 }
 
 // do monsters want to move through a spot
@@ -67,7 +69,7 @@ int m_unblocked (struct monster *m, int x, int y)
 {
     if ((!inbounds (x, y)) || ((x == Player.x) && (y == Player.y)))
 	return (FALSE);
-    else if ((Level->site[x][y].creature != NULL) || (Level->site[x][y].locchar == SPACE))
+    else if ((Level->creature(x,y) != NULL) || (Level->site[x][y].locchar == SPACE))
 	return (FALSE);
     else if (m_statusp (m, ONLYSWIM))
 	return (Level->site[x][y].locchar == WATER);
@@ -246,7 +248,7 @@ void do_object_los (int pyx, int *x1, int *y1, int x2, int y2)
 	    napms (50);
 	}
     } while ((*x1 != x2 || *y1 != y2) && !blocked);
-    if (Level->site[*x1][*y1].creature == NULL && blocked) {
+    if (!Level->creature(*x1,*y1) && blocked) {
 	*x1 = ox;
 	*y1 = oy;
     }
@@ -475,7 +477,10 @@ const char* month (void)
 // sets x,y there. There must *be* floor space somewhere on level....
 static int spaceok (int i, int j, int baux)
 {
-    return ((Level->site[i][j].locchar == FLOOR) && (Level->site[i][j].creature == NULL) && (!loc_statusp (i, j, SECRET)) && (Level->site[i][j].buildaux != baux));
+    return (Level->site[i][j].locchar == FLOOR &&
+	    !Level->creature(i,j) &&
+	    !loc_statusp (i, j, SECRET) &&
+	    Level->site[i][j].buildaux != baux);
 }
 
 void findspace (int *x, int *y, int baux)
@@ -572,21 +577,12 @@ void free_objlist (pol pobjlist)
     }
 }
 
-static void free_mons_and_objs (pml mlist)
-{
-    while (mlist) {
-	free_objlist (mlist->m->possessions);
-	delete mlist->m;
-	pml tmp = mlist;
-	mlist = mlist->next;
-	delete tmp;
-    }
-}
-
 // Free up monsters and items on a level
 void free_level (plv level)
 {
-    free_mons_and_objs (level->mlist);
+    foreach (m, level->mlist)
+	free_objlist (m->possessions);
+    level->mlist.clear();
     for (int i = 0; i < MAXWIDTH; i++) {
 	for (int j = 0; j < MAXLENGTH; j++) {
 	    if (level->site[i][j].things) {
