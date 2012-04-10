@@ -2444,10 +2444,11 @@ void item_use (struct object *o)
 {
     clearmsg();
     switch (o->usef) {
-	case -1:
+	default:
+	case I_NO_OP:
 	    i_no_op (o);
 	    break;
-	case 0:
+	case I_NOTHING:
 	    i_nothing (o);
 	    break;
 
