@@ -536,7 +536,7 @@ static void m_talk_guard (struct monster *m)
 	    clearmsg();
 	    print1 ("All right, you criminal scum, you asked for it!");
 	}
-    } else if (Player.rank[ORDER] > 0)
+    } else if (Player.rank[ORDER] >= GALLANT)
 	print1 ("'Greetings comrade! May you always tread the paths of Law.'");
     else
 	print1 ("Move it right along, stranger!");
@@ -562,7 +562,7 @@ static void m_talk_ninja (struct monster *m UNUSED)
 static void m_talk_thief (struct monster *m)
 {
     if (Player.rank[THIEVES]) {
-	if (m->level == 2)
+	if (m->level == ATHIEF)
 	    m->monstring = "sneak thief";
 	else
 	    m->monstring = "master thief";
@@ -927,7 +927,7 @@ static void m_talk_prime (struct monster *m)
     } else {
 	print1 ("The Prime makes an intricate gesture, which leaves behind");
 	print2 ("glowing blue sparks... He winks mischievously at you....");
-	if (Player.rank[CIRCLE] > 0) {
+	if (Player.rank[CIRCLE] >= INITIATE) {
 	    morewait();
 	    print1 ("The blue sparks strike you! You feel enhanced!");
 	    print2 ("You feel more experienced....");

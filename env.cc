@@ -92,7 +92,7 @@ void load_arena (void)
     Arena_Victory = FALSE;
 
     if (m.id == HISCORE_NPC) {
-	if (Player.rank[ARENA] < 5 && Player.rank[ARENA] > 0) {
+	if (Player.rank[ARENA] < CHAMPION && Player.rank[ARENA] >= TRAINEE) {
 	    make_hiscore_npc (m, NPC_CHAMPION);
 	    strcpy (Str1, Champion);
 	    strcat (Str1, ", the arena champion");
@@ -150,7 +150,7 @@ void load_arena (void)
 void load_circle (int populate)
 {
     int i, j;
-    int safe = (Player.rank[CIRCLE] > 0);
+    int safe = (Player.rank[CIRCLE] >= INITIATE);
     char site;
     FILE *fd;
 
@@ -1614,7 +1614,7 @@ void l_merc_guild (void)
 	    morewait();
 	    clearmsg();
 	}
-	if (Player.rank[LEGION] > 0) {
+	if (Player.rank[LEGION] >= LEGIONAIRE) {
 	    nprint2 ("and report to your commander.");
 	    morewait();
 	}
@@ -1625,10 +1625,10 @@ void l_merc_guild (void)
 		print2 ("Do you wish to join the Legion? [yn] ");
 		if (ynq2() == 'y') {
 		    clearmsg();
-		    if (Player.rank[ARENA] > 0) {
+		    if (Player.rank[ARENA] >= TRAINEE) {
 			print1 ("The Centurion checks your record, and gets angry:");
 			print2 ("'The legion don't need any Arena Jocks. Git!'");
-		    } else if (Player.rank[ORDER] > 0) {
+		    } else if (Player.rank[ORDER] >= GALLANT) {
 			print1 ("The Centurion checks your record, and is amused:");
 			print2 ("'A paladin in the ranks? You must be joking.'");
 		    } else if (Player.con < 12) {
@@ -1784,7 +1784,7 @@ void l_castle (void)
 	    morewait();
 	    clearmsg();
 	}
-	if (Player.rank[NOBILITY] == 0) {
+	if (Player.rank[NOBILITY] == NOT_NOBILITY) {
 	    print1 ("Well, sirrah, wouldst embark on a quest? [yn] ");
 	    if (ynq1() == 'y') {
 		print2 ("Splendid. Bring me the head of the Goblin King.");
@@ -1873,7 +1873,7 @@ void l_arena (void)
     int prize;
 
     print1 ("Rampart Coliseum");
-    if (Player.rank[ARENA] == 0) {
+    if (Player.rank[ARENA] == NOT_IN_ARENA) {
 	print2 ("Enter the games, or Register as a Gladiator? [e,r,ESCAPE] ");
 	do
 	    response = (char) mcigetc();
@@ -1887,11 +1887,11 @@ void l_arena (void)
 	    response = KEY_ESCAPE;
     }
     if (response == 'r') {
-	if (Player.rank[ARENA] > 0)
+	if (Player.rank[ARENA] >= TRAINEE)
 	    print2 ("You're already a gladiator....");
-	else if (Player.rank[ORDER] > 0)
+	else if (Player.rank[ORDER] >= GALLANT)
 	    print2 ("We don't let Paladins into our Guild.");
-	else if (Player.rank[LEGION] > 0)
+	else if (Player.rank[LEGION] >= LEGIONAIRE)
 	    print2 ("We don't train no stinkin' mercs!");
 	else if (Player.str < 13)
 	    print2 ("Yer too weak to train!");
@@ -1906,7 +1906,7 @@ void l_arena (void)
 	    *newitem = Objects[WEAPON_CLUB];
 	    gain_item (newitem);
 	    newitem = new object;
-	    *newitem = Objects[SHIELD_NORMAL];	// shield
+	    *newitem = Objects[SHIELD_SMALL_ROUND];
 	    gain_item (newitem);
 	    Player.rank[ARENA] = TRAINEE;
 	    Arena_Opponent = 3;
@@ -1945,7 +1945,7 @@ void l_arena (void)
 
 	if (!Arena_Victory) {
 	    print1 ("The crowd boos your craven behavior!!!");
-	    if (Player.rank[ARENA] > 0) {
+	    if (Player.rank[ARENA] >= TRAINEE) {
 		print2 ("You are thrown out of the Gladiator's Guild!");
 		morewait();
 		clearmsg();
@@ -1979,14 +1979,14 @@ void l_arena (void)
 	    print1 ("Good fight! ");
 	    nprint1 ("Your prize is: ");
 	    prize = max (25, (Arena_Victory-1) * 50);
-	    if (Player.rank[ARENA] > 0)
+	    if (Player.rank[ARENA] >= TRAINEE)
 		prize *= 2;
 	    mnumprint (prize);
 	    nprint1 ("Au.");
 	    Player.cash += prize;
 	    if (Player.rank[ARENA] < GLADIATOR && Arena_Opponent > 5 && !(Arena_Opponent % 3)) {
-		if (Player.rank[ARENA] > 0) {
-		    Player.rank[ARENA]++;
+		if (Player.rank[ARENA] >= TRAINEE) {
+		    ++Player.rank[ARENA];
 		    morewait();
 		    print1 ("You've been promoted to a stronger class!");
 		    print2 ("You are also entitled to additional training.");
@@ -2029,12 +2029,12 @@ void l_thieves_guild (void)
 	}
 	while (!done) {
 	    menuclear();
-	    if (Player.rank[THIEVES] == 0)
+	    if (Player.rank[THIEVES] == NOT_A_THIEF)
 		menuprint ("a: Join the Thieves' Guild.\n");
 	    else
 		menuprint ("b: Raise your Guild rank.\n");
 	    menuprint ("c: Get an item identified.\n");
-	    if (Player.rank[THIEVES] > 0)
+	    if (Player.rank[THIEVES] >= TMEMBER)
 		menuprint ("d: Fence an item.\n");
 	    menuprint ("ESCAPE: Leave this Den of Iniquity.");
 	    showmenu();
@@ -2043,7 +2043,7 @@ void l_thieves_guild (void)
 		done = TRUE;
 	    else if (action == 'a') {
 		done = TRUE;
-		if (Player.rank[THIEVES] > 0)
+		if (Player.rank[THIEVES] >= TMEMBER)
 		    print2 ("You are already a member!");
 		else if (Player.alignment > 10)
 		    print2 ("You are too lawful to be a thief!");
@@ -2085,7 +2085,7 @@ void l_thieves_guild (void)
 		    }
 		}
 	    } else if (action == 'b') {
-		if (Player.rank[THIEVES] == 0)
+		if (Player.rank[THIEVES] == NOT_A_THIEF)
 		    print2 ("You are not even a member!");
 		else if (Player.rank[THIEVES] == SHADOWLORD)
 		    print2 ("You can't get any higher than this!");
@@ -2137,7 +2137,7 @@ void l_thieves_guild (void)
 		    }
 		}
 	    } else if (action == 'c') {
-		if (Player.rank[THIEVES] == 0) {
+		if (Player.rank[THIEVES] == NOT_A_THIEF) {
 		    print1 ("RTG, Inc, Appraisers. Identification Fee: 50Au/item.");
 		    fee = 50;
 		} else {
@@ -2178,7 +2178,7 @@ void l_thieves_guild (void)
 		    }
 		}
 	    } else if (action == 'd') {
-		if (Player.rank[THIEVES] == 0)
+		if (Player.rank[THIEVES] == NOT_A_THIEF)
 		    print2 ("Fence? Who said anything about a fence?");
 		else {
 		    print1 ("Fence one item or go through pack? [ip] ");
@@ -2276,11 +2276,11 @@ void l_college (void)
 	    if (action == KEY_ESCAPE)
 		done = TRUE;
 	    else if (action == 'a') {
-		if (Player.rank[COLLEGE] > 0)
+		if (Player.rank[COLLEGE] >= NOVICE)
 		    print2 ("You are already enrolled!");
 		else if (Player.iq < 13)
 		    print2 ("Your low IQ renders you incapable of being educated.");
-		else if (Player.rank[CIRCLE] > 0)
+		else if (Player.rank[CIRCLE] >= INITIATE)
 		    print2 ("Sorcery and our Magic are rather incompatable, no?");
 		else {
 		    if (Player.iq > 17) {
@@ -2318,7 +2318,7 @@ void l_college (void)
 		    }
 		}
 	    } else if (action == 'b') {
-		if (Player.rank[COLLEGE] == 0)
+		if (Player.rank[COLLEGE] == NOT_IN_COLLEGE)
 		    print2 ("You have not even been initiated, yet!");
 		else if (Player.rank[COLLEGE] == ARCHMAGE)
 		    print2 ("You are at the pinnacle of mastery in the Collegium.");
@@ -2419,7 +2419,7 @@ void l_sorcerors (void)
     unsigned fee = 3000;
     long total;
     print1 ("The Circle of Sorcerors.");
-    if (Player.rank[CIRCLE] == -1) {
+    if (Player.rank[CIRCLE] == FORMER_SOURCEROR) {
 	print2 ("Fool! Didn't we tell you to go away?");
 	Player.mana = 0;
 	dataprint();
@@ -2451,11 +2451,11 @@ void l_sorcerors (void)
 	    if (action == KEY_ESCAPE)
 		done = TRUE;
 	    else if (action == 'a') {
-		if (Player.rank[CIRCLE] > 0)
+		if (Player.rank[CIRCLE] >= INITIATE)
 		    print2 ("You are already an initiate!");
 		else if (Player.alignment > 0)
 		    print2 ("You may not join -- you reek of Law!");
-		else if (Player.rank[COLLEGE] != 0)
+		else if (Player.rank[COLLEGE] >= NOVICE)
 		    print2 ("Foolish Mage!  You don't have the right attitude to Power!");
 		else {
 		    fee += Player.alignment * 100;
@@ -2487,12 +2487,12 @@ void l_sorcerors (void)
 		    }
 		}
 	    } else if (action == 'b') {
-		if (Player.rank[CIRCLE] == 0)
+		if (Player.rank[CIRCLE] == NOT_IN_CIRCLE)
 		    print2 ("You have not even been initiated, yet!");
 		else if (Player.alignment > -1) {
 		    print1 ("Ahh! You have grown too lawful!!!");
 		    print2 ("You are hereby blackballed from the Circle!");
-		    Player.rank[CIRCLE] = -1;
+		    Player.rank[CIRCLE] = FORMER_SOURCEROR;
 		    morewait();
 		    clearmsg();
 		    print1 ("A pox upon thee!");
@@ -2610,20 +2610,20 @@ void l_order (void)
 	Player.pow += 5;
     }
     if (Player.alignment < 1) {
-	if (Player.rank[ORDER] > 0) {
+	if (Player.rank[ORDER] >= GALLANT) {
 	    print1 ("You have been tainted by chaos!");
 	    print2 ("You are stripped of your rank in the Order!");
 	    morewait();
-	    Player.rank[ORDER] = -1;
+	    Player.rank[ORDER] = FORMER_PALADIN;
 	    send_to_jail();
 	} else
 	    print1 ("Get thee hence, minion of chaos!");
-    } else if (Player.rank[ORDER] == -1)
+    } else if (Player.rank[ORDER] == FORMER_PALADIN)
 	print1 ("Thee again?  Get thee hence, minion of chaos!");
-    else if (Player.rank[ORDER] == 0) {
-	if (Player.rank[ARENA] != 0)
+    else if (Player.rank[ORDER] == NOT_IN_ORDER) {
+	if (Player.rank[ARENA] >= TRAINEE)
 	    print1 ("We do not accept bloodstained gladiators into our Order.");
-	else if (Player.rank[LEGION] != 0)
+	else if (Player.rank[LEGION] >= LEGIONAIRE)
 	    print1 ("Go back to your barracks, mercenary!");
 	else {
 	    print1 ("Dost thou wish to join our Order? [yn] ");
@@ -5038,13 +5038,13 @@ void pacify_guards (void)
 
 void send_to_jail (void)
 {
-    if (Player.rank[ORDER] > 0) {
+    if (Player.rank[ORDER] >= GALLANT) {
 	print1 ("A member of the Order of Paladins sent to jail!");
 	print2 ("It cannot be!");
 	morewait();
 	print1 ("You are immediately expelled permanently from the Order!");
 	print2 ("Your name is expunged from the records....");
-	Player.rank[ORDER] = -1;
+	Player.rank[ORDER] = FORMER_PALADIN;
     } else if (gamestatusp (DESTROYED_ORDER))
 	print1 ("The destruction of the Order of Paladins has negated the law!");
     else if ((Current_Environment != E_CITY) && (Last_Environment != E_CITY))
@@ -5216,7 +5216,7 @@ void l_trifid (void)
 		    print1 ("Well, at least you're facing your fate with dignity.");
 		    break;
 		case 'c':
-		    if ((Player.patron == DRUID) && (Player.rank[PRIESTHOOD] > random_range (5))) {
+		    if (Player.patron == DRUID && Player.rank[PRIESTHOOD] >= LAY+random_range(HIGHPRIEST-LAY)) {
 			print1 ("A shaft of golden light bathes the alien plant");
 			print2 ("which grudginly lets you go....");
 			stuck = FALSE;

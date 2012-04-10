@@ -1871,7 +1871,7 @@ void change_environment (int new_environment)
 		print1 ("A bemused voice says:");
 		print2 ("'Why are you here? You already have the Star Gem!'");
 		morewait();
-	    } else if (Player.rank[CIRCLE] > 0) {
+	    } else if (Player.rank[CIRCLE] >= INITIATE) {
 		print1 ("You hear the voice of the Prime Sorceror:");
 		print2 ("'Congratulations on your attainment of the Circle's Demesne.'");
 		morewait();
@@ -2705,7 +2705,7 @@ void terrain_check (int takestime)
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
-		if (Player.rank[PRIESTHOOD] == 0 || Player.patron != DRUID) {
+		if (Player.rank[PRIESTHOOD] == NOT_A_BELIEVER || Player.patron != DRUID) {
 		    Time += 60;
 		    hourly_check();
 		    if (!faster) {
@@ -3367,18 +3367,14 @@ static void destroy_order (void)
 
 int maneuvers (void)
 {
-    int m;
-
-    m = 2 + Player.level / 7;
+    int m = 2 + Player.level / 7;
     if (Player.rank[ARENA])
-	m++;
+	++m;
     if (Player.status[HASTED])
 	m *= 2;
     if (Player.status[SLOWED])
 	m /= 2;
-    m = min (8, max (1, m));
-
-    return (m);
+    return (min (8, max (1, m)));
 }
 
 // for when haste runs out, etc.

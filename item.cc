@@ -996,7 +996,7 @@ static void i_pick (pob o)
     int dir;
     int ox, oy;
     o->used = FALSE;
-    if (!object_is_known(o) && !Player.rank[THIEVES]) {
+    if (!object_is_known(o) && Player.rank[THIEVES] == NOT_A_THIEF) {
 	mprint ("You have no idea what do with a piece of twisted metal.");
 	return;
     }

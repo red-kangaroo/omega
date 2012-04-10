@@ -108,7 +108,7 @@ void l_chaos (void)
 	}
 	Player.mana = max (Player.mana, calcmana());
 	Player.hp = max (Player.hp, Player.maxhp);
-    } else if (Player.rank[PRIESTHOOD] && (!saved)) {
+    } else if (Player.rank[PRIESTHOOD] && !saved) {
 	print2 ("A mysterious force protects you from the Chaos!");
 	print3 ("Wow.... You feel a bit smug.");
 	gain_experience (500);
@@ -734,7 +734,7 @@ static void l_void_station (void)
 		morewait();
 		clearmsg();
 		print1 ("You see Death raise his scythe to you in a salute.");
-		Player.rank[ADEPT] = 1;
+		++Player.rank[ADEPT];
 		setgamestatus (COMPLETED_CHALLENGE);
 		FixedPoints = calc_points();
 		// set so change_environment puts player in correct temple!

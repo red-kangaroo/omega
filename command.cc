@@ -1214,7 +1214,7 @@ static void bash_location (void)
 		} else {
 		    print1 ("You have successfully annoyed a major deity. Good job.");
 		    print2 ("Zzzzap! A bolt of godsfire strikes!");
-		    if (Player.rank[PRIESTHOOD] > 0)
+		    if (Player.rank[PRIESTHOOD] >= LAY)
 			print3 ("Your own deity's aegis defends you from the bolt!");
 		    p_damage (max (0, random_range (100) - Player.rank[PRIESTHOOD] * 20), UNSTOPPABLE, "a bolt of godsfire");
 		    if (Player.rank[PRIESTHOOD] * 20 + Player.pow + Player.level > random_range (200)) {
@@ -1818,7 +1818,7 @@ void quit (void)
     clearmsg();
     mprint ("Quit: Are you sure? [yn] ");
     if (ynq() == 'y') {
-	if (Player.rank[ADEPT] == 0)
+	if (!Player.rank[ADEPT])
 	    display_quit();
 	else
 	    display_bigwin();

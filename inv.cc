@@ -293,9 +293,9 @@ void givemonster (struct monster *m, struct object *o)
 	morewait();
 	if (Imprisonment > 0)
 	    Imprisonment = 0;
-	if (Player.rank[ORDER] == -1) {
+	if (Player.rank[ORDER] == FORMER_PALADIN) {
 	    print2 ("You have been forgiven. You feel like a Paladin....");
-	    Player.rank[ORDER] = 1;
+	    Player.rank[ORDER] = GALLANT;
 	}
 	Player.alignment += 200;
 	Player.pow = Player.maxpow = Player.pow * 2;

@@ -885,13 +885,13 @@ void knowledge (int blessing)
 		menuprint ("Legionaire");
 		break;
 	}
-	if (Player.rank[LEGION] > 0) {
+	if (Player.rank[LEGION] >= LEGIONAIRE) {
 	    menuprint (" (");
 	    menunumprint (Player.guildxp[LEGION]);
 	    menuprint (" XP).\n");
 	}
 	switch (Player.rank[ARENA]) {
-	    case -1:
+	    case FORMER_GLADIATOR:
 		menuprint ("Ex-gladiator\n");
 		break;
 	    case CHAMPION:
@@ -910,7 +910,7 @@ void knowledge (int blessing)
 		menuprint ("Gladiator Trainee of the Arena");
 		break;
 	}
-	if (Player.rank[ARENA] > 0) {
+	if (Player.rank[ARENA] >= TRAINEE) {
 	    menuprint (" (Opponent ");
 	    menunumprint (Arena_Opponent);
 	    menuprint (")\n");
@@ -932,7 +932,7 @@ void knowledge (int blessing)
 		menuprint ("Collegium Magii: Novice");
 		break;
 	}
-	if (Player.rank[COLLEGE] > 0) {
+	if (Player.rank[COLLEGE] >= NOVICE) {
 	    menuprint (" (");
 	    menunumprint (Player.guildxp[COLLEGE]);
 	    menuprint (" XP).\n");
@@ -957,7 +957,7 @@ void knowledge (int blessing)
 		menuprint ("Lowly Commoner\n");
 		break;
 	}
-	if (Player.rank[NOBILITY] > 1) {
+	if (Player.rank[NOBILITY] > COMMONER) {
 	    menuprint (" (");
 	    menunumprint (Player.rank[NOBILITY] - 1);
 	    menuprint (ordinal (Player.rank[NOBILITY] - 1));
@@ -966,7 +966,7 @@ void knowledge (int blessing)
 	    menuprint (" (1st Quest Undertaken)\n");
 	}
 	switch (Player.rank[CIRCLE]) {
-	    case -1:
+	    case FORMER_SOURCEROR:
 		menuprint ("Former member of the Circle.\n");
 		break;
 	    case PRIME:
@@ -985,13 +985,13 @@ void knowledge (int blessing)
 		menuprint ("Member of the Circle of Initiates");
 		break;
 	}
-	if (Player.rank[CIRCLE] > 0) {
+	if (Player.rank[CIRCLE] >= INITIATE) {
 	    menuprint (" (");
 	    menunumprint (Player.guildxp[CIRCLE]);
 	    menuprint (" XP).\n");
 	}
 	switch (Player.rank[ORDER]) {
-	    case -1:
+	    case FORMER_PALADIN:
 		menuprint ("Washout from the Order of Paladins\n");
 		break;
 	    case JUSTICIAR:
@@ -1010,7 +1010,7 @@ void knowledge (int blessing)
 		menuprint ("Gallant of the Order");
 		break;
 	}
-	if (Player.rank[ORDER] > 0) {
+	if (Player.rank[ORDER] >= GALLANT) {
 	    menuprint (" (");
 	    menunumprint (Player.guildxp[ORDER]);
 	    menuprint (" XP).\n");
@@ -1032,7 +1032,7 @@ void knowledge (int blessing)
 		menuprint ("Guild of Thieves: Candidate Member");
 		break;
 	}
-	if (Player.rank[THIEVES] > 0) {
+	if (Player.rank[THIEVES] >= TMEMBER) {
 	    menuprint (" (");
 	    menunumprint (Player.guildxp[THIEVES]);
 	    menuprint (" XP).\n");
@@ -1074,12 +1074,12 @@ void knowledge (int blessing)
 		menuprint ("the Lords of Destiny");
 		break;
 	}
-	if (Player.rank[PRIESTHOOD] > 0) {
+	if (Player.rank[PRIESTHOOD] >= LAY) {
 	    menuprint (" (");
 	    menunumprint (Player.guildxp[PRIESTHOOD]);
 	    menuprint (" XP).\n");
 	}
-	if (Player.rank[ADEPT] > 0)
+	if (Player.rank[ADEPT])
 	    menuprint ("**************\n*Omegan Adept*\n**************\n");
 	showmenu();
 	morewait();
@@ -2331,8 +2331,8 @@ void drain (int blessing)
 	    mprint ("You are struck by godsfire.");
 	    p_damage (Player.hp - 1, UNSTOPPABLE, "godsfire");
 	    mprint ("You feel atheistic.");
-	    Player.patron = -1;
-	    Player.rank[PRIESTHOOD] = 0;
+	    Player.patron = ATHEISM;
+	    Player.rank[PRIESTHOOD] = NOT_A_BELIEVER;
 	} else {
 	    mprint ("You feel the wrath of a god....");
 	    p_damage (random_range (Player.level * 10), UNSTOPPABLE, "divine wrath");

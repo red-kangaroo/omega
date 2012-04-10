@@ -47,7 +47,7 @@ void l_altar (void)
     }
     print2 ("Worship at this altar? [yn] ");
     if (ynq2() == 'y') {
-	if (Player.rank[PRIESTHOOD] == 0)
+	if (Player.rank[PRIESTHOOD] == NOT_A_BELIEVER)
 	    increase_priest_rank (deity);
 	else if (!check_sacrilege (deity)) {
 	    if (Blessing)
@@ -223,7 +223,7 @@ static int check_sacrilege (int deity)
 	}
 	if (sacrilege) {
 	    Player.patron = 0;
-	    Player.rank[PRIESTHOOD] = 0;
+	    Player.rank[PRIESTHOOD] = NOT_A_BELIEVER;
 	}
     }
     return (sacrilege);
@@ -231,7 +231,7 @@ static int check_sacrilege (int deity)
 
 static int increase_priest_rank (int deity)
 {
-    if (Player.rank[PRIESTHOOD] == 0)
+    if (Player.rank[PRIESTHOOD] == NOT_A_BELIEVER)
 	switch (deity) {
 	    default:
 		print2 ("Some nameless god blesses you....");
