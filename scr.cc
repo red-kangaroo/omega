@@ -65,37 +65,24 @@ void phaseprint (void)
 
 void show_screen (void)
 {
-    int i, j, top, bottom;
-    attr_t last_attr = 0;
-    chtype c;
-
     wclear (Levelw);
-    top = ScreenOffset;
-    bottom = ScreenOffset + ScreenLength;
-    top = max (0, top);
-    bottom = min (bottom, LENGTH);
-    if (Current_Environment != E_COUNTRYSIDE)
-	for (j = top; j < bottom; j++) {
-	    wmove (Levelw, screenmod (j), 0);
-	    for (i = 0; i < WIDTH; i++) {
-		c = ((loc_statusp (i, j, SEEN)) ? getspot (i, j, FALSE) : (int) SPACE);
-		if (optionp (SHOW_COLOUR) && CHARATTR(c) != last_attr) {
-		    last_attr = CHARATTR(c);
-		    wattrset (Levelw, last_attr);
-		}
-		waddch (Levelw, c & 0xff);
+    int top = max (0, ScreenOffset);
+    int bottom = min (LENGTH, ScreenOffset + ScreenLength);
+    for (int j = top; j < bottom; j++) {
+	wmove (Levelw, screenmod (j), 0);
+	for (int i = 0; i < WIDTH; i++) {
+	    chtype c = SPACE;
+	    if (Current_Environment == E_COUNTRYSIDE) {
+		if (c_statusp (i, j, SEEN))
+		    c = Country[i][j].current_terrain_type;
+	    } else {
+		if (loc_statusp (i, j, SEEN))
+		    c = getspot (i, j, FALSE);
 	    }
-    } else
-	for (j = top; j < bottom; j++)
-	    for (i = 0; i < WIDTH; i++) {
-		wmove (Levelw, screenmod (j), i);
-		c = ((c_statusp (i, j, SEEN)) ? Country[i][j].current_terrain_type : (int) SPACE);
-		if (optionp (SHOW_COLOUR) && CHARATTR(c) != last_attr) {
-		    last_attr = CHARATTR(c);
-		    wattrset (Levelw, last_attr);
-		}
-		waddch (Levelw, c & 0xff);
-	    }
+	    wattrset (Levelw, CHARATTR(c));
+	    waddch (Levelw, c & 0xff);
+	}
+    }
     wrefresh (Levelw);
 }
 
@@ -468,21 +455,18 @@ static void drawplayer (void)
 	if (inbounds (lastx, lasty) && !offscreen (lasty)) {
 	    wmove (Levelw, screenmod (lasty), lastx);
 	    c = Country[lastx][lasty].current_terrain_type;
-	    if (optionp (SHOW_COLOUR))
-		wattrset (Levelw, CHARATTR (c));
+	    wattrset (Levelw, CHARATTR (c));
 	    waddch (Levelw, (c & 0xff));
 	}
 	wmove (Levelw, screenmod (Player.y), Player.x);
-	if (optionp (SHOW_COLOUR))
-	    wattrset (Levelw, CHARATTR (PLAYER));
+	wattrset (Levelw, CHARATTR (PLAYER));
 	waddch (Levelw, (PLAYER & 0xff));
     } else {
 	if (inbounds (lastx, lasty) && !offscreen (lasty))
 	    plotspot (lastx, lasty, (Player.status[BLINDED] > 0 ? FALSE : TRUE));
 	wmove (Levelw, screenmod (Player.y), Player.x);
 	if ((!Player.status[INVISIBLE]) || Player.status[TRUESIGHT]) {
-	    if (optionp (SHOW_COLOUR))
-		wattrset (Levelw, CHARATTR (PLAYER));
+	    wattrset (Levelw, CHARATTR (PLAYER));
 	    waddch (Levelw, (PLAYER & 0xff));
 	}
     }
@@ -535,8 +519,7 @@ void drawvision (int x, int y)
 		    if (!offscreen (y + j)) {
 			wmove (Levelw, screenmod (y + j), x + i);
 			c = Country[x + i][y + j].current_terrain_type;
-			if (optionp (SHOW_COLOUR))
-			    wattrset (Levelw, CHARATTR (c));
+			wattrset (Levelw, CHARATTR (c));
 			waddch (Levelw, (c & 0xff));
 		    }
 		}
@@ -628,8 +611,7 @@ void putspot (int x, int y, chtype c)
 {
     if (!offscreen (y)) {
 	wmove (Levelw, screenmod (y), x);
-	if (optionp (SHOW_COLOUR))
-	    wattrset (Levelw, CHARATTR (c));
+	wattrset (Levelw, CHARATTR (c));
 	waddch (Levelw, (0xff & c));
     }
 }
@@ -639,8 +621,7 @@ void plotmon (struct monster *m)
 {
     if (!offscreen (m->y)) {
 	wmove (Levelw, screenmod (m->y), m->x);
-	if (optionp (SHOW_COLOUR))
-	    wattrset (Levelw, CHARATTR (m->monchar));
+	wattrset (Levelw, CHARATTR (m->monchar));
 	waddch (Levelw, (m->monchar & 0xff));
     }
 }
@@ -651,15 +632,9 @@ void drawmonsters (int display)
     foreach (m, Level->mlist) {
 	if (m->hp < 0) continue;
 	if (display) {
-	    if (view_los_p (Player.x, Player.y, m->x, m->y)) {
-		if (Player.status[TRUESIGHT] || (!m_statusp (m, M_INVISIBLE))) {
-		    if (!optionp (SHOW_COLOUR) && (m->level > 5) && ((m->monchar & 0xff) != '@') && ((m->monchar & 0xff) != '|'))
-			wstandout (Levelw);
+	    if (view_los_p (Player.x, Player.y, m->x, m->y))
+		if (Player.status[TRUESIGHT] || (!m_statusp (m, M_INVISIBLE)))
 		    putspot (m->x, m->y, m->monchar);
-		    if (!optionp (SHOW_COLOUR))
-			wstandend (Levelw);
-		}
-	    }
 	} else
 	    erase_monster (m);
     }
@@ -869,8 +844,7 @@ void plotchar (chtype pyx, int x, int y)
 {
     if (!offscreen (y)) {
 	wmove (Levelw, screenmod (y), x);
-	if (optionp (SHOW_COLOUR))
-	    wattrset (Levelw, CHARATTR (pyx));
+	wattrset (Levelw, CHARATTR (pyx));
 	waddch (Levelw, (pyx & 0xff));
 	wrefresh (Levelw);
     }
@@ -1191,8 +1165,7 @@ void drawomega (void)
     touchwin (stdscr);
     for (i = 0; i < 7; i++) {
 	move (1, 1);
-	if (optionp (SHOW_COLOUR))
-	    wattrset (stdscr, CHARATTR (CLR_LIGHT_BLUE_BLACK));
+	wattrset (stdscr, CHARATTR (CLR_LIGHT_BLUE_BLACK));
 	printw ("\n\n\n");
 	printw ("\n                                    *****");
 	printw ("\n                               ******   ******");
@@ -1210,8 +1183,7 @@ void drawomega (void)
 	refresh();
 	napms (200);
 	move (1, 1);
-	if (optionp (SHOW_COLOUR))
-	    wattrset (stdscr, CHARATTR (CLR_CYAN_BLACK));
+	wattrset (stdscr, CHARATTR (CLR_CYAN_BLACK));
 	printw ("\n\n\n");
 	printw ("\n                                    +++++");
 	printw ("\n                               ++++++   ++++++");
@@ -1229,8 +1201,7 @@ void drawomega (void)
 	refresh();
 	napms (200);
 	move (1, 1);
-	if (optionp (SHOW_COLOUR))
-	    wattrset (stdscr, CHARATTR (CLR_BLUE_BLACK));
+	wattrset (stdscr, CHARATTR (CLR_BLUE_BLACK));
 	printw ("\n\n\n");
 	printw ("\n                                    .....");
 	printw ("\n                               ......   ......");
@@ -1437,18 +1408,12 @@ void display_option_slot (int slot)
 	    wprintw (Showline[slot], optionp (CONFIRM) ? "(now T) " : "(now F) ");
 	    break;
 	case 6:
-	    wprintw (Showline[slot], "-- Option TOPINV [TF]: ");
-	    wprintw (Showline[slot], optionp (TOPINV) ? "(now T) " : "(now F) ");
-	    break;
-	case 7:
 	    wprintw (Showline[slot], "-- Option PACKADD [TF]: ");
 	    wprintw (Showline[slot], optionp (PACKADD) ? "(now T) " : "(now F) ");
 	    break;
-	case 8:
-	    break;
-	case 9:
-	    wprintw (Showline[slot], "-- Option COLOUR [TF]: ");
-	    wprintw (Showline[slot], optionp (SHOW_COLOUR) ? "(now T) " : "(now F) ");
+	case 7:
+	    wprintw (Showline[slot], "-- Option COMPRESS [TF]: ");
+	    wprintw (Showline[slot], optionp (COMPRESS_OPTION) ? "(now T) " : "(now F) ");
 	    break;
 	case VERBOSITY_LEVEL:
 	    wprintw (Showline[slot], "-- Option VERBOSITY [(T)erse,(M)edium,(V)erbose]: (now ");

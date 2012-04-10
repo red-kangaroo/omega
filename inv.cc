@@ -6,11 +6,8 @@
 static void add_to_pack(pob o);
 static int aux_display_pack(unsigned start_item, unsigned slot);
 static int aux_slottable(pob o, int slot);
-static int aux_take_from_pack(int slot);
-static int aux_top_take_from_pack(int slot, int display);
 static pob detach_money(void);
 static void drop_from_slot(int slot);
-static int get_inventory_slot(void);
 static int get_item_number(pob o);
 static int get_to_pack(pob o);
 static int item_useable(pob o, int slot);
@@ -27,7 +24,8 @@ static void setplustr(pob obj, char* pstr);
 static void show_inventory_slot(int slotnum, int topline);
 static int slottable(pob o, int slot);
 static void switch_to_slot (int slot);
-static int take_from_pack (int slot, int display);
+static int take_from_pack (int slot);
+static void inventory_control(void);
 
 //----------------------------------------------------------------------
 
@@ -671,7 +669,7 @@ static int aux_display_pack (unsigned start_item, unsigned slot)
 
 // takes something from pack, puts to slot, 
 // or to 'up-in-air', one of which at least must be empty
-static int aux_take_from_pack (int slot)
+static int take_from_pack (int slot)
 {
     char response, pack_item;
     if (Player.possessions[slot] != NULL)
@@ -722,69 +720,14 @@ static int aux_take_from_pack (int slot)
 	    use_pack_item (response - 'a', slot);
 	}
     }
-    if (optionp (TOPINV))
-	display_possessions();
     return slot;
-}
-
-// takes something from pack, puts to slot, 
-// or to 'up-in-air', one of which at least must be empty
-static int aux_top_take_from_pack (int slot, int display)
-{
-    char response;
-    int quitting = FALSE, ok = TRUE, displayed = FALSE;
-    if (Player.possessions[slot] != NULL)
-	slot = O_UP_IN_AIR;
-    if (Player.possessions[slot] != NULL)
-	print3 ("slot is not empty!");
-    else if (Player.packptr == 0)
-	print3 ("Pack is empty!");
-    else {
-	do {
-	    ok = TRUE;
-	    print1 ("Enter pack slot letter, or ? to show pack, or ESCAPE to quit.");
-	    response = mcigetc();
-	    if (response == '?') {
-		display_pack();
-		displayed = TRUE;
-		ok = FALSE;
-	    } else if (response == KEY_ESCAPE)
-		quitting = TRUE;
-	    else {
-		ok = ((response >= 'a') && (response < char('a' + Player.packptr)));
-		if (ok)
-		    ok = slottable (Player.pack[response - 'a'], slot);
-	    }
-	} while (!ok);
-	if (!quitting)
-	    use_pack_item (response - 'a', slot);
-    }
-    if (displayed) {
-	if (display)
-	    display_possessions();
-	else
-	    xredraw();
-    }
-    return slot;
-}
-
-static int take_from_pack (int slot, int display)
-{
-    if (optionp (TOPINV))
-	return (aux_top_take_from_pack (slot, display));
-    else
-	return (aux_take_from_pack (slot));
 }
 
 void do_inventory_control (void)
 {
-    if (optionp (TOPINV))
-	top_inventory_control();
-    else {
-	menuclear();
-	display_possessions();
-	inventory_control();
-    }
+    menuclear();
+    display_possessions();
+    inventory_control();
 }
 
 // inventory_control assumes a few setup things have been done,
@@ -792,7 +735,7 @@ void do_inventory_control (void)
 //
 // Each action uses up a little time. If only inspection actions
 // are taken, no time is used up.
-void inventory_control (void)
+static void inventory_control (void)
 {
     int slot = 0, done = FALSE;
     int response;
@@ -861,7 +804,7 @@ void inventory_control (void)
 		Command_Duration += 5;
 		break;
 	    case 't':
-		show_inventory_slot (take_from_pack (slot, TRUE), FALSE);
+		show_inventory_slot (take_from_pack (slot), FALSE);
 		Command_Duration += 5;
 		break;
 	    case 'e':
@@ -930,7 +873,7 @@ void inventory_control (void)
 		if (key_to_index (response) > 0) {
 		    slot = move_slot (slot, key_to_index (response), MAXITEMS);
 		    if (Player.possessions[slot] == NULL && Player.possessions[O_UP_IN_AIR] == NULL) {
-			show_inventory_slot (take_from_pack (slot, TRUE), FALSE);
+			show_inventory_slot (take_from_pack (slot), FALSE);
 			Command_Duration += 5;
 		    } else {
 			switch_to_slot (slot);
@@ -944,150 +887,6 @@ void inventory_control (void)
 	calc_melee();
     } while (!done);
     xredraw();
-}
-
-// same as inventory_control, but only uses msg window for i/o
-void top_inventory_control (void)
-{
-    int slot = 0, done = FALSE, usedmenu = FALSE;
-    char response, letter;
-    clearmsg3();
-    do {
-	clearmsg1();
-	print1 ("Action [d,e,l,p,s,t,x,~,?,ESCAPE]:");
-	print2 ("'Up in air': ");
-	if (Player.possessions[O_UP_IN_AIR] == NULL)
-	    nprint2 ("NOTHING");
-	else
-	    nprint2 (itemid (Player.possessions[O_UP_IN_AIR]));
-	response = (char) mcigetc();
-
-	switch (response) {
-	    case 'd':
-		if (Player.possessions[O_UP_IN_AIR] != NULL)
-		    drop_from_slot (O_UP_IN_AIR);
-		else {
-		    slot = get_inventory_slot();
-		    if (Player.possessions[slot] != NULL)
-			drop_from_slot (slot);
-		    else
-			print3 ("Nothing in selected slot!");
-		}
-		Command_Duration++;
-		break;
-	    case 'l':
-		Str1[0] = '\0';
-		slot = get_inventory_slot();
-		if (Player.possessions[slot] != NULL) {
-		    if (!strcmp (itemid (Player.possessions[slot]), Player.possessions[slot]->objstr))
-			print3 ("You notice nothing new about it.");
-		    else {
-			if (object_uniqueness(Player.possessions[slot]) == COMMON)
-			    strcat (Str1, "Your ");
-			strcat (Str1, itemid (Player.possessions[slot]));
-			if (Player.possessions[slot]->objchar == BOOTS)
-			    strcat (Str1, " look like ");
-			else {
-			    strcat (Str1, " looks like a");
-			    letter = Player.possessions[slot]->objstr[0];
-			    if (letter == 'a' || letter == 'A' || letter == 'e' || letter == 'E' || letter == 'i' || letter == 'I' || letter == 'o' || letter == 'O' || letter == 'u' || letter == 'U')
-				strcat (Str1, "n ");
-			    else
-				strcat (Str1, " ");
-			}
-			strcat (Str1, Player.possessions[slot]->objstr);
-			print3 (Str1);
-		    }
-		} else
-		    print3 ("Nothing in selected slot!");
-		break;
-	    case 'p':
-		if (Player.possessions[O_UP_IN_AIR] == NULL)
-		    slot = get_inventory_slot();
-		else
-		    slot = O_UP_IN_AIR;
-		put_to_pack (slot);
-		Command_Duration += 5;
-		break;
-	    case 's':
-		display_pack();
-		usedmenu = TRUE;
-		Command_Duration += 5;
-		break;
-	    case 't':
-		slot = get_inventory_slot();
-		(void) take_from_pack (slot, FALSE);
-		Command_Duration += 5;
-		break;
-	    case 'e':
-		slot = get_inventory_slot();
-		if (slot == O_UP_IN_AIR)
-		    break;
-		switch_to_slot (slot);
-		Command_Duration += 2;
-		break;
-	    case 'x':
-		slot = get_inventory_slot();
-		if (slot == O_UP_IN_AIR)
-		    break;
-		switch_to_slot (slot);
-		Command_Duration += 2;
-		done = (Player.possessions[O_UP_IN_AIR] == NULL);
-		break;
-	    case '~':
-		display_possessions();
-		inventory_control();
-		usedmenu = TRUE;
-		done = TRUE;
-		break;
-	    case '?':
-		menuclear();
-		menuprint ("d:\tDrop an item\n");
-		menuprint ("e:\tExchange a slot with up-in-air slot\n");
-		menuprint ("l:\tLook at an item\n");
-		menuprint ("p:\tPut an item in pack\n");
-		menuprint ("s:\tShow contents of pack\n");
-		menuprint ("t:\tTake something from pack into a slot\n");
-		menuprint ("x:\tAs 'e', above, exit if up-in-air slot finishes empty\n");
-		menuprint ("~:\tEnter full-screen inventory mode\n");
-		menuprint ("?:\tDisplay help (this message + help file)\n");
-		menuprint ("ESCAPE:\texit\n");
-		showmenu();
-		clearmsg();
-		print1 ("Display full help? (y/n)");
-		if (ynq1() == 'y')
-		    inv_help();
-		usedmenu = TRUE;
-		break;
-	    case KEY_ESCAPE:
-		if (Player.possessions[O_UP_IN_AIR] != NULL) {
-		    drop_at (Player.x, Player.y, Player.possessions[O_UP_IN_AIR]);
-		    Player.possessions[O_UP_IN_AIR] = NULL;
-		    print3 ("Object 'up in air' dropped.");
-		}
-		done = TRUE;
-		break;
-	}
-	calc_melee();
-    } while (!done);
-    if (usedmenu)
-	xredraw();
-}
-
-// Let the user select a slot.
-static int get_inventory_slot (void)
-{
-    signed char response;
-    do {
-	clearmsg1();
-	print1 ("Which inventory slot ['-'='up-in-air' slot]?");
-	response = (signed char) mcigetc();
-	if (response == KEY_ESCAPE || response == '-')
-	    return O_UP_IN_AIR;
-	else
-	    response = key_to_index (response);
-    } while (response != O_UP_IN_AIR);
-    return response;
 }
 
 // returns some number between 0 and o->number

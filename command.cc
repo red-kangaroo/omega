@@ -189,12 +189,7 @@ void p_process (void)
 		Command_Duration = 10;
 		break;
 	    case 'I':
-		if (!optionp (TOPINV))
-		    top_inventory_control();
-		else {
-		    display_possessions();
-		    inventory_control();
-		}
+		do_inventory_control();
 		break;
 	    case 'M':
 		city_move();
@@ -414,13 +409,7 @@ void p_country_process (void)
 		hunt (Country[Player.x][Player.y].current_terrain_type);
 		break;
 	    case 'I':
-		if (!optionp (TOPINV))
-		    top_inventory_control();
-		else {
-		    menuclear();
-		    display_possessions();
-		    inventory_control();
-		}
+		do_inventory_control();
 		break;
 	    case 'O':
 		setoptions();
@@ -488,41 +477,21 @@ void p_country_process (void)
 // no op a turn....
 static void rest (void)
 {
-    if (random_range (20) == 1) {
-	switch (random_range (10)) {
-	    case 0:
-		print3 (" Time passes slowly.... ");
-		break;
-	    case 1:
-		print3 (" Tick. Tock. Tick. Tock. ");
-		break;
-	    case 2:
-		print3 (" Ho Hum. ");
-		break;
-	    case 3:
-		print3 (" Beauty Sleep. Well, in your case, Ugly Sleep. ");
-		break;
-	    case 4:
-		print3 (" And with Strange Aeons, even Death may die. ");
-		break;
-	    case 5:
-		print3 (" La Di Da. ");
-		break;
-	    case 6:
-		print3 (" Time keeps on tickin' tickin' -- into the future.... ");
-		break;
-	    case 7:
-		print3 (" Boooring! ");
-		break;
-	    case 8:
-		print3 (" You think I like watching you sleep? ");
-		break;
-	    case 9:
-		print3 (" You sure have an early bedtime! ");
-		break;
-	}
-	morewait();
-    }
+    if (random_range(20))
+	return;
+    static const char _boring[] =
+	"Time passes slowly....\0"
+	"Tick. Tock. Tick. Tock.\0"
+	"Ho Hum.\0"
+	"Beauty Sleep. Well, in your case, Ugly Sleep.\0"
+	"And with Strange Aeons, even Death may die.\0"
+	"La Di Da.\0"
+	"Time keeps on tickin' tickin' -- into the future....\0"
+	"Boooring!\0"
+	"You think I like watching you sleep?\0"
+	"You sure have an early bedtime!";
+    print3 (zstrn (_boring, random_range(10), 10));
+    morewait();
 }
 
 // read a scroll, book, tome, etc.
@@ -996,16 +965,12 @@ void setoptions (void)
 	    case '>':
 	    case KEY_DOWN:
 		to = slot + 1;
-		if (to == 8)	// COMPRESS_OPTION
-		    to = 9;
 		slot = move_slot (slot, to, NUMOPTIONS + 1);
 		break;
 	    case 'k':
 	    case '<':
 	    case KEY_UP:
 		to = slot - 1;
-		if (to == 8)	// COMPRESS_OPTION
-		    to = 7;
 		if (to > 0)
 		    slot = move_slot (slot, to, NUMOPTIONS + 1);
 		break;

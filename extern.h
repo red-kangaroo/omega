@@ -240,14 +240,12 @@ int getitem(chtype itype);
 void give_money(struct monster *m);
 void givemonster(struct monster *m, struct object *o);
 signed char index_to_key (int i);
-void inventory_control(void);
 const char* itemid(pob obj);
 inline const char* itemid(object& obj) { return (itemid(&obj)); }
 void lose_all_items(void);
 void p_drop_at(int x, int y, int n, pob o);
 void pickup_at(int x, int y);
 pob split_item(int num, pob item);
-void top_inventory_control(void);
 // item.c
 pob create_object(int itemlevel);
 void item_use(struct object *o);

@@ -27,10 +27,10 @@ enum {
     CAVELEVELS = 10,
     VOLCANOLEVELS = 20,
     NOCITYMOVE = 666,		// cannot use M command on site with this aux value
-    NUMOPTIONS = 11,		// total number of player options
-    NUMTFOPTIONS = 9,		// number of options with TRUE/FALSE values
-    VERBOSITY_LEVEL = 10,	// The slot number of the two options not in Player.options
-    SEARCH_DURATION = 11
+    NUMTFOPTIONS = 7,		// number of options with TRUE/FALSE values
+    VERBOSITY_LEVEL,		// The slot number of the two options not in Player.options
+    SEARCH_DURATION,
+    NUMOPTIONS = SEARCH_DURATION-1	// total number of player options
 };
 
 // Verbosity levels
@@ -401,10 +401,8 @@ enum {
     RUNSTOP	= (1<<2),
     PICKUP	= (1<<3),
     CONFIRM 	= (1<<4),
-    TOPINV 	= (1<<5),
-    PACKADD 	= (1<<6),
-    COMPRESS_OPTION= (1<<7),
-    SHOW_COLOUR	= (1<<8)
+    PACKADD 	= (1<<5),
+    COMPRESS_OPTION= (1<<6)
 };
 
 // running sum of itemtypes, for indexing into Objects array

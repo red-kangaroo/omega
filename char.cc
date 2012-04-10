@@ -64,7 +64,6 @@ void initplayer (void)
     if (!oldchar) {
 	optionset (RUNSTOP);
 	optionset (CONFIRM);
-	optionset (SHOW_COLOUR);
 	initstats();
     }
     Searchnum = max (1, min (9, Searchnum));
