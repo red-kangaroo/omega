@@ -391,43 +391,43 @@ static void hp_req_test (void)
     pob o;
     switch (Player.patron) {
 	case ODIN:
-	    if (find_item (&o, HOLY_SYMBOL_OF_SET, -1))
+	    if ((o = find_item (HOLY_SYMBOL_OF_SET)))
 		make_hp (o);
 	    else
 		hp_req_print();
 	    break;
 	case SET:
-	    if (find_item (&o, HOLY_SYMBOL_OF_ODIN, -1))
+	    if ((o = find_item (HOLY_SYMBOL_OF_ODIN)))
 		make_hp (o);
 	    else
 		hp_req_print();
 	    break;
 	case ATHENA:
-	    if (find_item (&o, HOLY_SYMBOL_OF_HECATE, -1))
+	    if ((o = find_item (HOLY_SYMBOL_OF_HECATE)))
 		make_hp (o);
 	    else
 		hp_req_print();
 	    break;
 	case HECATE:
-	    if (find_item (&o, HOLY_SYMBOL_OF_ATHENA, -1))
+	    if ((o = find_item (HOLY_SYMBOL_OF_ATHENA)))
 		make_hp (o);
 	    else
 		hp_req_print();
 	    break;
 	case DRUID:
-	    if (find_item (&o, HOLY_SYMBOL_OF_ODIN, -1))
+	    if ((o = find_item (HOLY_SYMBOL_OF_ODIN)))
 		make_hp (o);
-	    else if (find_item (&o, HOLY_SYMBOL_OF_SET, -1))
+	    else if ((o = find_item (HOLY_SYMBOL_OF_SET)))
 		make_hp (o);
-	    else if (find_item (&o, HOLY_SYMBOL_OF_ATHENA, -1))
+	    else if ((o = find_item (HOLY_SYMBOL_OF_ATHENA)))
 		make_hp (o);
-	    else if (find_item (&o, HOLY_SYMBOL_OF_HECATE, -1))
+	    else if ((o = find_item (HOLY_SYMBOL_OF_HECATE)))
 		make_hp (o);
 	    else
 		hp_req_print();
 	    break;
 	case DESTINY:
-	    if (find_item (&o, HOLY_SYMBOL_OF_DESTINY, -1))
+	    if ((o = find_item (HOLY_SYMBOL_OF_DESTINY)))
 		make_hp (o);
 	    else
 		hp_req_print();

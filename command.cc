@@ -36,6 +36,9 @@ static void tunnel(void);
 static void hunt(int terrain);
 static void city_move(void);
 static void frobgamestatus(void);
+static void give_money (struct monster *m);
+static void drop_money (void);
+static pob detach_money (void);
 
 //----------------------------------------------------------------------
 
@@ -837,6 +840,45 @@ static void give (void)
 	givemonster (m, obj);
 	calc_melee();
     }
+}
+
+static void give_money (struct monster *m)
+{
+    pob cash = detach_money();
+    if (cash == NULL)
+	setgamestatus (SKIP_MONSTERS);
+    else
+	givemonster (m, cash);
+}
+
+// drops money, heh heh
+static void drop_money (void)
+{
+    pob money = detach_money();
+    if (money != NULL) {
+	if (Current_Environment == E_CITY) {
+	    print1 ("As soon as the money leaves your hand,");
+	    print2 ("a horde of scrofulous beggars snatch it up and are gone!");
+	} else
+	    drop_at (Player.x, Player.y, money);
+    } else
+	setgamestatus (SKIP_MONSTERS);
+}
+
+// returns some money from player back into "money" item.
+// for giving and dropping money
+static pob detach_money (void)
+{
+    long c;
+    pob cash = NULL;
+    c = get_money (Player.cash);
+    if (c != ABORT) {
+	Player.cash -= c;
+	cash = new object;
+	make_cash (cash, difficulty());
+	cash->basevalue = c;
+    }
+    return (cash);
 }
 
 // zap a wand, of course

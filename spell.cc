@@ -321,7 +321,7 @@ static void s_ritual (void)
 			} else {
 			    if (Player.patron == DESTINY) {
 				mprint ("Your patrons take pity on you.");
-				if ((Player.rank[PRIESTHOOD] < SPRIEST) && (!find_item (&symbol, HOLY_SYMBOL_OF_DESTINY, -1))) {
+				if ((Player.rank[PRIESTHOOD] < SPRIEST) && (!find_item (HOLY_SYMBOL_OF_DESTINY))) {
 				    symbol = new object;
 				    *symbol = Objects[HOLY_SYMBOL_OF_DESTINY];
 				    learn_object (symbol);

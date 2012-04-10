@@ -6,7 +6,6 @@
 static void add_to_pack(pob o);
 static int aux_display_pack(unsigned start_item, unsigned slot);
 static int aux_slottable(pob o, int slot);
-static pob detach_money(void);
 static void drop_from_slot(int slot);
 static int get_item_number(pob o);
 static int get_to_pack(pob o);
@@ -28,39 +27,6 @@ static int take_from_pack (int slot);
 static void inventory_control(void);
 
 //----------------------------------------------------------------------
-
-// drops money, heh heh
-void drop_money (void)
-{
-    pob money;
-
-    // WDT HACK!  Let me guess -- this is yet another memory leak, right?
-    money = detach_money();
-    if (money != NULL) {
-	if (Current_Environment == E_CITY) {
-	    print1 ("As soon as the money leaves your hand,");
-	    print2 ("a horde of scrofulous beggars snatch it up and are gone!");
-	} else
-	    drop_at (Player.x, Player.y, money);
-    } else
-	setgamestatus (SKIP_MONSTERS);
-}
-
-// returns some money from player back into "money" item.
-// for giving and dropping money
-static pob detach_money (void)
-{
-    long c;
-    pob cash = NULL;
-    c = get_money (Player.cash);
-    if (c != ABORT) {
-	Player.cash -= c;
-	cash = new object;
-	make_cash (cash, difficulty());
-	cash->basevalue = c;
-    }
-    return (cash);
-}
 
 // gets a legal amount of money or ABORT
 long get_money (long limit)
@@ -312,17 +278,6 @@ static void setchargestr (pob obj, char* cstr)
 	cstr[4] = ']';
 	cstr[5] = 0;
     }
-}
-
-void give_money (struct monster *m)
-{
-    pob cash;
-
-    cash = detach_money();
-    if (cash == NULL)
-	setgamestatus (SKIP_MONSTERS);
-    else
-	givemonster (m, cash);
 }
 
 void givemonster (struct monster *m, struct object *o)
@@ -1095,36 +1050,25 @@ static int objequal (struct object *o, struct object *p)
 // criteria for being able to put some item in some slot
 static int slottable (pob o, int slot)
 {
-    int ok = TRUE;
-    if (o == NULL)
-	ok = FALSE;
-    else if (slot == O_ARMOR) {
-	if (o->objchar != ARMOR) {
-	    print3 ("Only armor can go in the armor slot!");
-	    ok = FALSE;
-	}
-    } else if (slot == O_SHIELD) {
-	if (o->objchar != SHIELD) {
-	    print3 ("Only a shield can go in the shield slot!");
-	    ok = FALSE;
-	}
-    } else if (slot == O_BOOTS) {
-	if (o->objchar != BOOTS) {
-	    print3 ("Only boots can go in the boots slot!");
-	    ok = FALSE;
-	}
-    } else if (slot == O_CLOAK) {
-	if (o->objchar != CLOAK) {
-	    print3 ("Only a cloak can go in the cloak slot!");
-	    ok = FALSE;
-	}
-    } else if (slot >= O_RING1) {
-	if (o->objchar != RING) {
-	    print3 ("Only a ring can go in a ring slot!");
-	    ok = FALSE;
-	}
+    if (!o)
+	return (FALSE);
+    else if (slot == O_ARMOR && o->objchar != ARMOR) {
+	print3 ("Only armor can go in the armor slot!");
+	return (FALSE);
+    } else if (slot == O_SHIELD && o->objchar != SHIELD) {
+	print3 ("Only a shield can go in the shield slot!");
+	return (FALSE);
+    } else if (slot == O_BOOTS && o->objchar != BOOTS) {
+	print3 ("Only boots can go in the boots slot!");
+	return (FALSE);
+    } else if (slot == O_CLOAK && o->objchar != CLOAK) {
+	print3 ("Only a cloak can go in the cloak slot!");
+	return (FALSE);
+    } else if (slot >= O_RING1 && o->objchar != RING) {
+	print3 ("Only a ring can go in a ring slot!");
+	return (FALSE);
     }
-    return (ok);
+    return (TRUE);
 }
 
 // ->;WDT HACK: this is bad factoring.  I want to use this, but it's
@@ -1160,35 +1104,21 @@ static int item_useable (pob o, int slot)
 // returns FALSE if not cursed, TRUE if cursed but not used, TRUE + TRUE if cursed and used
 int cursed (pob obj)
 {
-    return ((obj == NULL) ? FALSE : ((obj->blessing < 0) ? (obj->used == TRUE) + TRUE : FALSE));
+    return (!obj ? FALSE : (obj->blessing < 0 ? (obj->used == TRUE) + TRUE : FALSE));
 }
 
 // returns true if item with id and charge is found in pack or in
 // inventory slot. charge is used to differentiate
 // corpses instead of aux, which is their food value.
-int find_item (pob * o, int id, int chargeval)
+object* find_item (int id)
 {
-    bool found = FALSE;
-    *o = NULL;
-    for (unsigned i = 1; i < MAXITEMS && !found; i++) {
-	if (Player.possessions[i] != NULL) {
-	    if ((Player.possessions[i]->id == id) && ((chargeval == -1) || (Player.possessions[i]->charge == chargeval))) {
-		*o = Player.possessions[i];
-		found = TRUE;
-	    }
-	}
-    }
-    if (!found) {
-	for (unsigned i = 0; i < Player.packptr && !found; i++) {
-	    if (Player.pack[i] != NULL) {
-		if ((Player.pack[i]->id == id) && ((chargeval == -1) || (Player.pack[i]->charge == chargeval))) {
-		    *o = Player.pack[i];
-		    found = TRUE;
-		}
-	    }
-	}
-    }
-    return (found);
+    for (unsigned i = 1; i < MAXITEMS; i++)
+	if (Player.possessions[i] && Player.possessions[i]->id == id)
+	    return (Player.possessions[i]);
+    for (unsigned i = 0; i < Player.packptr; i++)
+	if (Player.pack[i] && Player.pack[i]->id == id)
+	    return (Player.pack[i]);
+    return (NULL);
 }
 
 // returns true if item with id and charge is found in pack or in

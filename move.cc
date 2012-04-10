@@ -627,9 +627,8 @@ static void l_air_station (void)
 
 static void l_earth_station (void)
 {
-    pob o;
     print1 ("The tendrilled mass reaches out for you from the muddy ooze.");
-    if (find_item (&o, THING_SALT_WATER, -1))
+    if (find_item (THING_SALT_WATER))
 	print2 ("A splash of salt water does nothing to dissuade the vines.");
     morewait();
     print1 ("Enter the overgrown mire? [yn] ");
@@ -838,11 +837,10 @@ static void l_temple_warning (void)
 
 static void l_throne (void)
 {
-    pob o;
     print1 ("You have come upon a huge ornately appointed throne!");
     print2 ("Sit in it? [yn] ");
     if (ynq1() == 'y') {
-	if (!find_item (&o, SCEPTRE_OF_HIGH_MAGIC, -1)) {
+	if (!find_item (SCEPTRE_OF_HIGH_MAGIC)) {
 	    print1 ("The throne emits an eerie violet-black radiance.");
 	    print2 ("You find, to your horror, that you cannot get up!");
 	    print3 ("You feel an abstract sucking sensation...");

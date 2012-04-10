@@ -1772,9 +1772,6 @@ void l_merc_guild (void)
 
 void l_castle (void)
 {
-    pob o;
-    int x, y;
-
     if (Player.level < 3) {
 	print1 ("You can't possibly enter the castle, you nobody!");
 	print2 ("Come back when you are famous.");
@@ -1838,7 +1835,7 @@ void l_castle (void)
 	    } else
 		print2 ("Your quest is not yet complete, sir knight.");
 	} else if (Player.rank[NOBILITY] == LORD) {
-	    if (find_item (&o, ORB_OF_MASTERY, -1)) {
+	    if (find_item (ORB_OF_MASTERY)) {
 		print1 ("My sincerest thanks, my lord.");
 		print2 ("You have proved yourself a true paragon of chivalry");
 		morewait();
@@ -1847,8 +1844,8 @@ void l_castle (void)
 		Player.rank[NOBILITY] = DUKE;
 		gain_experience (10000);
 		morewait();
-		for (y = 52; y < 63; y++)
-		    for (x = 2; x < 52; x++) {
+		for (int y = 52; y < 63; y++)
+		    for (int x = 2; x < 52; x++) {
 			if (Level->site[x][y].p_locf == L_TRAP_SIREN) {
 			    Level->site[x][y].p_locf = L_NO_OP;
 			    lset (x, y, CHANGED);
