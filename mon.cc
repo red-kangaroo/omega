@@ -192,7 +192,7 @@ static void m_simple_move (struct monster *m)
 	dx = -dx;
 	dy = -dy;
 	m->movef = M_MOVE_SCAREDY;
-	if (m->possessions != NULL) {
+	if (!m->possessions.empty()) {
 	    mprintf ("%s drops its treasure and flees!", m->name());
 	    m_dropstuff (m);
 	} else
@@ -586,29 +586,29 @@ static void m_talk_assassin (struct monster *m)
 static void m_talk_im (struct monster *m)
 {
     m->monstring = "itinerant merchant";
-    if (!m->possessions) {
+    if (m->possessions.empty()) {
 	mprint ("The merchant says: Alas! I have nothing to sell!");
 	return;
     }
     clearmsg();
-    mprintf ("I have a fine %s for only %uAu. Want it? [yn] ", itemid(m->possessions->thing), max (10, 4 * true_item_value (m->possessions->thing)));
+    object* o = &m->possessions[0];
+    unsigned cost = max (10, 4 * true_item_value(o));
+    mprintf ("I have a fine %s for only %uAu. Want it? [yn] ", itemid(o), cost);
     if (ynq() != 'y')
 	mprint ("Well then, I must be off. Good day.");
-    else {
-	if (Player.cash < (max (10U, 4 * true_item_value (m->possessions->thing)))) {
-	    if (Player.alignment > 10) {
-		mprint ("Well, I'll let you have it for what you've got.");
-		Player.cash = 0;
-		gain_item (m->possessions->thing);
-		m->possessions = NULL;
-	    } else
-		mprint ("Beat it, you deadbeat!");
-	} else {
-	    mprint ("Here you are. Have a good day.");
-	    Player.cash -= max (10, (4 * item_value (m->possessions->thing)));
-	    gain_item (m->possessions->thing);
-	    m->possessions = NULL;
-	}
+    else if (Player.cash < cost) {
+	if (Player.alignment > 10) {
+	    mprint ("Well, I'll let you have it for what you've got.");
+	    Player.cash = 0;
+	    gain_item (new object(*o));
+	    m->possessions.erase(o);
+	} else
+	    mprint ("Beat it, you deadbeat!");
+    } else {
+	mprint ("Here you are. Have a good day.");
+	Player.cash -= cost;
+	gain_item (new object(*o));
+	m->possessions.erase(o);
     }
     m_vanish (m);
 }
@@ -942,23 +942,18 @@ static void m_talk_prime (struct monster *m)
 // give object o to monster m
 void m_pickup (struct monster *m, struct object *o)
 {
-    pol tmp = new objectlist;
-    tmp->thing = o;
-    tmp->next = m->possessions;
-    m->possessions = tmp;
+    m->possessions.push_back (*o);
 }
 
 void m_dropstuff (struct monster *m)
 {
-    pol tmp = m->possessions;
-    if (tmp != NULL) {
-	while (tmp->next != NULL)
-	    tmp = tmp->next;
-
-	tmp->next = Level->site[m->x][m->y].things;
-	Level->site[m->x][m->y].things = m->possessions;
-	m->possessions = NULL;
+    foreach (i, m->possessions) {
+	pol ol = new objectlist;
+	ol->thing = new object (*i);
+	ol->next = Level->site[m->x][m->y].things;
+	Level->site[m->x][m->y].things = ol;
     }
+    m->possessions.clear();
 }
 
 static void m_hit (struct monster *m, int dtype)
@@ -2427,8 +2422,6 @@ const char* mantype (void)
 
 static void strengthen_death (struct monster *m)
 {
-    pol ol = new objectlist;
-    pob scythe = new object;
     m->xpv += min (10000, m->xpv + 1000);
     m->hit += min (1000, m->hit + 10);
     m->dmg = min (10000, m->dmg * 2);
@@ -2436,10 +2429,7 @@ static void strengthen_death (struct monster *m)
     m->speed = max (m->speed - 1, 1);
     m->movef = M_MOVE_SMART;
     m->hp = min (100000, 100 + m->dmg * 10);
-    *scythe = Objects[WEAPON_SCYTHE_OF_DEATH];
-    ol->thing = scythe;
-    ol->next = NULL;
-    m->possessions = ol;
+    m->possessions.push_back (Objects[WEAPON_SCYTHE_OF_DEATH]);
 }
 
 void m_no_op (struct monster *m UNUSED)

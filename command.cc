@@ -2088,6 +2088,7 @@ static void pickpocket (void)
 {
     clearmsg();
     mprint ("Pickpocketing --");
+    clearmsg();
     int ii = getdir();
     if (ii == ABORT) {
 	setgamestatus (SKIP_MONSTERS);
@@ -2114,19 +2115,20 @@ static void pickpocket (void)
 	    morewait();
 	    send_to_jail();
 	}
-    } else if (!m->possessions) {
+    } else if (m->possessions.empty()) {
 	mprint ("You couldn't find anything worth taking!");
 	mprint ("But you managed to annoy it...");
 	m_status_set (m, HOSTILE);
     } else if (Player.dex * 5 + Player.rank[THIEVES] * 20 + random_range (100) > random_range (100) + m->level * 20) {
 	mprint ("You successfully complete your crime!");
 	mprint ("You stole:");
-	mprint (itemid (m->possessions->thing));
+	mprint (itemid (&m->possessions[0]));
 	--Player.alignment;
 	gain_experience (m->level * m->level);
-	gain_item (m->possessions->thing);
-	m->possessions = m->possessions->next;
-    }
+	gain_item (new object (m->possessions[0]));
+	m->possessions.erase (m->possessions.begin());
+    } else
+	mprint ("Pickpocketing failed. This is just not your day.");
 }
 
 void rename_player (void)

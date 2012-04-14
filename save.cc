@@ -527,7 +527,9 @@ void monster::write (ostream& os) const
 	os.write_strz (corpsestr);
     else
 	os << '\0';
-    save_itemlist (os, possessions);
+    os << uint8_t(possessions.size());
+    foreach (i, possessions)
+	save_item (os, i);
 }
 
 void monster::read (istream& is)
@@ -543,7 +545,10 @@ void monster::read (istream& is)
     unsigned nlen = strlen(is.ipos()); if (nlen) monstring = strdup(is.ipos()); is.skip(nlen+1);
     nlen = strlen(is.ipos()); if (nlen) corpsestr = strdup(is.ipos()); is.skip(nlen+1);
 
-    possessions = restore_itemlist (is, OMEGA_VERSION);
+    uint8_t psz; is >> psz;
+    possessions.resize (psz);
+    foreach (i, possessions)
+	*i = *restore_item (is, OMEGA_VERSION);
 }
 
 streamsize monster::stream_size (void) const

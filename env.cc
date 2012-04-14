@@ -263,14 +263,8 @@ static monster& make_prime (int i, int j)
 {
     monster& m = make_site_monster (i, j, NPC);
     make_hiscore_npc (m, NPC_PRIME);
-    if (object_uniqueness(STAR_GEM) != UNIQUE_TAKEN) {
-	pol ol = new objectlist;
-	pob o = new object;
-	*o = Objects[STAR_GEM];
-	ol->thing = o;
-	ol->next = NULL;
-	m.possessions = ol;
-    }
+    if (object_uniqueness(STAR_GEM) != UNIQUE_TAKEN)
+	m.possessions.emplace_back (Objects[STAR_GEM]);
     return (m);
 }
 

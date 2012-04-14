@@ -576,7 +576,7 @@ void free_objlist (pol pobjlist)
 void free_level (plv level)
 {
     foreach (m, level->mlist)
-	free_objlist (m->possessions);
+	m->possessions.clear();
     level->mlist.clear();
     for (int i = 0; i < MAXWIDTH; i++) {
 	for (int j = 0; j < MAXLENGTH; j++) {

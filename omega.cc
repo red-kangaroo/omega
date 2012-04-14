@@ -251,6 +251,8 @@ static void init_world (void)
     load_country();
     for (int i = 0; i < NUMCITYSITES; i++)
 	CitySiteList[i][0] = FALSE;
+    for (unsigned i = 0; i < ArraySize(ObjectAttrs); ++i)
+	ObjectAttrs[i] = Objects[i].uniqueness;
     load_city (TRUE);
     WIDTH = 64;
     LENGTH = 64;

@@ -2270,8 +2270,7 @@ void hellfire (int x, int y, int blessing)
 		mprint ("and is utterly annihilated. Only a greasy spot remains...");
 		m->corpsestr = "a greasy spot";
 		m->id = 0;
-		free_objlist (m->possessions);
-		m->possessions = NULL;
+		m->possessions.clear();
 	    } else
 		mprint ("and dies, cursing your name and the uncaring gods....");
 	    m_death (m);

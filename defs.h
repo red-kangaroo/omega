@@ -789,15 +789,15 @@ struct monster_data {
 };
 
 struct monster : public monster_data {
+    vector<object> possessions;
     int attacked;
     int aux1;
     int aux2;
     int click;
     int x;
     int y;
-    struct objectlist *possessions;
 public:
-    inline monster& operator= (const monster_data& v)	{ *implicit_cast<monster_data*>(this) = v; possessions = NULL; return (*this); }
+    inline monster& operator= (const monster_data& v)	{ *implicit_cast<monster_data*>(this) = v; possessions.clear(); return (*this); }
     inline const char* name (void) const PURE;
     inline const char* by_name (void) const PURE;
     void read (istream& is);
