@@ -512,8 +512,8 @@ void identify (int blessing)
 	print2 ("You feel encyclopaedic.");
 	for (unsigned iidx = 0; iidx < MAXITEMS; iidx++)
 	    learn_object (Player.possessions[iidx]);
-	for (unsigned iidx = 0; iidx < Player.packptr; iidx++)
-	    learn_object (Player.pack[iidx]);
+	foreach (i, Player.pack)
+	    learn_object(i);
     }
     calc_melee();
 }

@@ -2190,7 +2190,7 @@ static void i_orbearth (pob o)
 {
     int i;
     if (!orbcheck ('e')) {
-	print1 ("What a maroon!");
+	print1 ("What a moron!");
 	print2 ("The Orb of Earth blasts you!");
 	Player.con -= 10;
 	if (Player.con < 3)
@@ -2200,12 +2200,7 @@ static void i_orbearth (pob o)
 	    for (i = 0; i < MAXITEMS; i++)
 		if (Player.possessions[i] != NULL)
 		    dispose_lost_objects (Player.possessions[i]->number, Player.possessions[i]);
-	    for (i = 0; i < MAXPACK; i++)
-		if (Player.pack[i] != NULL) {
-		    delete Player.pack[i];
-		    Player.pack[i] = NULL;
-		}
-	    Player.packptr = 0;
+	    Player.pack.clear();
 	    learn_object (o);
 	}
     } else {

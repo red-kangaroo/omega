@@ -1381,7 +1381,7 @@ static void moveplayer (int dx, int dy)
 	if (Player.status[IMMOBILE] > 0) {
 	    resetgamestatus (FAST_MOVE);
 	    print3 ("You are unable to move");
-	} else if ((Player.maxweight < Player.itemweight) && random_range (2) && (!Player.status[LEVITATING])) {
+	} else if (Player.maxweight < Player.itemweight && random_range (2) && !Player.status[LEVITATING]) {
 	    if (gamestatusp (MOUNTED)) {
 		print1 ("Your horse refuses to carry you and your pack another step!");
 		print2 ("Your steed bucks wildly and throws you off!");
@@ -1429,7 +1429,7 @@ static void moveplayer (int dx, int dy)
 // handle a h,j,k,l, etc.
 static void movepincountry (int dx, int dy)
 {
-    int i, takestime = TRUE;
+    int takestime = TRUE;
     if ((Player.maxweight < Player.itemweight) && random_range (2) && (!Player.status[LEVITATING])) {
 	if (gamestatusp (MOUNTED)) {
 	    print1 ("Your horse refuses to carry you and your pack another step!");
@@ -1439,16 +1439,11 @@ static void movepincountry (int dx, int dy)
 	    morewait();
 	    print1 ("With a shrill neigh of defiance, your former steed gallops");
 	    print2 ("off into the middle distance....");
-	    if (Player.packptr != 0) {
+	    if (!Player.pack.empty()) {
 		morewait();
 		print1 ("You remember (too late) that the contents of your pack");
 		print2 ("were kept in your steed's saddlebags!");
-		for (i = 0; i < MAXPACK; i++) {
-		    if (Player.pack[i] != NULL)
-			delete Player.pack[i];
-		    Player.pack[i] = NULL;
-		}
-		Player.packptr = 0;
+		Player.pack.clear();
 		calc_melee();
 	    }
 	} else {

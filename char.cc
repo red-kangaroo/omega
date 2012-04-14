@@ -24,13 +24,11 @@ void initplayer (void)
 	Player.name[0] += 'A' - 'a';	// capitalise 1st letter
     Player.itemweight = 0;
     Player.food = 36;
-    Player.packptr = 0;
     Behavior = -1;
     Player.options = 0;
     for (int i = 0; i < MAXITEMS; i++)
 	Player.possessions[i] = NULL;
-    for (int i = 0; i < MAXPACK; i++)
-	Player.pack[i] = NULL;
+    Player.pack.clear();
     for (int i = 0; i < NUMIMMUNITIES; i++)
 	Player.immunity[i] = 0;
     for (int i = 0; i < NUMSTATI; i++)

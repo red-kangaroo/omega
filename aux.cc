@@ -1522,62 +1522,56 @@ long true_item_value (pob item)
 // kill off player if he isn't got the "breathing" status
 void p_drown (void)
 {
-    int attempts = 3, i;
-
-    if (Player.status[BREATHING] > 0)
+    if (Player.status[BREATHING] > 0) {
 	mprint ("Your breathing is unaffected!");
-    else
-	while (Player.possessions[O_ARMOR] || Player.itemweight > ((int) (Player.maxweight / 2))) {
-	    menuclear();
-	    switch (attempts--) {
-		case 3:
-		    print3 ("You try to hold your breath...");
-		    break;
-		case 2:
-		    print3 ("You try to hold your breath... You choke...");
-		    break;
-		case 1:
-		    print3 ("You try to hold your breath... You choke... Your lungs fill...");
-		    break;
-		case 0:
-		    p_death ("drowning");
-	    }
-	    morewait();
-	    menuprint ("a: Drop an item.\n");
-	    menuprint ("b: Bash an item.\n");
-	    menuprint ("c: Drop your whole pack.\n");
-	    showmenu();
-	    switch (menugetc()) {
-		case 'a':
-		    drop();
-		    if (Level->site[Player.x][Player.y].p_locf == L_WATER && Level->site[Player.x][Player.y].things) {
-			mprint ("It sinks without a trace.");
-			free_objlist (Level->site[Player.x][Player.y].things);
-			Level->site[Player.x][Player.y].things = NULL;
-		    }
-		    break;
-		case 'b':
-		    bash_item();
-		    break;
-		case 'c':
-		    setgamestatus (SUPPRESS_PRINTING);
-		    for (i = 0; i < MAXPACK; i++) {
-			if (Player.pack[i] != NULL)
-			    if (Level->site[Player.x][Player.y].p_locf != L_WATER)
-				p_drop_at (Player.x, Player.y, Player.pack[i]->number, Player.pack[i]);
-			delete Player.pack[i];
-			Player.pack[i] = NULL;
-		    }
-		    if (Level->site[Player.x][Player.y].p_locf == L_WATER)
-			mprint ("It sinks without a trace.");
-		    Player.packptr = 0;
-		    resetgamestatus (SUPPRESS_PRINTING);
-		    calc_melee();
-		    break;
-	    }
+	return;
+    }
+    for (int attempts = 3; Player.possessions[O_ARMOR] || Player.itemweight > Player.maxweight / 2; --attempts) {
+	menuclear();
+	switch (attempts) {
+	    case 3:
+		print3 ("You try to hold your breath...");
+		break;
+	    case 2:
+		print3 ("You try to hold your breath... You choke...");
+		break;
+	    case 1:
+		print3 ("You try to hold your breath... You choke... Your lungs fill...");
+		break;
+	    case 0:
+		p_death ("drowning");
 	}
+	morewait();
+	menuprint ("a: Drop an item.\n");
+	menuprint ("b: Bash an item.\n");
+	menuprint ("c: Drop your whole pack.\n");
+	showmenu();
+	switch (menugetc()) {
+	    case 'a':
+		drop();
+		if (Level->site[Player.x][Player.y].p_locf == L_WATER && Level->site[Player.x][Player.y].things) {
+		    mprint ("It sinks without a trace.");
+		    free_objlist (Level->site[Player.x][Player.y].things);
+		    Level->site[Player.x][Player.y].things = NULL;
+		}
+		break;
+	    case 'b':
+		bash_item();
+		break;
+	    case 'c':
+		setgamestatus (SUPPRESS_PRINTING);
+		foreach (i, Player.pack)
+		    if (Level->site[Player.x][Player.y].p_locf != L_WATER)
+			p_drop_at (Player.x, Player.y, i->number, i);
+		Player.pack.clear();
+		if (Level->site[Player.x][Player.y].p_locf == L_WATER)
+		    mprint ("It sinks without a trace.");
+		resetgamestatus (SUPPRESS_PRINTING);
+		calc_melee();
+		break;
+	}
+    }
     show_screen();
-    return;
 }
 
 // the effect of some weapon on monster m, with dmgmod a bonus to damage
@@ -3136,12 +3130,7 @@ int stonecheck (int alignment)
 	    print1 ("The stone glows black");
 	    print2 ("A burden has been removed from your shoulders.....");
 	    print3 ("Your pack has disintegrated!");
-	    for (i = 0; i < MAXPACK; i++)
-		if (Player.pack[i] != NULL) {
-		    delete Player.pack[i];
-		    Player.pack[i] = NULL;
-		}
-	    Player.packptr = 0;
+	    Player.pack.clear();
 	    break;
 	case 3:
 	    print1 ("The stone glows microwave");

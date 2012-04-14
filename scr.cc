@@ -1273,17 +1273,17 @@ void spreadroomdark (int x, int y, int roomno)
 
 void display_pack (void)
 {
-    if (Player.packptr < 1)
+    if (Player.pack.empty()) {
 	print3 ("Pack is empty.");
-    else {
-	menuclear();
-	menuprint ("Items in Pack:\n");
-	for (unsigned i = 0; i < Player.packptr; i++) {
-	    sprintf (Str1, "  %c: %s\n", i + 'A', itemid (Player.pack[i]));
-	    menuprint (Str1);
-	}
-	showmenu();
+	return;
     }
+    menuclear();
+    menuprint ("Items in Pack:\n");
+    for (unsigned i = 0; i < Player.pack.size(); i++) {
+	sprintf (Str1, "  %c: %s\n", i + 'A', itemid (&Player.pack[i]));
+	menuprint (Str1);
+    }
+    showmenu();
 }
 
 void display_possessions (void)

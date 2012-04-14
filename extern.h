@@ -232,7 +232,6 @@ void do_inventory_control(void);
 void drop_at(int x, int y, pob o);
 int find_and_remove_item(int id, int chargeval);
 object* find_item (int id);
-void fixpack(void);
 void gain_item(struct object *o);
 long get_money(long limit);
 int getitem(chtype itype);

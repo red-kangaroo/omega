@@ -834,7 +834,6 @@ struct player {
     uint32_t	cash;
     int		sx, sy;			// sanctuary coordinates
     int		x, y;			// current player coordinates
-    unsigned	packptr;
     uint32_t	options;
     uint16_t	itemweight;
     uint16_t	maxweight;
@@ -848,7 +847,7 @@ struct player {
     char	name[32];
     char	meleestr[64];
     struct object* possessions[MAXITEMS];
-    struct object* pack[MAXPACK];
+    vector<object> pack;
 };
 
 struct objectlist {

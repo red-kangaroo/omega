@@ -510,17 +510,13 @@ void gain_item (struct object *o)
 // inserts the item at the start of the pack array
 static void push_pack (pob o)
 {
-    int i;
-    for (i = Player.packptr; i > 0; i--)
-	Player.pack[i] = Player.pack[i - 1];
-    Player.pack[0] = o;
-    Player.packptr++;
+    Player.pack.insert (Player.pack.begin(), *o);
 }
 
 // Adds item to pack list
 static void add_to_pack (pob o)
 {
-    if (Player.packptr >= MAXPACK) {
+    if (Player.pack.size() >= MAXPACK) {
 	print3 ("Your pack is full. The item drops to the ground.");
 	drop_at (Player.x, Player.y, o);
     } else {
@@ -532,7 +528,7 @@ static void add_to_pack (pob o)
 // Adds item to pack list, maybe going into inventory mode if pack is full
 static int get_to_pack (pob o)
 {
-    if (Player.packptr >= MAXPACK) {
+    if (Player.pack.size() >= MAXPACK) {
 	print3 ("Your pack is full.");
 	morewait();
 	return (FALSE);
@@ -564,10 +560,8 @@ static void use_pack_item (int response, int slot)
     print1 ("You take the item from your pack.");
     morewait();
     Command_Duration += i;
-    item = Player.possessions[slot] = Player.pack[response];
-    for (i = response; i < Player.packptr - 1; i++)
-	Player.pack[i] = Player.pack[i + 1];
-    Player.pack[--Player.packptr] = NULL;
+    item = Player.possessions[slot] = new object (Player.pack[response]);
+    Player.pack.erase (Player.pack.iat(response));
 
     if ((slot == O_READY_HAND || slot == O_WEAPON_HAND) && twohandedp (item->id)) {
 	if (Player.possessions[O_READY_HAND] == NULL)
@@ -590,22 +584,22 @@ static int aux_display_pack (unsigned start_item, unsigned slot)
 {
     unsigned i = start_item, items;
     const char* depth_string;
-    if (Player.packptr < 1)
+    if (Player.pack.empty())
 	print3 ("Pack is empty.");
-    else if (Player.packptr <= start_item)
+    else if (Player.pack.size() <= start_item)
 	print3 ("You see the leather at the bottom of the pack.");
     else {
 	menuclear();
 	items = 0;
-	for (i = start_item; i < Player.packptr && items < ScreenLength - 5U; i++) {
-	    if (aux_slottable (Player.pack[i], slot)) {
+	for (i = start_item; i < Player.pack.size() && items < ScreenLength - 5U; i++) {
+	    if (aux_slottable (&Player.pack[i], slot)) {
 		if (pack_item_cost (i) > 10)
 		    depth_string = "**";
 		else if (pack_item_cost (i) > 5)
 		    depth_string = "* ";
 		else
 		    depth_string = "  ";
-		sprintf (Str1, "  %c: %s %s\n", i + 'a', depth_string, itemid (Player.pack[i]));
+		sprintf (Str1, "  %c: %s %s\n", i + 'a', depth_string, itemid (&Player.pack[i]));
 		if (items == 0)
 		    menuprint ("Items in Pack:\n");
 		menuprint (Str1);
@@ -631,7 +625,7 @@ static int take_from_pack (int slot)
 	slot = O_UP_IN_AIR;
     if (Player.possessions[slot] != NULL)
 	print3 ("slot is not empty!");
-    else if (Player.packptr < 1)
+    else if (Player.pack.size() < 1)
 	print3 ("Pack is empty!");
     else {
 	pack_item = 0;
@@ -639,9 +633,9 @@ static int take_from_pack (int slot)
 	do {
 	    ok = TRUE;
 	    unsigned last_item = aux_display_pack (pack_item, slot);
-	    if (last_item == Player.packptr && pack_item == 0)
+	    if (last_item == Player.pack.size() && pack_item == 0)
 		print1 ("Enter pack slot letter or ESCAPE to quit.");
-	    else if (last_item == Player.packptr)
+	    else if (last_item == Player.pack.size())
 		print1 ("Enter pack slot letter, - to go back, or ESCAPE to quit.");
 	    else if (pack_item == 0)
 		print1 ("Enter pack slot letter, + to see more, or ESCAPE to quit.");
@@ -656,7 +650,7 @@ static int take_from_pack (int slot)
 	    } else if (response == KEY_ESCAPE)
 		quitting = TRUE;
 	    else if (response == '+') {
-		if (last_item < Player.packptr)
+		if (last_item < Player.pack.size())
 		    pack_item = last_item;
 		ok = FALSE;
 	    } else if (response == '-') {
@@ -666,9 +660,9 @@ static int take_from_pack (int slot)
 		pack_item = 0;
 		ok = FALSE;
 	    } else {
-		ok = ((response >= 'a') && (response < char('a' + Player.packptr)));
+		ok = ((response >= 'a') && (response < char('a' + Player.pack.size())));
 		if (ok)
-		    ok = slottable (Player.pack[response - 'a'], slot);
+		    ok = slottable (&Player.pack[response - 'a'], slot);
 	    }
 	} while (!ok);
 	if (!quitting) {
@@ -1115,9 +1109,9 @@ object* find_item (int id)
     for (unsigned i = 1; i < MAXITEMS; i++)
 	if (Player.possessions[i] && Player.possessions[i]->id == id)
 	    return (Player.possessions[i]);
-    for (unsigned i = 0; i < Player.packptr; i++)
-	if (Player.pack[i] && Player.pack[i]->id == id)
-	    return (Player.pack[i]);
+    for (unsigned i = 0; i < Player.pack.size(); i++)
+	if (Player.pack[i].id == id)
+	    return (&Player.pack[i]);
     return (NULL);
 }
 
@@ -1139,20 +1133,15 @@ int find_and_remove_item (int id, int chargeval)
 	}
     }
     if (!found) {
-	for (unsigned i = 0; i < Player.packptr && !found; i++) {
-	    if (Player.pack[i] != NULL) {
-		if ((Player.pack[i]->id == id) && ((chargeval == -1) || (Player.pack[i]->charge == chargeval))) {
-		    Player.pack[i]->number--;
-		    if (Player.pack[i]->number == 0) {
-			delete Player.pack[i];
-			Player.pack[i] = NULL;
-		    }
-		    found = TRUE;
-		}
-	    }
+	foreach (i, Player.pack) {
+	    if (i->id != id || (chargeval != -1 && i->charge != chargeval))
+		continue;
+	    if (--i->number == 0)
+		Player.pack.erase (i);
+	    found = TRUE;
+	    break;
 	}
     }
-    fixpack();
     return (found);
 }
 
@@ -1161,17 +1150,13 @@ void lose_all_items (void)
     int i;
     print1 ("You notice that you are completely devoid of all possessions.");
     morewait();
-    for (i = 0; i < MAXITEMS; i++)
+    for (i = 0; i < MAXITEMS; i++) {
 	if (Player.possessions[i] != NULL) {
 	    dispose_lost_objects (Player.possessions[i]->number, Player.possessions[i]);
 	    Player.possessions[i] = NULL;
 	}
-    for (i = 0; i < MAXPACK; i++) {
-	if (Player.pack[i] != NULL)
-	    delete Player.pack[i];
-	Player.pack[i] = NULL;
     }
-    Player.packptr = 0;
+    Player.pack.clear();
     calc_melee();
     morewait();
 }
@@ -1184,7 +1169,7 @@ static void pack_extra_items (pob item)
     extra->number = item->number - 1;
     extra->used = FALSE;
     item->number = 1;
-    if (Player.packptr < MAXPACK) {
+    if (Player.pack.size() < MAXPACK) {
 	print3 ("Putting extra items back in pack.");
 	morewait();
 	push_pack (extra);
@@ -1196,21 +1181,6 @@ static void pack_extra_items (pob item)
 	drop_at (Player.x, Player.y, extra);
     }
     calc_melee();
-}
-
-// makes sure Player.pack is OK, (used after sale from pack)
-void fixpack (void)
-{
-    pob tpack[MAXPACK];
-    int i, tctr = 0;
-    for (i = 0; i < MAXPACK; i++)
-	tpack[i] = NULL;
-    for (i = 0; i < MAXPACK; i++)
-	if (Player.pack[i] != NULL)
-	    tpack[tctr++] = Player.pack[i];
-    for (i = 0; i < MAXPACK; i++)
-	Player.pack[i] = tpack[i];
-    Player.packptr = tctr;
 }
 
 // show slots, with appropriate additional displays if two-handed weapons are involved

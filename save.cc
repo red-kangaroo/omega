@@ -233,8 +233,9 @@ static void save_player (ostream& os)
 	Player.possessions[O_READY_HAND] = NULL;
     for (unsigned i = 0; i < MAXITEMS; i++)
 	save_item (os, Player.possessions[i]);
-    for (unsigned i = 0; i < MAXPACK; i++)
-	save_item (os, Player.pack[i]);
+    os << uint8_t(Player.pack.size());
+    foreach (i, Player.pack)
+	save_item (os, i);
     os << uint8_t(Pawnitems.size());
     foreach (i, Pawnitems)
 	save_item (os, i);
@@ -327,12 +328,14 @@ static void restore_player (istream& is, int ver)
     if (!Player.possessions[O_READY_HAND] && Player.possessions[O_WEAPON_HAND] && twohandedp (Player.possessions[O_WEAPON_HAND]->id))
 	Player.possessions[O_READY_HAND] = Player.possessions[O_WEAPON_HAND];
 
-    for (unsigned i = 0; i < MAXPACK; i++)
-	Player.pack[i] = restore_item (is, ver);
-    uint8_t nPawnItems;
-    is >> nPawnItems;
-    Pawnitems.resize (nPawnItems);
-    for (unsigned i = 0; i < nPawnItems; i++)
+    uint8_t nItems;
+    is >> nItems;
+    Player.pack.resize (nItems);
+    for (unsigned i = 0; i < nItems; i++)
+	Player.pack[i] = *restore_item (is, ver);
+    is >> nItems;
+    Pawnitems.resize (nItems);
+    for (unsigned i = 0; i < nItems; i++)
 	Pawnitems[i] = *restore_item (is, ver);
     uint32_t nCondoItems;
     is >> ios::align(alignof(nCondoItems)) >> nCondoItems;

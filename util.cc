@@ -366,9 +366,7 @@ int view_los_p (int x1, int y1, int x2, int y2)
 
 long calc_points (void)
 {
-    int i;
     long points = 0;
-
     if (gamestatusp (SPOKE_TO_DRUID))
 	points += 50;
     if (gamestatusp (COMPLETED_CAVES))
@@ -392,15 +390,14 @@ long calc_points (void)
 
     points += Player.cash / 500;
 
-    for (i = 0; i < MAXITEMS; i++)
+    for (unsigned i = 0; i < MAXITEMS; i++)
 	if (Player.possessions[i] != NULL)
 	    points += Player.possessions[i]->level * (object_is_known(Player.possessions[i]) + 1);
 
-    for (i = 0; i < MAXPACK; i++)
-	if (Player.pack[i] != NULL)
-	    points += Player.pack[i]->level * (object_is_known(Player.pack[i]) + 1);
+    foreach (i, Player.pack)
+	points += i->level * (object_is_known(i) + 1);
 
-    for (i = 0; i < NUMRANKS; i++) {
+    for (unsigned i = 0; i < NUMRANKS; i++) {
 	if (Player.rank[i] == 5)
 	    points += 500;
 	else
@@ -544,16 +541,14 @@ int strmem (int c, const char* s)
 
 void calc_weight (void)
 {
-    int i, weight = 0;
-
-    for (i = 1; i < MAXITEMS; i++)
+    int weight = 0;
+    for (int i = 1; i < MAXITEMS; i++)
 	if (Player.possessions[i] != NULL)
 	    weight += Player.possessions[i]->weight * Player.possessions[i]->number;
     if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND]))
 	weight -= Player.possessions[O_READY_HAND]->weight * Player.possessions[O_READY_HAND]->number;
-    for (i = 0; i < MAXPACK; i++)
-	if (Player.pack[i] != NULL)
-	    weight += Player.pack[i]->weight * Player.pack[i]->number;
+    foreach (i, Player.pack)
+	weight += i->weight * i->number;
     Player.itemweight = weight;
     dataprint();
 }

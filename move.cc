@@ -706,7 +706,7 @@ static void l_void_station (void)
 	    print1 ("You enter the void.");
 	    print2 ("You feel a sudden surge of power from five directions.");
 	    morewait();
-	    something = (Player.packptr > 0);
+	    something = !Player.pack.empty();
 	    if (!something)
 		for (i = 0; i < MAXITEMS && !something; i++)
 		    if (Player.possessions[i] != NULL)

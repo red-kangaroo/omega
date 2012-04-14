@@ -2159,10 +2159,8 @@ void l_thieves_guild (void)
 			if (Player.possessions[i] != NULL)
 			    if (!object_is_known(Player.possessions[i]))
 				count++;
-		    for (unsigned i = 0; i < Player.packptr; i++)
-			if (Player.pack[i] != NULL)
-			    if (!object_is_known(Player.pack[i]))
-				count++;
+		    foreach (i, Player.pack)
+			count += !object_is_known(i);
 		    clearmsg();
 		    print1 ("The fee will be: ");
 		    mnumprint (max (count * fee, fee));
@@ -2209,31 +2207,29 @@ void l_thieves_guild (void)
 				print2 ("Hey, gimme a break, it was a fair price!");
 			}
 		    } else {
-			for (unsigned i = 0; i < Player.packptr; i++) {
-			    if (Player.pack[i]->blessing > -1) {
+			foreach (i, Player.pack) {
+			    if (i->blessing > -1) {
 				clearmsg();
 				print1 ("Sell ");
-				nprint1 (itemid (Player.pack[i]));
+				nprint1 (itemid (i));
 				nprint1 (" for ");
-				mlongprint (2 * item_value (Player.pack[i]) / 3);
+				mlongprint (2 * item_value (i) / 3);
 				nprint1 ("Au each? [ynq] ");
-				if ((c = ynq1()) == 'y') {
-				    number = getnumber (Player.pack[i]->number);
-				    Player.cash += 2 * number * item_value (Player.pack[i]) / 3;
-				    Player.pack[i]->number -= number;
-				    if (Player.pack[i]->number < 1) {
+				if ((c = ynq1()) == 'q')
+				    break;
+				else if (c == 'y') {
+				    number = getnumber (i->number);
+				    Player.cash += 2 * number * item_value (i) / 3;
+				    if ((i->number -= number) < 1) {
 					// Fenced an artifact?  You just might see it again.
-					if (object_uniqueness(Player.pack[i]) > UNIQUE_UNMADE)
-					    set_object_uniqueness (Player.pack[i], UNIQUE_UNMADE);
-					delete Player.pack[i];
-					Player.pack[i] = NULL;
+					if (object_uniqueness(i) > UNIQUE_UNMADE)
+					    set_object_uniqueness (i, UNIQUE_UNMADE);
+					--(i = Player.pack.erase(i));
 				    }
 				    dataprint();
-				} else if (c == 'q')
-				    break;
+				}
 			    }
 			}
-			fixpack();
 		    }
 		}
 	    }
@@ -4820,33 +4816,29 @@ void l_pawn_shop (void)
 		}
 	    }
 	} else if (action == 'p') {
-	    for (unsigned i = 0; i < Player.packptr; i++) {
-		if (Player.pack[i]->blessing <= 0 || true_item_value (Player.pack[i]) <= 0)
+	    foreach (i, Player.pack) {
+		if (i->blessing <= 0 || true_item_value(i) <= 0)
 		    continue;
 		clearmsg();
 		print1 ("Sell ");
-		nprint1 (itemid (Player.pack[i]));
+		nprint1 (itemid (i));
 		nprint1 (" for ");
-		unsigned cost = item_value (Player.pack[i]) / 2;
+		unsigned cost = item_value (i) / 2;
 		mlongprint (cost);
 		nprint1 ("Au each? [yn] ");
 		if (ynq1() == 'y') {
-		    unsigned number = getnumber (Player.pack[i]->number);
+		    unsigned number = getnumber (i->number);
 		    if (number > 0) {
 			Player.cash += number * cost;
 			Pawnitems.erase (Pawnitems.begin());
-			Pawnitems.emplace_back (*(Player.possessions[i]));
+			Pawnitems.emplace_back (*i);
 			Pawnitems.back().number = number;
-			Player.pack[i]->number -= number;
-			if (Player.pack[i]->number < 1) {
-			    delete Player.pack[i];
-			    Player.pack[i] = NULL;
-			}
+			if ((i->number -= number) < 1)
+			    --(i = Player.pack.erase(i));
 			dataprint();
 		    }
 		}
 	    }
-	    fixpack();
 	}
     }
     calc_melee();
