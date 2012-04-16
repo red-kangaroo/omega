@@ -2003,9 +2003,9 @@ void rename_player (void)
     else {
 	if (Str1[0] >= 'a' && Str1[0] <= 'z')
 	    Str1[0] += 'A' - 'a';
-	strcpy (Player.name, Str1);
+	Player.name = Str1;
     }
-    sprintf (Str1, "Henceforth, you shall be known as %s", Player.name);
+    sprintf (Str1, "Henceforth, you shall be known as %s", Player.name.c_str());
     print2 (Str1);
 }
 

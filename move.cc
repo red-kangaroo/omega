@@ -153,7 +153,7 @@ static void l_lava (void)
 	resetgamestatus (MOUNTED);
     }
     morewait();
-    if (strcmp (Player.name, "Saltheart Foamfollower") == 0) {
+    if (Player.name == "Saltheart Foamfollower") {
 	print1 ("Strangely enough, you don't seem terribly affected.");
 	p_damage (1, UNSTOPPABLE, "slow death in a pool of lava");
     } else {

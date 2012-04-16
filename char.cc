@@ -15,25 +15,29 @@ static void omegan_character_stats(void);
 
 // set player to begin with
 player::player (void)
+: player_pod()
+, rank()
+, immunity()
+, status()
+, guildxp()
+, name("player")
+, meleestr(64)
+, possessions()
+, pack()
 {
-    itzero (this);
 }
 
 void initplayer (void)
 {
     const char* lname = getlogin();
-    if (!lname || !*lname)
-	lname = "player";
-    strcpy (Player.name, lname);
+    if (lname && *lname)
+	Player.name = lname;
     if (Player.name[0] >= 'a' && Player.name[0] <= 'z')
 	Player.name[0] += 'A' - 'a';	// capitalise 1st letter
     Player.itemweight = 0;
     Player.food = 36;
     Behavior = -1;
     Player.options = 0;
-    for (unsigned i = 0; i < Player.possessions.size(); i++)
-	Player.possessions[i].id = NO_THING;
-    Player.pack.clear();
     for (int i = 0; i < NUMIMMUNITIES; i++)
 	Player.immunity[i] = 0;
     for (int i = 0; i < NUMSTATI; i++)
@@ -42,6 +46,9 @@ void initplayer (void)
 	Player.rank[i] = 0;
 	Player.guildxp[i] = 0;
     }
+    for (unsigned i = 0; i < Player.possessions.size(); i++)
+	Player.possessions[i].id = NO_THING;
+    Player.pack.clear();
     Player.patron = 0;
     Player.alignment = 0;
     Player.cash = 250;
@@ -58,7 +65,7 @@ void initplayer (void)
 	    fread ((char*) &Player, sizeof (Player), 1, fd);
 	    fread ((char*) &Searchnum, sizeof (int), 1, fd);
 	    fread ((char*) &Verbosity, sizeof (char), 1, fd);
-	    strcpy (Player.name, lname);
+	    Player.name = lname;
 	    if (Player.name[0] >= 'a' && Player.name[0] <= 'z')
 		Player.name[0] += 'A' - 'a';	// capitalise 1st letter
 	}
@@ -533,7 +540,7 @@ static void omegan_character_stats (void)
     } while ((i < REROLLS) && (mgetc() == KEY_ESCAPE));
     clearmsg();
     print1 ("Please enter your character's name: ");
-    strcpy (Player.name, msgscanstring());
+    Player.name = msgscanstring();
     if (Player.name[0] >= 'a' && Player.name[0] <= 'z')
 	Player.name[0] += 'A' - 'a';	// capitalise 1st letter
     print1 ("Is your character sexually interested in males or females? [mf] ");

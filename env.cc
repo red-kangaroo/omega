@@ -1519,12 +1519,12 @@ void load_temple (int deity, int populate)
 		    break;
 		case 'H':
 		    Level->site[i][j].locchar = FLOOR;
-		    if (populate && (!Player.patron || strcmp (Player.name, Priest[Player.patron]) || Player.rank[PRIESTHOOD] != HIGHPRIEST))
+		    if (populate && (!Player.patron || Player.name != Priest[Player.patron] || Player.rank[PRIESTHOOD] != HIGHPRIEST))
 			make_high_priest (i, j, deity);
 		    break;
 		case 'S':
 		    Level->site[i][j].locchar = FLOOR;
-		    if (!Player.patron || strcmp (Player.name, Priest[Player.patron]) || Player.rank[PRIESTHOOD] != HIGHPRIEST)
+		    if (!Player.patron || Player.name != Priest[Player.patron] || Player.rank[PRIESTHOOD] != HIGHPRIEST)
 			lset (i, j, SECRET);
 		    break;
 		case 'W':
@@ -4520,7 +4520,7 @@ void l_dpw (void)
 		Str1[0] += 'A' - 'a';
 	    if (Str1[0] == '\0')
 		print1 ("Maybe you should come back when you've learned to write.");
-	    else if (strcmp (Player.name, Str1) != 0) {
+	    else if (Player.name != (const char*) Str1) {
 		print3 ("Aha! Welfare Fraud! It's off to gaol for you, lout!");
 		morewait();
 		send_to_jail();

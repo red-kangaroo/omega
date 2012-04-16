@@ -152,7 +152,6 @@ static int game_restore (int argc, const char* argv[])
 	    printf ("Try again with the right save file, luser!\n");
 	    exit (0);
 	}
-	unlink (savestr);
 	return (TRUE);
     } else
 	return (FALSE);

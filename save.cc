@@ -6,10 +6,8 @@
 
 static void restore_country(istream& is);
 static void restore_level(istream& is);
-static void restore_player(istream& is);
 static void save_country(ostream& os);
 static void save_level(ostream& os, plv level);
-static void save_player(ostream& os);
 
 //----------------------------------------------------------------------
 
@@ -43,7 +41,7 @@ int save_game (const char* savestr)
 	memblock buf (UINT16_MAX);
 	ostream os (buf);
 
-	save_player (os);
+	os << Player;
 	save_country (os);
 	save_level (os, City);
 
@@ -93,7 +91,7 @@ int restore_game (const char* savestr)
 
 	print1 ("Restoring...");
 
-	restore_player (is);
+	is >> Player;
 	restore_country (is);
 	restore_level (is);	// the city level
 	int i;
@@ -155,12 +153,14 @@ void signalsave (int sig UNUSED)
 }
 
 // also saves some globals like Level->depth...
-
-static void save_player (ostream& os)
+void player::write (ostream& os) const
 {
-    // Save random global state information
-    Player.click = (Tick + 1) % 60;
-    os.write (&Player, sizeof(Player));
+    player_pod::write (os);
+    os << rank;
+    os.skipalign (stream_align(immunity));
+    os << immunity << status << guildxp;
+    os.skipalign (stream_align(name));
+    os << name << meleestr;
     os.write (Password, sizeof(Password));
     os.write (CitySiteList, sizeof (CitySiteList));
     os << ios::align(alignof(GameStatus)) << GameStatus;
@@ -219,14 +219,19 @@ static void save_player (ostream& os)
     os.write (ObjectAttrs, sizeof(ObjectAttrs));
 
     // Save player possessions
-    os.skipalign (stream_align (Player.possessions));
-    os << Player.possessions << Player.pack;
+    os.skipalign (stream_align (possessions));
+    os << possessions << pack;
     os << Pawnitems << Condoitems;
 }
 
-static void restore_player (istream& is)
+void player::read (istream& is)
 {
-    is.read (&Player, sizeof(Player));
+    player_pod::read (is);
+    is >> rank;
+    is.align (stream_align(immunity));
+    is >> immunity >> status >> guildxp;
+    is.align (stream_align(name));
+    is >> name >> meleestr;
     is.read (Password, sizeof(Password));
     is.read (CitySiteList, sizeof(CitySiteList));
     is >> ios::align(alignof(GameStatus)) >> GameStatus;
@@ -300,8 +305,8 @@ static void restore_player (istream& is)
 	    break;
     }
 
-    is.align (stream_align (Player.possessions));
-    is >> Player.possessions >> Player.pack;
+    is.align (stream_align (possessions));
+    is >> possessions >> pack;
     is >> Pawnitems >> Condoitems;
 }
 
@@ -463,7 +468,8 @@ static void restore_level (istream& is)
 
 void monster::write (ostream& os) const
 {
-    os.write (this, sizeof(*this));
+    monster_data::write (os);
+    os << attacked << aux1 << aux2 << click << x << y;
     if (strcmp (monstring, Monsters[id].monstring))
 	os.write_strz (monstring);
     else
@@ -478,9 +484,10 @@ void monster::write (ostream& os) const
 
 void monster::read (istream& is)
 {
-    is.read (this, sizeof(*this));
+    monster_data::read (is);
     if (id >= ArraySize(Monsters))
 	throw runtime_error ("invalid monster");
+    is >> attacked >> aux1 >> aux2 >> click >> x >> y;
     monstring = Monsters[id].monstring;
     corpsestr = Monsters[id].corpsestr;
     meleestr = Monsters[id].meleestr;
@@ -495,7 +502,7 @@ void monster::read (istream& is)
 
 streamsize monster::stream_size (void) const
 {
-    streamsize r = sizeof(*this);
+    streamsize r = monster_data::stream_size();
     if (id >= ArraySize(Monsters)) return (r);
     ++r; if (monstring && strcmp (monstring, Monsters[id].monstring)) r += strlen(monstring);
     ++r; if (corpsestr && strcmp (corpsestr, Monsters[id].corpsestr)) r += strlen(corpsestr);
@@ -507,7 +514,7 @@ streamsize monster::stream_size (void) const
 // Use other values of flag byte to indicate what strings are saved
 void object::write (ostream& os) const
 {
-    os.write (this, offsetof(object_data,objstr));
+    object_data::write (os);
     os << number << x << y;
     if (id >= ArraySize(Objects)) return;
     if (strcmp (objstr, Objects[id].objstr))
@@ -526,7 +533,7 @@ void object::write (ostream& os) const
 // have been saved as different from the typical
 void object::read (istream& is)
 {
-    is.read (this, offsetof(object_data,objstr));
+    object_data::read (is);
     is >> number >> x >> y;
     if (id >= ArraySize(Objects)) return;
     objstr = Objects[id].objstr;
@@ -541,7 +548,7 @@ void object::read (istream& is)
 
 streamsize object::stream_size (void) const
 {
-    streamsize r = offsetof(object_data,objstr);
+    streamsize r = object_data::stream_size();
     r += stream_size_of(number) + stream_size_of(x) + stream_size_of(y);
     if (id >= ArraySize(Objects)) return (r);
     ++r; if (objstr && strcmp (objstr, Objects[id].objstr)) r += strlen(objstr);

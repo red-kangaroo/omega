@@ -754,6 +754,10 @@ struct object_data {
     const char* objstr;
     const char* truename;
     const char* cursestr;
+public:
+    inline void	read (istream& is)		{ is.read (this, stream_size()); }
+    inline void	write (ostream& os) const	{ os.write (this, stream_size()); }
+    inline streamsize stream_size (void) const	{ return (offsetof(object_data,objstr)); }
 };
 
 struct object : public object_data {
@@ -803,6 +807,10 @@ struct monster_data {
     const char* monstring;
     const char* corpsestr;
     const char* meleestr;
+public:
+    inline void	read (istream& is)		{ is.read (this, stream_size()); }
+    inline void	write (ostream& os) const	{ os.write (this, stream_size()); }
+    inline streamsize stream_size (void) const	{ return (offsetof(monster_data,monstring)); }
 };
 
 struct monster : public monster_data {
@@ -824,47 +832,55 @@ public:
 };
 STREAM_ALIGN (monster, 4);
 
-struct player {
-    uint8_t	str;
+struct player_pod {
+    uint32_t	cash;
+    uint32_t	options;
+    uint32_t	xp;
+    int		x, y;			// current player coordinates
+    int		sx, sy;			// sanctuary coordinates
+    int16_t	absorption;
+    int16_t	alignment;
+    int16_t	defense;
+    int16_t	dmg;
+    int16_t	food;
+    int16_t	hit;
+    int16_t	hp;
+    int16_t	level;
+    uint16_t	click;
+    uint16_t	itemweight;
+    uint16_t	mana;
+    uint16_t	maxhp;
+    uint16_t	maxmana;
+    uint16_t	maxweight;
+    uint8_t	agi;
     uint8_t	con;
     uint8_t	dex;
-    uint8_t	agi;
     uint8_t	iq;
     uint8_t	pow;
-    uint8_t	maxstr;
+    uint8_t	str;
+    uint8_t	maxagi;
     uint8_t	maxcon;
     uint8_t	maxdex;
-    uint8_t	maxagi;
     uint8_t	maxiq;
     uint8_t	maxpow;
-    uint32_t	xp;
-    int16_t	level;
-    int16_t	hp;
-    uint16_t	maxhp;
-    int16_t	hit;
-    int16_t	dmg;
-    int16_t	absorption;
-    uint16_t	click;
-    int16_t	defense;
-    int16_t	food;
-    int16_t	alignment;
-    uint16_t	mana;
-    uint16_t	maxmana;
-    uint32_t	cash;
-    int		sx, sy;			// sanctuary coordinates
-    int		x, y;			// current player coordinates
-    uint32_t	options;
-    uint16_t	itemweight;
-    uint16_t	maxweight;
-    uint8_t	speed;
+    uint8_t	maxstr;
     uint8_t	patron;
+    uint8_t	speed;
     char	preference;
-    uint16_t	immunity[NUMIMMUNITIES];
-    uint16_t	status[NUMSTATI];
-    int8_t	rank[NUMRANKS];
-    uint16_t	guildxp[NUMRANKS];
-    char	name[32];
-    char	meleestr[64];
+public:
+    inline	player_pod (void)		{ itzero (this); }
+    inline void	read (istream& is)		{ is.read (this, sizeof(*this)); }
+    inline void	write (ostream& os) const	{ os.write (this, sizeof(*this)); }
+    inline streamsize stream_size (void) const	{ return (sizeof(*this)); }
+};
+
+struct player : public player_pod {
+    array<int8_t,NUMRANKS>		rank;
+    array<uint16_t,NUMIMMUNITIES>	immunity;
+    array<uint16_t,NUMSTATI>		status;
+    array<uint16_t,NUMRANKS>		guildxp;
+    string	name;
+    string	meleestr;
     array<object,MAXITEMS> possessions;
     vector<object> pack;
 public:
@@ -875,6 +891,9 @@ public:
     void	remove_possession (object* o, unsigned number = -1);
     void	remove_all_possessions (void);
     inline bool	has_possession (unsigned slot) const	{ return (possessions[slot].id != NO_THING); }
+    void	read (istream& is);
+    void	write (ostream& os) const;
+    streamsize	stream_size (void) const;
 };
 
 // terrain locations
