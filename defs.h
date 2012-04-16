@@ -762,13 +762,17 @@ public:
     int16_t x;
     int16_t y;
 public:
-    object (void) { itzero (this); }
-    object (int nx, int ny, unsigned tid, unsigned n = 1);
-    object (const object_data& o) : number(1), x(0), y(0) { operator= (o); }
-    object& operator= (const object_data& o) { *implicit_cast<object_data*>(this) = o; return (*this); }
-    bool operator== (const object& v) const;
+		object (void)			{ itzero (this); }
+		object (int nx, int ny, unsigned tid, unsigned n = 1);
+		object (const object_data& o)	: number(1), x(0), y(0) { operator= (o); }
+    object&	operator= (const object_data& o){ *implicit_cast<object_data*>(this) = o; return (*this); }
+    bool	operator== (const object& v) const;
+    void	read (istream& is);
+    void	write (ostream& os) const;
+    streamsize	stream_size (void) const;
 };
 typedef object* pob;
+STREAM_ALIGN (object, 4);
 
 struct monster_data {
     uint8_t id;
@@ -818,6 +822,7 @@ public:
     const char* by_name (void) const PURE;
     inline void pickup (const object& o)	{ possessions.push_back(o); }
 };
+STREAM_ALIGN (monster, 4);
 
 struct player {
     uint8_t	str;

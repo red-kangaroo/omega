@@ -4,12 +4,10 @@
 
 //----------------------------------------------------------------------
 
-static void restore_country(istream& is, int ver);
-static pob restore_item(istream& is, int ver);
-static void restore_level(istream& is, int ver);
-static void restore_player(istream& is, int ver);
+static void restore_country(istream& is);
+static void restore_level(istream& is);
+static void restore_player(istream& is);
 static void save_country(ostream& os);
-static void save_item (ostream& os, const object* o);
 static void save_level(ostream& os, plv level);
 static void save_player(ostream& os);
 
@@ -44,9 +42,6 @@ int save_game (const char* savestr)
     try {
 	memblock buf (UINT16_MAX);
 	ostream os (buf);
-
-	// write the version number
-	os << unsigned(OMEGA_VERSION);
 
 	save_player (os);
 	save_country (os);
@@ -98,16 +93,13 @@ int restore_game (const char* savestr)
 
 	print1 ("Restoring...");
 
-	int ver;
-	is >> ver;
-
-	restore_player (is, ver);
-	restore_country (is, ver);
-	restore_level (is, ver);	// the city level
+	restore_player (is);
+	restore_country (is);
+	restore_level (is);	// the city level
 	int i;
 	is >> i;
 	for (; i > 0; i--) {
-	    restore_level (is, ver);
+	    restore_level (is);
 	    if (Level->environment == Current_Dungeon) {
 		Level->next = Dungeon;
 		Dungeon = Level;
@@ -227,22 +219,12 @@ static void save_player (ostream& os)
     os.write (ObjectAttrs, sizeof(ObjectAttrs));
 
     // Save player possessions
-    for (unsigned i = 0; i < MAXITEMS; i++)
-	save_item (os, &Player.possessions[i]);
-    os << uint8_t(Player.pack.size());
-    foreach (i, Player.pack)
-	save_item (os, i);
-    os << uint8_t(Pawnitems.size());
-    foreach (i, Pawnitems)
-	save_item (os, i);
-
-    // Save items in condo vault
-    os << ios::align(alignof(Condoitems.size())) << Condoitems.size();
-    foreach (i, Condoitems)
-	save_item (os, i);
+    os.skipalign (stream_align (Player.possessions));
+    os << Player.possessions << Player.pack;
+    os << Pawnitems << Condoitems;
 }
 
-static void restore_player (istream& is, int ver)
+static void restore_player (istream& is)
 {
     is.read (&Player, sizeof(Player));
     is.read (Password, sizeof(Password));
@@ -318,23 +300,9 @@ static void restore_player (istream& is, int ver)
 	    break;
     }
 
-    for (unsigned i = 0; i < MAXITEMS; i++)
-	Player.possessions[i] = *restore_item (is, ver);
-
-    uint8_t nItems;
-    is >> nItems;
-    Player.pack.resize (nItems);
-    for (unsigned i = 0; i < nItems; i++)
-	Player.pack[i] = *restore_item (is, ver);
-    is >> nItems;
-    Pawnitems.resize (nItems);
-    for (unsigned i = 0; i < nItems; i++)
-	Pawnitems[i] = *restore_item (is, ver);
-    uint32_t nCondoItems;
-    is >> ios::align(alignof(nCondoItems)) >> nCondoItems;
-    Condoitems.resize (nCondoItems);
-    for (unsigned i = 0; i < nCondoItems; i++)
-	Condoitems[i] = *restore_item (is, ver);
+    is.align (stream_align (Player.possessions));
+    is >> Player.possessions >> Player.pack;
+    is >> Pawnitems >> Condoitems;
 }
 
 // Save whatever is pointed to by level
@@ -373,13 +341,10 @@ static void save_level (ostream& os, plv level)
     }
     if (run < 8*sizeof (mask))
 	os << mask;
-    os << level->mlist;
-    os << uint8_t(level->things.size());
-    foreach (t, level->things)
-	save_item (os, t);
+    os << level->mlist << level->things;
 }
 
-static void restore_level (istream& is, int ver UNUSED)
+static void restore_level (istream& is)
 {
     int i, j, run;
     unsigned long int mask = 0;
@@ -493,11 +458,7 @@ static void restore_level (istream& is, int ver UNUSED)
 	    run--;
 	}
     }
-    is >> Level->mlist;
-    uint8_t nThings; is >> nThings;
-    Level->things.resize (nThings);
-    foreach (t, Level->things)
-	*t = *restore_item (is, OMEGA_VERSION);
+    is >> Level->mlist >> Level->things;
 }
 
 void monster::write (ostream& os) const
@@ -511,9 +472,8 @@ void monster::write (ostream& os) const
 	os.write_strz (corpsestr);
     else
 	os << '\0';
-    os << uint8_t(possessions.size());
-    foreach (i, possessions)
-	save_item (os, i);
+    os.skipalign (stream_align(possessions));
+    os << possessions;
 }
 
 void monster::read (istream& is)
@@ -525,68 +485,69 @@ void monster::read (istream& is)
     corpsestr = Monsters[id].corpsestr;
     meleestr = Monsters[id].meleestr;
 
-    // FIXME: These will create memory leaks, but no easy way to find these
-    unsigned nlen = strlen(is.ipos()); if (nlen) monstring = strdup(is.ipos()); is.skip(nlen+1);
+    unsigned nlen;	// These create memory leaks, but they are cheaper than fixing them
+    nlen = strlen(is.ipos()); if (nlen) monstring = strdup(is.ipos()); is.skip(nlen+1);
     nlen = strlen(is.ipos()); if (nlen) corpsestr = strdup(is.ipos()); is.skip(nlen+1);
 
-    uint8_t psz; is >> psz;
-    possessions.resize (psz);
-    foreach (i, possessions)
-	*i = *restore_item (is, OMEGA_VERSION);
+    is.align (stream_align(possessions));
+    is >> possessions;
 }
 
 streamsize monster::stream_size (void) const
 {
     streamsize r = sizeof(*this);
-    ++r;
-    if (strcmp (monstring, Monsters[id].monstring))
-	r += strlen(monstring);
-    ++r;
-    if (strcmp (corpsestr, Monsters[id].corpsestr))
-	r += strlen(corpsestr);
+    if (id >= ArraySize(Monsters)) return (r);
+    ++r; if (monstring && strcmp (monstring, Monsters[id].monstring)) r += strlen(monstring);
+    ++r; if (corpsestr && strcmp (corpsestr, Monsters[id].corpsestr)) r += strlen(corpsestr);
+    r += stream_size_of(possessions);
     return (r);
 }
 
 // Save o unless it's null, then save a special flag byte instead
 // Use other values of flag byte to indicate what strings are saved
-static void save_item (ostream& os, const object* o)
+void object::write (ostream& os) const
 {
-    static object nullObj (NullObject);
-    if (!o)
-	o = &nullObj;
-    os.write (o, sizeof(*o));
-    if (o->id >= ArraySize(Objects))
-	os.write ("\0\0", 3);
-    else {
-	if (strcmp (o->objstr, Objects[o->id].objstr))
-	    os.write_strz (o->objstr);
-	else os << '\0';
-	if (strcmp (o->truename, Objects[o->id].truename))
-	    os.write_strz (o->truename);
-	else os << '\0';
-	if (strcmp (o->cursestr, Objects[o->id].cursestr))
-	    os.write_strz (o->cursestr);
-	else os << '\0';
-    }
+    os.write (this, offsetof(object_data,objstr));
+    os << number << x << y;
+    if (id >= ArraySize(Objects)) return;
+    if (strcmp (objstr, Objects[id].objstr))
+	os.write_strz (objstr);
+    else os << '\0';
+    if (strcmp (truename, Objects[id].truename))
+	os.write_strz (truename);
+    else os << '\0';
+    if (strcmp (cursestr, Objects[id].cursestr))
+	os.write_strz (cursestr);
+    else os << '\0';
+    os.skipalign(stream_align(*this));
 }
 
 // Restore an item, the first byte tells us if it's NULL, and what strings
 // have been saved as different from the typical
-static pob restore_item (istream& is, int ver UNUSED)
+void object::read (istream& is)
 {
-    pob obj = new object;
-    is.read (obj, sizeof(*obj));
-    if (obj->id >= ArraySize(Objects)) {
-	delete obj;
-	return (NULL);
-    }
-    obj->objstr = Objects[obj->id].objstr;
-    obj->truename = Objects[obj->id].truename;
-    obj->cursestr = Objects[obj->id].cursestr;
-    unsigned nlen = strlen(is.ipos()); if (nlen) obj->objstr = strdup(is.ipos()); is.skip(nlen+1);
-    nlen = strlen(is.ipos()); if (nlen) obj->truename = strdup(is.ipos()); is.skip(nlen+1);
-    nlen = strlen(is.ipos()); if (nlen) obj->cursestr = strdup(is.ipos()); is.skip(nlen+1);
-    return obj;
+    is.read (this, offsetof(object_data,objstr));
+    is >> number >> x >> y;
+    if (id >= ArraySize(Objects)) return;
+    objstr = Objects[id].objstr;
+    truename = Objects[id].truename;
+    cursestr = Objects[id].cursestr;
+    unsigned nlen;	// The strdups leak memory, but hey, it isn't much
+    nlen = strlen(is.ipos()); if (nlen) objstr = strdup(is.ipos()); is.skip(nlen+1);
+    nlen = strlen(is.ipos()); if (nlen) truename = strdup(is.ipos()); is.skip(nlen+1);
+    nlen = strlen(is.ipos()); if (nlen) cursestr = strdup(is.ipos()); is.skip(nlen+1);
+    is.align(stream_align(*this));
+}
+
+streamsize object::stream_size (void) const
+{
+    streamsize r = offsetof(object_data,objstr);
+    r += stream_size_of(number) + stream_size_of(x) + stream_size_of(y);
+    if (id >= ArraySize(Objects)) return (r);
+    ++r; if (objstr && strcmp (objstr, Objects[id].objstr)) r += strlen(objstr);
+    ++r; if (truename && strcmp (truename, Objects[id].truename)) r += strlen(truename);
+    ++r; if (cursestr && strcmp (cursestr, Objects[id].cursestr)) r += strlen(truename);
+    return (Align(r,stream_align(*this)));
 }
 
 static void save_country (ostream& os)
@@ -622,7 +583,7 @@ static void save_country (ostream& os)
 	os << mask;
 }
 
-static void restore_country (istream& is, int ver UNUSED)
+static void restore_country (istream& is)
 {
     int i, j;
     int run;
