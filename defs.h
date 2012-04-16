@@ -744,7 +744,6 @@ struct object_data {
     uint8_t dmg;
     uint8_t hit;
     int16_t aux;
-    uint16_t number;
     uint16_t basevalue;
     uint8_t used;
     int8_t blessing;
@@ -759,12 +758,13 @@ struct object_data {
 
 struct object : public object_data {
 public:
+    uint16_t number;
     int16_t x;
     int16_t y;
 public:
     object (void) { itzero (this); }
     object (int nx, int ny, unsigned tid, unsigned n = 1);
-    object (const object_data& o) : x(0), y(0) { operator= (o); }
+    object (const object_data& o) : number(1), x(0), y(0) { operator= (o); }
     object& operator= (const object_data& o) { *implicit_cast<object_data*>(this) = o; return (*this); }
     bool operator== (const object& v) const;
 };
