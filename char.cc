@@ -14,6 +14,11 @@ static void omegan_character_stats(void);
 //----------------------------------------------------------------------
 
 // set player to begin with
+player::player (void)
+{
+    itzero (this);
+}
+
 void initplayer (void)
 {
     const char* lname = getlogin();
@@ -26,8 +31,8 @@ void initplayer (void)
     Player.food = 36;
     Behavior = -1;
     Player.options = 0;
-    for (int i = 0; i < MAXITEMS; i++)
-	Player.possessions[i] = NULL;
+    for (unsigned i = 0; i < Player.possessions.size(); i++)
+	Player.possessions[i].id = NO_THING;
     Player.pack.clear();
     for (int i = 0; i < NUMIMMUNITIES; i++)
 	Player.immunity[i] = 0;

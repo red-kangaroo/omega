@@ -15,18 +15,14 @@ static void blotspot(int i, int j);
 static void buffercycle(const char* s);
 static void dobackspace(void);
 static void drawplayer(void);
-static void hide_line(int i);
 static void lightspot(int x, int y);
 
 //----------------------------------------------------------------------
 
 static constexpr inline attr_t CHARATTR (chtype c) { return (c & ~A_CHARTEXT); }
 
-// note these variables are not exported to other files
-
-WINDOW *Levelw, *Dataw, *Flagw, *Timew, *Menuw, *Locw, *Morew, *Phasew;
-WINDOW *Comwin, *Msg1w, *Msg2w, *Msg3w, *Msgw;
-WINDOW *Showline[MAXITEMS];
+static WINDOW *Levelw, *Dataw, *Flagw, *Timew, *Menuw, *Locw, *Morew, *Phasew;
+static WINDOW *Comwin, *Msg1w, *Msg2w, *Msg3w, *Msgw;
 
 void phaseprint (void)
 {
@@ -356,14 +352,6 @@ void omega_title (void)
     //  showscores();*//* DG
 }
 
-// blanks out ith line of Menuw or Levelw
-static void hide_line (int i)
-{
-    wclear (Showline[i]);
-    touchwin (Showline[i]);
-    wrefresh (Showline[i]);
-}
-
 static void clrgen_init (void)
 {
     use_default_colors();
@@ -397,7 +385,6 @@ static void clrgen_init (void)
 // initialize, screen, windows
 void initgraf (void)
 {
-    int i;
     initscr();
     start_color();
     clrgen_init();
@@ -408,35 +395,18 @@ void initgraf (void)
     }
     ScreenLength = LINES - 6;
     Msg1w = newwin (1, 80, 0, 0);
-    scrollok (Msg1w, 0);	// DJGPP curses defaults to scrollable new windows
     Msg2w = newwin (1, 80, 1, 0);
-    scrollok (Msg2w, 0);
     Msg3w = newwin (1, 80, 2, 0);
-    scrollok (Msg3w, 0);
     Msgw = Msg1w;
     Morew = newwin (1, 15, 3, 65);
-    scrollok (Morew, 0);
     Locw = newwin (1, 80, ScreenLength + 3, 0);
-    scrollok (Locw, 0);
     Levelw = newwin (ScreenLength, 64, 3, 0);
-    scrollok (Levelw, 0);
-    for (i = 0; i < MAXITEMS; i++) {
-	Showline[i] = newwin (1, 64, i + 3, 0);
-	scrollok (Showline[i], 0);
-	wclear (Showline[i]);
-    }
     Menuw = newwin (ScreenLength, 64, 3, 0);
-    scrollok (Menuw, 0);
     Dataw = newwin (2, 80, ScreenLength + 4, 0);
-    scrollok (Dataw, 0);
     Timew = newwin (2, 15, 4, 65);
-    scrollok (Timew, 0);
     Phasew = newwin (2, 15, 6, 65);
-    scrollok (Phasew, 0);
     Flagw = newwin (4, 15, 9, 65);
-    scrollok (Flagw, 0);
     Comwin = newwin (8, 15, 14, 65);
-    scrollok (Comwin, 0);
 
     noecho();
     crmode();
@@ -1226,8 +1196,8 @@ void drawomega (void)
 // ScreenOffset is the upper left hand corner of the current screen in absolute coordinates
 void screencheck (int y)
 {
-    if (((y - ScreenOffset) < (ScreenLength / 8)) || ((y - ScreenOffset) > (7 * ScreenLength / 8))) {
-	ScreenOffset = y - (ScreenLength / 2);
+    if (y - ScreenOffset < ScreenLength / 8 || y - ScreenOffset > 7 * ScreenLength / 8) {
+	ScreenOffset = y - ScreenLength / 2;
 	show_screen();
 	if (Current_Environment != E_COUNTRYSIDE)
 	    drawmonsters (TRUE);
@@ -1286,158 +1256,63 @@ void display_pack (void)
     showmenu();
 }
 
-void display_possessions (void)
+void display_possessions (unsigned selection)
 {
-    int i;
-    for (i = 0; i < MAXITEMS; i++)
-	display_inventory_slot (i, FALSE);
-}
-
-void display_inventory_slot (int slotnum, int topline)
-{
-    WINDOW *W;
-    char usechar = ')', idchar = '-';
-    if (Player.possessions[slotnum] != NULL)
-	if (Player.possessions[slotnum]->used)
-	    usechar = '>';
-    if (topline)
-	W = Msg3w;
-    else {
-	W = Showline[slotnum];
-	hide_line (slotnum);
+    static const char _slotstr[] =
+	"%c%c in air:	%s\n\0"
+	"%c%c freehand:	%s\n\0"
+	"%c%c weapon:	%s\n\0"
+	"%c%c shoulder:	%s\n\0"
+	"%c%c shoulder:	%s\n\0"
+	"%c%c belt:	%s\n\0"
+	"%c%c belt:	%s\n\0"
+	"%c%c belt:	%s\n\0"
+	"%c%c shield:	%s\n\0"
+	"%c%c armor:	%s\n\0"
+	"%c%c boots:	%s\n\0"
+	"%c%c cloak:	%s\n\0"
+	"%c%c finger:	%s\n\0"
+	"%c%c finger:	%s\n\0"
+	"%c%c finger:	%s\n\0"
+	"%c%c finger:	%s\n";
+    wclear (Menuw);
+    unsigned slot = 0;
+    const char* slotstr = _slotstr;
+    foreach (o, Player.possessions) {
+	char usechar = (o->id != NO_THING && o->used) ? '>' : ')';
+	char idchar = index_to_key (slot);
+	if (slot == selection) wstandout(Menuw);
+	wprintw (Menuw, slotstr, idchar, usechar, o->id != NO_THING ? itemid(o) : "(slot vacant)");
+	if (slot == selection) wstandend(Menuw);
+	++slot;
+	slotstr = strnext(slotstr);
     }
-    idchar = index_to_key (slotnum);
-    touchwin (W);
-    wclear (W);
-    switch (slotnum) {
-	case O_UP_IN_AIR:
-	    wprintw (W, "-- Object 'up in air':");
-	    break;
-	case O_READY_HAND:
-	    wprintw (W, "-- %c%c ready hand: ", idchar, usechar);
-	    break;
-	case O_WEAPON_HAND:
-	    wprintw (W, "-- %c%c weapon hand: ", idchar, usechar);
-	    break;
-	case O_LEFT_SHOULDER:
-	    wprintw (W, "-- %c%c left shoulder: ", idchar, usechar);
-	    break;
-	case O_RIGHT_SHOULDER:
-	    wprintw (W, "-- %c%c right shoulder: ", idchar, usechar);
-	    break;
-	case O_BELT1:
-	    wprintw (W, "-- %c%c belt: ", idchar, usechar);
-	    break;
-	case O_BELT2:
-	    wprintw (W, "-- %c%c belt: ", idchar, usechar);
-	    break;
-	case O_BELT3:
-	    wprintw (W, "-- %c%c belt: ", idchar, usechar);
-	    break;
-	case O_SHIELD:
-	    wprintw (W, "-- %c%c shield: ", idchar, usechar);
-	    break;
-	case O_ARMOR:
-	    wprintw (W, "-- %c%c armor: ", idchar, usechar);
-	    break;
-	case O_BOOTS:
-	    wprintw (W, "-- %c%c boots: ", idchar, usechar);
-	    break;
-	case O_CLOAK:
-	    wprintw (W, "-- %c%c cloak: ", idchar, usechar);
-	    break;
-	case O_RING1:
-	    wprintw (W, "-- %c%c finger: ", idchar, usechar);
-	    break;
-	case O_RING2:
-	    wprintw (W, "-- %c%c finger: ", idchar, usechar);
-	    break;
-	case O_RING3:
-	    wprintw (W, "-- %c%c finger: ", idchar, usechar);
-	    break;
-	case O_RING4:
-	    wprintw (W, "-- %c%c finger: ", idchar, usechar);
-	    break;
-    }
-    if (Player.possessions[slotnum] == NULL)
-	wprintw (W, "(slot vacant)");
-    else
-	wprintw (W, itemid (Player.possessions[slotnum]));
-    wrefresh (W);
+    wrefresh (Menuw);
 }
 
-int move_slot (int oldslot, int newslot, int maxslot)
+void display_options (unsigned selection)
 {
-    if ((newslot >= 0) && (newslot < maxslot)) {
-	wmove (Showline[oldslot], 0, 0);
-	waddstr (Showline[oldslot], "--");
-	wrefresh (Showline[oldslot]);
-	wmove (Showline[newslot], 0, 0);
-	wstandout (Showline[newslot]);
-	waddstr (Showline[newslot], ">>");
-	wstandend (Showline[newslot]);
-	wrefresh (Showline[newslot]);
-	return (newslot);
-    } else
-	return (oldslot);
-}
-
-void display_option_slot (int slot)
-{
-    hide_line (slot);
-    wclear (Showline[slot]);
-    switch (slot) {
-	case 1:
-	    wprintw (Showline[slot], "-- Option BELLICOSE [TF]: ");
-	    wprintw (Showline[slot], optionp (BELLICOSE) ? "(now T) " : "(now F) ");
-	    break;
-	case 2:
-	    wprintw (Showline[slot], "-- Option JUMPMOVE [TF]: ");
-	    wprintw (Showline[slot], optionp (JUMPMOVE) ? "(now T) " : "(now F) ");
-	    break;
-	case 3:
-	    wprintw (Showline[slot], "-- Option RUNSTOP [TF]: ");
-	    wprintw (Showline[slot], optionp (RUNSTOP) ? "(now T) " : "(now F) ");
-	    break;
-	case 4:
-	    wprintw (Showline[slot], "-- Option PICKUP [TF]: ");
-	    wprintw (Showline[slot], optionp (PICKUP) ? "(now T) " : "(now F) ");
-	    break;
-	case 5:
-	    wprintw (Showline[slot], "-- Option CONFIRM [TF]: ");
-	    wprintw (Showline[slot], optionp (CONFIRM) ? "(now T) " : "(now F) ");
-	    break;
-	case 6:
-	    wprintw (Showline[slot], "-- Option PACKADD [TF]: ");
-	    wprintw (Showline[slot], optionp (PACKADD) ? "(now T) " : "(now F) ");
-	    break;
-	case 7:
-	    wprintw (Showline[slot], "-- Option COMPRESS [TF]: ");
-	    wprintw (Showline[slot], optionp (COMPRESS_OPTION) ? "(now T) " : "(now F) ");
-	    break;
-	case VERBOSITY_LEVEL:
-	    wprintw (Showline[slot], "-- Option VERBOSITY [(T)erse,(M)edium,(V)erbose]: (now ");
-	    if (Verbosity == VERBOSE)
-		wprintw (Showline[slot], "Verbose)");
-	    else if (Verbosity == MEDIUM)
-		wprintw (Showline[slot], "Medium)");
-	    else
-		wprintw (Showline[slot], "Terse)");
-	    break;
-	case SEARCH_DURATION:
-	    wprintw (Showline[slot], "-- Option SEARCHNUM [0>x>10]: (now %d)", Searchnum);
-	    break;
-    }
-    wrefresh (Showline[slot]);
-}
-
-void display_options (void)
-{
-    int i;
-    menuclear();
-    hide_line (0);
-    for (i = 1; i <= NUMOPTIONS; i++)
-	display_option_slot (i);
+    wclear (Menuw);
+    if (selection == 0) wstandout(Menuw);
+    wprintw (Menuw, "Option BELLICOSE:	%s\n", optionp (BELLICOSE) ? "TRUE" : "FALSE");
+    if (selection == 1) wstandout(Menuw); else wstandend(Menuw);
+    wprintw (Menuw, "Option JUMPMOVE:	%s\n", optionp (JUMPMOVE) ? "TRUE" : "FALSE");
+    if (selection == 2) wstandout(Menuw); else wstandend(Menuw);
+    wprintw (Menuw, "Option RUNSTOP:	%s\n", optionp (RUNSTOP) ? "TRUE" : "FALSE");
+    if (selection == 3) wstandout(Menuw); else wstandend(Menuw);
+    wprintw (Menuw, "Option PICKUP:	%s\n", optionp (PICKUP) ? "TRUE" : "FALSE");
+    if (selection == 4) wstandout(Menuw); else wstandend(Menuw);
+    wprintw (Menuw, "Option CONFIRM:	%s\n", optionp (CONFIRM) ? "TRUE" : "FALSE");
+    if (selection == 5) wstandout(Menuw); else wstandend(Menuw);
+    wprintw (Menuw, "Option PACKADD:	%s\n", optionp (PACKADD) ? "TRUE" : "FALSE");
+    if (selection == 6) wstandout(Menuw); else wstandend(Menuw);
+    wprintw (Menuw, "Option COMPRESS:	%s\n", optionp (COMPRESS) ? "TRUE" : "FALSE");
+    if (selection == 7) wstandout(Menuw); else wstandend(Menuw);
+    wprintw (Menuw, "Option VERBOSITY: %s\n", (Verbosity == VERBOSE ? "Verbose" : (Verbosity == MEDIUM ? "Medium" : "Terse")));
+    if (selection == 8) wstandout(Menuw); else wstandend(Menuw);
+    wprintw (Menuw, "Option SEARCHNUM:	%u", Searchnum);
+    wstandend(Menuw);
+    wrefresh (Menuw);
 }
 
 // nya ha ha ha ha haaaa....

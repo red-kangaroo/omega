@@ -391,8 +391,8 @@ long calc_points (void)
     points += Player.cash / 500;
 
     for (unsigned i = 0; i < MAXITEMS; i++)
-	if (Player.possessions[i] != NULL)
-	    points += Player.possessions[i]->level * (object_is_known(Player.possessions[i]) + 1);
+	if (Player.has_possession(i))
+	    points += Player.possessions[i].level * (object_is_known(Player.possessions[i]) + 1);
 
     foreach (i, Player.pack)
 	points += i->level * (object_is_known(i) + 1);
@@ -543,10 +543,8 @@ void calc_weight (void)
 {
     int weight = 0;
     for (int i = 1; i < MAXITEMS; i++)
-	if (Player.possessions[i] != NULL)
-	    weight += Player.possessions[i]->weight * Player.possessions[i]->number;
-    if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND]))
-	weight -= Player.possessions[O_READY_HAND]->weight * Player.possessions[O_READY_HAND]->number;
+	if (Player.has_possession(i))
+	    weight += Player.possessions[i].weight * Player.possessions[i].number;
     foreach (i, Player.pack)
 	weight += i->weight * i->number;
     Player.itemweight = weight;

@@ -229,10 +229,8 @@ static void save_player (ostream& os)
     os.write (ObjectAttrs, sizeof(ObjectAttrs));
 
     // Save player possessions
-    if (Player.possessions[O_READY_HAND] == Player.possessions[O_WEAPON_HAND])
-	Player.possessions[O_READY_HAND] = NULL;
     for (unsigned i = 0; i < MAXITEMS; i++)
-	save_item (os, Player.possessions[i]);
+	save_item (os, &Player.possessions[i]);
     os << uint8_t(Player.pack.size());
     foreach (i, Player.pack)
 	save_item (os, i);
@@ -323,10 +321,7 @@ static void restore_player (istream& is, int ver)
     }
 
     for (unsigned i = 0; i < MAXITEMS; i++)
-	Player.possessions[i] = restore_item (is, ver);
-
-    if (!Player.possessions[O_READY_HAND] && Player.possessions[O_WEAPON_HAND] && twohandedp (Player.possessions[O_WEAPON_HAND]->id))
-	Player.possessions[O_READY_HAND] = Player.possessions[O_WEAPON_HAND];
+	Player.possessions[i] = *restore_item (is, ver);
 
     uint8_t nItems;
     is >> nItems;

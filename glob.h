@@ -153,15 +153,15 @@ static inline uint8_t object_uniqueness (unsigned o)		{ return (EUniqueness(Obje
 static inline void set_object_uniqueness (unsigned o, EUniqueness u)	{ ObjectAttrs[o] = (ObjectAttrs[o]&OBJECT_KNOWN)|u; }
 
 static inline bool object_is_known (const object* o)		{ return (object_is_known(o->id)); }
-static inline void learn_object (object* o)			{ learn_object (o->id); }
-static inline void forget_object (object* o)			{ forget_object (o->id); }
+static inline void learn_object (const object* o)		{ learn_object (o->id); }
+static inline void forget_object (const object* o)		{ forget_object (o->id); }
 static inline uint8_t object_uniqueness (const object* o)	{ return (object_uniqueness (o->id)); }
-static inline void set_object_uniqueness (object* o, EUniqueness u)	{ set_object_uniqueness (o->id, u); }
+static inline void set_object_uniqueness (const object* o, EUniqueness u) { set_object_uniqueness (o->id, u); }
 
 static inline bool object_is_known (const object& o)		{ return (object_is_known(o.id)); }
-static inline void learn_object (object& o)			{ learn_object (o.id); }
-static inline void forget_object (object& o)			{ forget_object (o.id); }
+static inline void learn_object (const object& o)		{ learn_object (o.id); }
+static inline void forget_object (const object& o)		{ forget_object (o.id); }
 static inline uint8_t object_uniqueness (const object& o)	{ return (object_uniqueness (o.id)); }
-static inline void set_object_uniqueness (object& o, EUniqueness u)	{ set_object_uniqueness (o.id, u); }
+static inline void set_object_uniqueness (const object& o,EUniqueness u) { set_object_uniqueness (o.id, u); }
 
 } // namespace

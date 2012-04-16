@@ -41,6 +41,22 @@ monster* level::creature (int x, int y)
     return (NULL);
 }
 
+object* level::thing (int x, int y)
+{
+    return (site[x][y].things ? site[x][y].things->thing : NULL);
+}
+
+void level::add_thing (int x, int y, const object& o, unsigned n)
+{
+    pob cpy = new object (o);
+    pol tmp = new objectlist;
+    cpy->used = false;
+    cpy->number = min(n,o.number);
+    tmp->thing = cpy;
+    tmp->next = Level->site[x][y].things;
+    Level->site[x][y].things = tmp;
+}
+
 //----------------------------------------------------------------------
 
 // loads the arena level into Level
@@ -131,9 +147,7 @@ void load_arena (void)
     m.attacked = TRUE;
     m_status_set (m, HOSTILE);
     m.sense = 50;
-    pob openerBox = new object;
-    *openerBox = Objects[THING_DOOR_OPENER];
-    m_pickup (&m, openerBox);
+    m.pickup (Objects[THING_DOOR_OPENER]);
     m_status_set (m, AWAKE);
     m.hp += m.level * 10;
     m.hit += m.hit;
@@ -1596,8 +1610,6 @@ static void make_high_priest (int i, int j, int deity)
 
 void l_merc_guild (void)
 {
-    pob newitem;
-
     print1 ("Legion of Destiny, Mercenary Guild, Inc.");
     if (nighttime())
 	print2 ("The barracks are under curfew right now.");
@@ -1645,12 +1657,8 @@ void l_merc_guild (void)
 			print2 ("You are now a Legionaire.");
 			morewait();
 			clearmsg();
-			newitem = new object;
-			*newitem = Objects[WEAPON_SHORT_SWORD];
-			gain_item (newitem);
-			newitem = new object;
-			*newitem = Objects[ARMOR_SOFT_LEATHER];
-			gain_item (newitem);
+			gain_item (Objects[WEAPON_SHORT_SWORD]);
+			gain_item (Objects[ARMOR_SOFT_LEATHER]);
 			Player.cash += 500;
 			Player.rank[LEGION] = LEGIONAIRE;
 			Player.guildxp[LEGION] = 1;
@@ -1863,7 +1871,6 @@ void l_castle (void)
 void l_arena (void)
 {
     char response;
-    pob newitem;
     int prize;
 
     print1 ("Rampart Coliseum");
@@ -1896,12 +1903,8 @@ void l_arena (void)
 	    print2 ("Here's a wooden sword, and a shield");
 	    morewait();
 	    clearmsg();
-	    newitem = new object;
-	    *newitem = Objects[WEAPON_CLUB];
-	    gain_item (newitem);
-	    newitem = new object;
-	    *newitem = Objects[SHIELD_SMALL_ROUND];
-	    gain_item (newitem);
+	    gain_item (Objects[WEAPON_CLUB]);
+	    gain_item (Objects[SHIELD_SMALL_ROUND]);
 	    Player.rank[ARENA] = TRAINEE;
 	    Arena_Opponent = 3;
 	    morewait();
@@ -1958,9 +1961,7 @@ void l_arena (void)
 		    morewait();
 		    print1 ("You are awarded the Champion's Spear: Victrix!");
 		    morewait();
-		    newitem = new object;
-		    *newitem = Objects[WEAPON_VICTRIX];
-		    gain_item (newitem);
+		    gain_item (Objects[WEAPON_VICTRIX]);
 
 		} else {
 		    print1 ("As you are not an official gladiator,");
@@ -1997,7 +1998,6 @@ void l_thieves_guild (void)
 {
     unsigned fee, count, number, done = FALSE, dues = 1000;
     char c, action;
-    pob lockpick;
     print1 ("You have penetrated to the Lair of the Thieves' Guild.");
     if (!nighttime())
 	print2 ("There aren't any thieves around in the daytime.");
@@ -2064,9 +2064,7 @@ void l_thieves_guild (void)
 			    print2 ("You are taught the spell of Object Detection.");
 			    morewait();
 			    learn_spell (S_OBJ_DET);
-			    lockpick = new object;
-			    *lockpick = Objects[THING_LOCKPICK];
-			    gain_item (lockpick);
+			    gain_item (Objects[THING_LOCKPICK]);
 			    Player.cash -= dues;
 			    dataprint();
 			    Player.guildxp[THIEVES] = 1;
@@ -2150,7 +2148,7 @@ void l_thieves_guild (void)
 		} else {
 		    count = 0;
 		    for (unsigned i = 1; i < MAXITEMS; i++)
-			if (Player.possessions[i] != NULL)
+			if (Player.has_possession(i))
 			    if (!object_is_known(Player.possessions[i]))
 				count++;
 		    foreach (i, Player.pack)
@@ -2176,26 +2174,23 @@ void l_thieves_guild (void)
 		    print1 ("Fence one item or go through pack? [ip] ");
 		    if ((char) mcigetc() == 'i') {
 			int i = getitem (NULL_ITEM);
-			if ((i == ABORT) || (Player.possessions[i] == NULL))
+			if (i == ABORT || !Player.has_possession(i))
 			    print2 ("Huh, Is this some kind of set-up?");
-			else if (Player.possessions[i]->blessing < 0)
+			else if (Player.possessions[i].blessing < 0)
 			    print2 ("I don't want to buy a cursed item!");
 			else {
 			    clearmsg();
+			    unsigned cost = 2 * item_value (Player.possessions[i]) / 3;
 			    print1 ("I'll give you ");
-			    mlongprint (2 * item_value (Player.possessions[i]) / 3);
+			    mlongprint (cost);
 			    nprint1 ("Au each. OK? [yn] ");
 			    if (ynq1() == 'y') {
-				number = getnumber (Player.possessions[i]->number);
-				if ((number >= Player.possessions[i]->number) && Player.possessions[i]->used) {
-				    Player.possessions[i]->used = FALSE;
-				    item_use (Player.possessions[i]);
-				}
-				Player.cash += number * 2 * item_value (Player.possessions[i]) / 3;
+				number = getnumber (Player.possessions[i].number);
 				// Fenced artifacts could turn up anywhere, really...
 				if (object_uniqueness(Player.possessions[i]) > UNIQUE_UNMADE)
 				    set_object_uniqueness (Player.possessions[i], UNIQUE_UNMADE);
-				dispose_lost_objects (number, Player.possessions[i]);
+				Player.remove_possession (i, number);
+				Player.cash += number * cost;
 				dataprint();
 			    } else
 				print2 ("Hey, gimme a break, it was a fair price!");
@@ -2573,7 +2568,6 @@ void l_sorcerors (void)
 
 void l_order (void)
 {
-    pob newitem;
     print1 ("The Headquarters of the Order of Paladins.");
     morewait();
     if (Player.rank[ORDER] == PALADIN && Player.level > Justiciarlevel && gamestatusp(GAVE_STARGEM) && Player.alignment > 300) {
@@ -2588,9 +2582,8 @@ void l_order (void)
 	clearmsg();
 	print1 ("You are awarded a blessed shield of deflection!");
 	morewait();
-	newitem = new object;
-	*newitem = Objects[SHIELD_OF_DEFLECTION];
-	newitem->blessing = 9;
+	object newitem = Objects[SHIELD_OF_DEFLECTION];
+	newitem.blessing = 9;
 	gain_item (newitem);
 	morewait();
 	Player.rank[ORDER] = JUSTICIAR;
@@ -2629,10 +2622,9 @@ void l_order (void)
 		Player.rank[ORDER] = GALLANT;
 		Player.guildxp[ORDER] = 1;
 		setgamestatus (MOUNTED);
-		newitem = new object;
-		*newitem = Objects[WEAPON_SPEAR];
-		newitem->blessing = 9;
-		newitem->plus = 1;
+		object newitem = Objects[WEAPON_SPEAR];
+		newitem.blessing = 9;
+		newitem.plus = 1;
 		learn_object (newitem);
 		gain_item (newitem);
 	    }
@@ -2669,9 +2661,8 @@ void l_order (void)
 		print1 ("You are made a Paladin of the Order!");
 		print2 ("You learn the Spell of Heroism and get Mithril Plate!");
 		morewait();
-		newitem = new object;
-		*newitem = Objects[ARMOR_MITHRIL_PLATE];
-		newitem->blessing = 9;
+		object newitem = Objects[ARMOR_MITHRIL_PLATE];
+		newitem.blessing = 9;
 		learn_object (newitem);
 		gain_item (newitem);
 		morewait();
@@ -2699,10 +2690,8 @@ void l_order (void)
 		print2 ("You are given a Mace of Disruption!");
 		morewait();
 		clearmsg();
-		newitem = new object;
-		*newitem = Objects[WEAPON_MACE_OF_DISRUPTION];
-		learn_object (newitem);
-		gain_item (newitem);
+		learn_object (Objects[WEAPON_MACE_OF_DISRUPTION]);
+		gain_item (Objects[WEAPON_MACE_OF_DISRUPTION]);
 	    }
 	} else if (Player.rank[ORDER] == GALLANT) {
 	    if (Player.guildxp[ORDER] < 400)
@@ -2718,10 +2707,8 @@ void l_order (void)
 		morewait();
 		clearmsg();
 		Player.rank[ORDER] = GUARDIAN;
-		newitem = new object;
-		*newitem = Objects[HOLY_HAND_GRENADE];
-		learn_object (newitem);
-		gain_item (newitem);
+		learn_object (Objects[HOLY_HAND_GRENADE]);
+		gain_item (Objects[HOLY_HAND_GRENADE]);
 	    }
 	}
     }
@@ -2912,11 +2899,8 @@ static void make_house_npc (int i, int j)
 	m_status_reset (m, AWAKE);
     else
 	m_status_set (m, AWAKE);
-    if (m.startthing != NO_THING) {
-	pob ob = new object;
-	*ob = Objects[m.startthing];
-	m_pickup (&m, ob);
-    }
+    if (m.startthing != NO_THING)
+	m.pickup (Objects[m.startthing]);
 }
 
 // makes a hiscore npc for mansions
@@ -3430,11 +3414,8 @@ static void make_creature (monster& m, int mid)
     else {
 	if (m.sleep < random_range (100))
 	    m_status_set (m, AWAKE);
-	if (m.startthing != NO_THING && object_uniqueness(m.startthing) <= UNIQUE_MADE) {
-	    ob = new object;
-	    *ob = Objects[m.startthing];
-	    m_pickup (&m, ob);
-	}
+	if (m.startthing != NO_THING && object_uniqueness(m.startthing) <= UNIQUE_MADE)
+	    m.pickup (Objects[m.startthing]);
 	treasures = random_range (m.treasure);
 	for (i = 0; i < treasures; i++) {
 	    do {
@@ -3445,7 +3426,8 @@ static void make_creature (monster& m, int mid)
 		    ob = NULL;
 		}
 	    } while (!ob);
-	    m_pickup (&m, ob);
+	    m.pickup (*ob);
+	    delete ob;
 	}
     }
     m.click = (Tick + 1) % 50;
@@ -3455,7 +3437,6 @@ static void make_creature (monster& m, int mid)
 void make_hiscore_npc (monster& npc, int npcid)
 {
     int st = -1;
-    pob ob;
     int x = npc.x, y = npc.y;
     npc = Monsters[HISCORE_NPC];
     npc.aux2 = npcid;
@@ -3541,11 +3522,8 @@ void make_hiscore_npc (monster& npc, int npcid)
 	    m_status_reset (npc, HOSTILE);
 	    break;
     }
-    if (st > -1 && object_uniqueness(st) == UNIQUE_MADE) {
-	ob = new object;
-	*ob = Objects[st];
-	m_pickup (&npc, ob);
-    }
+    if (st > -1 && object_uniqueness(st) == UNIQUE_MADE)
+	npc.pickup (Objects[st]);
     char buf[80];
     strcpy (buf, "The body of ");
     strcat (buf, npc.monstring);
@@ -3909,13 +3887,9 @@ void l_armorer (void)
 
 static void buyfromstock (int base, int numitems)
 {
-    int i;
-    char item;
-    pob newitem;
-
     print2 ("Purchase which item? [ESCAPE to quit] ");
     menuclear();
-    for (i = 0; i < numitems; i++) {
+    for (int i = 0; i < numitems; i++) {
 	strcpy (Str4, " :");
 	Str4[0] = i + 'a';
 	strcat (Str4, Objects[base + i].objstr);
@@ -3923,29 +3897,26 @@ static void buyfromstock (int base, int numitems)
 	menuprint ("\n");
     }
     showmenu();
-    item = ' ';
+    char item = ' ';
     while (item != KEY_ESCAPE && (item < 'a' || item >= 'a' + numitems))
 	item = mgetc();
     if (item != KEY_ESCAPE) {
-	i = item - 'a';
-	newitem = new object;
-	*newitem = Objects[base + i];
+	int i = item - 'a';
+	const object& newitem = Objects[base + i];
 	clearmsg();
 	print1 ("I can let you have it for ");
 	unsigned cost = 2 * true_item_value (newitem);
 	mlongprint (cost);
 	nprint1 ("Au. Buy it? [yn] ");
 	if (ynq1() == 'y') {
-	    if (Player.cash < cost) {
+	    if (Player.cash < cost)
 		print2 ("Why not try again some time you have the cash?");
-		delete newitem;
-	    } else {
+	    else {
 		Player.cash -= cost;
 		dataprint();
 		gain_item (newitem);
 	    }
-	} else
-	    delete newitem;
+	}
     }
 }
 
@@ -4074,7 +4045,6 @@ void l_healer (void)
 
 void statue_random (int x, int y)
 {
-    pob item;
     int i, j;
     switch (random_range (difficulty() + 3) - 1) {
 	default:
@@ -4130,12 +4100,11 @@ void statue_random (int x, int y)
 	    dispel (-1);
 	    break;
 	case 8:		// I think this is particularly evil. Heh heh.
-	    if (Player.possessions[O_WEAPON_HAND] != NULL) {
+	    if (Player.has_possession(O_WEAPON_HAND)) {
 		print1 ("Your weapon sinks deeply into the statue and is sucked away!");
-		item = Player.possessions[O_WEAPON_HAND];
-		conform_lost_object (Player.possessions[O_WEAPON_HAND]);
-		item->blessing = -1 - absv (item->blessing);
-		drop_at (x, y, item);
+		Player.possessions[O_WEAPON_HAND].blessing = -1 - absv (Player.possessions[O_WEAPON_HAND].blessing);
+		drop_at (x, y, Player.possessions[O_WEAPON_HAND]);
+		Player.remove_possession(O_WEAPON_HAND);
 	    }
 	    break;
 	case 9:
@@ -4308,7 +4277,6 @@ void l_casino (void)
 
 void l_commandant (void)
 {
-    pob food;
     print1 ("Commandant Sonder's Rampart-fried Lyzzard partes. Open 24 hrs.");
     print2 ("Buy a bucket! Only 5 Au. Make a purchase? [yn] ");
     if (ynq2() == 'y') {
@@ -4321,15 +4289,14 @@ void l_commandant (void)
 	    print3 ("No handouts here, mac!");
 	else {
 	    Player.cash -= num * 5;
-	    food = new object;
-	    *food = Objects[FOOD_RATION];
-	    food->number = num;
+	    object food = Objects[FOOD_RATION];
+	    food.number = num;
 	    if (num == 1)
 		print2 ("There you go, mac! One Lyzzard Bucket, coming up.");
 	    else
 		print2 ("A passel of Lyzzard Buckets, for your pleasure.");
-	    morewait();
 	    gain_item (food);
+	    morewait();
 	}
     } else
 	print2 ("Don't blame the Commandant if you starve!");
@@ -4509,78 +4476,80 @@ void l_tavern (void)
 
 void l_alchemist (void)
 {
-    int i, done = FALSE, mlevel;
-    char response;
-    pob obj;
     print1 ("Ambrosias' Potions et cie.");
-    if (nighttime())
+    if (nighttime()) {
 	print2 ("Ambrosias doesn't seem to be in right now.");
-    else
-	while (!done) {
-	    morewait();
+	return;
+    }
+    while (true) {
+	morewait();
+	clearmsg();
+	print1 ("a: Sell monster components.");
+	print2 ("b: Pay for transformation.");
+	print3 ("ESCAPE: Leave this place.");
+	char response = mcigetc();
+	if (response == 'a') {
 	    clearmsg();
-	    print1 ("a: Sell monster components.");
-	    print2 ("b: Pay for transformation.");
-	    print3 ("ESCAPE: Leave this place.");
-	    response = (char) mcigetc();
-	    if (response == 'a') {
-		clearmsg();
-		done = TRUE;
-		i = getitem (CORPSE);
-		if ((i != ABORT) && (Player.possessions[i] != NULL)) {
-		    obj = Player.possessions[i];
-		    if (Monsters[obj->charge].transformid == NO_THING) {
-			print1 ("I don't want such a thing.");
-			if (obj->basevalue > 0)
-			    print2 ("You might be able to sell it to someone else, though.");
-		    } else {
-			clearmsg();
-			print1 ("I'll give you ");
-			mnumprint (obj->basevalue / 3);
-			nprint1 ("Au for it. Take it? [yn] ");
-			if (ynq1() == 'y') {
-			    Player.cash += (obj->basevalue / 3);
-			    conform_lost_objects (1, obj);
-			} else
-			    print2 ("Well, keep the smelly old thing, then!");
-		    }
-		} else
-		    print2 ("So nu?");
-	    } else if (response == 'b') {
-		clearmsg();
-		done = TRUE;
-		i = getitem (CORPSE);
-		if ((i != ABORT) && (Player.possessions[i] != NULL)) {
-		    obj = Player.possessions[i];
-		    if (Monsters[obj->charge].transformid == NO_THING)
-			print1 ("Oy vey! You want me to transform such a thing?");
+	    int i = getitem (CORPSE);
+	    if (i == ABORT || !Player.has_possession(i))
+		print2 ("So nu?");
+	    else {
+		object& obj = Player.possessions[i];
+		if (Monsters[obj.charge].transformid == NO_THING) {
+		    print1 ("I don't want such a thing.");
+		    if (obj.basevalue > 0)
+			print2 ("You might be able to sell it to someone else, though.");
+		} else {
+		    clearmsg();
+		    unsigned cost = (obj.number * obj.basevalue) / 3;
+		    print1 ("I'll give you ");
+		    mnumprint (cost);
+		    nprint1 ("Au for it. Take it? [yn] ");
+		    if (ynq1() != 'y')
+			print2 ("Well, keep the smelly old thing, then!");
 		    else {
-			mlevel = Monsters[obj->charge].level;
-			print1 ("It'll cost you ");
-			mnumprint (max (10, obj->basevalue * 2));
-			nprint1 ("Au for the transformation. Pay it? [yn] ");
-			if (ynq1() == 'y') {
-			    if (Player.cash < max (10U, obj->basevalue * 2U))
-				print2 ("You can't afford it!");
-			    else {
-				print1 ("Voila! A tap of the Philosopher's Stone...");
-				Player.cash -= max (10U, obj->basevalue * 2U);
-				*obj = Objects[Monsters[obj->charge].transformid];
-				if ((obj->id >= STICKID) && (obj->id < STICKID + NUMSTICKS))
-				    obj->charge = 20;
-				if (obj->plus == 0)
-				    obj->plus = mlevel;
-				if (obj->blessing == 0)
-				    obj->blessing = 1;
-			    }
-			} else
-			    print2 ("I don't need your business, anyhow.");
+			Player.cash += cost;
+			Player.remove_possession(i);
 		    }
-		} else
-		    print2 ("So nu?");
-	    } else if (response == KEY_ESCAPE)
-		done = TRUE;
-	}
+		}
+	    }
+	} else if (response == 'b') {
+	    clearmsg();
+	    int i = getitem (CORPSE);
+	    if (i == ABORT || !Player.has_possession(i))
+		print2 ("So nu?");
+	    else {
+		object& obj = Player.possessions[i];
+		if (Monsters[obj.charge].transformid == NO_THING)
+		    print1 ("Oy vey! You want me to transform such a thing?");
+		else {
+		    int mlevel = Monsters[obj.charge].level;
+		    unsigned cost = max (10, obj.basevalue * 2);
+		    print1 ("It'll cost you ");
+		    mnumprint (cost);
+		    nprint1 ("Au for the transformation. Pay it? [yn] ");
+		    if (ynq1() != 'y')
+			print2 ("I don't need your business, anyhow.");
+		    else {
+			if (Player.cash < cost)
+			    print2 ("You can't afford it!");
+			else {
+			    print1 ("Voila! A tap of the Philosopher's Stone...");
+			    Player.cash -= cost;
+			    obj = Objects[Monsters[obj.charge].transformid];
+			    if (obj.id >= STICKID && obj.id < STICKID + NUMSTICKS)
+				obj.charge = 20;
+			    if (obj.plus == 0)
+				obj.plus = mlevel;
+			    if (obj.blessing == 0)
+				obj.blessing = 1;
+			}
+		    }
+		}
+	    }
+	} else if (response == KEY_ESCAPE)
+	    break;
+    }
 }
 
 void l_dpw (void)
@@ -4772,7 +4741,7 @@ void l_pawn_shop (void)
 			    morewait();
 			} else {
 			    Player.cash -= cost;
-			    gain_item (new object (Pawnitems[i]));
+			    gain_item (Pawnitems[i]);
 			    Pawnitems.erase (Pawnitems.iat(i));
 			}
 		    }
@@ -4782,7 +4751,7 @@ void l_pawn_shop (void)
 	    menuclear();
 	    print2 ("Sell which item: ");
 	    int i = getitem (NULL_ITEM);
-	    if (i != ABORT && Player.possessions[i] != NULL) {
+	    if (i != ABORT && Player.has_possession(i)) {
 		if (cursed (Player.possessions[i])) {
 		    print1 ("No loans on cursed items! I been burned before....");
 		    morewait();
@@ -4791,20 +4760,16 @@ void l_pawn_shop (void)
 		    morewait();
 		} else {
 		    clearmsg();
+		    unsigned cost = item_value (Player.possessions[i]) / 2;
 		    print1 ("You can get ");
-		    mlongprint (item_value (Player.possessions[i]) / 2);
+		    mlongprint (cost);
 		    nprint1 ("Au each. Sell [yn]? ");
 		    if (ynq1() == 'y') {
-			unsigned number = getnumber (Player.possessions[i]->number);
-			if (number >= Player.possessions[i]->number && Player.possessions[i]->used) {
-			    Player.possessions[i]->used = FALSE;
-			    item_use (Player.possessions[i]);
-			}
-			Player.cash += number * item_value (Player.possessions[i]) / 2;
+			unsigned number = getnumber (Player.possessions[i].number);
+			Player.cash += number * cost;
 			Pawnitems.erase (Pawnitems.begin());
-			Pawnitems.emplace_back (*(Player.possessions[i]));
-			Pawnitems.back().number = number;
-			dispose_lost_objects (number, Player.possessions[i]);
+			Pawnitems.emplace_back (split_item (Player.possessions[i], number));
+			Player.remove_possession (i, number);
 			dataprint();
 		    }
 		}
@@ -4888,13 +4853,11 @@ void l_condo (void)
 	    if (response == 'a') {
 		int i = getitem (NULL_ITEM);
 		if (i != ABORT) {
-		    if (Player.possessions[i]->blessing < 0)
+		    if (Player.possessions[i].blessing < 0)
 			print2 ("The item just doesn't want to be stored away...");
 		    else {
-			Condoitems.push_back (*(Player.possessions[i]));
-			conform_unused_object (Player.possessions[i]);
-			delete Player.possessions[i];
-			Player.possessions[i] = NULL;
+			Condoitems.push_back (Player.possessions[i]);
+			Player.remove_possession (i);
 		    }
 		}
 	    } else if (response == 'b') {
@@ -4906,7 +4869,7 @@ void l_condo (void)
 		    if (response == 'q')
 			break;
 		    else if (response == 'y') {
-			gain_item (new object (*i));
+			gain_item (*i);
 			--(i = Condoitems.erase(i));
 		    }
 		}
@@ -5665,13 +5628,12 @@ void l_hovel (void)
 void l_safe (void)
 {
     char response;
-    pob newitem;
     int attempt = 0;
     print1 ("You have discovered a safe!");
     print2 ("Pick the lock [p], Force the door [f], or ignore [ESCAPE]");
     do
 	response = (char) mcigetc();
-    while ((response != 'p') && (response != 'f') && (response != KEY_ESCAPE));
+    while (response != 'p' && response != 'f' && response != KEY_ESCAPE);
     if (response == 'p')
 	attempt = (2 * Player.dex + Player.rank[THIEVES] * 10 - random_range (100)) / 10;
     else if (response == 'f')
@@ -5683,13 +5645,14 @@ void l_safe (void)
 	Level->site[Player.x][Player.y].locchar = FLOOR;
 	Level->site[Player.x][Player.y].p_locf = L_NO_OP;
 	lset (Player.x, Player.y, CHANGED);
-	if (random_range (2) == 1) {
+	if (random_range(2)) {
 	    print1 ("You find:");
 	    do {
-		newitem = create_object (difficulty());
+		pob newitem = create_object (difficulty());
 		print2 (itemid (newitem));
+		gain_item (*newitem);
+		delete newitem;
 		morewait();
-		gain_item (newitem);
 	    } while (random_range (3) == 1);
 	} else
 	    print2 ("The safe was empty (awwwww....)");
@@ -5716,15 +5679,15 @@ void l_safe (void)
 	    lball (Player.x, Player.y, Player.x, Player.y, 30);
 	} else if (attempt < -3) {
 	    print1 ("You are hit by an acid spray!");
-	    if (Player.possessions[O_CLOAK] != NULL) {
+	    if (Player.has_possession(O_CLOAK)) {
 		print2 ("Your cloak is destroyed!");
-		conform_lost_object (Player.possessions[O_CLOAK]);
+		Player.remove_possession (O_CLOAK);
 		p_damage (10, ACID, "a safe");
-	    } else if (Player.possessions[O_ARMOR] != NULL) {
+	    } else if (Player.has_possession(O_ARMOR)) {
 		print2 ("Your armor corrodes!");
-		Player.possessions[O_ARMOR]->dmg -= 3;
-		Player.possessions[O_ARMOR]->hit -= 3;
-		Player.possessions[O_ARMOR]->aux -= 3;
+		Player.possessions[O_ARMOR].dmg -= 3;
+		Player.possessions[O_ARMOR].hit -= 3;
+		Player.possessions[O_ARMOR].aux -= 3;
 		p_damage (10, ACID, "a safe");
 	    } else {
 		print2 ("The acid hits your bare flesh!");

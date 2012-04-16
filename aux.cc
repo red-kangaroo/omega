@@ -26,13 +26,13 @@ void tunnelcheck (void)
     if ((Level->depth == 0 && Current_Environment != E_DLAIR) || Current_Environment == E_ASTRAL)
 	return;
     Level->tunnelled++;
-    if ((Level->tunnelled) > LENGTH / 4)
+    if (Level->tunnelled > LENGTH / 4)
 	mprint ("Dust and stone fragments fall on you from overhead.");
-    if ((Level->tunnelled) > LENGTH / 2)
+    if (Level->tunnelled > LENGTH / 2)
 	mprint ("You hear groaning and creaking noises.");
-    if ((Level->tunnelled) > 3 * LENGTH / 4)
+    if (Level->tunnelled > 3 * LENGTH / 4)
 	mprint ("The floor trembles and you hear a loud grinding screech.");
-    if ((Level->tunnelled) > LENGTH) {
+    if (Level->tunnelled > LENGTH) {
 	mprint ("With a scream of tortured stone, the entire dungeon caves in!!!");
 	gain_experience (5000);
 	if (Player.status[SHADOWFORM]) {
@@ -313,21 +313,21 @@ void calc_melee (void)
 
     // weapon
     // have to check for used since it could be a 2h weapon just carried in one hand
-    if (Player.possessions[O_WEAPON_HAND] != NULL)
-	if (Player.possessions[O_WEAPON_HAND]->used && ((Player.possessions[O_WEAPON_HAND]->objchar == WEAPON) || (Player.possessions[O_WEAPON_HAND]->objchar == MISSILEWEAPON))) {
-	    Player.hit += Player.possessions[O_WEAPON_HAND]->hit + Player.possessions[O_WEAPON_HAND]->plus;
-	    Player.dmg += Player.possessions[O_WEAPON_HAND]->dmg + Player.possessions[O_WEAPON_HAND]->plus;
+    if (Player.has_possession(O_WEAPON_HAND))
+	if (Player.possessions[O_WEAPON_HAND].used && (Player.possessions[O_WEAPON_HAND].objchar == WEAPON || Player.possessions[O_WEAPON_HAND].objchar == MISSILEWEAPON)) {
+	    Player.hit += Player.possessions[O_WEAPON_HAND].hit + Player.possessions[O_WEAPON_HAND].plus;
+	    Player.dmg += Player.possessions[O_WEAPON_HAND].dmg + Player.possessions[O_WEAPON_HAND].plus;
 	}
 
     // shield or defensive weapon
-    if (Player.possessions[O_SHIELD] != NULL) {
-	Player.defense += Player.possessions[O_SHIELD]->aux + Player.possessions[O_SHIELD]->plus;
+    if (Player.has_possession(O_SHIELD)) {
+	Player.defense += Player.possessions[O_SHIELD].aux + Player.possessions[O_SHIELD].plus;
     }
 
     // armor
-    if (Player.possessions[O_ARMOR] != NULL) {
-	Player.absorption += Player.possessions[O_ARMOR]->dmg;
-	Player.defense += Player.possessions[O_ARMOR]->plus - Player.possessions[O_ARMOR]->aux;
+    if (Player.has_possession(O_ARMOR)) {
+	Player.absorption += Player.possessions[O_ARMOR].dmg;
+	Player.defense += Player.possessions[O_ARMOR].plus - Player.possessions[O_ARMOR].aux;
     }
 
     if (strlen (Player.meleestr) > 2U * maneuvers())
@@ -394,12 +394,12 @@ int damage_item (pob o)
 	    Player.str = max (Player.str, Player.maxstr + 5);
 	    Player.pow = max (Player.pow, Player.maxpow + 5);
 	    Player.alignment -= 200;
-	    dispose_lost_objects (1, o);
+	    Player.remove_possession (o, 1);
 	} else {
 	    morewait();
 	    print1 ("The shards coalesce back together again, and vanish");
 	    print2 ("with a muted giggle.");
-	    dispose_lost_objects (1, o);
+	    Player.remove_possession (o, 1);
 	    set_object_uniqueness (o, UNIQUE_UNMADE);
 	    // WDT HACK: the above is correct only if UNIQUE_UNMADE means that
 	    // the artifact hasn't been generated yet.  (Clearly, Omega is a
@@ -423,7 +423,7 @@ int damage_item (pob o)
 		    // general case. Some sticks will eventually do special things
 		    morewait();
 		    manastorm (Player.x, Player.y, o->charge * o->level * 10);
-		    dispose_lost_objects (1, o);
+		    Player.remove_possession (o, 1);
 		}
 		return 1;
 	    } else if ((o->blessing > 0) && (o->level > random_range (10))) {
@@ -454,7 +454,7 @@ int damage_item (pob o)
 		strcat (Str1, " shatters in a thousand lost fragments!");
 		print2 (Str1);
 		morewait();
-		dispose_lost_objects (1, o);
+		Player.remove_possession (o, 1);
 		return 1;
 	    }
 	}
@@ -811,21 +811,22 @@ void surrender (struct monster *m)
 	Player.cash = 0;
 	bestvalue = 0;
 	bestitem = ABORT;
-	for (i = 1; i < MAXITEMS; i++)
-	    if (Player.possessions[i] != NULL)
+	for (i = 1; i < MAXITEMS; i++) {
+	    if (Player.has_possession(i)) {
 		if (bestvalue < true_item_value (Player.possessions[i])) {
 		    bestitem = i;
 		    bestvalue = true_item_value (Player.possessions[i]);
 		}
+	    }
+	}
 	if (bestitem != ABORT) {
 	    print2 ("You also give away your best item... ");
 	    nprint2 (itemid (Player.possessions[bestitem]));
 	    nprint2 (".");
 	    morewait();
-	    givemonster (m, Player.possessions[bestitem]);
+	    givemonster (*m, Player.possessions[bestitem]);
 	    morewait();	// msgs come from givemonster
-	    conform_unused_object (Player.possessions[bestitem]);
-	    Player.possessions[bestitem] = NULL;
+	    Player.remove_possession (bestitem);
 	}
 	print2 ("You feel less experienced... ");
 	Player.xp = max (0U, Player.xp - m->xpv);
@@ -1124,13 +1125,13 @@ static void p_fumble (int dtype)
 // try to drop a weapon (from fumbling)
 static void drop_weapon (void)
 {
-    if (Player.possessions[O_WEAPON_HAND] != NULL) {
+    if (Player.has_possession(O_WEAPON_HAND)) {
 	strcpy (Str1, "You dropped your ");
-	strcat (Str1, Player.possessions[O_WEAPON_HAND]->objstr);
+	strcat (Str1, Player.possessions[O_WEAPON_HAND].objstr);
 	mprint (Str1);
 	morewait();
-	p_drop_at (Player.x, Player.y, 1, Player.possessions[O_WEAPON_HAND]);
-	conform_lost_objects (1, Player.possessions[O_WEAPON_HAND]);
+	p_drop_at (Player.x, Player.y, Player.possessions[O_WEAPON_HAND], 1);
+	Player.remove_possession (O_WEAPON_HAND, 1);
     } else
 	mprint ("You feel fortunate.");
 }
@@ -1138,12 +1139,12 @@ static void drop_weapon (void)
 // try to break a weapon (from fumbling)
 static void break_weapon (void)
 {
-    if (Player.possessions[O_WEAPON_HAND] != NULL) {
+    if (Player.has_possession(O_WEAPON_HAND)) {
 	strcpy (Str1, "Your ");
 	strcat (Str1, itemid (Player.possessions[O_WEAPON_HAND]));
 	strcat (Str1, " vibrates in your hand....");
 	mprint (Str1);
-	(void) damage_item (Player.possessions[O_WEAPON_HAND]);
+	damage_item (&Player.possessions[O_WEAPON_HAND]);
 	morewait();
     }
 }
@@ -1293,23 +1294,13 @@ void moon_check (void)
 // check 1/hour for torch to burn out if used
 void torch_check (void)
 {
-    int i;
-    for (i = O_READY_HAND; i <= O_WEAPON_HAND; i++) {
-	if (Player.possessions[i] != NULL)
-	    if ((Player.possessions[i]->id == THING_TORCH) && (Player.possessions[i]->aux > 0)) {
-		Player.possessions[i]->aux--;
-		if (Player.possessions[i]->aux == 0) {
-		    mprint ("Your torch goes out!!!");
-		    conform_unused_object (Player.possessions[i]);
-		    if (Player.possessions[i]->number > 1) {
-			Player.possessions[i]->number--;
-			Player.possessions[i]->aux = 6;
-		    } else {
-			Player.possessions[i]->usef = I_NO_OP;
-			Player.possessions[i]->cursestr = Player.possessions[i]->truename = Player.possessions[i]->objstr = "burnt-out torch";
-		    }
-		}
+    for (int i = O_READY_HAND; i <= O_WEAPON_HAND; i++) {
+	if (Player.possessions[i].id == THING_TORCH && Player.possessions[i].aux > 0) {
+	    if (--Player.possessions[i].aux == 0) {
+		mprint ("Your torch goes out!!!");
+		Player.remove_possession (i, 1);
 	    }
+	}
     }
 }
 
@@ -1488,7 +1479,7 @@ static long expval (int plevel)
 }
 
 // If an item is unidentified, it isn't worth much to those who would buy it
-long item_value (pob item)
+long item_value (const object* item)
 {
     if (!object_is_known(item)) {
 	if (item->objchar == THING)
@@ -1500,10 +1491,9 @@ long item_value (pob item)
 }
 
 // figures value based on item base-value, charge, plus, and blessing
-long true_item_value (pob item)
+long true_item_value (const object* item)
 {
     long value = item->basevalue;
-
     if (item->objchar == THING)
 	return (item->basevalue);
     else {
@@ -1526,20 +1516,13 @@ void p_drown (void)
 	mprint ("Your breathing is unaffected!");
 	return;
     }
-    for (int attempts = 3; Player.possessions[O_ARMOR] || Player.itemweight > Player.maxweight / 2; --attempts) {
+    for (int attempts = 3; Player.has_possession(O_ARMOR) || Player.itemweight > Player.maxweight / 2; --attempts) {
 	menuclear();
 	switch (attempts) {
-	    case 3:
-		print3 ("You try to hold your breath...");
-		break;
-	    case 2:
-		print3 ("You try to hold your breath... You choke...");
-		break;
-	    case 1:
-		print3 ("You try to hold your breath... You choke... Your lungs fill...");
-		break;
-	    case 0:
-		p_death ("drowning");
+	    case 3: print3 ("You try to hold your breath..."); break;
+	    case 2: print3 ("You try to hold your breath... You choke..."); break;
+	    case 1: print3 ("You try to hold your breath... You choke... Your lungs fill..."); break;
+	    case 0: p_death ("drowning");
 	}
 	morewait();
 	menuprint ("a: Drop an item.\n");
@@ -1562,7 +1545,7 @@ void p_drown (void)
 		setgamestatus (SUPPRESS_PRINTING);
 		foreach (i, Player.pack)
 		    if (Level->site[Player.x][Player.y].p_locf != L_WATER)
-			p_drop_at (Player.x, Player.y, i->number, i);
+			p_drop_at (Player.x, Player.y, *i, i->number);
 		Player.pack.clear();
 		if (Level->site[Player.x][Player.y].p_locf == L_WATER)
 		    mprint ("It sinks without a trace.");
@@ -1656,7 +1639,7 @@ static void tacplayer (struct monster *m)
 	    switch (Player.meleestr[i]) {
 		case 't':
 		case 'T':
-		    if (Player.possessions[O_WEAPON_HAND] == NULL)
+		    if (!Player.has_possession(O_WEAPON_HAND))
 			strcpy (Str1, "You punch ");
 		    else
 			strcpy (Str1, "You thrust ");
@@ -1664,17 +1647,17 @@ static void tacplayer (struct monster *m)
 		    if (Verbosity == VERBOSE)
 			mprint (Str1);
 		    if (player_hit (2 * statmod (Player.dex), Player.meleestr[i + 1], m))
-			weapon_use (0, Player.possessions[O_WEAPON_HAND], m);
+			weapon_use (0, &Player.possessions[O_WEAPON_HAND], m);
 		    else
 			player_miss (m, NORMAL_DAMAGE);
 		    break;
 		case 'c':
 		case 'C':
-		    if (Player.possessions[O_WEAPON_HAND] == NULL)
+		    if (!Player.has_possession(O_WEAPON_HAND))
 			strcpy (Str1, "You punch ");
-		    else if (Player.possessions[O_WEAPON_HAND]->type == CUTTING)
+		    else if (Player.possessions[O_WEAPON_HAND].type == CUTTING)
 			strcpy (Str1, "You cut ");
-		    else if (Player.possessions[O_WEAPON_HAND]->type == STRIKING)
+		    else if (Player.possessions[O_WEAPON_HAND].type == STRIKING)
 			strcpy (Str1, "You strike ");
 		    else
 			strcpy (Str1, "You attack ");
@@ -1682,7 +1665,7 @@ static void tacplayer (struct monster *m)
 		    if (Verbosity == VERBOSE)
 			mprint (Str1);
 		    if (player_hit (0, Player.meleestr[i + 1], m))
-			weapon_use (2 * statmod (Player.str), Player.possessions[O_WEAPON_HAND], m);
+			weapon_use (2 * statmod (Player.str), &Player.possessions[O_WEAPON_HAND], m);
 		    else
 			player_miss (m, NORMAL_DAMAGE);
 		    break;
@@ -1693,7 +1676,7 @@ static void tacplayer (struct monster *m)
 		    if (Verbosity == VERBOSE)
 			mprint (Str1);
 		    if (player_hit (Player.level + Player.dex, Player.meleestr[i + 1], m))
-			weapon_use (Player.level, Player.possessions[O_WEAPON_HAND], m);
+			weapon_use (Player.level, &Player.possessions[O_WEAPON_HAND], m);
 		    else
 			player_miss (m, NORMAL_DAMAGE);
 		    break;
@@ -1745,24 +1728,25 @@ static int player_hit (int hitmod, int hitloc, struct monster *m)
 // anomalous stats and item-usage if used indiscriminately
 void toggle_item_use (int on)
 {
-    static int used[MAXITEMS];
-    int i;
+    static bool used[MAXITEMS];
     setgamestatus (SUPPRESS_PRINTING);
-    if (on)
-	for (i = 0; i < MAXITEMS; i++) {
-	    used[i] = FALSE;
-	    if (Player.possessions[i] != NULL) {
-		if ((used[i] = Player.possessions[i]->used) == TRUE) {
-		    Player.possessions[i]->used = FALSE;
+    if (on) {
+	for (int i = 0; i < MAXITEMS; i++) {
+	    used[i] = false;
+	    if (Player.has_possession(i)) {
+		if ((used[i] = Player.possessions[i].used) == true) {
+		    Player.possessions[i].used = false;
 		    item_use (Player.possessions[i]);
 		}
 	    }
+	}
     } else {
-	for (i = 1; i < MAXITEMS; i++)
+	for (int i = 0; i < MAXITEMS; i++) {
 	    if (used[i]) {
-		Player.possessions[i]->used = TRUE;
+		Player.possessions[i].used = true;
 		item_use (Player.possessions[i]);
 	    }
+	}
 	calc_melee();
 	showflags();
 	dataprint();
@@ -2315,8 +2299,6 @@ static void indoors_random_event (void)
 static void outdoors_random_event (void)
 {
     int num, i, j;
-    pob ob;
-
     switch (random_range (300)) {
 	case 0:
 	    switch (Country[Player.x][Player.y].current_terrain_type) {
@@ -2354,9 +2336,7 @@ static void outdoors_random_event (void)
 	    morewait();
 	    mprint ("Using your herbalist lore you cook a cake of lembas....");
 	    morewait();
-	    ob = new object;
-	    *ob = Objects[FOOD_LEMBAS];
-	    gain_item (ob);
+	    gain_item (Objects[FOOD_LEMBAS]);
 	    break;
 	case 3:
 	    if (Precipitation > 0) {
@@ -2397,11 +2377,11 @@ static void outdoors_random_event (void)
 		morewait();
 		toggle_item_use (TRUE);
 		for (i = 1; i < MAXITEMS; i++)
-		    if (Player.possessions[i] != NULL) {
-			Player.possessions[i]->plus++;
-			if (Player.possessions[i]->objchar == STICK)
-			    Player.possessions[i]->charge += 10;
-			Player.possessions[i]->blessing += 10;
+		    if (Player.has_possession(i)) {
+			Player.possessions[i].plus++;
+			if (Player.possessions[i].objchar == STICK)
+			    Player.possessions[i].charge += 10;
+			Player.possessions[i].blessing += 10;
 		    }
 		toggle_item_use (FALSE);
 		cleanse (1);
@@ -2432,9 +2412,9 @@ static void outdoors_random_event (void)
 	    } else if (num < 70) {
 		mprint ("A tendril of the storm condenses and falls into your hands.");
 		morewait();
-		ob = new object;
-		make_artifact (ob, -1);
-		gain_item (ob);
+		object o;
+		make_artifact (&o, -1);
+		gain_item (o);
 	    } else if (num < 80) {
 		if (gamestatusp (MOUNTED)) {
 		    mprint ("Your horse screams as he is transformed into an");
@@ -2578,66 +2558,40 @@ int magic_resist (int hostile_magic)
 void terrain_check (int takestime)
 {
     int faster = 0;
-
     if (Player.patron == DRUID) {
 	faster = 1;
 	switch (random_range (32)) {
-	    case 0:
-		print2 ("Along the many paths of nature...");
-		break;
-	    case 1:
-		print2 ("You move swiftly through the wilderness.");
-		break;
+	    case 0: print2 ("Along the many paths of nature..."); break;
+	    case 1: print2 ("You move swiftly through the wilderness."); break;
 	}
     } else if (gamestatusp (MOUNTED)) {
 	faster = 1;
 	switch (random_range (32)) {
 	    case 0:
-	    case 1:
-		print2 ("Clippity Clop.");
-		break;
-	    case 2:
-		print2 ("....my spurs go jingle jangle jingle....");
-		break;
-	    case 3:
-		print2 ("....as I go riding merrily along....");
-		break;
+	    case 1: print2 ("Clippity Clop."); break;
+	    case 2: print2 ("....my spurs go jingle jangle jingle...."); break;
+	    case 3: print2 ("....as I go riding merrily along...."); break;
 	}
-    } else if (Player.possessions[O_BOOTS] && Player.possessions[O_BOOTS]->usef == I_BOOTS_7LEAGUE) {
+    } else if (Player.has_possession(O_BOOTS) && Player.possessions[O_BOOTS].usef == I_BOOTS_7LEAGUE) {
 	takestime = 0;
 	switch (random_range (32)) {
-	    case 0:
-		print2 ("Boingg!");
-		break;
-	    case 1:
-		print2 ("Whooosh!");
-		break;
-	    case 2:
-		print2 ("Over hill, over dale....");
-		break;
-	    case 3:
-		print2 ("...able to leap over 7 leagues in a single bound....");
-		break;
+	    case 0: print2 ("Boingg!"); break;
+	    case 1: print2 ("Whooosh!"); break;
+	    case 2: print2 ("Over hill, over dale...."); break;
+	    case 3: print2 ("...able to leap over 7 leagues in a single bound...."); break;
 	}
     } else if (Player.status[SHADOWFORM]) {
 	faster = 1;
 	switch (random_range (32)) {
-	    case 0:
-		print2 ("As swift as a shadow.");
-		break;
-	    case 1:
-		print2 ("\"I walk through the trees...\"");
-		break;
+	    case 0: print2 ("As swift as a shadow."); break;
+	    case 1: print2 ("\"I walk through the trees...\""); break;
 	}
-    } else
+    } else {
 	switch (random_range (32)) {
-	    case 0:
-		print2 ("Trudge. Trudge.");
-		break;
-	    case 1:
-		print2 ("The road goes ever onward....");
-		break;
+	    case 0: print2 ("Trudge. Trudge."); break;
+	    case 1: print2 ("The road goes ever onward...."); break;
 	}
+    }
     switch (Country[Player.x][Player.y].current_terrain_type) {
 	case RIVER:
 	    if ((Player.y < 6) && (Player.x > 20))

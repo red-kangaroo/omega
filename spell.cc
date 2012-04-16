@@ -216,7 +216,6 @@ static void s_fear (void)
 // Has all kinds of effects in different circumstances. Eventually will be more interesting.
 static void s_ritual (void)
 {
-    pob symbol;
     int i, roomno;
     int x, y;
 
@@ -322,10 +321,9 @@ static void s_ritual (void)
 			    if (Player.patron == DESTINY) {
 				mprint ("Your patrons take pity on you.");
 				if ((Player.rank[PRIESTHOOD] < SPRIEST) && (!find_item (HOLY_SYMBOL_OF_DESTINY))) {
-				    symbol = new object;
-				    *symbol = Objects[HOLY_SYMBOL_OF_DESTINY];
+				    object symbol = Objects[HOLY_SYMBOL_OF_DESTINY];
 				    learn_object (symbol);
-				    symbol->charge = 17;
+				    symbol.charge = 17;
 				    gain_item (symbol);
 				    mprint ("You feel uplifted.");
 				} else

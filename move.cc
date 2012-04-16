@@ -47,7 +47,7 @@ static void stationcheck(void);
 static void l_water (void)
 {
     if (!gamestatusp (MOUNTED)) {
-	if ((Player.possessions[O_ARMOR] != NULL)) {
+	if (Player.has_possession(O_ARMOR)) {
 	    print1 ("Your heavy armor drags you under the water!");
 	    morewait();
 	    p_drown();
@@ -59,34 +59,19 @@ static void l_water (void)
 	    print2 ("You reach the surface again.");
 	} else
 	    switch (random_range (32)) {
-		case 0:
-		    print1 ("Splish. Splash!");
-		    break;
-		case 1:
-		    print1 ("I want my ducky!");
-		    break;
-		case 2:
-		    print1 ("So finally you take a bath!");
-		    break;
-		case 3:
-		    print1 ("You must be very thirsty!");
-		    break;
+		case 0: print1 ("Splish. Splash!"); break;
+		case 1: print1 ("I want my ducky!"); break;
+		case 2: print1 ("So finally you take a bath!"); break;
+		case 3: print1 ("You must be very thirsty!"); break;
 	    }
-    } else
+    } else {
 	switch (random_range (32)) {
-	    case 0:
-		print1 ("Your horse frolics playfully in the water.");
-		break;
-	    case 1:
-		print1 ("Your horse quenches its thirst.");
-		break;
-	    case 2:
-		print1 ("Your steed begins to swim....");
-		break;
-	    case 3:
-		print1 ("Your mount thrashes about in the water.");
-		break;
+	    case 0: print1 ("Your horse frolics playfully in the water."); break;
+	    case 1: print1 ("Your horse quenches its thirst."); break;
+	    case 2: print1 ("Your steed begins to swim...."); break;
+	    case 3: print1 ("Your mount thrashes about in the water."); break;
 	}
+    }
 }
 
 void l_chaos (void)
@@ -147,9 +132,9 @@ static void l_hedge (void)
 		Player.status[IMMOBILE] += random_range (5) + 1;
 		break;
 	    case 3:
-		if (Player.possessions[O_CLOAK] != NULL) {
+		if (Player.has_possession(O_CLOAK)) {
 		    print2 ("Your cloak was torn on the brambles!");
-		    dispose_lost_objects (1, Player.possessions[O_CLOAK]);
+		    Player.remove_possession (O_CLOAK);
 		} else
 		    print2 ("Ouch! These thorns are scratchy!");
 		break;
@@ -334,15 +319,15 @@ static void l_magic_pool (void)
     else if (possibilities < 65)
 	cleanse (1);
     else if (possibilities < 80) {
-	if (Player.possessions[O_WEAPON_HAND] != NULL) {
+	if (Player.has_possession(O_WEAPON_HAND)) {
 	    print1 ("You drop your weapon in the pool! It's gone forever!");
-	    dispose_lost_objects (1, Player.possessions[O_WEAPON_HAND]);
+	    Player.remove_possession (O_WEAPON_HAND);
 	} else
 	    print1 ("You feel fortunate.");
     } else if (possibilities < 90) {
-	if (Player.possessions[O_WEAPON_HAND] != NULL) {
+	if (Player.has_possession(O_WEAPON_HAND)) {
 	    print1 ("Your weapon leaves the pool with a new edge....");
-	    Player.possessions[O_WEAPON_HAND]->plus += random_range (10) + 1;
+	    Player.possessions[O_WEAPON_HAND].plus += random_range (10) + 1;
 	    calc_melee();
 	} else
 	    print1 ("You feel unfortunate.");
@@ -709,7 +694,7 @@ static void l_void_station (void)
 	    something = !Player.pack.empty();
 	    if (!something)
 		for (i = 0; i < MAXITEMS && !something; i++)
-		    if (Player.possessions[i] != NULL)
+		    if (Player.has_possession(i))
 			something = TRUE;
 	    if (something) {
 		print1 ("The flow of power is disrupted by something!");
@@ -1057,10 +1042,10 @@ static void l_voidstone (void)
 	for (i = 0; i < NUMSTATI; i++)
 	    Player.status[i] = 0;
 	for (i = 0; i < MAXITEMS; i++)
-	    if (Player.possessions[i] != NULL) {
-		Player.possessions[i]->blessing = 0;
-		Player.possessions[i]->plus = 0;
-		Player.possessions[i]->usef = I_NOTHING;
+	    if (Player.has_possession(i)) {
+		Player.possessions[i].blessing = 0;
+		Player.possessions[i].plus = 0;
+		Player.possessions[i].usef = I_NOTHING;
 	    }
 	toggle_item_use (FALSE);
 	calc_melee();

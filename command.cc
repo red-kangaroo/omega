@@ -208,7 +208,7 @@ void p_process (void)
 		rename_player();
 		break;
 	    case 'S':
-		save (optionp (COMPRESS_OPTION), FALSE);
+		save (optionp (COMPRESS), FALSE);
 		break;
 	    case 'T':
 		tunnel();
@@ -424,7 +424,7 @@ void p_country_process (void)
 		rename_player();
 		break;
 	    case 'S':
-		save (optionp (COMPRESS_OPTION), FALSE);
+		save (optionp (COMPRESS), FALSE);
 		break;
 	    case 'V':
 		version();
@@ -501,10 +501,7 @@ static void rest (void)
 static void peruse (void)
 {
     int iidx;
-    struct object *obj;
-
     clearmsg();
-
     if (Player.status[BLINDED] > 0)
 	print3 ("You're blind -- you can't read!!!");
     else if (Player.status[AFRAID] > 0)
@@ -515,15 +512,15 @@ static void peruse (void)
 	if (iidx == ABORT)
 	    setgamestatus (SKIP_MONSTERS);
 	else {
-	    obj = Player.possessions[iidx];
-	    if (obj->objchar != SCROLL) {
+	    object& obj = Player.possessions[iidx];
+	    if (obj.objchar != SCROLL) {
 		print3 ("There's nothing written on ");
 		nprint3 (itemid (obj));
 	    } else {
 		nprint1 ("You carefully unfurl the scroll....");
 		morewait();
 		item_use (obj);
-		dispose_lost_objects (1, obj);
+		Player.remove_possession (iidx, 1);
 	    }
 	}
     }
@@ -532,22 +529,21 @@ static void peruse (void)
 static void quaff (void)
 {
     int iidx;
-    struct object *obj;
     clearmsg();
     print1 ("Quaff --");
     iidx = getitem (POTION);
     if (iidx == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
-	obj = Player.possessions[iidx];
-	if (obj->objchar != POTION) {
+	object& obj = Player.possessions[iidx];
+	if (obj.objchar != POTION) {
 	    print3 ("You can't drink ");
 	    nprint3 (itemid (obj));
 	} else {
 	    print1 ("You drink it down.... ");
 	    item_use (obj);
 	    morewait();
-	    dispose_lost_objects (1, obj);
+	    Player.remove_possession (iidx, 1);
 	}
     }
 }
@@ -571,7 +567,7 @@ static void activate (void)
 	    clearmsg();
 	    print1 ("You activate it.... ");
 	    morewait();
-	    item_use (Player.possessions[iidx]);
+	    Player.remove_possession (iidx, 1);
 	} else
 	    setgamestatus (SKIP_MONSTERS);
     } else
@@ -580,25 +576,21 @@ static void activate (void)
 
 static void eat (void)
 {
-    int iidx;
-    struct object *obj;
-
     clearmsg();
-
     print1 ("Eat --");
-    iidx = getitem (FOOD);
+    int iidx = getitem (FOOD);
     if (iidx == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
-	obj = Player.possessions[iidx];
-	if ((obj->objchar != FOOD) && (obj->objchar != CORPSE)) {
+	object& obj = Player.possessions[iidx];
+	if (obj.objchar != FOOD && obj.objchar != CORPSE) {
 	    print3 ("You can't eat ");
 	    nprint3 (itemid (obj));
 	} else {
-	    if (obj->usef == I_FOOD)
-		Player.food = max (0, Player.food + obj->aux);
+	    if (obj.usef == I_FOOD)
+		Player.food = max (0, Player.food + obj.aux);
 	    item_use (obj);
-	    dispose_lost_objects (1, obj);
+	    Player.remove_possession (iidx, 1);
 	    if (Current_Dungeon == E_COUNTRYSIDE) {
 		Time += 100;
 		hourly_check();
@@ -638,25 +630,22 @@ void pickup (void)
 
 void drop (void)
 {
-    int iidx, n;
-
     clearmsg();
-
     print1 ("Drop --");
-    iidx = getitem (CASH);
+    int iidx = getitem (CASH);
     if (iidx == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
 	if (iidx == CASHVALUE)
 	    drop_money();
-	else if ((!Player.possessions[iidx]->used) || (!cursed (Player.possessions[iidx]))) {
-	    if (Player.possessions[iidx]->number == 1) {
-		p_drop_at (Player.x, Player.y, 1, Player.possessions[iidx]);
-		conform_lost_objects (1, Player.possessions[iidx]);
+	else if (!Player.possessions[iidx].used || !cursed (Player.possessions[iidx])) {
+	    if (Player.possessions[iidx].number == 1) {
+		p_drop_at (Player.x, Player.y, Player.possessions[iidx], 1);
+		Player.remove_possession (iidx, 1);
 	    } else {
-		n = getnumber (Player.possessions[iidx]->number);
-		p_drop_at (Player.x, Player.y, n, Player.possessions[iidx]);
-		conform_lost_objects (n, Player.possessions[iidx]);
+		int n = getnumber (Player.possessions[iidx].number);
+		p_drop_at (Player.x, Player.y, Player.possessions[iidx], n);
+		Player.remove_possession (iidx, n);
 	    }
 	} else {
 	    print3 ("You can't seem to get rid of: ");
@@ -716,82 +705,55 @@ static void talk (void)
 // try to deactivate a trap
 static void disarm (void)
 {
-    int x, y, iidx = 0;
-    pob o;
-
     clearmsg();
     print1 ("Disarm -- ");
-
-    iidx = getdir();
-
-    if (iidx == ABORT)
+    int iidx = getdir();
+    if (iidx == ABORT) {
 	setgamestatus (SKIP_MONSTERS);
-    else {
-	x = Dirs[0][iidx] + Player.x;
-	y = Dirs[1][iidx] + Player.y;
+	return;
+    }
+    int x = Dirs[0][iidx] + Player.x;
+    int y = Dirs[1][iidx] + Player.y;
 
-	if (!inbounds (x, y))
-	    print3 ("Whoa, off the map...");
-	else if (Level->site[x][y].locchar != TRAP)
-	    print3 ("You can't see a trap there!");
-	else {
-	    if (random_range (50 + difficulty() * 5) < Player.dex * 2 + Player.level * 3 + Player.rank[THIEVES] * 10) {
-		print1 ("You disarmed the trap!");
-		if (random_range (100) < Player.dex + Player.rank[THIEVES] * 10) {
-		    o = new object;
-		    switch (Level->site[x][y].p_locf) {
-			case L_TRAP_DART:
-			    *o = Objects[THING_DART_TRAP_COMPONENT];
-			    break;
-			case L_TRAP_ACID:
-			    *o = Objects[THING_ACID_TRAP_COMPONENT];
-			    break;
-			case L_TRAP_SNARE:
-			    *o = Objects[THING_SNARE_TRAP_COMPONENT];
-			    break;
-			case L_TRAP_FIRE:
-			    *o = Objects[THING_FIRE_TRAP_COMPONENT];
-			    break;
-			case L_TRAP_TELEPORT:
-			    *o = Objects[THING_TELEPORT_TRAP_COMPONENT];
-			    break;
-			case L_TRAP_SLEEP_GAS:
-			    *o = Objects[THING_SLEEP_TRAP_COMPONENT];
-			    break;
-			case L_TRAP_DISINTEGRATE:
-			    *o = Objects[THING_DISINTEGRATE_TRAP_COMPONENT];
-			    break;
-			case L_TRAP_ABYSS:
-			    *o = Objects[THING_ABYSS_TRAP_COMPONENT];
-			    break;
-			case L_TRAP_MANADRAIN:
-			    *o = Objects[THING_MANADRAIN_TRAP_COMPONENT];
-			    break;
-			default:
-			    delete o;
-			    o = NULL;
-			    break;
-		    }
-		    if (o != NULL) {
-			print2 ("You manage to retrieve the trap components!");
-			morewait();
-			learn_object (o);
-			gain_item (o);
-			gain_experience (25);
-		    }
+    if (!inbounds (x, y))
+	print3 ("Whoa, off the map...");
+    else if (Level->site[x][y].locchar != TRAP)
+	print3 ("You can't see a trap there!");
+    else {
+	if (random_range (50 + difficulty() * 5) < Player.dex * 2 + Player.level * 3 + Player.rank[THIEVES] * 10) {
+	    print1 ("You disarmed the trap!");
+	    if (random_range (100) < Player.dex + Player.rank[THIEVES] * 10) {
+		unsigned componentId = NO_THING;
+		switch (Level->site[x][y].p_locf) {
+		    case L_TRAP_DART: componentId = THING_DART_TRAP_COMPONENT; break;
+		    case L_TRAP_ACID: componentId = THING_ACID_TRAP_COMPONENT; break;
+		    case L_TRAP_SNARE: componentId = THING_SNARE_TRAP_COMPONENT; break;
+		    case L_TRAP_FIRE: componentId = THING_FIRE_TRAP_COMPONENT; break;
+		    case L_TRAP_TELEPORT: componentId = THING_TELEPORT_TRAP_COMPONENT; break;
+		    case L_TRAP_SLEEP_GAS: componentId = THING_SLEEP_TRAP_COMPONENT; break;
+		    case L_TRAP_DISINTEGRATE: componentId = THING_DISINTEGRATE_TRAP_COMPONENT; break;
+		    case L_TRAP_ABYSS: componentId = THING_ABYSS_TRAP_COMPONENT; break;
+		    case L_TRAP_MANADRAIN: componentId = THING_MANADRAIN_TRAP_COMPONENT; break;
 		}
-		Level->site[x][y].p_locf = L_NO_OP;
-		Level->site[x][y].locchar = FLOOR;
-		lset (x, y, CHANGED);
-		gain_experience (5);
-	    } else if (random_range (10 + difficulty() * 2) > Player.dex) {
-		print1 ("You accidentally set off the trap!");
-		Player.x = x;
-		Player.y = y;
-		p_movefunction (Level->site[x][y].p_locf);
-	    } else
-		print1 ("You failed to disarm the trap.");
-	}
+		if (componentId != NO_THING) {
+		    print2 ("You manage to retrieve the trap components!");
+		    morewait();
+		    learn_object (componentId);
+		    gain_item (Objects[componentId]);
+		    gain_experience (25);
+		}
+	    }
+	    Level->site[x][y].p_locf = L_NO_OP;
+	    Level->site[x][y].locchar = FLOOR;
+	    lset (x, y, CHANGED);
+	    gain_experience (5);
+	} else if (random_range (10 + difficulty() * 2) > Player.dex) {
+	    print1 ("You accidentally set off the trap!");
+	    Player.x = x;
+	    Player.y = y;
+	    p_movefunction (Level->site[x][y].p_locf);
+	} else
+	    print1 ("You failed to disarm the trap.");
     }
 }
 
@@ -824,20 +786,11 @@ static void give (void)
 	print3 ("You can't even give away: ");
 	nprint3 (itemid (Player.possessions[iidx]));
     } else {
-	pob obj = new object;
-	*obj = *(Player.possessions[iidx]);
-	obj->used = FALSE;
-	conform_lost_objects (1, Player.possessions[iidx]);
-	obj->number = 1;
+	givemonster (*m, split_item (Player.possessions[iidx], 1));
 	print2 ("Given: ");
-	nprint2 (itemid (obj));
+	nprint2 (itemid (Player.possessions[iidx]));
+	Player.remove_possession (iidx, 1);
 	morewait();
-	// WDT bug fix: I moved the print above the givemonster
-	// call.  If that turns out looking ugly, I should change it to
-	// a sprintf or strcat.  At any rate, it was wrong before because
-	// it was accessing an object which had already been freed as part
-	// of givemonster.
-	givemonster (m, obj);
 	calc_melee();
     }
 }
@@ -848,7 +801,7 @@ static void give_money (struct monster *m)
     if (cash == NULL)
 	setgamestatus (SKIP_MONSTERS);
     else
-	givemonster (m, cash);
+	givemonster (*m, *cash);
 }
 
 // drops money, heh heh
@@ -860,7 +813,7 @@ static void drop_money (void)
 	    print1 ("As soon as the money leaves your hand,");
 	    print2 ("a horde of scrofulous beggars snatch it up and are gone!");
 	} else
-	    drop_at (Player.x, Player.y, money);
+	    drop_at (Player.x, Player.y, *money);
     } else
 	setgamestatus (SKIP_MONSTERS);
 }
@@ -894,14 +847,14 @@ static void zapwand (void)
     if (iidx == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
-	object* obj = Player.possessions[iidx];
-	if (obj->objchar != STICK) {
+	object& obj = Player.possessions[iidx];
+	if (obj.objchar != STICK) {
 	    print3 ("You can't zap: ");
 	    nprint3 (itemid (obj));
-	} else if (obj->charge < 1)
+	} else if (obj.charge < 1)
 	    print3 ("Fizz.... Pflpt. Out of charges. ");
 	else {
-	    obj->charge--;
+	    --obj.charge;
 	    item_use (obj);
 	}
     }
@@ -988,40 +941,23 @@ static void downstairs (void)
 // have to redefine in odefs for next full recompile
 void setoptions (void)
 {
-    int slot = 1, to, done = FALSE;
-    int response;
-
-    clearmsg();
-    menuclear();
-
-    display_options();
-
-    move_slot (1, 1, NUMOPTIONS);
     clearmsg();
     print1 ("Currently selected option is preceded by highlit >>");
     print2 ("Move selected option with '>' and '<', ESCAPE to quit.");
-    do {
-	response = mcigetc();
+    menuclear();
+    int slot = 0;
+    while (true) {
+	display_options (slot);
+	int response = mcigetc();
 	switch (response) {
 	    case 'j':
 	    case '>':
-	    case KEY_DOWN:
-		to = slot + 1;
-		slot = move_slot (slot, to, NUMOPTIONS + 1);
-		break;
+	    case KEY_DOWN: slot = min (slot + 1, NUMOPTIONS-1); break;
 	    case 'k':
 	    case '<':
-	    case KEY_UP:
-		to = slot - 1;
-		if (to > 0)
-		    slot = move_slot (slot, to, NUMOPTIONS + 1);
-		break;
-	    case KEY_HOME:
-		slot = move_slot (slot, 1, NUMOPTIONS + 1);
-		break;
-	    case KEY_LL:
-		slot = move_slot (slot, NUMOPTIONS, NUMOPTIONS + 1);
-		break;
+	    case KEY_UP: slot = max (slot - 1, 0); break;
+	    case KEY_HOME: slot = 0; break;
+	    case KEY_LL: slot = NUMOPTIONS - 1; break;
 	    case 't':
 		if (slot <= NUMTFOPTIONS)
 		    optionset (pow2 (slot - 1));
@@ -1063,16 +999,13 @@ void setoptions (void)
 		    print3 ("A number is meaningless for this option.");
 		break;
 	    case KEY_ESCAPE:
-		done = TRUE;
-		break;
+		xredraw();
+		return;
 	    default:
 		print3 ("That response is meaningless for this option.");
 		break;
 	}
-	display_option_slot (slot);
-	move_slot (slot, slot, NUMOPTIONS + 1);
-    } while (!done);
-    xredraw();
+    }
 }
 
 // open a door
@@ -1245,28 +1178,25 @@ static void bash_location (void)
 // attempt destroy an item
 void bash_item (void)
 {
-    int item;
-    pob obj;
-
     clearmsg();
     print1 ("Destroy an item --");
-    item = getitem (NULL_ITEM);
+    int item = getitem (NULL_ITEM);
     if (item == CASHVALUE)
 	print3 ("Can't destroy cash!");
     else if (item != ABORT) {
-	obj = Player.possessions[item];
-	if (Player.str + random_range (20) > obj->fragility + random_range (20)) {
-	    if (damage_item (obj) && Player.alignment < 0) {
+	object& obj = Player.possessions[item];
+	if (Player.str + random_range (20) > obj.fragility + random_range (20)) {
+	    if (damage_item(&obj) && Player.alignment < 0) {
 		print2 ("That was fun....");
-		gain_experience (obj->level * obj->level * 5);
+		gain_experience (obj.level * obj.level * 5);
 	    }
 	} else {
-	    if (obj->objchar == WEAPON) {
+	    if (obj.objchar == WEAPON) {
 		print2 ("The weapon turned in your hand -- you hit yourself!");
-		p_damage (random_range (obj->dmg + absv (obj->plus)), NORMAL_DAMAGE, "a failure at vandalism");
-	    } else if (obj->objchar == ARTIFACT) {
+		p_damage (random_range (obj.dmg + absv(obj.plus)), NORMAL_DAMAGE, "a failure at vandalism");
+	    } else if (obj.objchar == ARTIFACT) {
 		print2 ("Uh Oh -- Now you've gotten it angry....");
-		p_damage (obj->level * 10, UNSTOPPABLE, "an enraged artifact");
+		p_damage (obj.level * 10, UNSTOPPABLE, "an enraged artifact");
 	    } else {
 		print2 ("Ouch! Damn thing refuses to break...");
 		p_damage (1, UNSTOPPABLE, "a failure at vandalism");
@@ -1463,10 +1393,10 @@ static void movepincountry (int dx, int dy)
 	    else {
 		Player.x += dx;
 		Player.y += dy;
-		if ((!gamestatusp (MOUNTED)) && (Player.possessions[O_BOOTS] != NULL)) {
-		    if (Player.possessions[O_BOOTS]->usef == I_BOOTS_7LEAGUE) {
+		if (!gamestatusp (MOUNTED) && Player.has_possession(O_BOOTS)) {
+		    if (Player.possessions[O_BOOTS].usef == I_BOOTS_7LEAGUE) {
 			takestime = FALSE;
-			if (Player.possessions[O_BOOTS]->blessing < 0) {
+			if (Player.possessions[O_BOOTS].blessing < 0) {
 			    print1 ("Whooah! -- Your boots launch you into the sky....");
 			    print2 ("You come down in a strange location....");
 			    Player.x = random_range (WIDTH);
@@ -1474,7 +1404,7 @@ static void movepincountry (int dx, int dy)
 			    morewait();
 			    clearmsg();
 			    print1 ("Your boots disintegrate with a malicious giggle...");
-			    dispose_lost_objects (1, Player.possessions[O_BOOTS]);
+			    Player.remove_possession (O_BOOTS);
 			} else if (!object_is_known (Player.possessions[O_BOOTS])) {
 			    print1 ("Wow! Your boots take you 7 leagues in a single stride!");
 			    learn_object (Player.possessions[O_BOOTS]);
@@ -1729,82 +1659,68 @@ static void version (void)
 
 static void fire (void)
 {
-    int ii, x1, y1, x2, y2;
-    pob obj;
-    struct monster *m;
-
     clearmsg();
-
     print1 ("Fire/Throw --");
-    ii = getitem (NULL_ITEM);
+    int ii = getitem (NULL_ITEM);
     if (ii == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else if (ii == CASHVALUE)
 	print3 ("Can't fire money at something!");
-    else if (cursed (Player.possessions[ii]) && Player.possessions[ii]->used)
+    else if (cursed (Player.possessions[ii]) == TRUE+TRUE)
 	print3 ("You can't seem to get rid of it!");
-    // load a crossbow
-    else if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPON_CROSSBOW) &&
-	     (Player.possessions[O_WEAPON_HAND]->aux != LOADED) && (Player.possessions[ii]->id == WEAPON_BOLT)) {
+    else if (Player.possessions[O_WEAPON_HAND].id == WEAPON_CROSSBOW &&
+	     Player.possessions[O_WEAPON_HAND].aux != LOADED && Player.possessions[ii].id == WEAPON_BOLT) {
 	mprint ("You crank back the crossbow and load a bolt.");
-	Player.possessions[O_WEAPON_HAND]->aux = LOADED;
+	Player.possessions[O_WEAPON_HAND].aux = LOADED;
+	Player.remove_possession (ii, 1);
     } else {
-	if (Player.possessions[ii]->used) {
-	    Player.possessions[ii]->used = FALSE;
-	    item_use (Player.possessions[ii]);
-	}
-	obj = Player.possessions[ii];
+	object& obj = Player.possessions[ii];
+	int x1, y1, x2, y2;
 	x1 = x2 = Player.x;
 	y1 = y2 = Player.y;
 	setspot (&x2, &y2);
-	if ((x2 == Player.x) && (y2 == Player.y))
+	if (x2 == Player.x && y2 == Player.y) {
 	    mprint ("You practice juggling for a moment or two.");
-	else {
-	    do_object_los (obj->objchar, &x1, &y1, x2, y2);
+	    p_drop_at (x2, y2, obj, 1);
+	} else {
+	    do_object_los (obj.objchar, &x1, &y1, x2, y2);
+	    monster *m;
 	    if ((m = Level->creature(x1,y1))) {
-		if (obj->dmg == 0) {
+		if (obj.dmg == 0) {
 		    if (m->treasure > 0) {	// the monster can have treasure/objects
 			mprint ("Your gift is caught!");
-			givemonster (m, split_item (1, obj));
-			conform_lost_objects (1, obj);
+			givemonster (*m, split_item (obj, 1));
 		    } else {
 			mprint ("Your thrown offering is ignored.");
 			setgamestatus (SUPPRESS_PRINTING);
-			p_drop_at (x1, y1, 1, obj);
+			p_drop_at (x1, y1, obj, 1);
 			resetgamestatus (SUPPRESS_PRINTING);
-			conform_lost_objects (1, obj);
 		    }
-		} else if (obj->aux == I_SCYTHE) {
+		} else if (obj.aux == I_SCYTHE) {
 		    mprint ("It isn't very aerodynamic... you miss.");
 		    setgamestatus (SUPPRESS_PRINTING);
-		    p_drop_at (x1, y1, 1, obj);
+		    p_drop_at (x1, y1, obj, 1);
 		    resetgamestatus (SUPPRESS_PRINTING);
-		    conform_lost_objects (1, obj);
 		} else if (hitp (Player.hit, m->ac)) {	// ok already, hit the damn thing
-		    weapon_use (2 * statmod (Player.str), obj, m);
-		    if ((obj->id == WEAPON_ARROW || obj->id == WEAPON_BOLT) && !random_range (4))
-			dispose_lost_objects (1, obj);
-		    else {
+		    weapon_use (2 * statmod (Player.str), &obj, m);
+		    if ((obj.id != WEAPON_ARROW && obj.id != WEAPON_BOLT) || random_range(4)) {
 			setgamestatus (SUPPRESS_PRINTING);
-			p_drop_at (x1, y1, 1, obj);
+			p_drop_at (x1, y1, obj, 1);
 			resetgamestatus (SUPPRESS_PRINTING);
-			conform_lost_objects (1, obj);
 		    }
 		} else {
 		    mprint ("You miss it.");
 		    setgamestatus (SUPPRESS_PRINTING);
-		    p_drop_at (x1, y1, 1, obj);
+		    p_drop_at (x1, y1, obj, 1);
 		    resetgamestatus (SUPPRESS_PRINTING);
-		    conform_lost_objects (1, obj);
 		}
 	    } else {
 		setgamestatus (SUPPRESS_PRINTING);
-		p_drop_at (x1, y1, 1, obj);
+		p_drop_at (x1, y1, obj, 1);
 		resetgamestatus (SUPPRESS_PRINTING);
-		conform_lost_objects (1, obj);
-		plotspot (x1, y1, TRUE);
 	    }
 	}
+	Player.remove_possession (ii, 1);
     }
 }
 
@@ -1870,12 +1786,9 @@ static void wizard (void)
 static void vault (void)
 {
     int x = Player.x, y = Player.y, jumper = 0;
-
     clearmsg();
-
-    if (Player.possessions[O_BOOTS] != NULL)
-	if (Player.possessions[O_BOOTS]->usef == I_BOOTS_JUMPING)
-	    jumper = 2;
+    if (Player.has_possession(O_BOOTS) && Player.possessions[O_BOOTS].usef == I_BOOTS_JUMPING)
+	jumper = 2;
     if (Player.status[IMMOBILE] > 0) {
 	resetgamestatus (FAST_MOVE);
 	print3 ("You are unable to move");
@@ -1946,13 +1859,13 @@ static void tacoptions (void)
 		if (actionsleft < 1)
 		    print3 ("No more maneuvers!");
 		else {
-		    if (Player.possessions[O_WEAPON_HAND] == NULL) {
+		    if (!Player.has_possession(O_WEAPON_HAND)) {
 			Player.meleestr[place] = 'C';
 			menuprint ("\nPunch:");
-		    } else if (Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
+		    } else if (Player.possessions[O_WEAPON_HAND].type == THRUSTING) {
 			Player.meleestr[place] = 'T';
 			menuprint ("\nThrust:");
-		    } else if (Player.possessions[O_WEAPON_HAND]->type == STRIKING) {
+		    } else if (Player.possessions[O_WEAPON_HAND].type == STRIKING) {
 			Player.meleestr[place] = 'C';
 			menuprint ("\nStrike:");
 		    } else {
@@ -1971,9 +1884,9 @@ static void tacoptions (void)
 		    print3 ("No more maneuvers!");
 		else {
 		    Player.meleestr[place] = 'B';
-		    if (Player.possessions[O_WEAPON_HAND] == NULL)
+		    if (!Player.has_possession(O_WEAPON_HAND))
 			menuprint ("\nDodge (from):");
-		    else if (Player.possessions[O_WEAPON_HAND]->type == THRUSTING)
+		    else if (Player.possessions[O_WEAPON_HAND].type == THRUSTING)
 			menuprint ("\nParry:");
 		    else
 			menuprint ("\nBlock:");
@@ -1988,8 +1901,8 @@ static void tacoptions (void)
 		if (actionsleft < 2)
 		    print3 ("Not enough maneuvers to lunge!");
 		else {
-		    if (Player.possessions[O_WEAPON_HAND] != NULL) {
-			if (Player.possessions[O_WEAPON_HAND]->type != MISSILE) {
+		    if (Player.has_possession(O_WEAPON_HAND)) {
+			if (Player.possessions[O_WEAPON_HAND].type != MISSILE) {
 			    menuprint ("\nLunge:");
 			    Player.meleestr[place] = 'L';
 			    place++;
@@ -2011,8 +1924,8 @@ static void tacoptions (void)
 		if (actionsleft < 2)
 		    print3 ("Not enough maneuvers to riposte!");
 		else {
-		    if (Player.possessions[O_WEAPON_HAND] != NULL) {
-			if (Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
+		    if (Player.has_possession(O_WEAPON_HAND)) {
+			if (Player.possessions[O_WEAPON_HAND].type == THRUSTING) {
 			    Player.meleestr[place++] = 'R';
 			    menuprint ("\nRiposte:");
 			    Player.meleestr[place++] = getlocation();
@@ -2033,22 +1946,22 @@ static void tacoptions (void)
 		draw_again = 1;
 		break;
 	    case '!':
-		if (Player.possessions[O_WEAPON_HAND] == NULL) {
+		if (!Player.has_possession(O_WEAPON_HAND)) {
 		    defatt = 'C';
 		    attstr = "Punch";
-		} else if (Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
+		} else if (Player.possessions[O_WEAPON_HAND].type == THRUSTING) {
 		    defatt = 'T';
 		    attstr = "Thrust";
-		} else if (Player.possessions[O_WEAPON_HAND]->type == STRIKING) {
+		} else if (Player.possessions[O_WEAPON_HAND].type == STRIKING) {
 		    defatt = 'C';
 		    attstr = "Strike";
 		} else {
 		    defatt = 'C';
 		    attstr = "Cut";
 		}
-		if (Player.possessions[O_WEAPON_HAND] == NULL)
+		if (!Player.has_possession(O_WEAPON_HAND))
 		    defstr = "Dodge";
-		else if (Player.possessions[O_WEAPON_HAND]->type == THRUSTING)
+		else if (Player.possessions[O_WEAPON_HAND].type == THRUSTING)
 		    defstr = "Parry";
 		else
 		    defstr = "Block";
@@ -2125,7 +2038,7 @@ static void pickpocket (void)
 	mprint (itemid (&m->possessions[0]));
 	--Player.alignment;
 	gain_experience (m->level * m->level);
-	gain_item (new object (m->possessions[0]));
+	gain_item (m->possessions[0]);
 	m->possessions.erase (m->possessions.begin());
     } else
 	mprint ("Pickpocketing failed. This is just not your day.");
@@ -2164,34 +2077,32 @@ static void abortshadowform (void)
 
 static void tunnel (void)
 {
-    int dir, ox, oy, aux;
-
     clearmsg();
     mprint ("Tunnel -- ");
-    dir = getdir();
+    int dir = getdir();
     if (dir == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
-	ox = Player.x + Dirs[0][dir];
-	oy = Player.y + Dirs[1][dir];
+	int ox = Player.x + Dirs[0][dir];
+	int oy = Player.y + Dirs[1][dir];
 	if (loc_statusp (ox, oy, SECRET))
 	    mprint ("You have no success as yet.");
 	else if (Level->site[ox][oy].locchar != WALL) {
 	    print3 ("You can't tunnel through that!");
 	    setgamestatus (SKIP_MONSTERS);
 	} else {
-	    aux = Level->site[ox][oy].aux;
+	    int aux = Level->site[ox][oy].aux;
 	    if (random_range (20) == 1) {
-		if (Player.possessions[O_WEAPON_HAND] == NULL) {
+		if (!Player.has_possession(O_WEAPON_HAND)) {
 		    mprint ("Ouch! broke a fingernail...");
 		    p_damage (Player.str / 6, UNSTOPPABLE, "a broken fingernail");
-		} else if ((Player.possessions[O_WEAPON_HAND]->type == THRUSTING) || ((Player.possessions[O_WEAPON_HAND]->type != STRIKING) && (Player.possessions[O_WEAPON_HAND]->fragility < random_range (20)))) {
+		} else if (Player.possessions[O_WEAPON_HAND].type == THRUSTING || (Player.possessions[O_WEAPON_HAND].type != STRIKING && Player.possessions[O_WEAPON_HAND].fragility < random_range (20))) {
 		    mprint ("Clang! Uh oh...");
-		    (void) damage_item (Player.possessions[O_WEAPON_HAND]);
+		    damage_item (&Player.possessions[O_WEAPON_HAND]);
 		} else
 		    mprint ("Your digging implement shows no sign of breaking.");
 	    }
-	    if (Player.possessions[O_WEAPON_HAND] == NULL) {
+	    if (!Player.has_possession(O_WEAPON_HAND)) {
 		if ((aux > 0) && ((Player.str / 3) + random_range (100) > aux)) {
 		    mprint ("You carve a tunnel through the stone!");
 		    tunnelcheck();
@@ -2200,8 +2111,8 @@ static void tunnel (void)
 		    lset (ox, oy, CHANGED);
 		} else
 		    mprint ("No joy.");
-	    } else if (Player.possessions[O_WEAPON_HAND]->type == THRUSTING) {
-		if ((aux > 0) && (Player.possessions[O_WEAPON_HAND]->dmg * 2 + random_range (100) > aux)) {
+	    } else if (Player.possessions[O_WEAPON_HAND].type == THRUSTING) {
+		if (aux > 0 && Player.possessions[O_WEAPON_HAND].dmg * 2 + random_range (100) > aux) {
 		    mprint ("You carve a tunnel through the stone!");
 		    tunnelcheck();
 		    Level->site[ox][oy].locchar = RUBBLE;
@@ -2209,8 +2120,7 @@ static void tunnel (void)
 		    lset (ox, oy, CHANGED);
 		} else
 		    mprint ("No luck.");
-	    } else if ((aux > 0) && (Player.possessions[O_WEAPON_HAND]->dmg + random_range (100)
-				     > aux)) {
+	    } else if (aux > 0 && Player.possessions[O_WEAPON_HAND].dmg + random_range (100) > aux) {
 		mprint ("You carve a tunnel through the stone!");
 		tunnelcheck();
 		Level->site[ox][oy].locchar = RUBBLE;

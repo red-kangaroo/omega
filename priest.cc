@@ -81,14 +81,14 @@ void l_altar (void)
 		i = getitem (NULL_ITEM);
 		if (i == ABORT)
 		    i = 0;
-		if (Player.possessions[i] == NULL) {
+		if (!Player.has_possession(i)) {
 		    print1 ("You have insulted your deity!");
 		    print2 ("Not a good idea, as it turns out...");
 		    dispel (-1);
 		    p_damage (Player.hp - 1, UNSTOPPABLE, "a god's pique");
 		} else if (true_item_value (Player.possessions[i]) > (long) (Player.rank[PRIESTHOOD] * Player.rank[PRIESTHOOD] * Player.rank[PRIESTHOOD] * 50)) {
 		    print1 ("With a burst of blue flame, your offering vanishes!");
-		    dispose_lost_objects (1, Player.possessions[i]);
+		    Player.remove_possession (i, 1);
 		    print2 ("A violet nimbus settles around your head and slowly fades.");
 		    morewait();
 		    Blessing = TRUE;
@@ -97,14 +97,10 @@ void l_altar (void)
 		    print2 ("The glow slowly fades....");
 		    morewait();
 		    setgamestatus (SUPPRESS_PRINTING);
-		    if (Player.possessions[i]->used) {
-			Player.possessions[i]->used = FALSE;
-			item_use (Player.possessions[i]);
-			Player.possessions[i]->blessing = -1 - absv (Player.possessions[i]->blessing);
-			Player.possessions[i]->used = TRUE;
-			item_use (Player.possessions[i]);
-		    } else
-			Player.possessions[i]->blessing = -1 - absv (Player.possessions[i]->blessing);
+		    object o = Player.possessions[i];
+		    Player.remove_possession(i);
+		    o.blessing = -1 - absv (o.blessing);
+		    Player.add_possession (i, o);
 		    resetgamestatus (SUPPRESS_PRINTING);
 		}
 	    } else if (response == 'p') {
@@ -119,7 +115,7 @@ void l_altar (void)
 
 static int check_sacrilege (int deity)
 {
-    int i, sacrilege = FALSE;
+    int sacrilege = FALSE;
     if ((Player.patron != deity) && (Player.patron > 0)) {
 	sacrilege = TRUE;
 	Player.pow--;
@@ -158,9 +154,7 @@ static int check_sacrilege (int deity)
 		    if (Player.hp > 0) {
 			morewait();
 			print1 ("You are wreathed in clouds of smoke.");
-			for (i = 0; i < MAXITEMS; i++)
-			    if ((Player.possessions[i] != NULL) && (Player.possessions[i]->blessing > -1))
-				conform_lost_object (Player.possessions[i]);
+			Player.remove_all_possessions();
 			morewait();
 			print2 ("You feel Set's Black Hand on your heart....");
 			Player.con = Player.maxcon = Player.maxcon / 4;

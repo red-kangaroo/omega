@@ -966,12 +966,12 @@ static void i_charge (pob o)
     if (i != ABORT) {
 	if (o->blessing < 0) {
 	    mprint ("The stick glows black!");
-	    Player.possessions[i]->charge = 0;
+	    Player.possessions[i].charge = 0;
 	} else {
 	    mprint ("The stick glows blue!");
-	    Player.possessions[i]->charge += (random_range (10) + 1) * (o->blessing + 1);
-	    if (Player.possessions[i]->charge > 99)
-		Player.possessions[i]->charge = 99;
+	    Player.possessions[i].charge += (random_range (10) + 1) * (o->blessing + 1);
+	    if (Player.possessions[i].charge > 99)
+		Player.possessions[i].charge = 99;
 	}
     }
 }
@@ -1049,7 +1049,7 @@ static void i_key (pob o)
 	    o->blessing--;
 	    if ((o->blessing < 0) || (Level->depth == MaxDungeonLevels - 1)) {
 		mprint ("The key disintegrates!");
-		conform_lost_objects (1, o);
+		Player.remove_possession (o, 1);
 	    } else
 		mprint ("Your key glows faintly.");
 	} else
@@ -1330,14 +1330,14 @@ static void i_trap (pob o)
 	Level->site[Player.x][Player.y].p_locf = o->aux;
 	lset (Player.x, Player.y, CHANGED);
     }
-    dispose_lost_objects (1, o);
+    Player.remove_possession (o, 1);
 }
 
 static void i_raise_portcullis (pob o)
 {
     l_raise_portcullis();
     mprint ("The box beeps once and explodes in your hands!");
-    conform_lost_objects (1, o);
+    Player.remove_possession (o, 1);
 }
 
 // ring functions
@@ -1378,8 +1378,8 @@ static void i_perm_burden (pob o)
     }
     Player.itemweight = 0;
     for (i = 0; i < MAXITEMS; i++) {
-	if (Player.possessions[i] != NULL)
-	    Player.itemweight += (Player.possessions[i]->weight * Player.possessions[i]->number);
+	if (Player.has_possession(i))
+	    Player.itemweight += (Player.possessions[i].weight * Player.possessions[i].number);
     }
 }
 
@@ -1523,7 +1523,7 @@ void weapon_demonblade (int dmgmod, pob o, struct monster *m)
 	mprint ("Demonblade disintegrates with a soft sigh.");
 	mprint ("You stop foaming at the mouth.");
 	Player.status[BERSERK] = 0;
-	conform_lost_object (o);
+	Player.remove_possession (o, 1);
     } else if (m->specialf == M_SP_DEMON) {
 	mprint ("The demon flees in terror before your weapon!");
 	m_vanish (m);
@@ -1545,7 +1545,7 @@ void weapon_demonblade (int dmgmod, pob o, struct monster *m)
 	    mprint ("... and shatters into a thousand lost fragments!");
 	    morewait();
 	    p_damage (50, UNSTOPPABLE, "Demonblade exploding");
-	    conform_lost_object (o);
+	    Player.remove_possession (o, 1);
 	} else {
 	    mprint ("You feel your lifeforce draining....");
 	    p_damage (25, UNSTOPPABLE, "a backlash of negative energies");
@@ -1588,7 +1588,7 @@ void weapon_tangle (int dmgmod, pob o UNUSED, struct monster *m)
 // if wielding a bow, add bow damage to arrow damage
 void weapon_arrow (int dmgmod, pob o, struct monster *m)
 {
-    if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPON_LONGBOW))
+    if (Player.possessions[O_WEAPON_HAND].id == WEAPON_LONGBOW)
 	p_hit (m, Player.dmg + o->plus + o->dmg + dmgmod, NORMAL_DAMAGE);
     else
 	p_hit (m, o->plus + o->dmg + dmgmod, NORMAL_DAMAGE);
@@ -1597,10 +1597,10 @@ void weapon_arrow (int dmgmod, pob o, struct monster *m)
 // if wielding a crossbow, add bow damage to arrow damage
 void weapon_bolt (int dmgmod, pob o, struct monster *m)
 {
-    if ((Player.possessions[O_WEAPON_HAND] != NULL) && (Player.possessions[O_WEAPON_HAND]->id == WEAPON_CROSSBOW) &&
-	(Player.possessions[O_WEAPON_HAND]->aux == LOADED)) {
+    if (Player.possessions[O_WEAPON_HAND].id == WEAPON_CROSSBOW &&
+	Player.possessions[O_WEAPON_HAND].aux == LOADED) {
 	p_hit (m, Player.dmg + o->plus + o->dmg + dmgmod, NORMAL_DAMAGE);
-	Player.possessions[O_WEAPON_HAND]->aux = UNLOADED;
+	Player.possessions[O_WEAPON_HAND].aux = UNLOADED;
     } else
 	p_hit (m, o->plus + o->dmg, NORMAL_DAMAGE);
 }
@@ -1763,7 +1763,7 @@ static void i_desecrate (pob o)
     if (o->blessing > 0) {
 	mprint ("How weird, a blessed desecrator... ");
 	mprint ("The structure of reality cannot permit such a thing....");
-	dispose_lost_objects (1, o);
+	Player.remove_possession (o, 1);
     } else if (Level->site[Player.x][Player.y].locchar == ALTAR)
 	sanctify (-1);
 }
@@ -1849,7 +1849,7 @@ static void i_stargem (pob o)
 	print3 ("and it vanishes a puff of regret.");
 	set_object_uniqueness (o, UNIQUE_UNMADE);
 	// it's now out there, somewhere
-	dispose_lost_objects (1, o);
+	Player.remove_possession (o, 1);
     } else {
 	StarGemUse = Date;
 	if (o->blessing < 1) {
@@ -1945,7 +1945,7 @@ static void i_juggernaut (pob o)
 	else if (not_seen == 1)
 	    print2 ("You hear a distant scream...");
 	gain_experience (1000);
-	dispose_lost_objects (1, o);
+	Player.remove_possession (o, 1);
 	Level->tunnelled += tunneled - 1;
 	tunnelcheck();
     }
@@ -1953,7 +1953,6 @@ static void i_juggernaut (pob o)
 
 static void i_symbol (pob o)
 {
-    int i;
     if (!object_is_known(o))
 	print1 ("Nothing seems to happen.");
     // if o->charge != 17, then symbol was stolen from own high priest!
@@ -1965,15 +1964,13 @@ static void i_symbol (pob o)
 	for (; Player.hp > 1; Player.hp--) {
 	    dataprint();
 	    morewait();
-	    for (i = 0; i < MAXITEMS; i++)
-		if (Player.possessions[i] != NULL)
-		    dispose_lost_objects (Player.possessions[i]->number, Player.possessions[i]);
+	    Player.remove_all_possessions();
 	    Player.mana = 0;
 	}
     } else if (SymbolUseHour == hour()) {
 	print1 ("Your deity frowns upon this profligate use of power...");
 	print2 ("Shazam! A bolt of Godsfire! Your symbol shatters!");
-	dispose_lost_objects (1, o);
+	Player.remove_possession (o, 1);
 	Player.hp = 1;
 	dataprint();
     } else {
@@ -2054,7 +2051,7 @@ static void i_antioch (pob o)
 	    Level->site[x][y].things = NULL;
 	}
     }
-    dispose_lost_objects (1, o);
+    Player.remove_possession (o, 1);
 }
 
 static void i_kolwynia (pob o)
@@ -2068,7 +2065,7 @@ static void i_kolwynia (pob o)
 	Player.pow = Player.maxpow = 2 * Player.maxpow;
 	learn_all_spells();
     }
-    dispose_lost_objects (1, o);
+    Player.remove_possession (o, 1);
 }
 
 static void i_enchantment (pob o)
@@ -2121,7 +2118,7 @@ static void i_life (pob o)
     clearmsg();
     print1 ("Good move.");
     Player.hp = Player.maxhp = 2 * Player.maxhp;
-    dispose_lost_objects (1, o);
+    Player.remove_possession (o, 1);
 }
 
 // f = fire, w = water, e = earth, a = air, m = mastery
@@ -2188,7 +2185,6 @@ static void i_orbwater (pob o)
 
 static void i_orbearth (pob o)
 {
-    int i;
     if (!orbcheck ('e')) {
 	print1 ("What a moron!");
 	print2 ("The Orb of Earth blasts you!");
@@ -2197,9 +2193,7 @@ static void i_orbearth (pob o)
 	    p_death ("congestive heart failure");
 	else {
 	    print3 ("Your possessions disintegrate!");
-	    for (i = 0; i < MAXITEMS; i++)
-		if (Player.possessions[i] != NULL)
-		    dispose_lost_objects (Player.possessions[i]->number, Player.possessions[i]);
+	    Player.remove_all_possessions();
 	    Player.pack.clear();
 	    learn_object (o);
 	}
@@ -2278,10 +2272,10 @@ static void i_orbdead (pob o UNUSED)
     forget_all_spells();
     print2 ("You feel not at all like a mage.");
     for (i = 0; i < MAXITEMS; i++) {
-	if (Player.possessions[i] != NULL) {
-	    Player.possessions[i]->plus = 0;
-	    if (Player.possessions[i]->usef > 100)
-		Player.possessions[i]->usef = I_NOTHING;
+	if (Player.has_possession(i)) {
+	    Player.possessions[i].plus = 0;
+	    if (Player.possessions[i].usef > 100)
+		Player.possessions[i].usef = I_NOTHING;
 	}
     }
     print3 ("A storm of mundanity surounds you!");

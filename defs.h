@@ -345,7 +345,7 @@ enum {
     PICKUP	= (1<<3),
     CONFIRM 	= (1<<4),
     PACKADD 	= (1<<5),
-    COMPRESS_OPTION= (1<<6)
+    COMPRESS	= (1<<6)
 };
 
 // running sum of itemtypes, for indexing into Objects array
@@ -755,6 +755,8 @@ struct object {
     const char* objstr;
     const char* truename;
     const char* cursestr;
+public:
+    bool operator== (const object& v) const;
 };
 
 struct monster_data {
@@ -798,11 +800,12 @@ struct monster : public monster_data {
     int y;
 public:
     inline monster& operator= (const monster_data& v)	{ *implicit_cast<monster_data*>(this) = v; possessions.clear(); return (*this); }
-    inline const char* name (void) const PURE;
-    inline const char* by_name (void) const PURE;
     void read (istream& is);
     void write (ostream& os) const;
     streamsize stream_size (void) const;
+    const char* name (void) const PURE;
+    const char* by_name (void) const PURE;
+    inline void pickup (const object& o)	{ possessions.push_back(o); }
 };
 
 struct player {
@@ -846,8 +849,16 @@ struct player {
     uint16_t	guildxp[NUMRANKS];
     char	name[32];
     char	meleestr[64];
-    struct object* possessions[MAXITEMS];
+    array<object,MAXITEMS> possessions;
     vector<object> pack;
+public:
+		player (void);
+    void	add_possession (unsigned slot, const object& o);
+    void	swap_possessions (unsigned slot);
+    void	remove_possession (unsigned slot, unsigned number = -1);
+    void	remove_possession (object* o, unsigned number = -1);
+    void	remove_all_possessions (void);
+    inline bool	has_possession (unsigned slot) const	{ return (possessions[slot].id != NO_THING); }
 };
 
 struct objectlist {
@@ -886,7 +897,9 @@ struct level {
     char numrooms;		// number of rooms on level
     char tunnelled;		// amount of tunnelling done on this level
 public:
-    monster* creature (int x, int y);
+    monster*	creature (int x, int y);
+    object*	thing (int x, int y);
+    void	add_thing (int x, int y, const object& o, unsigned n = -1);
 };
 
 // random typedefs

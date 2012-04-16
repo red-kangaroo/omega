@@ -31,10 +31,10 @@ void minute_status_check(void);
 void moon_check(void);
 void torch_check(void);
 void tenminute_status_check(void);
-long item_value(pob item);
-inline long item_value (object& o) { return (item_value(&o)); }
-long true_item_value(pob item);
-inline long true_item_value (object& o) { return (true_item_value(&o)); }
+long item_value(const object* item);
+inline long item_value (const object& o) { return (item_value(&o)); }
+long true_item_value(const object* item);
+inline long true_item_value (const object& o) { return (true_item_value(&o)); }
 void p_drown(void);
 void weapon_use(int dmgmod, pob weapon, struct monster *m);
 const char* actionlocstr(int dir);
@@ -223,29 +223,26 @@ void room_level(void);
 const char* roomname(int ri);
 void sewer_level(void);
 // inv.c
-void conform_lost_object(pob obj);
-void conform_lost_objects(int n, pob obj);
-void conform_unused_object(pob obj);
-int cursed(pob obj);
-void dispose_lost_objects(int n, pob obj);
+int cursed (const object& o);
 void do_inventory_control(void);
-void drop_at(int x, int y, pob o);
+void drop_at (int x, int y, const object& o);
+void p_drop_at (int x, int y, const object& o, unsigned n);
 int find_and_remove_item(int id, int chargeval);
 object* find_item (int id);
-void gain_item(struct object *o);
+void gain_item (const object& o);
 long get_money(long limit);
 int getitem(chtype itype);
-void givemonster(struct monster *m, struct object *o);
-signed char index_to_key (int i);
+void givemonster (monster& m, const object& o);
+char index_to_key (unsigned i);
 const char* itemid(pob obj);
 inline const char* itemid(object& obj) { return (itemid(&obj)); }
 void lose_all_items(void);
-void p_drop_at(int x, int y, int n, pob o);
 void pickup_at(int x, int y);
-pob split_item(int num, pob item);
+object split_item (const object& item, unsigned n);
 // item.c
 pob create_object(int itemlevel);
 void item_use(struct object *o);
+inline void item_use (object& o) { item_use(&o); }
 void make_armor(pob o, int id);
 void make_artifact(pob o, int id);
 void make_boots(pob o, int id);
@@ -286,7 +283,6 @@ void m_dropstuff(struct monster *m);
 void m_fire(struct monster *m);
 void m_lava(struct monster *m);
 void m_no_op(struct monster *m);
-void m_pickup(struct monster *m, struct object *o);
 void m_pulse(struct monster *m);
 void m_teleport(struct monster *m);
 void m_trap_abyss(struct monster *m);
@@ -339,11 +335,9 @@ void dataprint(void);
 void deathprint(void);
 void display_bigwin(void);
 void display_death(const char* source);
-void display_inventory_slot(int slotnum, int topline);
-void display_option_slot(int slot);
-void display_options(void);
+void display_options (unsigned selection);
 void display_pack(void);
-void display_possessions(void);
+void display_possessions (unsigned selection = -1);
 void display_quit(void);
 void display_win(void);
 void dodrawspot(int x, int y);
@@ -373,7 +367,6 @@ char mgetc(void);
 void mlongprint(long n);
 void mnumprint(int n);
 void morewait(void);
-int move_slot(int oldslot, int newslot, int maxslot);
 void mprint(const char* s);
 void mprintf (const char* fmt, ...) PRINTFARGS(1,2);
 const char* msgscanstring(void);

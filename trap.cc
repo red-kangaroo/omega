@@ -230,11 +230,12 @@ void l_trap_acid (void)
 	    mprint ("The acid seeps over your possessions...");
 	    morewait();
 	    itemdamage = random_range (5);
-	    for (i = k = 0; ((i < MAXITEMS) && (k < itemdamage)); i++)
-		if (Player.possessions[i] != NULL) {
+	    for (i = k = 0; ((i < MAXITEMS) && (k < itemdamage)); i++) {
+		if (Player.has_possession(i)) {
 		    k++;
-		    (void) damage_item (Player.possessions[i]);
+		    damage_item (&Player.possessions[i]);
 		}
+	    }
 	}
     } else
 	mprint ("You somehow dodge a shower of hydroflouric acid!");

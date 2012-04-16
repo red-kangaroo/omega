@@ -158,7 +158,8 @@ void m_pulse (struct monster *m)
 	// if monster is greedy, picks up treasure it finds
 	if (m_statusp (m, GREEDY) && (m->hp > 0))
 	    while (Level->site[m->x][m->y].things != NULL) {
-		m_pickup (m, Level->site[m->x][m->y].things->thing);
+		m->pickup (*(Level->site[m->x][m->y].things->thing));
+		delete Level->site[m->x][m->y].things->thing;
 		prev = Level->site[m->x][m->y].things;
 		Level->site[m->x][m->y].things = Level->site[m->x][m->y].things->next;
 		delete prev;
@@ -529,7 +530,7 @@ static void m_talk_guard (struct monster *m)
 	    } else {
 		clearmsg();
 		print1 ("Mollified, the guard disarms you and sends you away.");
-		dispose_lost_objects (1, Player.possessions[O_WEAPON_HAND]);
+		Player.remove_possession (O_WEAPON_HAND);
 		pacify_guards();
 	    }
 	} else {
@@ -600,14 +601,14 @@ static void m_talk_im (struct monster *m)
 	if (Player.alignment > 10) {
 	    mprint ("Well, I'll let you have it for what you've got.");
 	    Player.cash = 0;
-	    gain_item (new object(*o));
+	    gain_item (*o);
 	    m->possessions.erase(o);
 	} else
 	    mprint ("Beat it, you deadbeat!");
     } else {
 	mprint ("Here you are. Have a good day.");
 	Player.cash -= cost;
-	gain_item (new object(*o));
+	gain_item (*o);
 	m->possessions.erase(o);
     }
     m_vanish (m);
@@ -939,12 +940,6 @@ static void m_talk_prime (struct monster *m)
     }
 }
 
-// give object o to monster m
-void m_pickup (struct monster *m, struct object *o)
-{
-    m->possessions.push_back (*o);
-}
-
 void m_dropstuff (struct monster *m)
 {
     foreach (i, m->possessions) {
@@ -1135,7 +1130,7 @@ static int monster_hit (struct monster *m, int hitloc, int bonus)
 		mprint ("You missed.");
 	    else {
 		mprint ("You hit!");
-		weapon_use (0, Player.possessions[O_WEAPON_HAND], m);
+		weapon_use (0, &Player.possessions[O_WEAPON_HAND], m);
 	    }
 	}
     }
@@ -1793,7 +1788,7 @@ static void m_thief_f (struct monster *m)
     }
     if (i == ABORT)
 	mprint ("You feel fortunate.");
-    else if (Player.possessions[i]->used || Player.dex < m->level * random_range(10))
+    else if (Player.possessions[i].used || Player.dex < m->level * random_range(10))
 	mprint ("You feel a sharp tug.... You hold on!");
     else {
 	mprint ("You feel uneasy for a moment.");
@@ -1801,9 +1796,8 @@ static void m_thief_f (struct monster *m)
 	m_teleport (m);
 	m->movef = M_MOVE_SCAREDY;
 	m->specialf = M_MOVE_SCAREDY;
-	m_pickup (m, Player.possessions[i]);
-	conform_unused_object (Player.possessions[i]);
-	Player.possessions[i] = NULL;
+	m->pickup (Player.possessions[i]);
+	Player.remove_possession (i);
     }
 }
 
@@ -1926,8 +1920,8 @@ void m_death (struct monster *m)
 	if (Current_Environment == E_ARENA && Level->mlist.size() <= 1)
 	    Arena_Victory = m->level+1;	// won this round of arena combat
 	if (random_range (2) || (m->uniqueness != COMMON)) {
-	    pob corpse = new object;
-	    make_corpse (corpse, m);
+	    object corpse;
+	    make_corpse (&corpse, m);
 	    drop_at (m->x, m->y, corpse);
 	}
 	plotspot (m->x, m->y, FALSE);
@@ -2006,7 +2000,8 @@ void m_death (struct monster *m)
 				    mprint ("materializes, sheds a tear, and leaves.");
 				else {
 				    mprint ("materializes, sheds a tear, picks up the badge, and leaves.");
-				    m_pickup (guard, curr->thing);
+				    guard->pickup (*(curr->thing));
+				    delete curr->thing;
 				    if (prev)
 					prev->next = curr->next;
 				    else
