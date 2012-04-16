@@ -29,32 +29,18 @@ void phaseprint (void)
     wclear (Phasew);
     wprintw (Phasew, "Moon's Phase:\n");
     switch (Phase / 2) {
-	case 0:
-	    wprintw (Phasew, "NEW");
-	    break;
+	case 0:		wprintw (Phasew, "NEW"); break;
 	case 1:
-	case 11:
-	    wprintw (Phasew, "CRESCENT");
-	    break;
+	case 11:	wprintw (Phasew, "CRESCENT"); break;
 	case 2:
-	case 10:
-	    wprintw (Phasew, "1/4");
-	    break;
+	case 10:	wprintw (Phasew, "1/4"); break;
 	case 3:
-	case 9:
-	    wprintw (Phasew, "HALF");
-	    break;
+	case 9:		wprintw (Phasew, "HALF"); break;
 	case 4:
-	case 8:
-	    wprintw (Phasew, "3/4");
-	    break;
+	case 8:		wprintw (Phasew, "3/4"); break;
 	case 5:
-	case 7:
-	    wprintw (Phasew, "GIBBOUS");
-	    break;
-	case 6:
-	    wprintw (Phasew, "FULL");
-	    break;
+	case 7:		wprintw (Phasew, "GIBBOUS"); break;
+	case 6:		wprintw (Phasew, "FULL"); break;
     }
     wrefresh (Phasew);
 }
@@ -624,14 +610,10 @@ chtype getspot (int x, int y, int showmonster)
 {
     if (loc_statusp (x, y, SECRET))
 	return (WALL);
-    monster* m = Level->creature(x,y);
+    const monster* m = Level->creature(x,y);
     switch (Level->site[x][y].locchar) {
 	case WATER:
-	    if (!m)
-		return (WATER);
-	    else if (m_statusp (*m, SWIMMING))
-		return (WATER);
-	    else if (showmonster)
+	    if (m && !m_statusp (*m, SWIMMING) && showmonster)
 		return (m->monchar);
 	    else
 		return (WATER);
@@ -652,19 +634,22 @@ chtype getspot (int x, int y, int showmonster)
 	    } else
 		return (Level->site[x][y].locchar);
 	    // everywhere else, first try to show monster, next show items, next show location char
-	default:
+	default: {
+	    unsigned nThings = 0;
+	    foreach (o, Level->things)
+		nThings += (o->x == x && o->y == y);
 	    if (showmonster && m) {
 		if (m_statusp (*m, M_INVISIBLE) && !Player.status[TRUESIGHT])
 		    return (getspot (x, y, FALSE));
 		else
 		    return (m->monchar);
-	    } else if (Level->site[x][y].things != NULL) {
-		if (Level->site[x][y].things->next != NULL)
-		    return (PILE);
-		else
-		    return (Level->site[x][y].things->thing->objchar);
-	    } else
+	    } else if (nThings == 1)
+		return (Level->thing(x,y)->objchar);
+	    else if (nThings > 1)
+		return (PILE);
+	    else
 		return (Level->site[x][y].locchar);
+	}
     }
 }
 

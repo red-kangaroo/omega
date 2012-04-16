@@ -37,7 +37,6 @@ void free_dungeon (void)
 // erase the level w/o deallocating it
 void clear_level (struct level *dungeon_level)
 {
-    int i, j;
     if (dungeon_level != NULL) {
 	dungeon_level->generated = FALSE;
 	dungeon_level->numrooms = 0;
@@ -46,11 +45,10 @@ void clear_level (struct level *dungeon_level)
 	dungeon_level->mlist.clear();
 	dungeon_level->next = NULL;
 	dungeon_level->last_visited = time(NULL);
-	for (i = 0; i < MAXWIDTH; i++) {
-	    for (j = 0; j < MAXLENGTH; j++) {
+	for (unsigned i = 0; i < MAXWIDTH; i++) {
+	    for (unsigned j = 0; j < MAXLENGTH; j++) {
 		dungeon_level->site[i][j].locchar = WALL;
 		dungeon_level->site[i][j].showchar = SPACE;
-		dungeon_level->site[i][j].things = NULL;
 		dungeon_level->site[i][j].aux = difficulty() * 20;
 		dungeon_level->site[i][j].buildaux = 0;
 		dungeon_level->site[i][j].p_locf = L_NO_OP;

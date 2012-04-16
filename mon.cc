@@ -120,54 +120,51 @@ const char* monster::by_name (void) const
 void m_pulse (struct monster *m)
 {
     int range = distance (m->x, m->y, Player.x, Player.y);
-    int STRIKE = FALSE;
-    pol prev;
-
-    if (Time % 10 == 0)
+    if (!(Time % 10))
 	if (m->hp < Monsters[m->id].hp)
 	    m->hp++;
 
-    if ((!m_statusp (m, AWAKE)) && (range <= m->wakeup)) {
+    if (!m_statusp (m, AWAKE) && range <= m->wakeup) {
 	m_status_set (m, AWAKE);
 	resetgamestatus (FAST_MOVE);
     }
 
-    if (m_statusp (m, AWAKE)) {
-	if (m_statusp (m, WANDERING)) {
-	    if (m_statusp (m, MOBILE))
-		m_random_move (m);
-	    if (range <= m->sense && (m_statusp (m, HOSTILE) || m_statusp (m, NEEDY)))
-		m_status_reset (m, WANDERING);
-	} else {		// not wandering
-	    if (m_statusp (m, HOSTILE)) {
-		if ((range > 2) && (range < m->sense) && (random_range (2) == 1)) {
-		    if (los_p (m->x, m->y, Player.x, Player.y) && (Player.status[INVISIBLE] == 0)) {
-			STRIKE = TRUE;
-			monster_strike (m);
-		    }
+    bool strike = false;
+    if (!m_statusp (m, AWAKE))
+	return;
+    if (m_statusp (m, WANDERING)) {
+	if (m_statusp (m, MOBILE))
+	    m_random_move (m);
+	if (range <= m->sense && (m_statusp (m, HOSTILE) || m_statusp (m, NEEDY)))
+	    m_status_reset (m, WANDERING);
+    } else {
+	if (m_statusp (m, HOSTILE)) {
+	    if (range > 2 && range < m->sense && random_range(2)) {
+		if (los_p (m->x, m->y, Player.x, Player.y) && !Player.status[INVISIBLE]) {
+		    strike = true;
+		    monster_strike (m);
 		}
 	    }
-	    if ((m_statusp (m, HOSTILE) || m_statusp (m, NEEDY))
-		&& (range > 1) && m_statusp (m, MOBILE) && (!STRIKE || (random_range (2) == 1)))
-		monster_move (m);
-	    else if (m_statusp (m, HOSTILE) && (range == 1)) {
-		resetgamestatus (FAST_MOVE);
-		tacmonster (m);
+	}
+	if ((m_statusp (m, HOSTILE) || m_statusp (m, NEEDY)) && range > 1 && m_statusp (m, MOBILE) && (!strike || random_range(2)))
+	    monster_move (m);
+	else if (m_statusp (m, HOSTILE) && range == 1) {
+	    resetgamestatus (FAST_MOVE);
+	    tacmonster (m);
+	}
+    }
+    // if monster is greedy, picks up treasure it finds
+    if (m_statusp(m, GREEDY) && m->hp > 0) {
+	foreach (i, Level->things) {
+	    if (i->x == m->x && i->y == m->y) {
+		m->pickup (*i);
+		--(i = Level->things.erase(i));
 	    }
 	}
-	// if monster is greedy, picks up treasure it finds
-	if (m_statusp (m, GREEDY) && (m->hp > 0))
-	    while (Level->site[m->x][m->y].things != NULL) {
-		m->pickup (*(Level->site[m->x][m->y].things->thing));
-		delete Level->site[m->x][m->y].things->thing;
-		prev = Level->site[m->x][m->y].things;
-		Level->site[m->x][m->y].things = Level->site[m->x][m->y].things->next;
-		delete prev;
-	    }
-	// prevents monsters from casting spells from other side of dungeon
-	if ((range < max (5, m->level)) && (m->hp > 0) && (random_range (2) == 1))
-	    monster_special (m);
     }
+    // prevents monsters from casting spells from other side of dungeon
+    if (range < max (5, m->level) && m->hp > 0 && random_range(2))
+	monster_special (m);
 }
 
 // like m_normal_move, but can open doors
@@ -943,10 +940,9 @@ static void m_talk_prime (struct monster *m)
 void m_dropstuff (struct monster *m)
 {
     foreach (i, m->possessions) {
-	pol ol = new objectlist;
-	ol->thing = new object (*i);
-	ol->next = Level->site[m->x][m->y].things;
-	Level->site[m->x][m->y].things = ol;
+	i->x = m->x;
+	i->y = m->y;
+	Level->things.push_back (*i);
     }
     m->possessions.clear();
 }
@@ -1683,7 +1679,7 @@ static void m_sp_angel (struct monster *m)
 // Could completely fill up level
 static void m_sp_swarm (struct monster *m)
 {
-    if (random_range (5) == 1) {
+    if (!random_range(5)) {
 	if (view_los_p (m->x, m->y, Player.x, Player.y))
 	    mprint ("The swarm expands!");
 	else
@@ -1695,19 +1691,11 @@ static void m_sp_swarm (struct monster *m)
 // raise nearby corpses from the dead....
 static void m_sp_raise (struct monster *m)
 {
-    for (int x = m->x - 2; x <= m->x + 2; x++) {
-	for (int y = m->y - 2; y <= m->y + 2; y++) {
-	    if (inbounds (x, y)) {
-		if (Level->site[x][y].things != NULL) {
-		    if (Level->site[x][y].things->thing->id == CORPSEID) {
-			mprint ("The Zombie Overlord makes a mystical gesture...");
-			summon (-1, Level->site[x][y].things->thing->charge);
-			pol t = Level->site[x][y].things;
-			Level->site[x][y].things = Level->site[x][y].things->next;
-			delete t;
-		    }
-		}
-	    }
+    foreach (i, Level->things) {
+	if (abs_distance (i->x, m->x) <= 2 && abs_distance(i->y, m->y) <= 2 && i->id == CORPSEID) {
+	    mprint ("The Zombie Overlord makes a mystical gesture...");
+	    summon (-1, i->charge);
+	    --(i = Level->things.erase(i));
 	}
     }
 }
@@ -1913,17 +1901,14 @@ void m_death (struct monster *m)
 	    "'Your destiny ends here with me.' says Death, scythe raised.\0"
 	    "'I almost felt that.' says Death, smiling.\0"
 	    "'Timeo Mortis?' asks Death quizzically, 'Not me!'\0"
-	    "Death sighs theatrically. 'They never learn.'\0";
+	    "Death sighs theatrically. 'They never learn.'";
 	mprint (zstrn (_deathTaunts, random_range(10), 10));
 	strengthen_death (m);
     } else {
 	if (Current_Environment == E_ARENA && Level->mlist.size() <= 1)
 	    Arena_Victory = m->level+1;	// won this round of arena combat
-	if (random_range (2) || (m->uniqueness != COMMON)) {
-	    object corpse;
-	    make_corpse (&corpse, m);
-	    drop_at (m->x, m->y, corpse);
-	}
+	if (random_range(2) || m->uniqueness != COMMON)
+	    drop_at (m->x, m->y, make_corpse(*m));
 	plotspot (m->x, m->y, FALSE);
 	switch (m->id) {
 	    case HISCORE_NPC:
@@ -1981,11 +1966,10 @@ void m_death (struct monster *m)
 			    mprint ("A Servant of Chaos materializes, grabs the corpse,");
 			    mprint ("snickers a bit, and vanishes.");
 			} else {
-			    pol prev, curr = Level->site[m->x][m->y].things;
-			    while (curr && curr->thing->id != THING_JUSTICIAR_BADGE) {
-				prev = curr;
-				curr = curr->next;
-			    }
+			    object* ibadge = NULL;
+			    foreach (i, Level->things)
+				if (i->id == THING_JUSTICIAR_BADGE)
+				    ibadge = i;
 			    mprint ("In the distance you hear a trumpet. A Servant of Law");
 			    // promote one of the city guards to be justiciar
 			    monster* guard = NULL;
@@ -1996,17 +1980,12 @@ void m_death (struct monster *m)
 				mprint ("materializes, sheds a tear, and leaves.");
 				morewait();
 			    } else {
-				if (!curr)
+				if (!ibadge)
 				    mprint ("materializes, sheds a tear, and leaves.");
 				else {
 				    mprint ("materializes, sheds a tear, picks up the badge, and leaves.");
-				    guard->pickup (*(curr->thing));
-				    delete curr->thing;
-				    if (prev)
-					prev->next = curr->next;
-				    else
-					Level->site[m->x][m->y].things = curr->next;
-				    delete curr;
+				    guard->pickup (*ibadge);
+				    Level->things.erase (ibadge);
 				}
 				mprint ("A new justiciar has been promoted!");
 				make_hiscore_npc (*guard, NPC_JUSTICIAR);

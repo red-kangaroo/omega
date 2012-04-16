@@ -38,7 +38,7 @@ static void city_move(void);
 static void frobgamestatus(void);
 static void give_money (struct monster *m);
 static void drop_money (void);
-static pob detach_money (void);
+static object detach_money (void);
 
 //----------------------------------------------------------------------
 
@@ -621,7 +621,7 @@ static void search (int *searchval)
 // pick up a thing where the player is
 void pickup (void)
 {
-    if (Level->site[Player.x][Player.y].things == NULL)
+    if (!Level->thing(Player.x, Player.y))
 	print3 ("There's nothing there!");
     else if (Player.status[SHADOWFORM])
 	print3 ("You can't really interact with the real world in your shadowy state.");
@@ -798,41 +798,35 @@ static void give (void)
 
 static void give_money (struct monster *m)
 {
-    pob cash = detach_money();
-    if (cash == NULL)
+    object cash = detach_money();
+    if (!cash.basevalue)
 	setgamestatus (SKIP_MONSTERS);
     else
-	givemonster (*m, *cash);
+	givemonster (*m, cash);
 }
 
 // drops money, heh heh
 static void drop_money (void)
 {
-    pob money = detach_money();
-    if (money != NULL) {
+    object money = detach_money();
+    if (money.basevalue) {
 	if (Current_Environment == E_CITY) {
 	    print1 ("As soon as the money leaves your hand,");
 	    print2 ("a horde of scrofulous beggars snatch it up and are gone!");
 	} else
-	    drop_at (Player.x, Player.y, *money);
+	    drop_at (Player.x, Player.y, money);
     } else
 	setgamestatus (SKIP_MONSTERS);
 }
 
 // returns some money from player back into "money" item.
 // for giving and dropping money
-static pob detach_money (void)
+static object detach_money (void)
 {
-    long c;
-    pob cash = NULL;
-    c = get_money (Player.cash);
-    if (c != ABORT) {
-	Player.cash -= c;
-	cash = new object;
-	make_cash (cash, difficulty());
-	cash->basevalue = c;
-    }
-    return (cash);
+    object money = make_cash (difficulty());
+    int c = get_money (Player.cash);
+    money.basevalue = (c == ABORT ? 0 : c);
+    return (money);
 }
 
 // zap a wand, of course
@@ -1345,9 +1339,9 @@ static void moveplayer (int dx, int dy)
 	    // having effects from being on the Level, a kluge, but hey,...
 	    if (Current_Environment != E_COUNTRYSIDE) {
 		if (gamestatusp (FAST_MOVE))
-		    if ((Level->site[Player.x][Player.y].things != NULL) || (optionp (RUNSTOP) && loc_statusp (Player.x, Player.y, STOPS)))
+		    if (Level->thing(Player.x,Player.y) || (optionp (RUNSTOP) && loc_statusp (Player.x, Player.y, STOPS)))
 			resetgamestatus (FAST_MOVE);
-		if ((Level->site[Player.x][Player.y].things != NULL) && (optionp (PICKUP)))
+		if (Level->thing(Player.x, Player.y) && optionp (PICKUP))
 		    pickup();
 	    }
 	}
@@ -1432,11 +1426,8 @@ static void movepincountry (int dx, int dy)
 // look at some spot
 static void examine (void)
 {
-    pol ol;
     int x = Player.x, y = Player.y, drewmenu = FALSE;
-
     clearmsg();
-
     // WDT HACK: I'm not sure I buy that one shouldn't be able to examine
     // when one is blind.  However, the 'right' way to do it is certainly
     // too difficult (I would expect to be able to examine only the items
@@ -1469,17 +1460,11 @@ static void examine (void)
 		describe_player();
 	    if (loc_statusp (x, y, SECRET))
 		print2 ("An age-worn stone wall.");
-	    else
+	    else {
 		switch (Level->site[x][y].locchar) {
-		    case SPACE:
-			print2 ("An infinite void.");
-			break;
-		    case PORTCULLIS:
-			print2 ("A heavy steel portcullis");
-			break;
-		    case ABYSS:
-			print2 ("An entrance to the infinite abyss");
-			break;
+		    case SPACE:		print2 ("An infinite void."); break;
+		    case PORTCULLIS:	print2 ("A heavy steel portcullis"); break;
+		    case ABYSS:		print2 ("An entrance to the infinite abyss"); break;
 		    case FLOOR:
 			if (Current_Dungeon == Current_Environment)
 			    print2 ("A dirty stone floor.");
@@ -1487,18 +1472,12 @@ static void examine (void)
 			    print2 ("The ground.");
 			break;
 		    case WALL:
-			if (Level->site[x][y].aux == 0)
-			    print2 ("A totally impervious wall.");
-			else if (Level->site[x][y].aux < 10)
-			    print2 ("A pitted concrete wall.");
-			else if (Level->site[x][y].aux < 30)
-			    print2 ("An age-worn sandstone wall.");
-			else if (Level->site[x][y].aux < 50)
-			    print2 ("A smooth basalt wall.");
-			else if (Level->site[x][y].aux < 70)
-			    print2 ("A solid granite wall.");
-			else if (Level->site[x][y].aux < 90)
-			    print2 ("A wall of steel.");
+			if (Level->site[x][y].aux == 0)		print2 ("A totally impervious wall.");
+			else if (Level->site[x][y].aux < 10)	print2 ("A pitted concrete wall.");
+			else if (Level->site[x][y].aux < 30)	print2 ("An age-worn sandstone wall.");
+			else if (Level->site[x][y].aux < 50)	print2 ("A smooth basalt wall.");
+			else if (Level->site[x][y].aux < 70)	print2 ("A solid granite wall.");
+			else if (Level->site[x][y].aux < 90)	print2 ("A wall of steel.");
 			else if (Level->site[x][y].aux < 210) {
 			    if (Current_Environment == E_CITY)
 				print2 ("A thick wall of Rampart bluestone");
@@ -1507,51 +1486,25 @@ static void examine (void)
 			} else
 			    print2 ("An almost totally impervious wall.");
 			break;
-		    case RUBBLE:
-			print2 ("A dangerous-looking pile of rubble.");
-			break;
-		    case SAFE:
-			print2 ("A steel safe inset into the floor.");
-			break;
-		    case CLOSED_DOOR:
-			print2 ("A solid oaken door, now closed.");
-			break;
-		    case OPEN_DOOR:
-			print2 ("A solid oaken door, now open.");
-			break;
-		    case STATUE:
-			print2 ("A strange-looking statue.");
-			break;
-		    case STAIRS_UP:
-			print2 ("A stairway leading up.");
-			break;
-		    case STAIRS_DOWN:
-			print2 ("A stairway leading down....");
-			break;
-		    case TRAP:
-			print2 (trapid (Level->site[x][y].p_locf));
-			break;
+		    case RUBBLE:	print2 ("A dangerous-looking pile of rubble."); break;
+		    case SAFE:		print2 ("A steel safe inset into the floor."); break;
+		    case CLOSED_DOOR:	print2 ("A solid oaken door, now closed."); break;
+		    case OPEN_DOOR:	print2 ("A solid oaken door, now open."); break;
+		    case STATUE:	print2 ("A strange-looking statue."); break;
+		    case STAIRS_UP:	print2 ("A stairway leading up."); break;
+		    case STAIRS_DOWN:	print2 ("A stairway leading down...."); break;
+		    case TRAP:		print2 (trapid (Level->site[x][y].p_locf)); break;
 		    case HEDGE:
 			if (Level->site[x][y].p_locf == L_EARTH_STATION)
 			    print2 ("A weird fibrillation of oozing tendrils.");
 			else
 			    print2 ("A brambly, thorny hedge.");
 			break;
-		    case LAVA:
-			print2 ("A bubbling pool of lava.");
-			break;
-		    case LIFT:
-			print2 ("A strange glowing disk.");
-			break;
-		    case ALTAR:
-			print2 ("An (un?)holy altar.");
-			break;
-		    case CHAIR:
-			print2 ("A chair.");
-			break;
-		    case WHIRLWIND:
-			print2 ("A strange cyclonic electrical storm.");
-			break;
+		    case LAVA:		print2 ("A bubbling pool of lava."); break;
+		    case LIFT:		print2 ("A strange glowing disk."); break;
+		    case ALTAR:		print2 ("An altar."); break;
+		    case CHAIR:		print2 ("A chair."); break;
+		    case WHIRLWIND:	print2 ("A strange cyclonic electrical storm."); break;
 		    case WATER:
 			if (Level->site[x][y].p_locf == L_WATER)
 			    print2 ("A deep pool of water.");
@@ -1562,27 +1515,21 @@ static void examine (void)
 			else
 			    print2 ("An eerie pool of water.");
 			break;
-		    case FIRE:
-			print2 ("A curtain of fire.");
-			break;
-		    default:
-			print2 ("Wow, I haven't the faintest idea!");
-			break;
+		    case FIRE:		print2 ("A curtain of fire."); break;
+		    default:		print2 ("Wow, I haven't the faintest idea!"); break;
 		}
-	    if ((ol = Level->site[x][y].things) != NULL && !loc_statusp (x, y, SECRET)) {
-		if (ol->next == NULL)
-		    print3 (itemid (ol->thing));
-		else {
-		    drewmenu = TRUE;
-		    menuclear();
-		    menuprint ("Things on floor:\n");
-		    while (ol != NULL) {
+	    }
+	    if (Level->thing(x,y) && !loc_statusp (x, y, SECRET)) {
+		drewmenu = true;
+		menuclear();
+		menuprint ("Things on floor:\n");
+		foreach (o, Level->things) {
+		    if (o->x == x && o->y == y) {
 			menuprint ("\n");
-			menuprint (itemid (ol->thing));
-			ol = ol->next;
+			menuprint (itemid(o));
 		    }
-		    showmenu();
 		}
+		showmenu();
 	    }
 	    morewait();
 	    sign_print (x, y, TRUE);
@@ -1818,7 +1765,7 @@ static void vault (void)
 	    }
 	    p_movefunction (Level->site[Player.x][Player.y].p_locf);
 	    if (Current_Environment != E_COUNTRYSIDE)
-		if ((Level->site[Player.x][Player.y].things != NULL) && (optionp (PICKUP)))
+		if (Level->thing(Player.x,Player.y) && optionp (PICKUP))
 		    pickup();
 	}
     }

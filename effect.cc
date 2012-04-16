@@ -473,15 +473,11 @@ void mondet (int blessing)
 
 void objdet (int blessing)
 {
-    for (int i = 0; i < WIDTH; i++) {
-	for (int j = 0; j < LENGTH; j++) {
-	    if (Level->site[i][j].things != NULL) {
-		if (blessing < 0)
-		    putspot (random_range (WIDTH), random_range (LENGTH), Level->site[i][j].things->thing->objchar);
-		else
-		    putspot (i, j, Level->site[i][j].things->thing->objchar);
-	    }
-	}
+    foreach (i, Level->things) {
+	if (blessing < 0)
+	    putspot (random_range (WIDTH), random_range (LENGTH), i->objchar);
+	else
+	    putspot (i->x, i->y, i->objchar);
     }
     levelrefresh();
     morewait();
@@ -630,7 +626,7 @@ void acquire (int blessing)
 		if (id < 0)
 		    print2 ("You feel stupid.");
 		else
-		    make_potion (&newthing, id);
+		    newthing = make_potion (id);
 		break;
 	    case (SCROLL & 0xff):
 		if (blessing > 0)
@@ -640,7 +636,7 @@ void acquire (int blessing)
 		if (id < 0)
 		    print2 ("You feel stupid.");
 		else
-		    make_scroll (&newthing, id);
+		    newthing = make_scroll (id);
 		break;
 	    case (RING & 0xff):
 		if (blessing > 0)
@@ -650,7 +646,7 @@ void acquire (int blessing)
 		if (id < 0)
 		    print2 ("You feel stupid.");
 		else
-		    make_ring (&newthing, id);
+		    newthing = make_ring (id);
 		break;
 	    case (STICK & 0xff):
 		if (blessing > 0)
@@ -660,7 +656,7 @@ void acquire (int blessing)
 		if (id < 0)
 		    print2 ("You feel stupid.");
 		else
-		    make_stick (&newthing, id);
+		    newthing = make_stick (id);
 		break;
 	    case (ARMOR & 0xff):
 		if (blessing > 0)
@@ -670,7 +666,7 @@ void acquire (int blessing)
 		if (id < 0)
 		    print2 ("You feel stupid.");
 		else
-		    make_armor (&newthing, id);
+		    newthing = make_armor (id);
 		break;
 	    case (SHIELD & 0xff):
 		if (blessing > 0)
@@ -680,7 +676,7 @@ void acquire (int blessing)
 		if (id < 0)
 		    print2 ("You feel stupid.");
 		else
-		    make_shield (&newthing, id);
+		    newthing = make_shield (id);
 		break;
 	    case (WEAPON & 0xff):
 		if (blessing > 0)
@@ -690,7 +686,7 @@ void acquire (int blessing)
 		if (id < 0)
 		    print2 ("You feel stupid.");
 		else
-		    make_weapon (&newthing, id);
+		    newthing = make_weapon (id);
 		break;
 	    case (BOOTS & 0xff):
 		if (blessing > 0)
@@ -700,7 +696,7 @@ void acquire (int blessing)
 		if (id < 0)
 		    print2 ("You feel stupid.");
 		else
-		    make_boots (&newthing, id);
+		    newthing = make_boots (id);
 		break;
 	    case (CLOAK & 0xff):
 		if (blessing > 0)
@@ -710,7 +706,7 @@ void acquire (int blessing)
 		if (id < 0)
 		    print2 ("You feel stupid.");
 		else
-		    make_cloak (&newthing, id);
+		    newthing = make_cloak (id);
 		break;
 	    case (FOOD & 0xff):
 		if (blessing > 0)
@@ -720,7 +716,7 @@ void acquire (int blessing)
 		if (id < 0)
 		    print2 ("You feel stupid.");
 		else
-		    make_food (&newthing, id);
+		    newthing = make_food (id);
 		break;
 	    case (THING & 0xff):
 		if (blessing > 0)
@@ -730,7 +726,7 @@ void acquire (int blessing)
 		if (id < 0)
 		    print2 ("You feel stupid.");
 		else
-		    make_thing (&newthing, id);
+		    newthing = make_thing (id);
 		break;
 	    case (ARTIFACT & 0xff):
 		if (gamestatusp (CHEATED))
@@ -740,7 +736,7 @@ void acquire (int blessing)
 		if (id < 0)
 		    print2 ("You feel stupid.");
 		else
-		    make_artifact (&newthing, id);
+		    newthing = make_artifact (id);
 		break;
 	    default:
 		print2 ("You feel stupid.");
@@ -1838,7 +1834,7 @@ void apport (int blessing)
     if (blessing > -1) {
 	mprint ("Apport from:");
 	setspot (&x, &y);
-	if (Level->site[x][y].things != NULL) {
+	if (Level->thing(x,y)) {
 	    pickup_at (x, y);
 	    plotspot (x, y, TRUE);
 	} else

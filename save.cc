@@ -6,12 +6,10 @@
 
 static void restore_country(istream& is, int ver);
 static pob restore_item(istream& is, int ver);
-static pol restore_itemlist(istream& is, int ver);
 static void restore_level(istream& is, int ver);
 static void restore_player(istream& is, int ver);
 static void save_country(ostream& os);
 static void save_item (ostream& os, const object* o);
-static void save_itemlist (ostream& os, pol ol);
 static void save_level(ostream& os, plv level);
 static void save_player(ostream& os);
 
@@ -376,18 +374,12 @@ static void save_level (ostream& os, plv level)
     if (run < 8*sizeof (mask))
 	os << mask;
     os << level->mlist;
-    for (i = 0; i < MAXWIDTH; i++) {
-	for (j = 0; j < MAXLENGTH; j++) {
-	    if (level->site[i][j].things) {
-		os << ios::align(alignof(i)) << i << j;
-		save_itemlist (os, level->site[i][j].things);
-	    }
-	}
-    }
-    os << ios::align(alignof(i)) << i << j;	// signify end
+    os << uint8_t(level->things.size());
+    foreach (t, level->things)
+	save_item (os, t);
 }
 
-static void restore_level (istream& is, int ver)
+static void restore_level (istream& is, int ver UNUSED)
 {
     int i, j, run;
     unsigned long int mask = 0;
@@ -483,10 +475,8 @@ static void restore_level (istream& is, int ver)
     is >> ios::align(alignof(i)) >> i >> j;
     while (j < MAXLENGTH && i < MAXWIDTH) {
 	is >> run;
-	for (; i < run; i++) {
+	for (; i < run; i++)
 	    is.read (&Level->site[i][j], sizeof(Level->site[i][j]));
-	    Level->site[i][j].things = NULL;
-	}
 	is >> ios::align(alignof(i)) >> i >> j;
     }
     run = 0;
@@ -504,11 +494,10 @@ static void restore_level (istream& is, int ver)
 	}
     }
     is >> Level->mlist;
-    is >> ios::align(alignof(i)) >> i >> j;
-    while (j < MAXLENGTH && i < MAXWIDTH) {
-	Level->site[i][j].things = restore_itemlist (is, ver);
-	is >> ios::align(alignof(i)) >> i >> j;
-    }
+    uint8_t nThings; is >> nThings;
+    Level->things.resize (nThings);
+    foreach (t, Level->things)
+	*t = *restore_item (is, OMEGA_VERSION);
 }
 
 void monster::write (ostream& os) const
@@ -598,36 +587,6 @@ static pob restore_item (istream& is, int ver UNUSED)
     nlen = strlen(is.ipos()); if (nlen) obj->truename = strdup(is.ipos()); is.skip(nlen+1);
     nlen = strlen(is.ipos()); if (nlen) obj->cursestr = strdup(is.ipos()); is.skip(nlen+1);
     return obj;
-}
-
-static void save_itemlist (ostream& os, pol ol)
-{
-    uint32_t numitems = 0;
-    for (pol tol = ol; tol != NULL; tol = tol->next)
-	numitems++;
-    os << ios::align(alignof(numitems)) << numitems;
-    for (pol tol = ol; tol != NULL; tol = tol->next)
-	save_item (os, tol->thing);
-}
-
-static pol restore_itemlist (istream& is, int ver)
-{
-    pol ol = NULL, cur = NULL, o = NULL;
-    int numitems, firsttime = TRUE;
-    is >> ios::align(alignof(numitems)) >> numitems;
-    for (int i = 0; i < numitems; i++) {
-	o = new objectlist;
-	o->thing = restore_item (is, ver);
-	o->next = NULL;
-	if (firsttime == TRUE) {
-	    ol = cur = o;
-	    firsttime = FALSE;
-	} else {
-	    cur->next = o;
-	    cur = o;
-	}
-    }
-    return (ol);
 }
 
 static void save_country (ostream& os)

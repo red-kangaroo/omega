@@ -22,6 +22,25 @@ static void inventory_control(void);
 
 //----------------------------------------------------------------------
 
+// are two objects equal except for their number field?
+bool object::operator== (const object& o) const
+{
+    return (o.id == id && o.plus == plus && o.charge == 0 &&
+	    charge == 0 && o.dmg == dmg && o.hit == hit &&
+	    o.aux == aux && o.blessing == blessing && o.usef == usef);
+}
+
+object::object (int nx, int ny, unsigned tid, unsigned n)
+: x(nx)
+, y(ny)
+{
+    operator= (Objects[tid]);
+    if (n != (unsigned) RANDOM)
+	number = n;
+}
+
+//----------------------------------------------------------------------
+
 void player::add_possession (unsigned slot, const object& o)
 {
     object& ps = possessions[slot];
@@ -36,14 +55,6 @@ void player::add_possession (unsigned slot, const object& o)
 	item_use (&ps);
     }
     calc_melee();
-}
-
-// are two objects equal except for their number field?
-bool object::operator== (const object& o) const
-{
-    return (o.id == id && o.plus == plus && o.charge == 0 &&
-	    charge == 0 && o.dmg == dmg && o.hit == hit &&
-	    o.aux == aux && o.blessing == blessing && o.usef == usef);
 }
 
 void player::swap_possessions (unsigned b)
@@ -128,31 +139,28 @@ long get_money (long limit)
 // may drop things back onto the now null ground
 void pickup_at (int x, int y)
 {
-    pol ol = Level->site[x][y].things;
     resetgamestatus (FAST_MOVE);
-    Level->site[x][y].things = NULL;
-    int quitting = FALSE;
-    while (ol != NULL) {
-	char response = 'q';
-	if (!quitting) {
-	    clearmsg1();
-	    print1 ("Pick up: ");
-	    nprint1 (itemid (ol->thing));
-	    nprint1 (" [ynq]: ");
-	    response = ynq1();
-	    quitting = (response == 'q');
+    vector<object> pickedup;
+    foreach (o, Level->things) {
+	if (o->x == x && o->y == y) {
+	    pickedup.push_back (*o);
+	    --(o = Level->things.erase(o));
 	}
-	if (response == 'y')
-	    gain_item (*(ol->thing));
-	else
-	    drop_at (x, y, *(ol->thing));
-	pol temp = ol;
-	ol = ol->next;
-	delete temp->thing;
-	temp->thing = NULL;
-	temp->next = NULL;
-	delete temp;
     }
+    foreach (o, pickedup) {
+	clearmsg1();
+	print1 ("Pick up: ");
+	nprint1 (itemid(o));
+	nprint1 (" [ynq]: ");
+	char response = ynq1();
+	if (response == 'q')
+	    break;
+	else if (response == 'y') {
+	    gain_item (*o);
+	    --(o = pickedup.erase(o));
+	}
+    }
+    Level->things.insert (Level->things.end(), pickedup.begin(), pickedup.end());
 }
 
 // WDT -- convert from a char (keypress) to an item index in
@@ -184,7 +192,7 @@ static bool aux_slottable (const object& o, int slot)
 	    (slot < O_RING1 || o.objchar == RING));
 }
 
-// put all of o on objlist at x,y on Level->depth
+// put all of o at x,y on Level->depth
 // Not necessarily dropped by character; just dropped...
 void drop_at (int x, int y, const object& o)
 {
@@ -196,7 +204,7 @@ void drop_at (int x, int y, const object& o)
 	Level->add_thing (x, y, o);
 }
 
-// put n of o on objlist at x,y on Level->depth
+// put n of o at x,y on Level->depth
 void p_drop_at (int x, int y, const object& o, unsigned n)
 {
     if (Current_Environment == E_COUNTRYSIDE)

@@ -123,306 +123,214 @@ static int orbcheck(int element);
 
 //----------------------------------------------------------------------
 
-// make a random new object, returning pointer
-pob create_object (int itemlevel)
+object create_object (int itemlevel)
 {
-    pob o;
-    int r;
-    int ok = FALSE;
-
-    while (!ok) {
-	o = new object;
-	r = random_range (135);
-	if (r < 20)
-	    make_thing (o, -1);
-	else if (r < 40)
-	    make_food (o, -1);
-	else if (r < 50)
-	    make_scroll (o, -1);
-	else if (r < 60)
-	    make_potion (o, -1);
-	else if (r < 70)
-	    make_weapon (o, -1);
-	else if (r < 80)
-	    make_armor (o, -1);
-	else if (r < 90)
-	    make_shield (o, -1);
-	else if (r < 100)
-	    make_stick (o, -1);
-	else if (r < 110)
-	    make_boots (o, -1);
-	else if (r < 120)
-	    make_cloak (o, -1);
-	else if (r < 130)
-	    make_ring (o, -1);
-	else
-	    make_artifact (o, -1);
+    object o;
+    do {
+	int r = random_range (135);
+	if (r < 20)		o = make_thing();
+	else if (r < 40)	o = make_food();
+	else if (r < 50)	o = make_scroll();
+	else if (r < 60)	o = make_potion();
+	else if (r < 70)	o = make_weapon();
+	else if (r < 80)	o = make_armor();
+	else if (r < 90)	o = make_shield();
+	else if (r < 100)	o = make_stick();
+	else if (r < 110)	o = make_boots();
+	else if (r < 120)	o = make_cloak();
+	else if (r < 130)	o = make_ring();
+	else			o = make_artifact();
 	// not ok if object is too good for level, or if unique and already made
 	// 1/100 chance of finding object if too good for level
-	ok = ((object_uniqueness(o) < UNIQUE_MADE) && ((o->level < itemlevel + random_range (3)) || (random_range (100) == 23)));
-	if (!ok)
-	    delete o;
-    }
+    } while (object_uniqueness(o) >= UNIQUE_MADE && (o.level >= itemlevel + random_range(3) || random_range(100)));
     if (object_uniqueness(o) == UNIQUE_UNMADE)
 	set_object_uniqueness (o, UNIQUE_MADE);
     return (o);
 }
 
-void make_cash (pob o, int level)
+object make_cash (int level)
 {
-    *o = Objects[CASHID];
-    o->basevalue = random_range (level * level + 10) + 1;	// aux is AU value
+    object o = Objects[CASHID];
+    o.basevalue = random_range (level * level + 10) + 1;	// aux is AU value
+    return (o);
 }
 
-void make_food (pob o, int id)
+object make_food (int id)
 {
-    if (id == -1)
-	id = random_range (NUMFOODS);
-    *o = Objects[FOODID + id];
+    return (Objects[FOODID + (id == RANDOM ? random_range(NUMFOODS) : id)]);
 }
 
-void make_corpse (pob o, struct monster *m)
+object make_corpse (const monster& m)
 {
-    *o = Objects[CORPSEID];
-    o->charge = m->id;
-    o->weight = m->corpseweight;
-    o->basevalue = m->corpsevalue;
-    learn_object (o->id);
-    o->objstr = m->corpsestr;
-    o->truename = o->cursestr = o->objstr;
+    object o = Objects[CORPSEID];
+    o.charge = m.id;
+    o.weight = m.corpseweight;
+    o.basevalue = m.corpsevalue;
+    learn_object (o.id);
+    o.objstr = m.corpsestr;
+    o.truename = o.cursestr = o.objstr;
     if (m_statusp (m, EDIBLE)) {
-	o->usef = I_FOOD;
-	o->aux = 6;
+	o.usef = I_FOOD;
+	o.aux = 6;
     } else if (m_statusp (m, POISONOUS))
-	o->usef = I_POISON_FOOD;
+	o.usef = I_POISON_FOOD;
     // Special corpse-eating effects
-    else
-	switch (m->id) {
-	    case TSETSE:	// tse tse fly
-	    case TORPOR:	// torpor beast
-		o->usef = I_SLEEP_SELF;
-		break;
-	    case NASTY:
-		o->usef = I_INVISIBLE;
-		break;
-	    case BLIPPER:
-		o->usef = I_TELEPORT;
-		break;
-	    case EYE:		// floating eye -- it's traditional....
-		o->usef = I_CLAIRVOYANCE;
-		break;
-	    case FUZZY:		// astral fuzzy
-		o->usef = I_DISPLACE;
-		break;
-	    case SERV_LAW:
-		o->usef = I_CHAOS;
-		break;
-	    case SERV_CHAOS:
-		o->usef = I_LAW;
-		break;
-	    case ASTRAL_VAMP:	// astral vampire
-		o->usef = I_ENCHANT;
-		break;
-	    case MANABURST:
-		o->usef = I_SPELLS;
-		break;
-	    case RAKSHASA:
-		o->usef = I_TRUESIGHT;
-		break;
-	    case COMA:		// coma beast
-		o->usef = I_ALERT;
-		break;
+    else {
+	switch (m.id) {
+	    case TSETSE:
+	    case TORPOR:	o.usef = I_SLEEP_SELF; break;
+	    case NASTY:		o.usef = I_INVISIBLE; break;
+	    case BLIPPER:	o.usef = I_TELEPORT; break;
+	    case EYE:		o.usef = I_CLAIRVOYANCE; break;
+	    case FUZZY:		o.usef = I_DISPLACE; break;
+	    case SERV_LAW:	o.usef = I_CHAOS; break;
+	    case SERV_CHAOS:	o.usef = I_LAW; break;
+	    case ASTRAL_VAMP:	o.usef = I_ENCHANT; break;
+	    case MANABURST:	o.usef = I_SPELLS; break;
+	    case RAKSHASA:	o.usef = I_TRUESIGHT; break;
+	    case COMA:		o.usef = I_ALERT; break;
 	}
-}
-
-void make_ring (pob o, int id)
-{
-    if (id == -1)
-	id = random_range (NUMRINGS);
-    *o = Objects[RINGID + id];
-    if (o->blessing == 0)
-	o->blessing = itemblessing();
-    if (o->plus == 0)
-	o->plus = itemplus() + 1;
-    if (o->blessing < 0)
-	o->plus = -1 - absv (o->plus);
-}
-
-void make_thing (pob o, int id)
-{
-    if (id == -1)
-	id = random_range (NUMTHINGS);
-    *o = Objects[THINGID + id];
-    if (strcmp (o->objstr, "grot") == 0) {
-	o->objstr = grotname();
-	o->truename = o->cursestr = o->objstr;
     }
+    return (o);
 }
 
-void make_scroll (pob o, int id)
+object make_ring (int id)
 {
-    if (id == -1)
-	id = random_range (NUMSCROLLS);
-    *o = Objects[SCROLLID + id];
-    // if a scroll of spells, aux is the spell id in Spells
-    if (o->id == SCROLL_SPELLS)
-	o->aux = random_range (NUMSPELLS);
+    object o = Objects[RINGID + (id == RANDOM ? random_range(NUMRINGS) : id)];
+    if (o.blessing == 0)
+	o.blessing = itemblessing();
+    if (o.plus == 0)
+	o.plus = itemplus() + 1;
+    if (o.blessing < 0)
+	o.plus = RANDOM - absv (o.plus);
+    return (o);
 }
 
-void make_potion (pob o, int id)
+object make_thing (int id)
 {
-    if (id == -1)
-	id = random_range (NUMPOTIONS);
-    *o = Objects[POTIONID + id];
-    if (o->plus == 0)
-	o->plus = itemplus();
+    object o = Objects[THINGID + (id == RANDOM ? random_range(NUMTHINGS) : id)];
+    if (strcmp (o.objstr, "grot") == 0)
+	o.truename = o.cursestr = o.objstr = grotname();
+    return (o);
 }
 
-void make_weapon (pob o, int id)
+object make_scroll (int id)
 {
-    if (id == -1)
-	id = random_range (NUMWEAPONS);
-    *o = Objects[WEAPONID + id];
-    if ((id == WEAPON_BOLT-WEAPONID) || (id == WEAPON_ARROW-WEAPONID))
-	o->number = random_range (20) + 1;
-    if (o->blessing == 0)
-	o->blessing = itemblessing();
-    if (o->plus == 0) {
-	o->plus = itemplus();
-	if (o->blessing < 0)
-	    o->plus = -1 - absv (o->plus);
-	else if (o->blessing > 0)
-	    o->plus = 1 + absv (o->plus);
+    object o = Objects[SCROLLID + (id == RANDOM ? random_range(NUMSCROLLS) : id)];
+    if (o.id == SCROLL_SPELLS) // if a scroll of spells, aux is the spell id in Spells
+	o.aux = random_range (NUMSPELLS);
+    return (o);
+}
+
+object make_potion (int id)
+{
+    object o = Objects[POTIONID + (id == RANDOM ? random_range(NUMPOTIONS) : id)];
+    if (o.plus == 0)
+	o.plus = itemplus();
+    return (o);
+}
+
+object make_weapon (int id)
+{
+    object o = Objects[WEAPONID + (id == RANDOM ? random_range(NUMWEAPONS) : id)];
+    if (id == WEAPON_BOLT-WEAPONID || id == WEAPON_ARROW-WEAPONID)
+	o.number = random_range(20) + 1;
+    if (o.blessing == 0)
+	o.blessing = itemblessing();
+    if (o.plus == 0) {
+	o.plus = itemplus();
+	if (o.blessing < 0)
+	    o.plus = RANDOM - absv (o.plus);
+	else if (o.blessing > 0)
+	    o.plus = 1 + absv (o.plus);
     }
+    return (o);
 }
 
-void make_shield (pob o, int id)
+object make_shield (int id)
 {
-    if (id == -1)
-	id = random_range (NUMSHIELDS);
-    *o = Objects[SHIELDID + id];
-    if (o->plus == 0)
-	o->plus = itemplus();
-    if (o->blessing == 0)
-	o->blessing = itemblessing();
-    if (o->blessing < 0)
-	o->plus = -1 - absv (o->plus);
-    else if (o->blessing > 0)
-	o->plus = 1 + absv (o->plus);
+    object o = Objects[SHIELDID + (id == RANDOM ? random_range(NUMSHIELDS) : id)];
+    if (o.plus == 0)
+	o.plus = itemplus();
+    if (o.blessing == 0)
+	o.blessing = itemblessing();
+    if (o.blessing < 0)
+	o.plus = RANDOM - absv (o.plus);
+    else if (o.blessing > 0)
+	o.plus = 1 + absv (o.plus);
+    return (o);
 }
 
-void make_armor (pob o, int id)
+object make_armor (int id)
 {
-    if (id == -1)
-	id = random_range (NUMARMOR);
-    *o = Objects[ARMORID + id];
-    if (o->plus == 0)
-	o->plus = itemplus();
-    if (o->blessing == 0)
-	o->blessing = itemblessing();
-    if (o->blessing < 0)
-	o->plus = -1 - absv (o->plus);
-    else if (o->blessing > 0)
-	o->plus = 1 + absv (o->plus);
+    object o = Objects[ARMORID + (id == RANDOM ? random_range(NUMARMOR) : id)];
+    if (o.plus == 0)
+	o.plus = itemplus();
+    if (o.blessing == 0)
+	o.blessing = itemblessing();
+    if (o.blessing < 0)
+	o.plus = RANDOM - absv (o.plus);
+    else if (o.blessing > 0)
+	o.plus = 1 + absv (o.plus);
+    return (o);
 }
 
-void make_cloak (pob o, int id)
+object make_cloak (int id)
 {
-    if (id == -1)
-	id = random_range (NUMCLOAKS);
-    *o = Objects[CLOAKID + id];
-    if (o->blessing == 0)
-	o->blessing = itemblessing();
+    object o = Objects[CLOAKID + (id == RANDOM ? random_range(NUMCLOAKS) : id)];
+    if (o.blessing == 0)
+	o.blessing = itemblessing();
+    return (o);
 }
 
-void make_boots (pob o, int id)
+object make_boots (int id)
 {
-    if (id == -1)
-	id = random_range (NUMBOOTS);
-    *o = Objects[BOOTID + id];
-    if (o->blessing == 0)
-	o->blessing = itemblessing();
+    object o = Objects[BOOTID + (id == RANDOM ? random_range(NUMBOOTS) : id)];
+    if (o.blessing == 0)
+	o.blessing = itemblessing();
+    return (o);
 }
 
-void make_stick (pob o, int id)
+object make_stick (int id)
 {
-    if (id == -1)
-	id = random_range (NUMSTICKS);
-    *o = Objects[STICKID + id];
-    o->charge = itemcharge();
-    if (o->blessing == 0)
-	o->blessing = itemblessing();
+    object o = Objects[STICKID + (id == RANDOM ? random_range(NUMSTICKS) : id)];
+    o.charge = itemcharge();
+    if (o.blessing == 0)
+	o.blessing = itemblessing();
+    return (o);
 }
 
-void make_artifact (pob o, int id)
+object make_artifact (int id)
 {
-    if (id == -1)
-	do
-	    id = random_range (NUMARTIFACTS);
-	while (object_uniqueness(id) >= UNIQUE_MADE);
-    *o = Objects[ARTIFACTID + id];
-}
-
-// this function is used to shuffle the id numbers of scrolls, potions, etc
-// taken from Knuth 2
-void shuffle (int ids[], int number)
-{
-    int top, swap, with;
-    for (top = 0; top < number; top++)
-	ids[top] = top;
-    for (top = number - 1; top >= 0; top--) {
-	swap = ids[top];
-	with = random_range (top + 1);	// from  0 to top, inclusive
-	ids[top] = ids[with];
-	ids[with] = swap;
-    }
+    if (id == RANDOM)
+	do { id = random_range (NUMARTIFACTS); } while (object_uniqueness(id) >= UNIQUE_MADE);
+    return (Objects[ARTIFACTID + id]);
 }
 
 static const char* grotname (void)
 {
-    switch (random_range (20)) {
-	case 0:
-	    return "pot lid";
-	case 1:
-	    return "mound of offal";
-	case 2:
-	    return "sword that was broken";
-	case 3:
-	    return "salted snail";
-	case 4:
-	    return "key";
-	case 5:
-	    return "toadstool";
-	case 6:
-	    return "greenish spindle";
-	case 7:
-	    return "tin soldier";
-	case 8:
-	    return "broken yo-yo";
-	case 9:
-	    return "NYC subway map";
-	case 10:
-	    return "Nixon's the One! button";
-	case 11:
-	    return "beer can (empty)";
-	case 12:
-	    return "golden bejewelled falcon";
-	case 13:
-	    return "hamster cage";
-	case 14:
-	    return "wooden nickel";
-	case 15:
-	    return "three-dollar bill";
-	case 16:
-	    return "rosebud";
-	case 17:
-	    return "water pistol";
-	case 18:
-	    return "shattered skull";
-	default:
-	case 19:
-	    return "jawbone of an ass";
-    }
+    static const char _grots[] =
+	"pot lid\0"
+	"mound of offal\0"
+	"sword that was broken\0"
+	"salted snail\0"
+	"key\0"
+	"toadstool\0"
+	"greenish spindle\0"
+	"tin soldier\0"
+	"broken yo-yo\0"
+	"NYC subway map\0"
+	"Nixon's the One! button\0"
+	"beer can (empty)\0"
+	"golden bejewelled falcon\0"
+	"hamster cage\0"
+	"wooden nickel\0"
+	"three-dollar bill\0"
+	"rosebud\0"
+	"water pistol\0"
+	"shattered skull\0"
+	"jawbone of an ass";
+    return (zstrn (_grots, random_range(20), 20));
 }
 
 static int itemplus (void)
@@ -442,33 +350,20 @@ static int itemblessing (void)
 {
     switch (random_range (10)) {
 	case 0:
-	case 1:
-	    return (-1 - random_range (10));
+	case 1: return (-1 - random_range (10));
 	case 8:
-	case 9:
-	    return (1 + random_range (10));
-	default:
-	    return (0);
+	case 9: return (1 + random_range (10));
+	default: return (0);
     }
 }
 
-int twohandedp (int id)
+bool twohandedp (int id)
 {
-    switch (id) {
-	case WEAPON_GREAT_SWORD:
-	case WEAPON_GREAT_AXE:
-	case WEAPON_QUARTERSTAFF:
-	case WEAPON_HALBERD:
-	case WEAPON_LONGBOW:
-	case WEAPON_CROSSBOW:
-	case WEAPON_DESECRATOR:
-	case WEAPON_GOBLIN_HEWER:
-	case WEAPON_GIANT_CLUB:
-	case WEAPON_SCYTHE_OF_DEATH:
-	    return (TRUE);
-	default:
-	    return (FALSE);
-    }
+    return (id == WEAPON_GREAT_SWORD || id == WEAPON_GREAT_AXE ||
+	    id == WEAPON_QUARTERSTAFF || id == WEAPON_HALBERD ||
+	    id == WEAPON_LONGBOW || id == WEAPON_CROSSBOW ||
+	    id == WEAPON_DESECRATOR || id == WEAPON_GOBLIN_HEWER ||
+	    id == WEAPON_GIANT_CLUB || id == WEAPON_SCYTHE_OF_DEATH);
 }
 
 // general item functions
@@ -574,11 +469,9 @@ static void i_clairvoyance (struct object *o)
 
 static void i_acquire (pob o)
 {
-    int blessing;
-
     if (o->blessing > -1)
 	learn_object (o);
-    blessing = o->blessing;
+    int blessing = o->blessing;
     *o = Objects[SCROLL_BLANK];
     acquire (blessing);
 }
@@ -2048,7 +1941,7 @@ static void i_antioch (pob o)
 		m_death (Level->creature(x,y));
 		print2 ("You are covered with gore.");
 	    }
-	    Level->site[x][y].things = NULL;
+	    Level->remove_things (x, y);
 	}
     }
     Player.remove_possession (o, 1);
@@ -2434,377 +2327,121 @@ void item_use (struct object *o)
     clearmsg();
     switch (o->usef) {
 	default:
-	case I_NO_OP:
-	    i_no_op (o);
-	    break;
-	case I_NOTHING:
-	    i_nothing (o);
-	    break;
-
-	    // scrolls
-	case I_SPELLS:
-	    i_spells (o);
-	    break;
-	case I_BLESS:
-	    i_bless (o);
-	    break;
-	case I_ACQUIRE:
-	    i_acquire (o);
-	    break;
-	case I_ENCHANT:
-	    i_enchant (o);
-	    break;
-	case I_TELEPORT:
-	    i_teleport (o);
-	    break;
-	case I_WISH:
-	    i_wish (o);
-	    break;
-	case I_CLAIRVOYANCE:
-	    i_clairvoyance (o);
-	    break;
-	case I_DISPLACE:
-	    i_displace (o);
-	    break;
-	case I_ID:
-	    i_id (o);
-	    break;
-	case I_JANE_T:
-	    i_jane_t (o);
-	    break;
-	case I_FLUX:
-	    i_flux (o);
-	    break;
-	case I_WARP:
-	    i_warp (o);
-	    break;
-	case I_ALERT:
-	    i_alert (o);
-	    break;
-	case I_CHARGE:
-	    i_charge (o);
-	    break;
-	case I_KNOWLEDGE:
-	    i_knowledge (o);
-	    break;
-	case I_LAW:
-	    i_law (o);
-	    break;
-	case I_HINT:
-	    hint();
-	    break;
-	case I_HERO:
-	    i_hero (o);
-	    break;
-	case I_TRUESIGHT:
-	    i_truesight (o);
-	    break;
-	case I_ILLUMINATE:
-	    i_illuminate (o);
-	    break;
-	case I_DEFLECT:
-	    i_deflect (o);
-	    break;
-
-	    // potion functions
-	case I_HEAL:
-	    i_heal (o);
-	    break;
-	case I_OBJDET:
-	    i_objdet (o);
-	    break;
-	case I_MONDET:
-	    i_mondet (o);
-	    break;
-	case I_SLEEP_SELF:
-	    i_sleep_self (o);
-	    break;
-	case I_NEUTRALIZE_POISON:
-	    i_neutralize_poison (o);
-	    break;
-	case I_RESTORE:
-	    i_restore (o);
-	    break;
-	case I_SPEED:
-	    i_speed (o);
-	    break;
-	case I_AZOTH:
-	    i_azoth (o);
-	    break;
-	case I_AUGMENT:
-	    i_augment (o);
-	    break;
-	case I_REGENERATE:
-	    i_regenerate (o);
-	    break;
-	case I_INVISIBLE:
-	    i_invisible (o);
-	    break;
-	case I_BREATHING:
-	    i_breathing (o);
-	    break;
-	case I_FEAR_RESIST:
-	    i_fear_resist (o);
-	    break;
-	case I_CHAOS:
-	    i_chaos (o);
-	    break;
-	case I_ACCURACY:
-	    i_accuracy (o);
-	    break;
-	case I_LEVITATION:
-	    i_levitate (o);
-	    break;
-	case I_CURE:
-	    i_cure (o);
-	    break;
-
-	    // stick functions
-	case I_FIREBOLT:
-	    i_firebolt (o);
-	    break;
-	case I_LBOLT:
-	    i_lbolt (o);
-	    break;
-	case I_MISSILE:
-	    i_missile (o);
-	    break;
-	case I_SLEEP_OTHER:
-	    i_sleep_other (o);
-	    break;
-	case I_FIREBALL:
-	    i_fireball (o);
-	    break;
-	case I_LBALL:
-	    i_lball (o);
-	    break;
-	case I_SNOWBALL:
-	    i_snowball (o);
-	    break;
-	case I_SUMMON:
-	    i_summon (o);
-	    break;
-	case I_HIDE:
-	    i_hide (o);
-	    break;
-	case I_DISRUPT:
-	    i_disrupt (o);
-	    break;
-	case I_DISINTEGRATE:
-	    i_disintegrate (o);
-	    break;
-	case I_APPORT:
-	    i_apport (o);
-	    break;
-	case I_DISPEL:
-	    i_dispel (o);
-	    break;
-	case I_POLYMORPH:
-	    i_polymorph (o);
-	    break;
-	case I_FEAR:
-	    i_fear (o);
-	    break;
-
-	    // food functions
-	case I_FOOD:
-	    i_food (o);
-	    break;
-	case I_LEMBAS:
-	    i_lembas (o);
-	    break;
-	case I_STIM:
-	    i_stim (o);
-	    break;
-	case I_POW:
-	    i_pow (o);
-	    break;
-	case I_IMMUNE:
-	    i_immune (o);
-	    break;
-	case I_POISON_FOOD:
-	    i_poison_food (o);
-	    break;
-	case I_CORPSE:
-	    i_corpse (o);
-	    break;
-	case I_PEPPER_FOOD:
-	    i_pepper_food (o);
-	    break;
-
-	    // boots functions
-	case I_PERM_SPEED:
-	    i_perm_speed (o);
-	    break;
-	case I_PERM_HERO:
-	    i_perm_hero (o);
-	    break;
-	case I_PERM_LEVITATE:
-	    i_perm_levitate (o);
-	    break;
-	case I_PERM_AGILITY:
-	    i_perm_agility (o);
-	    break;
-
-	    // artifact functions
-	case I_SCEPTRE:
-	    i_sceptre (o);
-	    break;
-	case I_PLANES:
-	    i_planes (o);
-	    break;
-	case I_STARGEM:
-	    i_stargem (o);
-	    break;
-	case I_SYMBOL:
-	    i_symbol (o);
-	    break;
-	case I_ORBMASTERY:
-	    i_orbmastery (o);
-	    break;
-	case I_ORBFIRE:
-	    i_orbfire (o);
-	    break;
-	case I_ORBWATER:
-	    i_orbwater (o);
-	    break;
-	case I_ORBEARTH:
-	    i_orbearth (o);
-	    break;
-	case I_ORBAIR:
-	    i_orbair (o);
-	    break;
-	case I_ORBDEAD:
-	    i_orbdead (o);
-	    break;
-	case I_CRYSTAL:
-	    i_crystal (o);
-	    break;
-	case I_LIFE:
-	    i_life (o);
-	    break;
-	case I_DEATH:
-	    i_death (o);
-	    break;
-	case I_ANTIOCH:
-	    i_antioch (o);
-	    break;
-	case I_HELM:
-	    i_helm (o);
-	    break;
-	case I_KOLWYNIA:
-	    i_kolwynia (o);
-	    break;
-	case I_ENCHANTMENT:
-	    i_enchantment (o);
-	    break;
-	case I_JUGGERNAUT:
-	    i_juggernaut (o);
-	    break;
-
-	    // cloak functions
-	case I_PERM_DISPLACE:
-	    i_perm_displace (o);
-	    break;
-	case I_PERM_NEGIMMUNE:
-	    i_perm_negimmune (o);
-	    break;
-	case I_PERM_INVISIBLE:
-	    i_perm_invisible (o);
-	    break;
-	case I_PERM_PROTECTION:
-	    i_perm_protection (o);
-	    break;
-	case I_PERM_ACCURACY:
-	    i_perm_accuracy (o);
-	    break;
-	case I_PERM_TRUESIGHT:
-	    i_perm_truesight (o);
-	    break;
-
-	    // ring functions
-	case I_PERM_BURDEN:
-	    i_perm_burden (o);
-	    break;
-	case I_PERM_STRENGTH:
-	    i_perm_strength (o);
-	    break;
-	case I_PERM_GAZE_IMMUNE:
-	    i_perm_gaze_immune (o);
-	    break;
-	case I_PERM_FIRE_RESIST:
-	    i_perm_fire_resist (o);
-	    break;
-	case I_PERM_POISON_RESIST:
-	    i_perm_poison_resist (o);
-	    break;
-	case I_PERM_REGENERATE:
-	    i_perm_regenerate (o);
-	    break;
-	case I_PERM_KNOWLEDGE:
-	    i_perm_knowledge (o);
-	    break;
-
-	    // armor functions
-	case I_NORMAL_ARMOR:
-	    i_normal_armor (o);
-	    break;
-	case I_PERM_FEAR_RESIST:
-	    i_perm_fear_resist (o);
-	    break;
-	case I_PERM_ENERGY_RESIST:
-	    i_perm_energy_resist (o);
-	    break;
-	case I_PERM_BREATHING:
-	    i_perm_breathing (o);
-	    break;
-
-	    // weapons functions
-	case I_NORMAL_WEAPON:
-	    i_normal_weapon (o);
-	    break;
-	case I_LIGHTSABRE:
-	    i_lightsabre (o);
-	    break;
-	case I_DEMONBLADE:
-	    i_demonblade (o);
-	    break;
-	case I_DESECRATE:
-	    i_desecrate (o);
-	    break;
-	case I_MACE_DISRUPT:
-	    i_mace_disrupt (o);
-	    break;
-	case I_DEFEND:
-	    i_defend (o);
-	    break;
-	case I_VICTRIX:
-	    i_victrix (o);
-	    break;
-
-	    // thing functions
-	case I_PICK:
-	    i_pick (o);
-	    break;
-	case I_KEY:
-	    i_key (o);
-	    break;
-	case I_PERM_ILLUMINATE:
-	    i_perm_illuminate (o);
-	    break;
-	case I_TRAP:
-	    i_trap (o);
-	    break;
-	case I_RAISE_PORTCULLIS:
-	    i_raise_portcullis (o);
-	    break;
-
-	    // shield functions
-	case I_NORMAL_SHIELD:
-	    i_normal_shield (o);
-	    break;
-	case I_PERM_DEFLECT:
-	    i_perm_deflect (o);
-	    break;
+	case I_NO_OP:			i_no_op (o); break;
+	case I_NOTHING:			i_nothing (o); break;
+	case I_SPELLS:			i_spells (o); break;
+	case I_BLESS:			i_bless (o); break;
+	case I_ACQUIRE:			i_acquire (o); break;
+	case I_ENCHANT:			i_enchant (o); break;
+	case I_TELEPORT:		i_teleport (o); break;
+	case I_WISH:			i_wish (o); break;
+	case I_CLAIRVOYANCE:		i_clairvoyance (o); break;
+	case I_DISPLACE:		i_displace (o); break;
+	case I_ID:			i_id (o); break;
+	case I_JANE_T:			i_jane_t (o); break;
+	case I_FLUX:			i_flux (o); break;
+	case I_WARP:			i_warp (o); break;
+	case I_ALERT:			i_alert (o); break;
+	case I_CHARGE:			i_charge (o); break;
+	case I_KNOWLEDGE:		i_knowledge (o); break;
+	case I_LAW:			i_law (o); break;
+	case I_HINT:			hint(); break;
+	case I_HERO:			i_hero (o); break;
+	case I_TRUESIGHT:		i_truesight (o); break;
+	case I_ILLUMINATE:		i_illuminate (o); break;
+	case I_DEFLECT:			i_deflect (o); break;
+	case I_HEAL:			i_heal (o); break;
+	case I_OBJDET:			i_objdet (o); break;
+	case I_MONDET:			i_mondet (o); break;
+	case I_SLEEP_SELF:		i_sleep_self (o); break;
+	case I_NEUTRALIZE_POISON:	i_neutralize_poison (o); break;
+	case I_RESTORE:			i_restore (o); break;
+	case I_SPEED:			i_speed (o); break;
+	case I_AZOTH:			i_azoth (o); break;
+	case I_AUGMENT:			i_augment (o); break;
+	case I_REGENERATE:		i_regenerate (o); break;
+	case I_INVISIBLE:		i_invisible (o); break;
+	case I_BREATHING:		i_breathing (o); break;
+	case I_FEAR_RESIST:		i_fear_resist (o); break;
+	case I_CHAOS:			i_chaos (o); break;
+	case I_ACCURACY:		i_accuracy (o); break;
+	case I_LEVITATION:		i_levitate (o); break;
+	case I_CURE:			i_cure (o); break;
+	case I_FIREBOLT:		i_firebolt (o); break;
+	case I_LBOLT:			i_lbolt (o); break;
+	case I_MISSILE:			i_missile (o); break;
+	case I_SLEEP_OTHER:		i_sleep_other (o); break;
+	case I_FIREBALL:		i_fireball (o); break;
+	case I_LBALL:			i_lball (o); break;
+	case I_SNOWBALL:		i_snowball (o); break;
+	case I_SUMMON:			i_summon (o); break;
+	case I_HIDE:			i_hide (o); break;
+	case I_DISRUPT:			i_disrupt (o); break;
+	case I_DISINTEGRATE:		i_disintegrate (o); break;
+	case I_APPORT:			i_apport (o); break;
+	case I_DISPEL:			i_dispel (o); break;
+	case I_POLYMORPH:		i_polymorph (o); break;
+	case I_FEAR:			i_fear (o); break;
+	case I_FOOD:			i_food (o); break;
+	case I_LEMBAS:			i_lembas (o); break;
+	case I_STIM:			i_stim (o); break;
+	case I_POW:			i_pow (o); break;
+	case I_IMMUNE:			i_immune (o); break;
+	case I_POISON_FOOD:		i_poison_food (o); break;
+	case I_CORPSE:			i_corpse (o); break;
+	case I_PEPPER_FOOD:		i_pepper_food (o); break;
+	case I_PERM_SPEED:		i_perm_speed (o); break;
+	case I_PERM_HERO:		i_perm_hero (o); break;
+	case I_PERM_LEVITATE:		i_perm_levitate (o); break;
+	case I_PERM_AGILITY:		i_perm_agility (o); break;
+	case I_SCEPTRE:			i_sceptre (o); break;
+	case I_PLANES:			i_planes (o); break;
+	case I_STARGEM:			i_stargem (o); break;
+	case I_SYMBOL:			i_symbol (o); break;
+	case I_ORBMASTERY:		i_orbmastery (o); break;
+	case I_ORBFIRE:			i_orbfire (o); break;
+	case I_ORBWATER:		i_orbwater (o); break;
+	case I_ORBEARTH:		i_orbearth (o); break;
+	case I_ORBAIR:			i_orbair (o); break;
+	case I_ORBDEAD:			i_orbdead (o); break;
+	case I_CRYSTAL:			i_crystal (o); break;
+	case I_LIFE:			i_life (o); break;
+	case I_DEATH:			i_death (o); break;
+	case I_ANTIOCH:			i_antioch (o); break;
+	case I_HELM:			i_helm (o); break;
+	case I_KOLWYNIA:		i_kolwynia (o); break;
+	case I_ENCHANTMENT:		i_enchantment (o); break;
+	case I_JUGGERNAUT:		i_juggernaut (o); break;
+	case I_PERM_DISPLACE:		i_perm_displace (o); break;
+	case I_PERM_NEGIMMUNE:		i_perm_negimmune (o); break;
+	case I_PERM_INVISIBLE:		i_perm_invisible (o); break;
+	case I_PERM_PROTECTION:		i_perm_protection (o); break;
+	case I_PERM_ACCURACY:		i_perm_accuracy (o); break;
+	case I_PERM_TRUESIGHT:		i_perm_truesight (o); break;
+	case I_PERM_BURDEN:		i_perm_burden (o); break;
+	case I_PERM_STRENGTH:		i_perm_strength (o); break;
+	case I_PERM_GAZE_IMMUNE:	i_perm_gaze_immune (o); break;
+	case I_PERM_FIRE_RESIST:	i_perm_fire_resist (o); break;
+	case I_PERM_POISON_RESIST:	i_perm_poison_resist (o); break;
+	case I_PERM_REGENERATE:		i_perm_regenerate (o); break;
+	case I_PERM_KNOWLEDGE:		i_perm_knowledge (o); break;
+	case I_NORMAL_ARMOR:		i_normal_armor (o); break;
+	case I_PERM_FEAR_RESIST:	i_perm_fear_resist (o); break;
+	case I_PERM_ENERGY_RESIST:	i_perm_energy_resist (o); break;
+	case I_PERM_BREATHING:		i_perm_breathing (o); break;
+	case I_NORMAL_WEAPON:		i_normal_weapon (o); break;
+	case I_LIGHTSABRE:		i_lightsabre (o); break;
+	case I_DEMONBLADE:		i_demonblade (o); break;
+	case I_DESECRATE:		i_desecrate (o); break;
+	case I_MACE_DISRUPT:		i_mace_disrupt (o); break;
+	case I_DEFEND:			i_defend (o); break;
+	case I_VICTRIX:			i_victrix (o); break;
+	case I_PICK:			i_pick (o); break;
+	case I_KEY:			i_key (o); break;
+	case I_PERM_ILLUMINATE:		i_perm_illuminate (o); break;
+	case I_TRAP:			i_trap (o); break;
+	case I_RAISE_PORTCULLIS:	i_raise_portcullis (o); break;
+	case I_NORMAL_SHIELD:		i_normal_shield (o); break;
+	case I_PERM_DEFLECT:		i_perm_deflect (o); break;
     }
 }

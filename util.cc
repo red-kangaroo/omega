@@ -560,30 +560,13 @@ int ok_to_free (plv level)
 	return ((level->environment != E_CITY) && (level->environment != E_VILLAGE) && (level->environment != Current_Dungeon));
 }
 
-void free_objlist (pol pobjlist)
-{
-    while (pobjlist) {
-	delete pobjlist->thing;
-	pol tmp = pobjlist;
-	pobjlist = pobjlist->next;
-	delete tmp;
-    }
-}
-
 // Free up monsters and items on a level
 void free_level (plv level)
 {
     foreach (m, level->mlist)
 	m->possessions.clear();
     level->mlist.clear();
-    for (int i = 0; i < MAXWIDTH; i++) {
-	for (int j = 0; j < MAXLENGTH; j++) {
-	    if (level->site[i][j].things) {
-		free_objlist (level->site[i][j].things);
-		level->site[i][j].things = NULL;
-	    }
-	}
-    }
+    level->things.clear();
     delete level;
 }
 

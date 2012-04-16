@@ -43,18 +43,32 @@ monster* level::creature (int x, int y)
 
 object* level::thing (int x, int y)
 {
-    return (site[x][y].things ? site[x][y].things->thing : NULL);
+    foreach (i, things)
+	if (i->x == x && i->y == y)
+	    return (i);
+    return (NULL);
+}
+
+void level::make_thing (int x, int y, unsigned tid, unsigned n)
+{
+    things.emplace_back (x, y, tid, n);
+}
+
+void level::remove_things (int x, int y)
+{
+    foreach (i, things)
+	if (i->x == x && i->y == y)
+	    --(i = things.erase(i));
 }
 
 void level::add_thing (int x, int y, const object& o, unsigned n)
 {
-    pob cpy = new object (o);
-    pol tmp = new objectlist;
-    cpy->used = false;
-    cpy->number = min(n,o.number);
-    tmp->thing = cpy;
-    tmp->next = Level->site[x][y].things;
-    Level->site[x][y].things = tmp;
+    object* no = things.insert (things.end(), o);
+    no->x = x;
+    no->y = y;
+    no->used = false;
+    if (n != (unsigned) RANDOM)
+	no->number = n;
 }
 
 //----------------------------------------------------------------------
@@ -3063,16 +3077,8 @@ void load_village (int villagenum, int populate)
 
 static void make_food_bin (int i, int j)
 {
-    pol tol;
-    int k;
-
-    for (k = 0; k < 10; k++) {
-	tol = new objectlist;
-	tol->thing = new object;
-	make_food (tol->thing, 15);	// grain
-	tol->next = Level->site[i][j].things;
-	Level->site[i][j].things = tol;
-    }
+    for (unsigned k = 0; k < 10; k++)
+	Level->make_thing (i, j, FOOD_GRAIN);
 }
 
 static void assign_village_function (int x, int y, int setup)
@@ -3349,9 +3355,6 @@ static void m_create (monster& m, int x, int y, int kind, int level)
 // make creature allocates space for the creature
 static void make_creature (monster& m, int mid)
 {
-    pob ob;
-    int i, treasures;
-
     if (mid == -1)
 	mid = random_range (ML9);
     m = Monsters[mid];
@@ -3416,18 +3419,12 @@ static void make_creature (monster& m, int mid)
 	    m_status_set (m, AWAKE);
 	if (m.startthing != NO_THING && object_uniqueness(m.startthing) <= UNIQUE_MADE)
 	    m.pickup (Objects[m.startthing]);
-	treasures = random_range (m.treasure);
-	for (i = 0; i < treasures; i++) {
-	    do {
-		ob = (pob) (create_object (m.level));
-		if (object_uniqueness(ob) != COMMON) {
-		    set_object_uniqueness (ob, UNIQUE_UNMADE);
-		    delete ob;
-		    ob = NULL;
-		}
-	    } while (!ob);
-	    m.pickup (*ob);
-	    delete ob;
+	for (unsigned treasures = random_range (m.treasure); m.possessions.size() < treasures;) {
+	    object o = create_object (m.level);
+	    if (object_uniqueness(o) != COMMON)
+		set_object_uniqueness (o, UNIQUE_UNMADE);
+	    else
+		m.pickup (o);
 	}
     }
     m.click = (Tick + 1) % 50;
@@ -3612,35 +3609,20 @@ static void make_log_npc (monster& npc)
 // drop treasures randomly onto level
 void stock_level (void)
 {
-    int i, j, k, numtreasures = 2 * random_range (difficulty() / 4) + 4;
-
     // put cash anywhere, including walls, put other treasures only on floor
-    for (k = 0; k < numtreasures + 10; k++) {
+    const unsigned numtreasures = 2 * random_range (difficulty() / 4) + 4;
+    for (unsigned i, j, k = 0; k < numtreasures + 10; k++) {
 	do {
 	    i = random_range (WIDTH);
 	    j = random_range (LENGTH);
 	} while (Level->site[i][j].locchar != FLOOR);
 	make_site_treasure (i, j, difficulty());
-	i = random_range (WIDTH);
-	j = random_range (LENGTH);
-	Level->site[i][j].things = new objectlist;
-	Level->site[i][j].things->thing = new object;
-	make_cash (Level->site[i][j].things->thing, difficulty());
-	Level->site[i][j].things->next = NULL;
 	// caves have more random cash strewn around
-	if (Current_Dungeon == E_CAVES) {
+	const unsigned cashFactor = (Current_Dungeon == E_CAVES ? 3 : 1);
+	for (unsigned l = 0; l < cashFactor; ++l) {
 	    i = random_range (WIDTH);
 	    j = random_range (LENGTH);
-	    Level->site[i][j].things = new objectlist;
-	    Level->site[i][j].things->thing = new object;
-	    make_cash (Level->site[i][j].things->thing, difficulty());
-	    Level->site[i][j].things->next = NULL;
-	    i = random_range (WIDTH);
-	    j = random_range (LENGTH);
-	    Level->site[i][j].things = new objectlist;
-	    Level->site[i][j].things->thing = new object;
-	    make_cash (Level->site[i][j].things->thing, difficulty());
-	    Level->site[i][j].things->next = NULL;
+	    Level->add_thing (i, j, make_cash (difficulty()));
 	}
     }
 }
@@ -3648,23 +3630,15 @@ void stock_level (void)
 // make a new object (of at most level itemlevel) at site i,j on level
 static void make_site_treasure (int i, int j, int itemlevel)
 {
-    pol tmp = new objectlist;
-    tmp->thing = ((pob) create_object (itemlevel));
-    tmp->next = Level->site[i][j].things;
-    Level->site[i][j].things = tmp;
+    Level->add_thing (i, j, create_object(itemlevel));
 }
 
 // make a specific new object at site i,j on level
 static void make_specific_treasure (int i, int j, int iid)
 {
-    pol tmp;
     if (object_uniqueness(iid) == UNIQUE_TAKEN)
 	return;
-    tmp = new objectlist;
-    tmp->thing = new object;
-    *(tmp->thing) = Objects[iid];
-    tmp->next = Level->site[i][j].things;
-    Level->site[i][j].things = tmp;
+    Level->make_thing (i, j, iid);
 }
 
 // returns a "level of difficulty" based on current environment
@@ -3673,50 +3647,28 @@ static void make_specific_treasure (int i, int j, int iid)
 // of items, monsters encountered.
 int difficulty (void)
 {
-    int depth = 1;
-    if (Level != NULL)
-	depth = Level->depth;
+    const unsigned depth = Level ? Level->depth : 1;
     switch (Current_Environment) {
-	case E_COUNTRYSIDE:
-	    return (7);
-	case E_CITY:
-	    return (3);
-	case E_VILLAGE:
-	    return (1);
-	case E_TACTICAL_MAP:
-	    return (7);
-	case E_SEWERS:
-	    return (depth / 6) + 3;
-	case E_CASTLE:
-	    return (depth / 4) + 4;
-	case E_CAVES:
-	    return (depth / 3) + 1;
-	case E_VOLCANO:
-	    return (depth / 4) + 5;
-	case E_ASTRAL:
-	    return (8);
-	case E_ARENA:
-	    return (5);
-	case E_HOVEL:
-	    return (3);
-	case E_MANSION:
-	    return (7);
-	case E_HOUSE:
-	    return (5);
-	case E_DLAIR:
-	    return (9);
-	case E_ABYSS:
-	    return (10);
-	case E_STARPEAK:
-	    return (9);
-	case E_CIRCLE:
-	    return (8);
-	case E_MAGIC_ISLE:
-	    return (8);
-	case E_TEMPLE:
-	    return (8);
-	default:
-	    return (3);
+	case E_COUNTRYSIDE:	return (7);
+	case E_CITY:		return (3);
+	case E_VILLAGE:		return (1);
+	case E_TACTICAL_MAP:	return (7);
+	case E_SEWERS:		return (depth / 6) + 3;
+	case E_CASTLE:		return (depth / 4) + 4;
+	case E_CAVES:		return (depth / 3) + 1;
+	case E_VOLCANO:		return (depth / 4) + 5;
+	case E_ASTRAL:		return (8);
+	case E_ARENA:		return (5);
+	case E_HOVEL:		return (3);
+	case E_MANSION:		return (7);
+	case E_HOUSE:		return (5);
+	case E_DLAIR:		return (9);
+	case E_ABYSS:		return (10);
+	case E_STARPEAK:	return (9);
+	case E_CIRCLE:		return (8);
+	case E_MAGIC_ISLE:	return (8);
+	case E_TEMPLE:		return (8);
+	default:		return (3);
     }
 }
 
@@ -4696,10 +4648,9 @@ void l_pawn_shop (void)
 	    set_object_uniqueness (Pawnitems[0], UNIQUE_UNMADE);
     Pawnitems.erase (Pawnitems.begin(), limit);
     while (Pawnitems.size() < PAWNITEMS) {
-	pob o = create_object (5);
-	if (o->objchar != CASH && o->objchar != ARTIFACT && true_item_value (o) > 0)
-	    Pawnitems.push_back (*o);
-	delete o;
+	object o = create_object (5);
+	if (o.objchar != CASH && o.objchar != ARTIFACT && true_item_value(o) > 0)
+	    Pawnitems.push_back (o);
     }
 
     while (true) {
@@ -4715,7 +4666,7 @@ void l_pawn_shop (void)
 	}
 
 	showmenu();
-	char action = (char) mcigetc();
+	char action = mcigetc();
 	if (action == KEY_ESCAPE)
 	    break;
 	else if (action == 'b') {
@@ -5648,12 +5599,11 @@ void l_safe (void)
 	if (random_range(2)) {
 	    print1 ("You find:");
 	    do {
-		pob newitem = create_object (difficulty());
+		object newitem = create_object (difficulty());
 		print2 (itemid (newitem));
-		gain_item (*newitem);
-		delete newitem;
+		gain_item (newitem);
 		morewait();
-	    } while (random_range (3) == 1);
+	    } while (!random_range(3));
 	} else
 	    print2 ("The safe was empty (awwwww....)");
     } else {

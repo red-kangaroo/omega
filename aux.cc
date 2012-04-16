@@ -1532,10 +1532,9 @@ void p_drown (void)
 	switch (menugetc()) {
 	    case 'a':
 		drop();
-		if (Level->site[Player.x][Player.y].p_locf == L_WATER && Level->site[Player.x][Player.y].things) {
+		if (Level->site[Player.x][Player.y].p_locf == L_WATER && Level->thing(Player.x,Player.y)) {
 		    mprint ("It sinks without a trace.");
-		    free_objlist (Level->site[Player.x][Player.y].things);
-		    Level->site[Player.x][Player.y].things = NULL;
+		    Level->remove_things (Player.x, Player.y);
 		}
 		break;
 	    case 'b':
@@ -2262,15 +2261,12 @@ static void indoors_random_event (void)
 	    print3 ("You feel strangely lucky.");
 	    morewait();
 	    break;
-	case 10: {
+	case 10:
 	    print3 ("You trip over something hidden in a shadow...");
 	    morewait();
-	    pol ol = new objectlist;
-	    ol->thing = create_object (difficulty());
-	    ol->next = Level->site[Player.x][Player.y].things;
-	    Level->site[Player.x][Player.y].things = ol;
+	    Level->add_thing (Player.x, Player.y, create_object(difficulty()));
 	    pickup();
-	    } break;
+	    break;
 	case 11:
 	    print3 ("A mysterious voice echoes all around you....");
 	    morewait();
@@ -2412,9 +2408,7 @@ static void outdoors_random_event (void)
 	    } else if (num < 70) {
 		mprint ("A tendril of the storm condenses and falls into your hands.");
 		morewait();
-		object o;
-		make_artifact (&o, -1);
-		gain_item (o);
+		gain_item (make_artifact());
 	    } else if (num < 80) {
 		if (gamestatusp (MOUNTED)) {
 		    mprint ("Your horse screams as he is transformed into an");

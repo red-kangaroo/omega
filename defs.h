@@ -763,10 +763,12 @@ public:
     int16_t y;
 public:
     object (void) { itzero (this); }
+    object (int nx, int ny, unsigned tid, unsigned n = 1);
     object (const object_data& o) : x(0), y(0) { operator= (o); }
     object& operator= (const object_data& o) { *implicit_cast<object_data*>(this) = o; return (*this); }
     bool operator== (const object& v) const;
 };
+typedef object* pob;
 
 struct monster_data {
     uint8_t id;
@@ -870,11 +872,6 @@ public:
     inline bool	has_possession (unsigned slot) const	{ return (possessions[slot].id != NO_THING); }
 };
 
-struct objectlist {
-    struct object *thing;
-    struct objectlist *next;
-};
-
 // terrain locations
 struct terrain {
     chtype base_terrain_type;
@@ -892,12 +889,12 @@ struct location {
     int aux;			// signifies various things
     chtype locchar;		// terrain type
     chtype showchar;		// char instantaneously drawn for site
-    struct objectlist* things;
 };
 
 struct level {
     struct location site[MAXWIDTH][MAXLENGTH];	// dungeon data
     vector<monster> mlist;	// List of monsters on level
+    vector<object> things;	// List of objects on level
     struct level *next;		// pointer to next level in dungeon
     int environment;		// where kind of level is this?
     int last_visited;		// time player was last on this level
@@ -908,18 +905,8 @@ struct level {
 public:
     monster*	creature (int x, int y);
     object*	thing (int x, int y);
-    void	add_thing (int x, int y, const object& o, unsigned n = -1);
+    void	make_thing (int x, int y, unsigned tid, unsigned n = RANDOM);
+    void	remove_things (int x, int y);
+    void	add_thing (int x, int y, const object& o, unsigned n = RANDOM);
 };
-
-// random typedefs
-typedef struct location loctype;
-typedef loctype *plc;
-
-typedef struct level levtype;
-typedef levtype *plv;
-
-typedef struct object objtype;
-typedef objtype *pob;
-
-typedef struct objectlist oltype;
-typedef oltype *pol;
+typedef level* plv;
