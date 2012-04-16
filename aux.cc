@@ -2916,7 +2916,7 @@ const char* countryid (int terrain)
     return (zstrn (_terrain_names, i, ArraySize(_terrains)+1));
 }
 
-static const char* sitenames[] = {	// alphabetical listing
+static const char* sitenames[NUMCITYSITES] = {	// alphabetical listing
     "alchemist", "arena", "armorer", "bank", "brothel", "casino", "castle",
     "city gates", "collegium magii", "condo", "department of public works",
     "diner", "explorers' club", "fast food", "gymnasium", "healer", "hospice",
@@ -2924,7 +2924,7 @@ static const char* sitenames[] = {	// alphabetical listing
     "pawn shop", "sorcerors' guild ", "tavern", "temple", "thieves' guild"
 };
 
-static int sitenums[] = {	// the order matches sitenames[]
+static int sitenums[NUMCITYSITES] = {	// the order matches sitenames[]
     L_ALCHEMIST, L_ARENA, L_ARMORER, L_BANK, L_BROTHEL, L_CASINO, L_CASTLE,
     L_COUNTRYSIDE, L_COLLEGE, L_CONDO, L_DPW, L_DINER, L_CLUB, L_COMMANDANT,
     L_GYM, L_HEALER, L_CHARITY, L_CRAP, L_LIBRARY, L_MERC_GUILD, L_ORACLE,
@@ -2972,7 +2972,7 @@ int parsecitysite (void)
 		    f--;
 		}
 		l = last;
-		while (l < NUMCITYSITES && !strncmp (prefix, sitenames[l], pos)) {
+		while (l < NUMCITYSITES-1 && !strncmp (prefix, sitenames[l], pos)) {
 		    if (CitySiteList[sitenums[l] - CITYSITEBASE][0])
 			last = l;
 		    l++;

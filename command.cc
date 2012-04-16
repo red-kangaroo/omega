@@ -566,6 +566,7 @@ static void activate (void)
 	if (iidx != ABORT) {
 	    clearmsg();
 	    print1 ("You activate it.... ");
+	    item_use (Player.possessions[iidx]);
 	    morewait();
 	    Player.remove_possession (iidx, 1);
 	} else

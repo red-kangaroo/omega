@@ -4,9 +4,9 @@
 //----------------------------------------------------------------------
 //{{{ Objects
 
-const object NullObject = { NO_THING, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, COMMON, I_NO_OP, NULL_ITEM, NULL, NULL, NULL };
+const object_data NullObject = { NO_THING, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, COMMON, I_NO_OP, NULL_ITEM, NULL, NULL, NULL };
 
-const struct object Objects[TOTALITEMS] = {
+const struct object_data Objects[TOTALITEMS] = {
 //     lev    plus frg   dmg    aux   frag     used  type  unique             	    objstr              cursestr
 //   id  weight      chrg   hit    num     value bless             usef         objchar          truename
     { 0, 2,  10, 0, 10, 0, 0, 0,  0, 1,   50, 0, 0, 0, COMMON, I_RAISE_PORTCULLIS, THING, "small grey box with red button", "disposeable garage door opener", "disposeable garage door opener"},

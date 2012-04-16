@@ -562,8 +562,9 @@ streamsize monster::stream_size (void) const
 // Use other values of flag byte to indicate what strings are saved
 static void save_item (ostream& os, const object* o)
 {
+    static object nullObj (NullObject);
     if (!o)
-	o = &NullObject;
+	o = &nullObj;
     os.write (o, sizeof(*o));
     if (o->id >= ArraySize(Objects))
 	os.write ("\0\0", 3);

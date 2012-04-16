@@ -734,7 +734,7 @@ enum {
 
 struct spell { uint8_t powerdrain; };
 
-struct object {
+struct object_data {
     uint8_t id;
     uint8_t level;
     uint16_t weight;
@@ -755,7 +755,16 @@ struct object {
     const char* objstr;
     const char* truename;
     const char* cursestr;
+};
+
+struct object : public object_data {
 public:
+    int16_t x;
+    int16_t y;
+public:
+    object (void) { itzero (this); }
+    object (const object_data& o) : x(0), y(0) { operator= (o); }
+    object& operator= (const object_data& o) { *implicit_cast<object_data*>(this) = o; return (*this); }
     bool operator== (const object& v) const;
 };
 
