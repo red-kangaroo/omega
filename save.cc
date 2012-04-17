@@ -313,7 +313,8 @@ void player::read (istream& is)
 // Save whatever is pointed to by level
 static void save_level (ostream& os, plv level)
 {
-    unsigned i, j, run;
+    unsigned run;
+    uint16_t i, j;
     os << ios::align(alignof(level->environment)) << level->environment << level->depth << level->numrooms << level->tunnelled;
     for (j = 0; j < MAXLENGTH; j++) {
 	for (i = 0; i < MAXWIDTH; i++) {
@@ -322,13 +323,13 @@ static void save_level (ostream& os, plv level)
 		     level->site[run][j].lstatus & CHANGED; run++);
 		os << ios::align(alignof(i)) << i << j << run;
 		for (; i < run; i++)
-		    os.write (&level->site[i][j], sizeof (struct location));
+		    os << level->site[i][j];
 	    }
 	}
     }
     os << ios::align(alignof(i)) << i << j;	// signify end
     // since we don't mark the 'seen' bits as CHANGED, need to save a bitmask
-    unsigned long mask = 0;
+    uint32_t mask = 0;
     run = 8 * sizeof (mask);
     os.align (alignof(mask));
     for (j = 0; j < MAXLENGTH; j++) {
@@ -351,8 +352,9 @@ static void save_level (ostream& os, plv level)
 
 static void restore_level (istream& is)
 {
-    int i, j, run;
-    unsigned long int mask = 0;
+    unsigned run;
+    uint16_t i, j;
+    uint32_t mask = 0;
     int temp_env;
 
     Level = new level;
@@ -446,7 +448,7 @@ static void restore_level (istream& is)
     while (j < MAXLENGTH && i < MAXWIDTH) {
 	is >> run;
 	for (; i < run; i++)
-	    is.read (&Level->site[i][j], sizeof(Level->site[i][j]));
+	    is >> Level->site[i][j];
 	is >> ios::align(alignof(i)) >> i >> j;
     }
     run = 0;
@@ -514,9 +516,9 @@ streamsize monster::stream_size (void) const
 // Use other values of flag byte to indicate what strings are saved
 void object::write (ostream& os) const
 {
+    if (id >= ArraySize(Objects)) { os << id; return; }
     object_data::write (os);
     os << number << x << y;
-    if (id >= ArraySize(Objects)) return;
     if (strcmp (objstr, Objects[id].objstr))
 	os.write_strz (objstr);
     else os << '\0';
@@ -533,9 +535,11 @@ void object::write (ostream& os) const
 // have been saved as different from the typical
 void object::read (istream& is)
 {
+    is >> id;
+    if (id >= ArraySize(Objects)) return;
+    is.iseek (is.ipos() - stream_size_of(id));
     object_data::read (is);
     is >> number >> x >> y;
-    if (id >= ArraySize(Objects)) return;
     objstr = Objects[id].objstr;
     truename = Objects[id].truename;
     cursestr = Objects[id].cursestr;
@@ -548,9 +552,10 @@ void object::read (istream& is)
 
 streamsize object::stream_size (void) const
 {
-    streamsize r = object_data::stream_size();
+    streamsize r = 0;
+    if (id >= ArraySize(Objects)) return (stream_size_of(id));
+    r += object_data::stream_size();
     r += stream_size_of(number) + stream_size_of(x) + stream_size_of(y);
-    if (id >= ArraySize(Objects)) return (r);
     ++r; if (objstr && strcmp (objstr, Objects[id].objstr)) r += strlen(objstr);
     ++r; if (truename && strcmp (truename, Objects[id].truename)) r += strlen(truename);
     ++r; if (cursestr && strcmp (cursestr, Objects[id].cursestr)) r += strlen(truename);
