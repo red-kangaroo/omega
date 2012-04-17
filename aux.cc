@@ -25,7 +25,7 @@ void tunnelcheck (void)
 {
     if ((Level->depth == 0 && Current_Environment != E_DLAIR) || Current_Environment == E_ASTRAL)
 	return;
-    Level->tunnelled++;
+    ++Level->tunnelled;
     if (Level->tunnelled > LENGTH / 4)
 	mprint ("Dust and stone fragments fall on you from overhead.");
     if (Level->tunnelled > LENGTH / 2)
@@ -2142,9 +2142,9 @@ void change_environment (int new_environment)
 	    Player.x = WIDTH / 2;
 	    Player.y = LENGTH / 2;
 	    while (Level->site[Player.x][Player.y].locchar == WATER) {
-		if (Player.y < LENGTH / 2 + 5)
+		if (Player.y < (int)LENGTH / 2 + 5)
 		    Player.y++;
-		else if (Player.x > WIDTH / 2 - 10) {
+		else if (Player.x > (int)WIDTH / 2 - 10) {
 		    Player.x--;
 		    Player.y = LENGTH / 2 - 5;
 		} else {

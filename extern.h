@@ -196,13 +196,11 @@ void statue_random(int x, int y);
 void stock_level(void);
 void wandercheck(void);
 // file.c
-FILE *checkfopen(const char* filestring, const char* optionstring);
-int filecheck(void);
 void abyss_file(void);
 void adeptfile(void);
 void cityguidefile(void);
 void combat_help(void);
-void displayfile(const char* filestr);
+void displayfile(const char* filedata);
 void inv_help(void);
 void showmotd(void);
 void theologyfile(void);

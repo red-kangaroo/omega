@@ -49,10 +49,10 @@ void show_screen (void)
 {
     wclear (Levelw);
     int top = max (0, ScreenOffset);
-    int bottom = min (LENGTH, ScreenOffset + ScreenLength);
+    int bottom = min ((int)LENGTH, ScreenOffset + ScreenLength);
     for (int j = top; j < bottom; j++) {
 	wmove (Levelw, screenmod (j), 0);
-	for (int i = 0; i < WIDTH; i++) {
+	for (unsigned i = 0; i < WIDTH; i++) {
 	    chtype c = SPACE;
 	    if (Current_Environment == E_COUNTRYSIDE) {
 		if (c_statusp (i, j, SEEN))
@@ -295,8 +295,8 @@ void nprint3 (const char* s)
 void mprint (const char* s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
-	int x = getcurx (Msgw);
-	if (x + (int)strlen (s) >= WIDTH) {
+	unsigned x = getcurx (Msgw);
+	if (x + strlen (s) >= WIDTH) {
 	    buffercycle (s);
 	    if (Msgw == Msg1w) {
 		wclear (Msg2w);
@@ -860,17 +860,16 @@ void locprint (const char* s)
 // draw everything whether visible or not
 void drawscreen (void)
 {
-    int i, j;
     if (Current_Environment == E_COUNTRYSIDE)
-	for (i = 0; i < WIDTH; i++)
-	    for (j = 0; j < LENGTH; j++)
+	for (unsigned i = 0; i < WIDTH; i++)
+	    for (unsigned j = 0; j < LENGTH; j++)
 		c_set (i, j, SEEN);
     else
-	for (i = 0; i < WIDTH; i++)
-	    for (j = 0; j < LENGTH; j++)
+	for (unsigned i = 0; i < WIDTH; i++)
+	    for (unsigned j = 0; j < LENGTH; j++)
 		lset (i, j, SEEN);
     if (Current_Environment == E_CITY)
-	for (i = 0; i < NUMCITYSITES; i++)
+	for (unsigned i = 0; i < NUMCITYSITES; i++)
 	    CitySiteList[i][0] = 1;
     show_screen();
 }

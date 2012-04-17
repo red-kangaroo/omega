@@ -84,12 +84,12 @@ void load_arena (void)
     Level = new level;
     clear_level (Level);
     Level->environment = E_ARENA;
-    FILE* fd = checkfopen (OMEGALIB "arena.dat", "rb");
-    for (int j = 0; j < LENGTH; j++) {
-	for (int i = 0; i < WIDTH; i++) {
+    const char* ld = Level_Arena;
+    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
+	for (unsigned i = 0; i < WIDTH; i++) {
 	    Level->site[i][j].lstatus = SEEN + LIT;
 	    Level->site[i][j].roomnumber = RS_ARENA;
-	    char site = getc (fd);
+	    char site = *ld++;
 	    Level->site[i][j].p_locf = L_NO_OP;
 	    switch (site) {
 		case 'P':
@@ -109,9 +109,7 @@ void load_arena (void)
 	    }
 	    Level->site[i][j].showchar = Level->site[i][j].locchar;
 	}
-	getc (fd);
     }
-    fclose (fd);
 
     static const uint8_t _opponents[] = {
 	GEEK, HORNET, HYENA, GOBLIN, GRUNT, TOVE, APPR_NINJA, SALAMANDER, ANT, MANTICORE,
@@ -176,10 +174,7 @@ void load_arena (void)
 // loads the sorcereror's circle into Level
 void load_circle (int populate)
 {
-    int i, j;
     int safe = (Player.rank[CIRCLE] >= INITIATE);
-    FILE *fd;
-
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
 	free_level (TempLevel);
@@ -188,13 +183,13 @@ void load_circle (int populate)
     Level = new level;
     clear_level (Level);
     Level->environment = E_CIRCLE;
-    fd = checkfopen (OMEGALIB "circle.dat", "rb");
-    for (j = 0; j < LENGTH; j++) {
-	for (i = 0; i < WIDTH; i++) {
+    const char* ld = Level_Circle;
+    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
+	for (unsigned i = 0; i < WIDTH; ++i) {
 	    Level->site[i][j].lstatus = 0;
 	    Level->site[i][j].roomnumber = RS_CIRCLE;
 	    Level->site[i][j].p_locf = L_NO_OP;
-	    char site = getc (fd);
+	    char site = *ld++;
 	    switch (site) {
 		case 'P':
 		    Level->site[i][j].locchar = FLOOR;
@@ -278,9 +273,7 @@ void load_circle (int populate)
 		    break;
 	    }
 	}
-	getc (fd);
     }
-    fclose (fd);
 }
 
 // make the prime sorceror
@@ -296,9 +289,6 @@ static monster& make_prime (int i, int j)
 // loads the court of the archmage into Level
 void load_court (int populate)
 {
-    int i, j;
-    FILE *fd;
-
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
 	free_level (TempLevel);
@@ -307,13 +297,13 @@ void load_court (int populate)
     Level = new level;
     clear_level (Level);
     Level->environment = E_COURT;
-    fd = checkfopen (OMEGALIB "court.dat", "rb");
-    for (j = 0; j < LENGTH; j++) {
-	for (i = 0; i < WIDTH; i++) {
+    const char* ld = Level_Court;
+    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
+	for (unsigned i = 0; i < WIDTH; ++i) {
 	    Level->site[i][j].lstatus = 0;
 	    Level->site[i][j].roomnumber = RS_COURT;
 	    Level->site[i][j].p_locf = L_NO_OP;
-	    char site = getc (fd);
+	    char site = *ld++;
 	    switch (site) {
 		case '5':
 		    Level->site[i][j].locchar = CHAIR;
@@ -370,9 +360,7 @@ void load_court (int populate)
 		    break;
 	    }
 	}
-	getc (fd);
     }
-    fclose (fd);
 }
 
 // make the archmage
@@ -387,23 +375,17 @@ static monster& make_archmage (int i, int j)
 // loads the abyss level into Level
 void load_abyss (void)
 {
-    int i, j;
-
-    FILE *fd;
-
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
 	free_level (TempLevel);
 	TempLevel = NULL;
     }
     Level = new level;
-
     clear_level (Level);
-
-    fd = checkfopen (OMEGALIB "abyss.dat", "rb");
-    for (j = 0; j < LENGTH; j++) {
-	for (i = 0; i < WIDTH; i++) {
-	    char site = getc (fd);
+    const char* ld = Level_Abyss;
+    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
+	for (unsigned i = 0; i < WIDTH; ++i) {
+	    char site = *ld++;
 	    Level->site[i][j].roomnumber = RS_ADEPT;
 	    switch (site) {
 		case '0':
@@ -434,7 +416,7 @@ void load_abyss (void)
 		    Level->site[i][j].locchar = FIRE;
 		    Level->site[i][j].p_locf = L_FIRE_STATION;
 		    break;
-		case '"':
+		case '(':
 		    Level->site[i][j].locchar = HEDGE;
 		    Level->site[i][j].p_locf = L_EARTH_STATION;
 		    break;
@@ -450,18 +432,13 @@ void load_abyss (void)
 		    break;
 	    }
 	}
-	getc (fd);
     }
-    fclose (fd);
 }
 
 // loads the city level
 void load_city (int populate)
 {
     initrand (E_CITY, 0);
-
-    FILE* fd = checkfopen (OMEGALIB "city.dat", "rb");
-
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
 	free_level (TempLevel);
@@ -471,10 +448,11 @@ void load_city (int populate)
     clear_level (Level);
     Level->depth = 0;
     Level->environment = E_CITY;
-    for (int j = 0; j < LENGTH; j++) {
-	for (int i = 0; i < WIDTH; i++) {
+    const char* ld = Level_City;
+    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
+	for (unsigned i = 0; i < WIDTH; ++i) {
 	    lset (i, j, SEEN);
-	    char site = getc (fd);
+	    char site = *ld++;
 	    switch (site) {
 		case 'g':
 		    Level->site[i][j].locchar = FLOOR;
@@ -537,7 +515,7 @@ void load_city (int populate)
 		    CitySiteList[L_CASTLE - CITYSITEBASE][1] = i;
 		    CitySiteList[L_CASTLE - CITYSITEBASE][2] = j;
 		    break;
-		case '?':
+		case 'm':
 		    mazesite (i, j, populate);
 		    break;
 		case 'P':
@@ -671,7 +649,7 @@ void load_city (int populate)
 		    Level->site[i][j].p_locf = TRAP_BASE + random_range (NUMTRAPS);
 		    lset (i, j, SECRET);
 		    break;
-		case '"':
+		case '(':
 		    Level->site[i][j].locchar = HEDGE;
 		    break;
 		case '~':
@@ -717,7 +695,6 @@ void load_city (int populate)
 		    Level->site[i][j].showchar = Level->site[i][j].locchar;
 	    }
 	}
-	getc (fd);	// Skip newline
     }
     City = Level;
 
@@ -727,7 +704,6 @@ void load_city (int populate)
 	m_status_reset (*m, AWAKE);
 	m->wakeup = 2;
     }
-    fclose (fd);
     initrand (E_RESTORE, 0);
 }
 
@@ -898,11 +874,10 @@ static void make_justiciar (int i, int j)
 // loads the city level
 void resurrect_guards (void)
 {
-    FILE* fd = checkfopen (OMEGALIB "city.dat", "rb");
-    for (int j = 0; j < LENGTH; j++) {
-	for (int i = 0; i < WIDTH; i++) {
-	    char site = getc (fd);
-	    if (site == 'G') {
+    const char* ld = Level_City;
+    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
+	for (unsigned i = 0; i < WIDTH; ++i) {
+	    if (*ld++ == 'G') {
 		monster& m = make_site_monster (i, j, GUARD);
 		m.monstring = "undead guardsman";
 		m.meleef = M_MELEE_SPIRIT;
@@ -917,28 +892,23 @@ void resurrect_guards (void)
 		m_status_set (m, AWAKE);
 	    }
 	}
-	getc (fd);
     }
-    fclose (fd);
 }
 
 static void mazesite (int i, int j, int populate)
 {
-    static FILE *fd = NULL;
+    static const char* _mazes[] = { Level_Maze1, Level_Maze2, Level_Maze3, Level_Maze4 };
+    static const char* ld = NULL;
     static int k = 0;
-    if (fd == NULL) {
-	strcpy (Str2, OMEGALIB);
-	strcpy (Str4, "maze .dat");
-	Str4[4] = '1' + random_range (4);
-	strcat (Str2, Str4);
-	fd = checkfopen (Str2, "rb");
+    if (!ld)
+	ld = _mazes[random_range(ArraySize(_mazes))];
+    char site = *ld++;
+    if (++k >= 286) {
+	k = 0;
+	ld = NULL;
     }
-    char site = getc (fd);
-    k++;
-    if (k == 286)
-	fclose (fd);
     switch (site) {
-	case '"':
+	case '(':
 	    Level->site[i][j].locchar = HEDGE;
 	    if (random_range (10))
 		Level->site[i][j].p_locf = L_HEDGE;
@@ -965,7 +935,7 @@ static void mazesite (int i, int j, int populate)
 	    CitySiteList[L_ORACLE - CITYSITEBASE][1] = i;
 	    CitySiteList[L_ORACLE - CITYSITEBASE][2] = j;
 	    break;
-	case '?':
+	case 's':
 	    randommazesite (i, j, populate);
 	    break;
     }
@@ -1049,15 +1019,10 @@ static void repair_jail (void)
 // loads the countryside level from the data file
 void load_country (void)
 {
-    int i, j;
-
-    FILE *fd;
-
-    fd = checkfopen (OMEGALIB "country.dat", "rb");
-
-    for (j = 0; j < LENGTH; j++) {
-	for (i = 0; i < WIDTH; i++) {
-	    char site = getc (fd);
+    const char* ld = Level_Country;
+    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
+	for (unsigned i = 0; i < WIDTH; ++i) {
+	    char site = *ld++;
 	    Country[i][j].aux = 0;
 	    Country[i][j].status = 0;
 	    switch (site) {
@@ -1142,23 +1107,16 @@ void load_country (void)
 		    break;
 	    }
 	}
-	getc (fd);
     }
-    fclose (fd);
 }
 
 // loads the dragon's lair into Level
 void load_dlair (int empty, int populate)
 {
-    int i, j;
-
-    FILE *fd;
-
     if (empty) {
 	mprint ("The Lair is now devoid of inhabitants and treasure.");
 	morewait();
     }
-
     if (!populate)
 	empty = TRUE;
     TempLevel = Level;
@@ -1169,16 +1127,16 @@ void load_dlair (int empty, int populate)
     Level = new level;
     clear_level (Level);
     Level->environment = E_DLAIR;
-    fd = checkfopen (OMEGALIB "dlair.dat", "rb");
-    for (j = 0; j < LENGTH; j++) {
-	for (i = 0; i < WIDTH; i++) {
+    const char* ld = Level_DragonLair;
+    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
+	for (unsigned i = 0; i < WIDTH; ++i) {
 	    Level->site[i][j].lstatus = 0;
 	    if (i < 48)
 		Level->site[i][j].roomnumber = RS_CAVERN;
 	    else
 		Level->site[i][j].roomnumber = RS_DRAGONLORD;
 	    Level->site[i][j].p_locf = L_NO_OP;
-	    char site = getc (fd);
+	    char site = *ld++;
 	    switch (site) {
 		case 'D':
 		    Level->site[i][j].locchar = FLOOR;
@@ -1255,26 +1213,19 @@ void load_dlair (int empty, int populate)
 		    break;
 	    }
 	}
-	getc (fd);
     }
-    fclose (fd);
 }
 
 // loads the star peak into Level
 void load_speak (int empty, int populate)
 {
-    int i, j, safe = Player.alignment > 0;
-
-    FILE *fd;
-
+    const bool safe = Player.alignment > 0;
     if (empty) {
 	mprint ("The peak is now devoid of inhabitants and treasure.");
 	morewait();
     }
-
     if (!populate)
 	empty = TRUE;
-
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
 	free_level (TempLevel);
@@ -1283,13 +1234,13 @@ void load_speak (int empty, int populate)
     Level = new level;
     clear_level (Level);
     Level->environment = E_STARPEAK;
-    fd = checkfopen (OMEGALIB "speak.dat", "rb");
-    for (j = 0; j < LENGTH; j++) {
-	for (i = 0; i < WIDTH; i++) {
+    const char* ld = Level_StarPeak;
+    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
+	for (unsigned i = 0; i < WIDTH; ++i) {
 	    Level->site[i][j].lstatus = 0;
 	    Level->site[i][j].roomnumber = RS_STARPEAK;
 	    Level->site[i][j].p_locf = L_NO_OP;
-	    char site = getc (fd);
+	    char site = *ld++;
 	    switch (site) {
 		case 'S':
 		    Level->site[i][j].locchar = FLOOR;
@@ -1369,26 +1320,18 @@ void load_speak (int empty, int populate)
 		    break;
 	    }
 	}
-	getc (fd);
     }
-    fclose (fd);
 }
 
 // loads the magic isle into Level
 void load_misle (int empty, int populate)
 {
-    int i, j;
-
-    FILE *fd;
-
     if (empty) {
 	mprint ("The isle is now devoid of inhabitants and treasure.");
 	morewait();
     }
-
     if (!populate)
 	empty = TRUE;
-
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
 	free_level (TempLevel);
@@ -1397,13 +1340,13 @@ void load_misle (int empty, int populate)
     Level = new level;
     clear_level (Level);
     Level->environment = E_MAGIC_ISLE;
-    fd = checkfopen (OMEGALIB "misle.dat", "rb");
-    for (j = 0; j < LENGTH; j++) {
-	for (i = 0; i < WIDTH; i++) {
+    const char* ld = Level_MagicIsle;
+    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
+	for (unsigned i = 0; i < WIDTH; ++i) {
 	    Level->site[i][j].lstatus = 0;
 	    Level->site[i][j].roomnumber = RS_MAGIC_ISLE;
 	    Level->site[i][j].p_locf = L_NO_OP;
-	    char site = getc (fd);
+	    char site = *ld++;
 	    switch (site) {
 		case 'E':
 		    Level->site[i][j].locchar = FLOOR;
@@ -1451,9 +1394,7 @@ void load_misle (int empty, int populate)
 		    break;
 	    }
 	}
-	getc (fd);
     }
-    fclose (fd);
 }
 
 // loads a temple into Level
@@ -1467,30 +1408,18 @@ void load_temple (int deity, int populate)
     Level = new level;
     clear_level (Level);
     Level->environment = E_TEMPLE;
-    FILE* fd = checkfopen (OMEGALIB "temple.dat", "rb");
-    for (int j = 0; j < LENGTH; j++) {
-	for (int i = 0; i < WIDTH; i++) {
+    const char* ld = Level_Temple;
+    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
+	for (unsigned i = 0; i < WIDTH; ++i) {
 	    switch (deity) {
-		case ODIN:
-		    Level->site[i][j].roomnumber = RS_ODIN;
-		    break;
-		case SET:
-		    Level->site[i][j].roomnumber = RS_SET;
-		    break;
-		case HECATE:
-		    Level->site[i][j].roomnumber = RS_HECATE;
-		    break;
-		case ATHENA:
-		    Level->site[i][j].roomnumber = RS_ATHENA;
-		    break;
-		case DRUID:
-		    Level->site[i][j].roomnumber = RS_DRUID;
-		    break;
-		case DESTINY:
-		    Level->site[i][j].roomnumber = RS_DESTINY;
-		    break;
+		case ODIN:	Level->site[i][j].roomnumber = RS_ODIN; break;
+		case SET:	Level->site[i][j].roomnumber = RS_SET; break;
+		case HECATE:	Level->site[i][j].roomnumber = RS_HECATE; break;
+		case ATHENA:	Level->site[i][j].roomnumber = RS_ATHENA; break;
+		case DRUID:	Level->site[i][j].roomnumber = RS_DRUID; break;
+		case DESTINY:	Level->site[i][j].roomnumber = RS_DESTINY; break;
 	    }
-	    char site = getc (fd);
+	    char site = *ld++;
 	    switch (site) {
 		case '8':
 		    Level->site[i][j].locchar = ALTAR;
@@ -1558,9 +1487,7 @@ void load_temple (int deity, int populate)
 		    break;
 	    }
 	}
-	getc (fd);
     }
-    fclose (fd);
     // Main Temple is peaceful for player of same sect, druids always peaceful.
     if (Player.patron == deity || deity == DRUID)
 	foreach (m, Level->mlist)
@@ -2711,11 +2638,6 @@ void l_order (void)
 // loads the house level into Level
 void load_house (int kind, int populate)
 {
-    int i, j;
-    int stops;
-
-    FILE *fd;
-
     TempLevel = Level;
     initrand (Current_Environment, Player.x + Player.y + hour() * 10);
     if (ok_to_free (TempLevel)) {
@@ -2724,32 +2646,17 @@ void load_house (int kind, int populate)
     }
     Level = new level;
     clear_level (Level);
-    switch (kind) {
-	case E_HOUSE:
-	    strcpy (Str3, OMEGALIB "home1.dat");
-	    Level->environment = E_HOUSE;
-	    break;
-	case E_MANSION:
-	    strcpy (Str3, OMEGALIB "home2.dat");
-	    Level->environment = E_MANSION;
-	    break;
-	default:
-	case E_HOVEL:
-	    strcpy (Str3, OMEGALIB "home3.dat");
-	    Level->environment = E_HOVEL;
-	    break;
-    }
-    fd = checkfopen (Str3, "rb");
-    stops = 0;
-    for (j = 0; j < LENGTH; j++) {
-	for (i = 0; i < WIDTH; i++) {
+    const char* ld = (kind == E_HOUSE ? Level_Home1 : (kind == E_MANSION ? Level_Home2 : Level_Home3));
+    unsigned stops = 0;
+    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
+	for (unsigned i = 0; i < WIDTH; ++i) {
 	    if (kind == E_HOVEL)
 		Level->site[i][j].lstatus = SEEN;
 	    else
 		Level->site[i][j].lstatus = 0;
 	    Level->site[i][j].roomnumber = RS_CORRIDOR;
 	    Level->site[i][j].p_locf = L_NO_OP;
-	    char site = getc (fd);
+	    char site = *ld++;
 	    switch (site) {
 		case 'N':
 		    Level->site[i][j].locchar = FLOOR;
@@ -2872,9 +2779,7 @@ void load_house (int kind, int populate)
 	    }
 	    Level->site[i][j].showchar = ' ';
 	}
-	getc (fd);
     }
-    fclose (fd);
     initrand (E_RESTORE, 0);
 }
 
@@ -2909,49 +2814,25 @@ static void make_mansion_npc (int i, int j)
 // loads the village level into Level
 void load_village (int villagenum, int populate)
 {
-    int i, j;
-
-    FILE *fd;
-
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
 	free_level (TempLevel);
 	TempLevel = NULL;
     }
-
     initrand (Current_Environment, villagenum);
-
     assign_village_function (0, 0, TRUE);
-
     Level = new level;
     clear_level (Level);
     Level->environment = E_VILLAGE;
-    strcpy (Str3, OMEGALIB);
-    switch (villagenum) {
-	case 1:
-	    strcat (Str3, "village1.dat");
-	    break;
-	case 2:
-	    strcat (Str3, "village2.dat");
-	    break;
-	case 3:
-	    strcat (Str3, "village3.dat");
-	    break;
-	case 4:
-	    strcat (Str3, "village4.dat");
-	    break;
-	case 5:
-	    strcat (Str3, "village5.dat");
-	    break;
-	case 6:
-	    strcat (Str3, "village6.dat");
-	    break;
-    }
-    fd = checkfopen (Str3, "rb");
-    for (j = 0; j < LENGTH; j++) {
-	for (i = 0; i < WIDTH; i++) {
+    static const char* _villages[] = {
+	Level_Village1, Level_Village2, Level_Village3,
+	Level_Village4, Level_Village5, Level_Village6
+    };
+    const char* ld = _villages[villagenum-1];
+    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
+	for (unsigned i = 0; i < WIDTH; ++i) {
 	    lset (i, j, SEEN);
-	    char site = getc (fd);
+	    char site = *ld++;
 	    Level->site[i][j].p_locf = L_NO_OP;
 	    switch (site) {
 		case 'f':
@@ -3005,7 +2886,7 @@ void load_village (int villagenum, int populate)
 		    Level->site[i][j].locchar = FLOOR;
 		    Level->site[i][j].p_locf = L_TRAP_SIREN;
 		    break;
-		case '"':
+		case '(':
 		    Level->site[i][j].locchar = HEDGE;
 		    Level->site[i][j].p_locf = L_HEDGE;
 		    break;
@@ -3043,9 +2924,7 @@ void load_village (int villagenum, int populate)
 	    else
 		Level->site[i][j].showchar = Level->site[i][j].locchar;
 	}
-	getc (fd);
     }
-    fclose (fd);
     initrand (E_RESTORE, 0);
 }
 
@@ -3971,7 +3850,6 @@ void l_healer (void)
 
 void statue_random (int x, int y)
 {
-    int i, j;
     switch (random_range (difficulty() + 3) - 1) {
 	default:
 	    l_statue_wake();
@@ -4035,14 +3913,15 @@ void statue_random (int x, int y)
 	    break;
 	case 9:
 	    print1 ("The statue extends an arm. Beams of light illuminate the level!");
-	    for (i = 0; i < WIDTH; i++)
-		for (j = 0; j < LENGTH; j++) {
+	    for (unsigned i = 0; i < WIDTH; i++) {
+		for (unsigned j = 0; j < LENGTH; j++) {
 		    lset (i, j, SEEN);
 		    if (loc_statusp (i, j, SECRET)) {
 			lreset (i, j, SECRET);
 			lset (i, j, CHANGED);
 		    }
 		}
+	    }
 	    show_screen();
 	    break;
     }

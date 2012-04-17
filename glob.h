@@ -9,8 +9,8 @@ extern uint8_t ObjectAttrs[TOTALITEMS];		// attributes such as known and uniquen
 extern const struct object_data NullObject;
 extern int CitySiteList[NUMCITYSITES][3];	// locations of city sites [0] - found, [1] - x, [2] - y
 extern struct player Player;			// the player
-extern int LENGTH;				// level y dimension
-extern int WIDTH;				// level x dimension
+extern unsigned LENGTH;				// level y dimension
+extern unsigned WIDTH;				// level x dimension
 extern long GameStatus;				// Game Status bit vector
 extern int ScreenLength;			// How large is level window
 extern struct terrain Country[MAXWIDTH][MAXLENGTH];	// The countryside
@@ -110,6 +110,51 @@ extern int tavern_hinthour;
 
 extern int deepest[E_MAX + 1];
 extern int level_seed[E_MAX + 1];
+
+// Data files
+extern const char Help_Overview[];
+extern const char Help_Character[];
+extern const char Help_Inventory[];
+extern const char Help_Movement[];
+extern const char Help_Combat[];
+extern const char Help_Bugs[];
+extern const char Help_Magic[];
+extern const char Help_Countryside[];
+extern const char Help_Screen[];
+extern const char Help_Saving[];
+extern const char Help_Options[];
+extern const char Help_CityCommands[];
+extern const char Help_CountryCommands[];
+extern const char Data_AbyssIntro[];
+extern const char Data_Intro[];
+extern const char Data_Title[];
+extern const char Data_ScrollReligion[];
+extern const char Data_ScrollRampartGuide[];
+extern const char Data_ScrollHiMagick[];
+extern const char Data_ScrollAdept[];
+extern const char Level_Abyss[];
+extern const char Level_Arena[];
+extern const char Level_Circle[];
+extern const char Level_City[];
+extern const char Level_Country[];
+extern const char Level_Court[];
+extern const char Level_DragonLair[];
+extern const char Level_Home1[];
+extern const char Level_Home2[];
+extern const char Level_Home3[];
+extern const char Level_Maze1[];
+extern const char Level_Maze2[];
+extern const char Level_Maze3[];
+extern const char Level_Maze4[];
+extern const char Level_MagicIsle[];
+extern const char Level_StarPeak[];
+extern const char Level_Temple[];
+extern const char Level_Village1[];
+extern const char Level_Village2[];
+extern const char Level_Village3[];
+extern const char Level_Village4[];
+extern const char Level_Village5[];
+extern const char Level_Village6[];
 
 namespace {
 

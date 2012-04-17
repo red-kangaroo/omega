@@ -389,24 +389,24 @@ static void l_rubble (void)
 // Drops all portcullises in 5 moves
 void l_portcullis_trap (void)
 {
-    int i, j, slam = FALSE;
-
+    bool slam = false;
     print3 ("Click.");
     morewait();
-    for (i = max (Player.x - 5, 0); i < min (Player.x + 6, WIDTH); i++)
-	for (j = max (Player.y - 5, 0); j < min (Player.y + 6, LENGTH); j++) {
+    for (unsigned i = max (Player.x - 5, 0); i < min (6u+Player.x, WIDTH); i++) {
+	for (unsigned j = max (Player.y - 5, 0); j < min (6u+Player.y, LENGTH); j++) {
 	    if ((Level->site[i][j].p_locf == L_PORTCULLIS) && (Level->site[i][j].locchar != PORTCULLIS)) {
 		Level->site[i][j].locchar = PORTCULLIS;
 		lset (i, j, CHANGED);
 		putspot (i, j, PORTCULLIS);
-		if ((i == Player.x) && (j == Player.y)) {
+		if ((int)i == Player.x && (int)j == Player.y) {
 		    print3 ("Smash! You've been hit by a falling portcullis!");
 		    morewait();
 		    p_damage (random_range (1000), NORMAL_DAMAGE, "a portcullis");
 		}
-		slam = TRUE;
+		slam = true;
 	    }
 	}
+    }
     if (slam)
 	print3 ("You hear heavy walls slamming down!");
 }
@@ -414,12 +414,11 @@ void l_portcullis_trap (void)
 // drops every portcullis on level, then kills itself and all similar traps.
 static void l_drop_every_portcullis (void)
 {
-    int i, j, slam = FALSE;
-
+    bool slam = false;
     print3 ("Click.");
     morewait();
-    for (i = 0; i < WIDTH; i++)
-	for (j = 0; j < LENGTH; j++) {
+    for (unsigned i = 0; i < WIDTH; i++) {
+	for (unsigned j = 0; j < LENGTH; j++) {
 	    if (Level->site[i][j].p_locf == L_DROP_EVERY_PORTCULLIS) {
 		Level->site[i][j].p_locf = L_NO_OP;
 		lset (i, j, CHANGED);
@@ -427,30 +426,32 @@ static void l_drop_every_portcullis (void)
 		Level->site[i][j].locchar = PORTCULLIS;
 		lset (i, j, CHANGED);
 		putspot (i, j, PORTCULLIS);
-		if ((i == Player.x) && (j == Player.y)) {
+		if ((int)i == Player.x && (int)j == Player.y) {
 		    print3 ("Smash! You've been hit by a falling portcullis!");
 		    morewait();
 		    p_damage (random_range (1000), NORMAL_DAMAGE, "a portcullis");
 		}
-		slam = TRUE;
+		slam = true;
 	    }
 	}
+    }
     if (slam)
 	print3 ("You hear heavy walls slamming down!");
 }
 
 void l_raise_portcullis (void)
 {
-    int i, j, open = FALSE;
-    for (i = 0; i < WIDTH; i++)
-	for (j = 0; j < LENGTH; j++) {
+    bool open = false;
+    for (unsigned i = 0; i < WIDTH; i++) {
+	for (unsigned j = 0; j < LENGTH; j++) {
 	    if (Level->site[i][j].locchar == PORTCULLIS) {
 		Level->site[i][j].locchar = FLOOR;
 		lset (i, j, CHANGED);
 		putspot (i, j, FLOOR);
-		open = TRUE;
+		open = true;
 	    }
 	}
+    }
     if (open)
 	print1 ("You hear the sound of steel on stone!");
 }
@@ -646,17 +647,16 @@ static void l_earth_station (void)
 
 static void stationcheck (void)
 {
-    int stationsleft = FALSE;
-    int i, j;
+    bool stationsleft = false;
     morewait();
     clearmsg();
     print1 ("You feel regenerated.");
     Player.hp = Player.maxhp;
     dataprint();
-    for (i = 0; i < WIDTH; i++)
-	for (j = 0; j < LENGTH; j++)
+    for (unsigned i = 0; i < WIDTH; ++i)
+	for (unsigned j = 0; j < LENGTH; ++j)
 	    if ((Level->site[i][j].locchar == WATER) || (Level->site[i][j].locchar == HEDGE) || (Level->site[i][j].locchar == WHIRLWIND) || (Level->site[i][j].locchar == FIRE))
-		stationsleft = TRUE;
+		stationsleft = true;
     if (!stationsleft) {
 	print1 ("There is a noise like a wild horse's neigh.");
 	print2 ("You spin around, and don't see anyone around at all");

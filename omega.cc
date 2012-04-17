@@ -35,8 +35,8 @@ uint8_t ObjectAttrs[TOTALITEMS] = {0};
 int CitySiteList[NUMCITYSITES][3];
 
 // Currently defined in caps since it is now a variable, was a constant
-int LENGTH = MAXLENGTH;
-int WIDTH = MAXWIDTH;
+unsigned LENGTH = MAXLENGTH;
+unsigned WIDTH = MAXWIDTH;
 
 long GameStatus = 0L;		// Game Status bit vector
 int ScreenLength = 0;		// How large is level window
@@ -174,10 +174,6 @@ int main (int argc, const char* argv[])
     signal (SIGABRT, signalexit);
     signal (SIGBUS, signalexit);
     signal (SIGSYS, signalexit);
-
-    // if filecheck is 0, some necessary data files are missing
-    if (filecheck() == 0)
-	exit (0);
 
     // all kinds of initialization
     srandrand();

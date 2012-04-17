@@ -925,7 +925,7 @@ struct level {
     char depth;			// which level is this
     char generated;		// has the level been made (visited) yet?
     char numrooms;		// number of rooms on level
-    char tunnelled;		// amount of tunnelling done on this level
+    uint8_t tunnelled;		// amount of tunnelling done on this level
 public:
     monster*	creature (int x, int y);
     object*	thing (int x, int y);

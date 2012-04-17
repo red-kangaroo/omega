@@ -1542,53 +1542,35 @@ static void examine (void)
 static void help (void)
 {
     char c;
-    char filestr[80];
-    FILE *in, *out;
-    int n;
-
-    clearmsg();
-    print1 ("Please enter the letter indicating what topic you want help on.");
-    menuclear();
-    menuprint ("a: Overview\n");
-    menuprint ("b: Characters\n");
-    menuprint ("c: Inventories\n");
-    menuprint ("d: Movement\n");
-    menuprint ("e: Combat\n");
-    menuprint ("f: Bugs\n");
-    menuprint ("g: Magic\n");
-    menuprint ("h: The Countryside\n");
-    menuprint ("i: The Screen Display\n");
-    menuprint ("j: Saving and Restoring\n");
-    menuprint ("k: Options Settings\n");
-    menuprint ("l: Dungeon/City/Other Command List\n");
-    menuprint ("m: Countryside Command List\n");
-    menuprint ("n: Everything\n");
-    menuprint ("ESCAPE: Forget the whole thing.");
-    showmenu();
-    do
-	c = (char) mcigetc();
-    while ((c < 'a' || c > 'n') && c != KEY_ESCAPE);
-    if (c == 'n') {
-	print1 ("Trying to copy all help files to ./omega.doc ");
-	nprint1 ("Confirm [yn]");
-	if (ynq1() == 'y') {
-	    out = checkfopen ("omega.doc", "w");
-	    print2 ("Copying");
-	    for (n = 1; n <= 13; n++) {
-		nprint2 (".");
-		sprintf (Str1, OMEGALIB "help%d.txt", n);
-		in = checkfopen (Str1, "r");
-		while (fgets (Str1, STRING_LEN, in))
-		    fputs (Str1, out);
-		fclose (in);
-	    }
-	    fclose (out);
-	    nprint2 (" Done.");
+    do {
+	clearmsg();
+	print1 ("Please enter the letter indicating what topic you want help on.");
+	menuclear();
+	menuprint ("a: Overview\n");
+	menuprint ("b: Characters\n");
+	menuprint ("c: Inventories\n");
+	menuprint ("d: Movement\n");
+	menuprint ("e: Combat\n");
+	menuprint ("f: Bugs\n");
+	menuprint ("g: Magic\n");
+	menuprint ("h: The Countryside\n");
+	menuprint ("i: The Screen Display\n");
+	menuprint ("j: Saving and Restoring\n");
+	menuprint ("k: Options Settings\n");
+	menuprint ("l: Dungeon/City/Other Command List\n");
+	menuprint ("m: Countryside Command List\n");
+	menuprint ("ESCAPE: Forget the whole thing.");
+	showmenu();
+	c = mcigetc();
+	if (c >= 'a' && c <= 'm') {
+	    static const char* _helps[] = {
+		Help_Overview, Help_Character, Help_Inventory, Help_Movement,
+		Help_Combat, Help_Bugs, Help_Magic, Help_Countryside, Help_Screen,
+		Help_Saving, Help_Options, Help_CityCommands, Help_CountryCommands
+	    };
+	    displayfile (_helps[c-'a']);
 	}
-    } else if (c != KEY_ESCAPE) {
-	sprintf (filestr, OMEGALIB "help%d.txt", c + 1 - 'a');
-	displayfile (filestr);
-    }
+    } while (c != KEY_ESCAPE);
     xredraw();
 }
 

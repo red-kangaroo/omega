@@ -1637,11 +1637,9 @@ void learnspell (int blessing)
 
 void amnesia (void)
 {
-    int i, j;
-    for (j = 0; j < LENGTH; j++)
-	for (i = 0; i < WIDTH; i++)
+    for (unsigned j = 0; j < LENGTH; j++)
+	for (unsigned i = 0; i < WIDTH; i++)
 	    lreset (i, j, SEEN);
-
     erase_level();
     drawvision (Player.x, Player.y);
 }
