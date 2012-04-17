@@ -1587,14 +1587,7 @@ static void help (void)
 	}
     } else if (c != KEY_ESCAPE) {
 	sprintf (filestr, OMEGALIB "help%d.txt", c + 1 - 'a');
-	print1 ("Display help file, or Copy help file to file in wd. [dc] ");
-	do
-	    c = (char) mcigetc();
-	while ((c != 'd') && (c != 'c') && (c != KEY_ESCAPE));
-	if (c == 'd')
-	    displayfile (filestr);
-	else if (c == 'c')
-	    copyfile (filestr);
+	displayfile (filestr);
     }
     xredraw();
 }

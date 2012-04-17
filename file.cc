@@ -7,10 +7,6 @@
 
 //----------------------------------------------------------------------
 
-static void displaycryptfile(const char* filestr);
-
-//----------------------------------------------------------------------
-
 FILE* checkfopen (const char* filestring, const char* optionstring)
 {
     FILE *fd;
@@ -40,13 +36,13 @@ FILE* checkfopen (const char* filestring, const char* optionstring)
 
 void user_intro (void)
 {
-    displaycryptfile (OMEGALIB "intro.txt");
+    displayfile (OMEGALIB "intro.txt");
     xredraw();
 }
 
 void abyss_file (void)
 {
-    displaycryptfile (OMEGALIB "abyss.txt");
+    displayfile (OMEGALIB "abyss.txt");
 }
 
 void inv_help (void)
@@ -63,25 +59,25 @@ void combat_help (void)
 
 void cityguidefile (void)
 {
-    displaycryptfile (OMEGALIB "scroll2.txt");
+    displayfile (OMEGALIB "scroll2.txt");
     xredraw();
 }
 
 void wishfile (void)
 {
-    displaycryptfile (OMEGALIB "scroll3.txt");
+    displayfile (OMEGALIB "scroll3.txt");
     xredraw();
 }
 
 void adeptfile (void)
 {
-    displaycryptfile (OMEGALIB "scroll4.txt");
+    displayfile (OMEGALIB "scroll4.txt");
     xredraw();
 }
 
 void theologyfile (void)
 {
-    displaycryptfile (OMEGALIB "scroll1.txt");
+    displayfile (OMEGALIB "scroll1.txt");
     xredraw();
 }
 
@@ -174,70 +170,4 @@ void displayfile (const char* filestr)
     clear();
     refresh();
     fclose (fd);
-}
-
-// display a file given a string name of file
-static void displaycryptfile (const char* filestr)
-{
-    FILE *fd = checkfopen (filestr, "rb");
-    int c, d = ' ';
-    char key = 100;
-
-    clear();
-    refresh();
-    c = fgetc (fd);
-    while ((c != EOF) && ((char) d != 'q') && ((char) d != KEY_ESCAPE)) {
-	if (getcury(stdscr) > ScreenLength) {
-	    standout();
-	    printw ("\n-More-");
-	    standend();
-	    refresh();
-	    d = wgetch (stdscr);
-	    clear();
-	}
-	key = ((unsigned char) c) ^ key;
-	printw ("%c", key);
-	c = fgetc (fd);
-    }
-    if (((char) d != 'q') && ((char) d != KEY_ESCAPE)) {
-	standout();
-	printw ("\n-Done-");
-	standend();
-	refresh();
-	getch();
-    }
-    clear();
-    refresh();
-    fclose (fd);
-}
-
-// copy a file given a string name of file
-void copyfile (const char* srcstr)
-{
-    char deststr[80];
-    char buffer[STRING_LEN];
-    FILE *in, *out;
-
-    print1 ("Enter name of file to create: ");
-    strcpy (deststr, msgscanstring());
-    if (strlen (deststr) == 0) {
-	print2 ("Aborting...");
-	morewait();
-	return;
-    }
-    in = checkfopen (srcstr, "rb");
-    out = fopen (deststr, "wb");
-    if (!out) {
-	sprintf (buffer, "Unable to write to file %s - Aborting.", deststr);
-	print2 (buffer);
-	morewait();
-	fclose (in);
-	return;
-    }
-    print2 ("Copying file....");
-    while (fgets (buffer, STRING_LEN, in))
-	fputs (buffer, out);
-    fclose (in);
-    fclose (out);
-    print3 ("Done.");
 }

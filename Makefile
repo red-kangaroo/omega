@@ -19,14 +19,6 @@ ${EXE}:	${OBJS}
 	@echo "Linking $@ ..."
 	@${CXX} ${LDFLAGS} -o $@ ${OBJS} ${LIBS}
 
-tools/crypt:	$Otools/crypt.o
-	@echo "Linking $@ ..."
-	@${CXX} ${LDFLAGS} -o $@ $<
-
-tools/decrypt:	$Otools/decrypt.o
-	@echo "Linking $@ ..."
-	@${CXX} ${LDFLAGS} -o $@ $<
-
 $O%.o:	%.cc
 	@echo "    Compiling $< ..."
 	@[ -d $(dir $@) ] || mkdir -p $(dir $@)

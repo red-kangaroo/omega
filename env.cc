@@ -85,12 +85,11 @@ void load_arena (void)
     clear_level (Level);
     Level->environment = E_ARENA;
     FILE* fd = checkfopen (OMEGALIB "arena.dat", "rb");
-    char site = cryptkey ("arena.dat");
     for (int j = 0; j < LENGTH; j++) {
 	for (int i = 0; i < WIDTH; i++) {
 	    Level->site[i][j].lstatus = SEEN + LIT;
 	    Level->site[i][j].roomnumber = RS_ARENA;
-	    site = getc (fd) ^ site;
+	    char site = getc (fd);
 	    Level->site[i][j].p_locf = L_NO_OP;
 	    switch (site) {
 		case 'P':
@@ -110,7 +109,7 @@ void load_arena (void)
 	    }
 	    Level->site[i][j].showchar = Level->site[i][j].locchar;
 	}
-	site = getc (fd) ^ site;
+	getc (fd);
     }
     fclose (fd);
 
@@ -179,7 +178,6 @@ void load_circle (int populate)
 {
     int i, j;
     int safe = (Player.rank[CIRCLE] >= INITIATE);
-    char site;
     FILE *fd;
 
     TempLevel = Level;
@@ -191,13 +189,12 @@ void load_circle (int populate)
     clear_level (Level);
     Level->environment = E_CIRCLE;
     fd = checkfopen (OMEGALIB "circle.dat", "rb");
-    site = cryptkey ("circle.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
 	    Level->site[i][j].lstatus = 0;
 	    Level->site[i][j].roomnumber = RS_CIRCLE;
 	    Level->site[i][j].p_locf = L_NO_OP;
-	    site = getc (fd) ^ site;
+	    char site = getc (fd);
 	    switch (site) {
 		case 'P':
 		    Level->site[i][j].locchar = FLOOR;
@@ -281,7 +278,7 @@ void load_circle (int populate)
 		    break;
 	    }
 	}
-	site = getc (fd) ^ site;
+	getc (fd);
     }
     fclose (fd);
 }
@@ -300,7 +297,6 @@ static monster& make_prime (int i, int j)
 void load_court (int populate)
 {
     int i, j;
-    char site;
     FILE *fd;
 
     TempLevel = Level;
@@ -312,13 +308,12 @@ void load_court (int populate)
     clear_level (Level);
     Level->environment = E_COURT;
     fd = checkfopen (OMEGALIB "court.dat", "rb");
-    site = cryptkey ("court.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
 	    Level->site[i][j].lstatus = 0;
 	    Level->site[i][j].roomnumber = RS_COURT;
 	    Level->site[i][j].p_locf = L_NO_OP;
-	    site = getc (fd) ^ site;
+	    char site = getc (fd);
 	    switch (site) {
 		case '5':
 		    Level->site[i][j].locchar = CHAIR;
@@ -375,7 +370,7 @@ void load_court (int populate)
 		    break;
 	    }
 	}
-	site = getc (fd) ^ site;
+	getc (fd);
     }
     fclose (fd);
 }
@@ -393,7 +388,6 @@ static monster& make_archmage (int i, int j)
 void load_abyss (void)
 {
     int i, j;
-    char site;
 
     FILE *fd;
 
@@ -407,10 +401,9 @@ void load_abyss (void)
     clear_level (Level);
 
     fd = checkfopen (OMEGALIB "abyss.dat", "rb");
-    site = cryptkey ("abyss.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
-	    site = getc (fd) ^ site;
+	    char site = getc (fd);
 	    Level->site[i][j].roomnumber = RS_ADEPT;
 	    switch (site) {
 		case '0':
@@ -457,7 +450,7 @@ void load_abyss (void)
 		    break;
 	    }
 	}
-	site = getc (fd) ^ site;
+	getc (fd);
     }
     fclose (fd);
 }
@@ -468,7 +461,6 @@ void load_city (int populate)
     initrand (E_CITY, 0);
 
     FILE* fd = checkfopen (OMEGALIB "city.dat", "rb");
-    char site = cryptkey ("city.dat");
 
     TempLevel = Level;
     if (ok_to_free (TempLevel)) {
@@ -482,7 +474,7 @@ void load_city (int populate)
     for (int j = 0; j < LENGTH; j++) {
 	for (int i = 0; i < WIDTH; i++) {
 	    lset (i, j, SEEN);
-	    site = getc (fd) ^ site;
+	    char site = getc (fd);
 	    switch (site) {
 		case 'g':
 		    Level->site[i][j].locchar = FLOOR;
@@ -725,7 +717,7 @@ void load_city (int populate)
 		    Level->site[i][j].showchar = Level->site[i][j].locchar;
 	    }
 	}
-	site = getc (fd) ^ site;
+	getc (fd);	// Skip newline
     }
     City = Level;
 
@@ -907,10 +899,9 @@ static void make_justiciar (int i, int j)
 void resurrect_guards (void)
 {
     FILE* fd = checkfopen (OMEGALIB "city.dat", "rb");
-    char site = cryptkey ("city.dat");
     for (int j = 0; j < LENGTH; j++) {
 	for (int i = 0; i < WIDTH; i++) {
-	    site = getc (fd) ^ site;
+	    char site = getc (fd);
 	    if (site == 'G') {
 		monster& m = make_site_monster (i, j, GUARD);
 		m.monstring = "undead guardsman";
@@ -926,7 +917,7 @@ void resurrect_guards (void)
 		m_status_set (m, AWAKE);
 	    }
 	}
-	site = getc (fd) ^ site;
+	getc (fd);
     }
     fclose (fd);
 }
@@ -935,16 +926,14 @@ static void mazesite (int i, int j, int populate)
 {
     static FILE *fd = NULL;
     static int k = 0;
-    static char site;
     if (fd == NULL) {
 	strcpy (Str2, OMEGALIB);
 	strcpy (Str4, "maze .dat");
 	Str4[4] = '1' + random_range (4);
 	strcat (Str2, Str4);
 	fd = checkfopen (Str2, "rb");
-	site = cryptkey ("mazes");
     }
-    site = getc (fd) ^ site;
+    char site = getc (fd);
     k++;
     if (k == 286)
 	fclose (fd);
@@ -1061,16 +1050,14 @@ static void repair_jail (void)
 void load_country (void)
 {
     int i, j;
-    char site;
 
     FILE *fd;
 
     fd = checkfopen (OMEGALIB "country.dat", "rb");
-    site = cryptkey ("country.dat");
 
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
-	    site = getc (fd) ^ site;
+	    char site = getc (fd);
 	    Country[i][j].aux = 0;
 	    Country[i][j].status = 0;
 	    switch (site) {
@@ -1155,7 +1142,7 @@ void load_country (void)
 		    break;
 	    }
 	}
-	site = getc (fd) ^ site;
+	getc (fd);
     }
     fclose (fd);
 }
@@ -1164,7 +1151,6 @@ void load_country (void)
 void load_dlair (int empty, int populate)
 {
     int i, j;
-    char site;
 
     FILE *fd;
 
@@ -1184,7 +1170,6 @@ void load_dlair (int empty, int populate)
     clear_level (Level);
     Level->environment = E_DLAIR;
     fd = checkfopen (OMEGALIB "dlair.dat", "rb");
-    site = cryptkey ("dlair.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
 	    Level->site[i][j].lstatus = 0;
@@ -1193,7 +1178,7 @@ void load_dlair (int empty, int populate)
 	    else
 		Level->site[i][j].roomnumber = RS_DRAGONLORD;
 	    Level->site[i][j].p_locf = L_NO_OP;
-	    site = getc (fd) ^ site;
+	    char site = getc (fd);
 	    switch (site) {
 		case 'D':
 		    Level->site[i][j].locchar = FLOOR;
@@ -1270,7 +1255,7 @@ void load_dlair (int empty, int populate)
 		    break;
 	    }
 	}
-	site = getc (fd) ^ site;
+	getc (fd);
     }
     fclose (fd);
 }
@@ -1279,7 +1264,6 @@ void load_dlair (int empty, int populate)
 void load_speak (int empty, int populate)
 {
     int i, j, safe = Player.alignment > 0;
-    char site;
 
     FILE *fd;
 
@@ -1300,13 +1284,12 @@ void load_speak (int empty, int populate)
     clear_level (Level);
     Level->environment = E_STARPEAK;
     fd = checkfopen (OMEGALIB "speak.dat", "rb");
-    site = cryptkey ("speak.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
 	    Level->site[i][j].lstatus = 0;
 	    Level->site[i][j].roomnumber = RS_STARPEAK;
 	    Level->site[i][j].p_locf = L_NO_OP;
-	    site = getc (fd) ^ site;
+	    char site = getc (fd);
 	    switch (site) {
 		case 'S':
 		    Level->site[i][j].locchar = FLOOR;
@@ -1386,7 +1369,7 @@ void load_speak (int empty, int populate)
 		    break;
 	    }
 	}
-	site = getc (fd) ^ site;
+	getc (fd);
     }
     fclose (fd);
 }
@@ -1395,7 +1378,6 @@ void load_speak (int empty, int populate)
 void load_misle (int empty, int populate)
 {
     int i, j;
-    char site;
 
     FILE *fd;
 
@@ -1416,13 +1398,12 @@ void load_misle (int empty, int populate)
     clear_level (Level);
     Level->environment = E_MAGIC_ISLE;
     fd = checkfopen (OMEGALIB "misle.dat", "rb");
-    site = cryptkey ("misle.dat");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
 	    Level->site[i][j].lstatus = 0;
 	    Level->site[i][j].roomnumber = RS_MAGIC_ISLE;
 	    Level->site[i][j].p_locf = L_NO_OP;
-	    site = getc (fd) ^ site;
+	    char site = getc (fd);
 	    switch (site) {
 		case 'E':
 		    Level->site[i][j].locchar = FLOOR;
@@ -1470,7 +1451,7 @@ void load_misle (int empty, int populate)
 		    break;
 	    }
 	}
-	site = getc (fd) ^ site;
+	getc (fd);
     }
     fclose (fd);
 }
@@ -1487,7 +1468,6 @@ void load_temple (int deity, int populate)
     clear_level (Level);
     Level->environment = E_TEMPLE;
     FILE* fd = checkfopen (OMEGALIB "temple.dat", "rb");
-    char site = cryptkey ("temple.dat");
     for (int j = 0; j < LENGTH; j++) {
 	for (int i = 0; i < WIDTH; i++) {
 	    switch (deity) {
@@ -1510,7 +1490,7 @@ void load_temple (int deity, int populate)
 		    Level->site[i][j].roomnumber = RS_DESTINY;
 		    break;
 	    }
-	    site = getc (fd) ^ site;
+	    char site = getc (fd);
 	    switch (site) {
 		case '8':
 		    Level->site[i][j].locchar = ALTAR;
@@ -1578,7 +1558,7 @@ void load_temple (int deity, int populate)
 		    break;
 	    }
 	}
-	site = getc (fd) ^ site;
+	getc (fd);
     }
     fclose (fd);
     // Main Temple is peaceful for player of same sect, druids always peaceful.
@@ -2732,7 +2712,6 @@ void l_order (void)
 void load_house (int kind, int populate)
 {
     int i, j;
-    char site;
     int stops;
 
     FILE *fd;
@@ -2749,18 +2728,15 @@ void load_house (int kind, int populate)
 	case E_HOUSE:
 	    strcpy (Str3, OMEGALIB "home1.dat");
 	    Level->environment = E_HOUSE;
-	    site = cryptkey ("home1.dat");
 	    break;
 	case E_MANSION:
 	    strcpy (Str3, OMEGALIB "home2.dat");
 	    Level->environment = E_MANSION;
-	    site = cryptkey ("home2.dat");
 	    break;
 	default:
 	case E_HOVEL:
 	    strcpy (Str3, OMEGALIB "home3.dat");
 	    Level->environment = E_HOVEL;
-	    site = cryptkey ("home3.dat");
 	    break;
     }
     fd = checkfopen (Str3, "rb");
@@ -2773,7 +2749,7 @@ void load_house (int kind, int populate)
 		Level->site[i][j].lstatus = 0;
 	    Level->site[i][j].roomnumber = RS_CORRIDOR;
 	    Level->site[i][j].p_locf = L_NO_OP;
-	    site = getc (fd) ^ site;
+	    char site = getc (fd);
 	    switch (site) {
 		case 'N':
 		    Level->site[i][j].locchar = FLOOR;
@@ -2896,7 +2872,7 @@ void load_house (int kind, int populate)
 	    }
 	    Level->site[i][j].showchar = ' ';
 	}
-	site = getc (fd) ^ site;
+	getc (fd);
     }
     fclose (fd);
     initrand (E_RESTORE, 0);
@@ -2934,7 +2910,6 @@ static void make_mansion_npc (int i, int j)
 void load_village (int villagenum, int populate)
 {
     int i, j;
-    char site;
 
     FILE *fd;
 
@@ -2972,12 +2947,11 @@ void load_village (int villagenum, int populate)
 	    strcat (Str3, "village6.dat");
 	    break;
     }
-    site = cryptkey ("village.dat");
     fd = checkfopen (Str3, "rb");
     for (j = 0; j < LENGTH; j++) {
 	for (i = 0; i < WIDTH; i++) {
 	    lset (i, j, SEEN);
-	    site = getc (fd) ^ site;
+	    char site = getc (fd);
 	    Level->site[i][j].p_locf = L_NO_OP;
 	    switch (site) {
 		case 'f':
@@ -3069,7 +3043,7 @@ void load_village (int villagenum, int populate)
 	    else
 		Level->site[i][j].showchar = Level->site[i][j].locchar;
 	}
-	site = getc (fd) ^ site;
+	getc (fd);
     }
     fclose (fd);
     initrand (E_RESTORE, 0);

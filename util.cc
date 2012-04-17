@@ -570,14 +570,6 @@ void free_level (plv level)
     delete level;
 }
 
-char cryptkey (const char* fname)
-{
-    int key = 0;
-    for (int pos = 0; fname[pos]; pos++)
-	key += 3 * (fname[pos] - ' ');
-    return (key & 0xff);
-}
-
 // there are various ways for the player to receive one of these hints
 void hint (void)
 {
