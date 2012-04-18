@@ -399,7 +399,7 @@ static void movemonster (struct monster *m, int newx, int newy)
 	return;
     m->x = newx;
     m->y = newy;
-    m_movefunction (m, Level->site[m->x][m->y].p_locf);
+    m_movefunction (m, Level->site(m->x,m->y).p_locf);
 }
 
 // The druid's altar is in the northern forest
@@ -870,7 +870,7 @@ static void m_talk_archmage (struct monster *m)
 	mprint ("He invites you to attempt the Throne of High Magic");
 	mprint ("but warns you that it is important to wield the Sceptre");
 	mprint ("before sitting on the throne.");
-	if (Level->site[m->x][m->y].p_locf == L_THRONE) {
+	if (Level->site(m->x,m->y).p_locf == L_THRONE) {
 	    mprint ("The Archmage smiles and makes an arcane gesture....");
 	    m_vanish (m);
 	}
@@ -1556,7 +1556,7 @@ static void m_sp_blackout (struct monster *m)
 	torch_check();
 	torch_check();
 	torch_check();
-	spreadroomdark (m->x, m->y, Level->site[m->x][m->y].roomnumber);
+	spreadroomdark (m->x, m->y, Level->site(m->x,m->y).roomnumber);
 	levelrefresh();
     }
 }
@@ -1636,13 +1636,13 @@ static void m_sp_av (struct monster *m)
 static void m_sp_lw (struct monster *m)
 {
     if (random_range (2)) {
-	if (Level->site[m->x][m->y].locchar == FLOOR) {
-	    Level->site[m->x][m->y].locchar = LAVA;
-	    Level->site[m->x][m->y].p_locf = L_LAVA;
+	if (Level->site(m->x,m->y).locchar == FLOOR) {
+	    Level->site(m->x,m->y).locchar = LAVA;
+	    Level->site(m->x,m->y).p_locf = L_LAVA;
 	    lset (m->x, m->y, CHANGED);
-	} else if (Level->site[m->x][m->y].locchar == WATER) {
-	    Level->site[m->x][m->y].locchar = FLOOR;
-	    Level->site[m->x][m->y].p_locf = L_NO_OP;
+	} else if (Level->site(m->x,m->y).locchar == WATER) {
+	    Level->site(m->x,m->y).locchar = FLOOR;
+	    Level->site(m->x,m->y).p_locf = L_NO_OP;
 	    lset (m->x, m->y, CHANGED);
 	}
     }
@@ -1737,7 +1737,7 @@ static void m_sp_mirror (struct monster *m)
 		x = m->x + random_range (13) - 6;
 		y = m->y + random_range (13) - 6;
 		if (inbounds (x, y)) {
-		    Level->site[x][y].showchar = m->monchar;
+		    Level->site(x,y).showchar = m->monchar;
 		    putspot (x, y, m->monchar);
 		}
 	    }
@@ -2190,7 +2190,7 @@ void m_trap_dart (struct monster *m)
 {
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	mprintf ("%s was hit by a dart!", m->name());
-	Level->site[m->x][m->y].locchar = TRAP;
+	Level->site(m->x,m->y).locchar = TRAP;
 	lset (m->x, m->y, CHANGED);
     }
     m_damage (m, difficulty() * 2, NORMAL_DAMAGE);
@@ -2200,7 +2200,7 @@ void m_trap_pit (struct monster *m)
 {
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	mprintf ("%s fell into a pit!", m->name());
-	Level->site[m->x][m->y].locchar = TRAP;
+	Level->site(m->x,m->y).locchar = TRAP;
 	lset (m->x, m->y, CHANGED);
     }
     if (!m_statusp (m, INTANGIBLE))
@@ -2213,7 +2213,7 @@ void m_trap_door (struct monster *m)
 {
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	mprintf ("%s fell into a trap door!", m->name());
-	Level->site[m->x][m->y].locchar = TRAP;
+	Level->site(m->x,m->y).locchar = TRAP;
 	lset (m->x, m->y, CHANGED);
     }
     m_vanish (m);
@@ -2223,9 +2223,9 @@ void m_trap_abyss (struct monster *m)
 {
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	mprintf ("%s fell into the infinite abyss!", m->name());
-	Level->site[m->x][m->y].locchar = ABYSS;
+	Level->site(m->x,m->y).locchar = ABYSS;
 	lset (m->x, m->y, CHANGED);
-	Level->site[m->x][m->y].p_locf = L_ABYSS;
+	Level->site(m->x,m->y).p_locf = L_ABYSS;
 	lset (m->x, m->y, CHANGED);
     }
     setgamestatus (SUPPRESS_PRINTING);
@@ -2235,7 +2235,7 @@ void m_trap_abyss (struct monster *m)
 
 void m_trap_snare (struct monster *m)
 {
-    Level->site[m->x][m->y].locchar = TRAP;
+    Level->site(m->x,m->y).locchar = TRAP;
     lset (m->x, m->y, CHANGED);
     if (los_p (m->x, m->y, Player.x, Player.y))
 	mprintf ("%s was caught in a snare!", m->name());
@@ -2245,7 +2245,7 @@ void m_trap_snare (struct monster *m)
 
 void m_trap_blade (struct monster *m)
 {
-    Level->site[m->x][m->y].locchar = TRAP;
+    Level->site(m->x,m->y).locchar = TRAP;
     lset (m->x, m->y, CHANGED);
     if (los_p (m->x, m->y, Player.x, Player.y))
 	mprintf ("%s was hit by a blade trap!", m->name());
@@ -2254,7 +2254,7 @@ void m_trap_blade (struct monster *m)
 
 void m_trap_fire (struct monster *m)
 {
-    Level->site[m->x][m->y].locchar = TRAP;
+    Level->site(m->x,m->y).locchar = TRAP;
     lset (m->x, m->y, CHANGED);
     if (los_p (m->x, m->y, Player.x, Player.y))
 	mprintf ("%s was hit by a fire trap!", m->name());
@@ -2270,7 +2270,7 @@ void m_fire (struct monster *m)
 
 void m_trap_teleport (struct monster *m)
 {
-    Level->site[m->x][m->y].locchar = TRAP;
+    Level->site(m->x,m->y).locchar = TRAP;
     lset (m->x, m->y, CHANGED);
     if (los_p (m->x, m->y, Player.x, Player.y))
 	mprintf ("%s walked into a teleport trap!", m->name());
@@ -2281,7 +2281,7 @@ void m_trap_disintegrate (struct monster *m)
 {
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	mprintf ("%s walked into a disintegration trap!", m->name());
-	Level->site[m->x][m->y].locchar = TRAP;
+	Level->site(m->x,m->y).locchar = TRAP;
 	lset (m->x, m->y, CHANGED);
     }
     disintegrate (m->x, m->y);
@@ -2291,7 +2291,7 @@ void m_trap_sleepgas (struct monster *m)
 {
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	mprintf ("%s walked into a sleepgas trap!", m->name());
-	Level->site[m->x][m->y].locchar = TRAP;
+	Level->site(m->x,m->y).locchar = TRAP;
 	lset (m->x, m->y, CHANGED);
     }
     if (!m_immunityp (m, SLEEP))
@@ -2302,7 +2302,7 @@ void m_trap_acid (struct monster *m)
 {
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	mprintf ("%s walked into an acid bath trap!", m->name());
-	Level->site[m->x][m->y].locchar = TRAP;
+	Level->site(m->x,m->y).locchar = TRAP;
 	lset (m->x, m->y, CHANGED);
     }
     m_damage (m, random_range (difficulty() * difficulty()), ACID);
@@ -2312,7 +2312,7 @@ void m_trap_manadrain (struct monster *m)
 {
     if (los_p (m->x, m->y, Player.x, Player.y)) {
 	mprintf ("%s walked into a manadrain trap!", m->name());
-	Level->site[m->x][m->y].locchar = TRAP;
+	Level->site(m->x,m->y).locchar = TRAP;
 	lset (m->x, m->y, CHANGED);
     }
     if (m->specialf == M_SP_SPELL)
@@ -2348,7 +2348,7 @@ void m_altar (struct monster *m)
 {
     int visible = view_los_p (Player.x, Player.y, m->x, m->y);
     int reaction = 0;
-    int altar = Level->site[m->x][m->y].aux;
+    int altar = Level->site(m->x,m->y).aux;
 
     if (visible)
 	mprintf ("%s walks next to an altar...", m->name());

@@ -241,8 +241,8 @@ static void l_lift (void)
     int levelnum;
     int too_far = 0;
 
-    Level->site[Player.x][Player.y].locchar = FLOOR;
-    Level->site[Player.x][Player.y].p_locf = L_NO_OP;
+    Level->site(Player.x,Player.y).locchar = FLOOR;
+    Level->site(Player.x,Player.y).p_locf = L_NO_OP;
     lset (Player.x, Player.y, CHANGED);
     print1 ("You walk onto a shimmering disk....");
     print2 ("The disk vanishes, and a glow surrounds you.");
@@ -345,8 +345,8 @@ static void l_magic_pool (void)
 	Player.str = (Player.maxstr++) * 3;
     }
     print2 ("The pool seems to have dried up.");
-    Level->site[Player.x][Player.y].locchar = TRAP;
-    Level->site[Player.x][Player.y].p_locf = L_TRAP_PIT;
+    Level->site(Player.x,Player.y).locchar = TRAP;
+    Level->site(Player.x,Player.y).p_locf = L_TRAP_PIT;
     lset (Player.x, Player.y, CHANGED);
 }
 
@@ -394,8 +394,8 @@ void l_portcullis_trap (void)
     morewait();
     for (unsigned i = max (Player.x - 5, 0); i < min (6u+Player.x, WIDTH); i++) {
 	for (unsigned j = max (Player.y - 5, 0); j < min (6u+Player.y, LENGTH); j++) {
-	    if ((Level->site[i][j].p_locf == L_PORTCULLIS) && (Level->site[i][j].locchar != PORTCULLIS)) {
-		Level->site[i][j].locchar = PORTCULLIS;
+	    if ((Level->site(i,j).p_locf == L_PORTCULLIS) && (Level->site(i,j).locchar != PORTCULLIS)) {
+		Level->site(i,j).locchar = PORTCULLIS;
 		lset (i, j, CHANGED);
 		putspot (i, j, PORTCULLIS);
 		if ((int)i == Player.x && (int)j == Player.y) {
@@ -419,11 +419,11 @@ static void l_drop_every_portcullis (void)
     morewait();
     for (unsigned i = 0; i < WIDTH; i++) {
 	for (unsigned j = 0; j < LENGTH; j++) {
-	    if (Level->site[i][j].p_locf == L_DROP_EVERY_PORTCULLIS) {
-		Level->site[i][j].p_locf = L_NO_OP;
+	    if (Level->site(i,j).p_locf == L_DROP_EVERY_PORTCULLIS) {
+		Level->site(i,j).p_locf = L_NO_OP;
 		lset (i, j, CHANGED);
-	    } else if ((Level->site[i][j].p_locf == L_PORTCULLIS) && (Level->site[i][j].locchar != PORTCULLIS)) {
-		Level->site[i][j].locchar = PORTCULLIS;
+	    } else if ((Level->site(i,j).p_locf == L_PORTCULLIS) && (Level->site(i,j).locchar != PORTCULLIS)) {
+		Level->site(i,j).locchar = PORTCULLIS;
 		lset (i, j, CHANGED);
 		putspot (i, j, PORTCULLIS);
 		if ((int)i == Player.x && (int)j == Player.y) {
@@ -444,8 +444,8 @@ void l_raise_portcullis (void)
     bool open = false;
     for (unsigned i = 0; i < WIDTH; i++) {
 	for (unsigned j = 0; j < LENGTH; j++) {
-	    if (Level->site[i][j].locchar == PORTCULLIS) {
-		Level->site[i][j].locchar = FLOOR;
+	    if (Level->site(i,j).locchar == PORTCULLIS) {
+		Level->site(i,j).locchar = FLOOR;
 		lset (i, j, CHANGED);
 		putspot (i, j, FLOOR);
 		open = true;
@@ -519,8 +519,8 @@ static void l_fire_station (void)
 	    if (Player.pow > 0) {
 		print2 ("That's odd, the flame seems to have cooled down now....");
 		print3 ("A flicker of fire seems to dance above the void nearby.");
-		Level->site[Player.x][Player.y].locchar = FLOOR;
-		Level->site[Player.x][Player.y].p_locf = L_NO_OP;
+		Level->site(Player.x,Player.y).locchar = FLOOR;
+		Level->site(Player.x,Player.y).p_locf = L_NO_OP;
 		stationcheck();
 	    } else {
 		print2 ("The flames seem to have leached away all your mana!");
@@ -564,8 +564,8 @@ static void l_water_station (void)
 	    if (Player.con > 0) {
 		print1 ("That's odd, the fluid seems to have been neutralized....");
 		print2 ("A moist miasma wafts above the void nearby.");
-		Level->site[Player.x][Player.y].locchar = FLOOR;
-		Level->site[Player.x][Player.y].p_locf = L_NO_OP;
+		Level->site(Player.x,Player.y).locchar = FLOOR;
+		Level->site(Player.x,Player.y).p_locf = L_NO_OP;
 		stationcheck();
 	    } else {
 		print2 ("The bubbling fluid has destroyed your constitution!");
@@ -599,8 +599,8 @@ static void l_air_station (void)
 	    if (Player.iq > 0) {
 		print1 ("That's odd, the storm subsides....");
 		print2 ("A gust of wind brushes past the void nearby.");
-		Level->site[Player.x][Player.y].locchar = FLOOR;
-		Level->site[Player.x][Player.y].p_locf = L_NO_OP;
+		Level->site(Player.x,Player.y).locchar = FLOOR;
+		Level->site(Player.x,Player.y).p_locf = L_NO_OP;
 		stationcheck();
 	    } else {
 		print2 ("The swirling storm has destroyed your intelligence!");
@@ -633,8 +633,8 @@ static void l_earth_station (void)
 	    if (Player.str > 0) {
 		print1 ("That's odd, the vine withdraws....");
 		print2 ("A spatter of dirt sprays into the void nearby.");
-		Level->site[Player.x][Player.y].locchar = FLOOR;
-		Level->site[Player.x][Player.y].p_locf = L_NO_OP;
+		Level->site(Player.x,Player.y).locchar = FLOOR;
+		Level->site(Player.x,Player.y).p_locf = L_NO_OP;
 		stationcheck();
 	    } else {
 		print2 ("The tendril has destroyed your strength!");
@@ -655,7 +655,7 @@ static void stationcheck (void)
     dataprint();
     for (unsigned i = 0; i < WIDTH; ++i)
 	for (unsigned j = 0; j < LENGTH; ++j)
-	    if ((Level->site[i][j].locchar == WATER) || (Level->site[i][j].locchar == HEDGE) || (Level->site[i][j].locchar == WHIRLWIND) || (Level->site[i][j].locchar == FIRE))
+	    if ((Level->site(i,j).locchar == WATER) || (Level->site(i,j).locchar == HEDGE) || (Level->site(i,j).locchar == WHIRLWIND) || (Level->site(i,j).locchar == FIRE))
 		stationsleft = true;
     if (!stationsleft) {
 	print1 ("There is a noise like a wild horse's neigh.");
@@ -737,19 +737,19 @@ static void l_void_station (void)
 static void l_voice1 (void)
 {
     print1 ("A mysterious voice says: The Hunger of the Void must be satiated.");
-    Level->site[Player.x][Player.y].p_locf = L_NO_OP;
+    Level->site(Player.x,Player.y).p_locf = L_NO_OP;
 }
 
 static void l_voice2 (void)
 {
     print1 ("A strange voice recites: Enter the Void as you entered the World.");
-    Level->site[Player.x][Player.y].p_locf = L_NO_OP;
+    Level->site(Player.x,Player.y).p_locf = L_NO_OP;
 }
 
 static void l_voice3 (void)
 {
     print1 ("An eerie voice resounds: The Void is the fifth Elemental Station.");
-    Level->site[Player.x][Player.y].p_locf = L_NO_OP;
+    Level->site(Player.x,Player.y).p_locf = L_NO_OP;
 }
 
 static void l_whirlwind (void)
@@ -894,8 +894,8 @@ static void l_throne (void)
 			morewait();
 			print1 ("artifact stressed by excessive use....");
 			print2 ("With an odd tinkling sound the throne shatters!");
-			Level->site[Player.x][Player.y].locchar = RUBBLE;
-			Level->site[Player.x][Player.y].p_locf = L_RUBBLE;
+			Level->site(Player.x,Player.y).locchar = RUBBLE;
+			Level->site(Player.x,Player.y).p_locf = L_RUBBLE;
 			lset (Player.x, Player.y, CHANGED);
 			if (find_and_remove_item (SCEPTRE_OF_HIGH_MAGIC, -1)) {
 			    morewait();

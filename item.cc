@@ -902,15 +902,15 @@ static void i_pick (pob o)
     }
     ox = Player.x + Dirs[0][dir];
     oy = Player.y + Dirs[1][dir];
-    if ((Level->site[ox][oy].locchar != CLOSED_DOOR) || loc_statusp (ox, oy, SECRET)) {
+    if ((Level->site(ox,oy).locchar != CLOSED_DOOR) || loc_statusp (ox, oy, SECRET)) {
 	mprint ("You can't unlock that!");
 	resetgamestatus (SKIP_MONSTERS);
-    } else if (Level->site[ox][oy].aux == LOCKED) {
+    } else if (Level->site(ox,oy).aux == LOCKED) {
 	if (Level->depth == MaxDungeonLevels - 1)
 	    mprint ("The lock is too complicated for you!!!");
 	else if (Level->depth * 2 + random_range (50) < Player.dex + Player.level + Player.rank[THIEVES] * 10) {
 	    mprint ("You picked the lock!");
-	    Level->site[ox][oy].aux = UNLOCKED;
+	    Level->site(ox,oy).aux = UNLOCKED;
 	    lset (ox, oy, CHANGED);
 	    gain_experience (max (3, Level->depth));
 	} else
@@ -932,12 +932,12 @@ static void i_key (pob o)
     else {
 	ox = Player.x + Dirs[0][dir];
 	oy = Player.y + Dirs[1][dir];
-	if ((Level->site[ox][oy].locchar != CLOSED_DOOR) || loc_statusp (ox, oy, SECRET)) {
+	if ((Level->site(ox,oy).locchar != CLOSED_DOOR) || loc_statusp (ox, oy, SECRET)) {
 	    mprint ("You can't unlock that!");
 	    resetgamestatus (SKIP_MONSTERS);
-	} else if (Level->site[ox][oy].aux == LOCKED) {
+	} else if (Level->site(ox,oy).aux == LOCKED) {
 	    mprint ("The lock clicks open!");
-	    Level->site[ox][oy].aux = UNLOCKED;
+	    Level->site(ox,oy).aux = UNLOCKED;
 	    lset (ox, oy, CHANGED);
 	    o->blessing--;
 	    if ((o->blessing < 0) || (Level->depth == MaxDungeonLevels - 1)) {
@@ -1213,14 +1213,14 @@ static void i_trap (pob o)
 {
     learn_object (o);
 
-    if ((Level->site[Player.x][Player.y].locchar != FLOOR) || (Level->site[Player.x][Player.y].p_locf != L_NO_OP))
+    if ((Level->site(Player.x,Player.y).locchar != FLOOR) || (Level->site(Player.x,Player.y).p_locf != L_NO_OP))
 	mprint ("Your attempt fails.");
     else if (!object_is_known(o)) {
 	mprint ("Fiddling with the thing, you have a small accident....");
 	p_movefunction (o->aux);
     } else {
 	mprint ("You successfully set a trap at your location.");
-	Level->site[Player.x][Player.y].p_locf = o->aux;
+	Level->site(Player.x,Player.y).p_locf = o->aux;
 	lset (Player.x, Player.y, CHANGED);
     }
     Player.remove_possession (o, 1);
@@ -1657,7 +1657,7 @@ static void i_desecrate (pob o)
 	mprint ("How weird, a blessed desecrator... ");
 	mprint ("The structure of reality cannot permit such a thing....");
 	Player.remove_possession (o, 1);
-    } else if (Level->site[Player.x][Player.y].locchar == ALTAR)
+    } else if (Level->site(Player.x,Player.y).locchar == ALTAR)
 	sanctify (-1);
 }
 
@@ -1809,11 +1809,11 @@ static void i_juggernaut (pob o)
 	    y += Dirs[1][d];
 	    if (!view_unblocked (x, y) || offscreen (y))
 		seen = 0;
-	    if (Level->site[x][y].locchar == WALL)
+	    if (Level->site(x,y).locchar == WALL)
 		tunneled++;
-	    if (Level->site[x][y].locchar != WATER && Level->site[x][y].locchar != VOID_CHAR && Level->site[x][y].locchar != ABYSS && Level->site[x][y].locchar != SPACE && Level->site[x][y].locchar != LAVA) {
-		Level->site[x][y].locchar = FLOOR;
-		Level->site[x][y].p_locf = L_NO_OP;
+	    if (Level->site(x,y).locchar != WATER && Level->site(x,y).locchar != VOID_CHAR && Level->site(x,y).locchar != ABYSS && Level->site(x,y).locchar != SPACE && Level->site(x,y).locchar != LAVA) {
+		Level->site(x,y).locchar = FLOOR;
+		Level->site(x,y).p_locf = L_NO_OP;
 	    }
 	    lreset (x, y, SECRET);
 	    lset (x, y, CHANGED);
@@ -1934,8 +1934,8 @@ static void i_antioch (pob o)
 	} else {
 	    print1 ("Ka-Boom!");
 	    gain_experience (1000);
-	    Level->site[x][y].locchar = TRAP;
-	    Level->site[x][y].p_locf = L_TRAP_DOOR;
+	    Level->site(x,y).locchar = TRAP;
+	    Level->site(x,y).p_locf = L_TRAP_DOOR;
 	    lset (x, y, CHANGED);
 	    if (Level->creature(x,y)) {
 		m_death (Level->creature(x,y));

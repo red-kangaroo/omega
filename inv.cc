@@ -198,9 +198,9 @@ void drop_at (int x, int y, const object& o)
 {
     if (Current_Environment == E_COUNTRYSIDE)
 	return;
-    if (Level->site[x][y].p_locf == L_VOID_STATION)
+    if (Level->site(x,y).p_locf == L_VOID_STATION)
 	setgamestatus (PREPARED_VOID);
-    else if (Level->site[x][y].locchar != VOID_CHAR && Level->site[x][y].locchar != ABYSS)
+    else if (Level->site(x,y).locchar != VOID_CHAR && Level->site(x,y).locchar != ABYSS)
 	Level->add_thing (x, y, o);
 }
 
@@ -209,12 +209,12 @@ void p_drop_at (int x, int y, const object& o, unsigned n)
 {
     if (Current_Environment == E_COUNTRYSIDE)
 	return;
-    if (Level->site[x][y].locchar != VOID_CHAR && Level->site[x][y].locchar != ABYSS) {
+    if (Level->site(x,y).locchar != VOID_CHAR && Level->site(x,y).locchar != ABYSS) {
 	Level->add_thing (x, y, o, n);
 	print2 ("Dropped ");
 	nprint2 (itemid(Level->thing(x,y)));
 	morewait();
-    } else if (Level->site[x][y].p_locf == L_VOID_STATION)
+    } else if (Level->site(x,y).p_locf == L_VOID_STATION)
 	setgamestatus (PREPARED_VOID);
 }
 

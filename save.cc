@@ -318,12 +318,12 @@ static void save_level (ostream& os, plv level)
     os << ios::align(alignof(level->environment)) << level->environment << level->depth << level->numrooms << level->tunnelled;
     for (j = 0; j < MAXLENGTH; j++) {
 	for (i = 0; i < MAXWIDTH; i++) {
-	    if (level->site[i][j].lstatus & CHANGED) {	// this loc has been changed
+	    if (level->site(i,j).lstatus & CHANGED) {	// this loc has been changed
 		for (run = i + 1; run < MAXWIDTH &&	// find how many in a row
-		     level->site[run][j].lstatus & CHANGED; run++);
+		     level->site(run,j).lstatus & CHANGED; run++);
 		os << ios::align(alignof(i)) << i << j << run;
 		for (; i < run; i++)
-		    os << level->site[i][j];
+		    os << level->site(i,j);
 	    }
 	}
     }
@@ -340,7 +340,7 @@ static void save_level (ostream& os, plv level)
 		mask = 0;
 	    }
 	    mask >>= 1;
-	    if (level->site[i][j].lstatus & SEEN)
+	    if (level->site(i,j).lstatus & SEEN)
 		mask |= (1UL << (sizeof(mask)*8 - 1));
 	    run--;
 	}
@@ -448,7 +448,7 @@ static void restore_level (istream& is)
     while (j < MAXLENGTH && i < MAXWIDTH) {
 	is >> run;
 	for (; i < run; i++)
-	    is >> Level->site[i][j];
+	    is >> Level->site(i,j);
 	is >> ios::align(alignof(i)) >> i >> j;
     }
     run = 0;

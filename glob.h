@@ -160,9 +160,9 @@ namespace {
 
 static constexpr inline int pow2 (int n) { return (1 << n); }
 
-static inline bool loc_statusp (int x, int y, unsigned stat)	{ return (Level->site[x][y].lstatus & stat); }
-static inline void lset (int x, int y, unsigned stat)		{ Level->site[x][y].lstatus |= stat; }
-static inline void lreset (int x, int y, unsigned stat)		{ Level->site[x][y].lstatus &= ~stat; }
+static inline bool loc_statusp (int x, int y, unsigned stat)	{ return (Level->site(x,y).lstatus & stat); }
+static inline void lset (int x, int y, unsigned stat)		{ Level->site(x,y).lstatus |= stat; }
+static inline void lreset (int x, int y, unsigned stat)		{ Level->site(x,y).lstatus &= ~stat; }
 
 static inline bool c_statusp (int x, int y, unsigned stat)	{ return (Country[x][y].status & stat); }
 static inline void c_set (int x, int y, unsigned stat)		{ Country[x][y].status |= stat; }

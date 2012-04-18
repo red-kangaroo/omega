@@ -148,7 +148,7 @@ int player_on_sanctuary (void)
 	return (TRUE);
     else {
 	if (Player.patron) {
-	    if ((Level->site[Player.x][Player.y].locchar == ALTAR) && (Level->site[Player.x][Player.y].aux == Player.patron))
+	    if ((Level->site(Player.x,Player.y).locchar == ALTAR) && (Level->site(Player.x,Player.y).aux == Player.patron))
 		return (TRUE);
 	    else
 		return (FALSE);
@@ -165,7 +165,7 @@ int p_moveable (int x, int y)
     if (!inbounds (x, y))
 	return (FALSE);
     else if (Player.status[SHADOWFORM]) {
-	switch (Level->site[x][y].p_locf) {
+	switch (Level->site(x,y).p_locf) {
 	    case L_CHAOS:
 	    case L_ABYSS:
 	    case L_VOID:
@@ -185,19 +185,19 @@ int p_moveable (int x, int y)
 	    return (FALSE);
 	} else
 	    return (FALSE);
-    } else if ((Level->site[x][y].locchar == WALL) || (Level->site[x][y].locchar == STATUE) || (Level->site[x][y].locchar == PORTCULLIS) || (Level->site[x][y].locchar == CLOSED_DOOR)
+    } else if ((Level->site(x,y).locchar == WALL) || (Level->site(x,y).locchar == STATUE) || (Level->site(x,y).locchar == PORTCULLIS) || (Level->site(x,y).locchar == CLOSED_DOOR)
 	       || (gamestatusp (FAST_MOVE)
-		   && ((Level->site[x][y].locchar == HEDGE) || (Level->site[x][y].locchar == LAVA) || (Level->site[x][y].locchar == ABYSS) || (Level->site[x][y].locchar == VOID_CHAR) || (Level->site[x][y].locchar == FIRE)
-		       || (Level->site[x][y].locchar == WHIRLWIND) || (Level->site[x][y].locchar == WATER) || (Level->site[x][y].locchar == LIFT) || (Level->site[x][y].locchar == TRAP)))) {
+		   && ((Level->site(x,y).locchar == HEDGE) || (Level->site(x,y).locchar == LAVA) || (Level->site(x,y).locchar == ABYSS) || (Level->site(x,y).locchar == VOID_CHAR) || (Level->site(x,y).locchar == FIRE)
+		       || (Level->site(x,y).locchar == WHIRLWIND) || (Level->site(x,y).locchar == WATER) || (Level->site(x,y).locchar == LIFT) || (Level->site(x,y).locchar == TRAP)))) {
 	if (!gamestatusp (FAST_MOVE))
 	    print3 ("Ouch!");
 	return (FALSE);
     } else if (optionp (CONFIRM)) {
-	if ((Level->site[x][y].locchar == HEDGE) || (Level->site[x][y].locchar == LAVA) || (Level->site[x][y].locchar == FIRE) || (Level->site[x][y].locchar == WHIRLWIND) || (Level->site[x][y].locchar == ABYSS) || (Level->site[x][y].locchar == VOID_CHAR)
-	    || (Level->site[x][y].locchar == WATER) || (Level->site[x][y].locchar == RUBBLE) || (Level->site[x][y].locchar == LIFT) || (Level->site[x][y].locchar == TRAP)) {
+	if ((Level->site(x,y).locchar == HEDGE) || (Level->site(x,y).locchar == LAVA) || (Level->site(x,y).locchar == FIRE) || (Level->site(x,y).locchar == WHIRLWIND) || (Level->site(x,y).locchar == ABYSS) || (Level->site(x,y).locchar == VOID_CHAR)
+	    || (Level->site(x,y).locchar == WATER) || (Level->site(x,y).locchar == RUBBLE) || (Level->site(x,y).locchar == LIFT) || (Level->site(x,y).locchar == TRAP)) {
 	    // horses WILL go into water...
 	    if (gamestatusp (MOUNTED)) {
-		if (Level->site[x][y].locchar != WATER || Level->site[x][y].p_locf != L_WATER) {
+		if (Level->site(x,y).locchar != WATER || Level->site(x,y).p_locf != L_WATER) {
 		    print1 ("You can't convince your steed to continue.");
 		    setgamestatus (SKIP_MONSTERS);
 		    return (FALSE);
@@ -240,7 +240,7 @@ void searchat (int x, int y)
 	if (loc_statusp (x, y, SECRET)) {
 	    lreset (x, y, SECRET);
 	    lset (x, y, CHANGED);
-	    if ((Level->site[x][y].locchar == OPEN_DOOR) || (Level->site[x][y].locchar == CLOSED_DOOR)) {
+	    if ((Level->site(x,y).locchar == OPEN_DOOR) || (Level->site(x,y).locchar == CLOSED_DOOR)) {
 		mprint ("You find a secret door!");
 		for (i = 0; i <= 8; i++) {
 		    lset (x + Dirs[0][i], y + Dirs[1][i], STOPS);
@@ -250,8 +250,8 @@ void searchat (int x, int y)
 		mprint ("You find a secret passage!");
 	    drawvision (Player.x, Player.y);
 	}
-	if ((Level->site[x][y].p_locf >= TRAP_BASE) && (Level->site[x][y].locchar != TRAP) && (Level->site[x][y].p_locf <= TRAP_BASE + NUMTRAPS)) {
-	    Level->site[x][y].locchar = TRAP;
+	if ((Level->site(x,y).p_locf >= TRAP_BASE) && (Level->site(x,y).locchar != TRAP) && (Level->site(x,y).p_locf <= TRAP_BASE + NUMTRAPS)) {
+	    Level->site(x,y).locchar = TRAP;
 	    lset (x, y, CHANGED);
 	    mprint ("You find a trap!");
 	    drawvision (Player.x, Player.y);
@@ -753,11 +753,11 @@ void roomcheck (void)
 {
     static int oldroomno = -1;
     static plv oldlevel = NULL;
-    int roomno = Level->site[Player.x][Player.y].roomnumber;
+    int roomno = Level->site(Player.x,Player.y).roomnumber;
 
     if ((roomno == RS_CAVERN) || (roomno == RS_SEWER_DUCT) || (roomno == RS_KITCHEN) || (roomno == RS_BATHROOM) || (roomno == RS_BEDROOM) || (roomno == RS_DININGROOM) || (roomno == RS_CLOSET) || (roomno > RS_ROOMBASE)) {
 	if ((!loc_statusp (Player.x, Player.y, LIT)) && (!Player.status[BLINDED]) && (Player.status[ILLUMINATION] || (difficulty() < 6))) {
-	    showroom (Level->site[Player.x][Player.y].roomnumber);
+	    showroom (Level->site(Player.x,Player.y).roomnumber);
 	    spreadroomlight (Player.x, Player.y, roomno);
 	    levelrefresh();
 	}
@@ -1532,7 +1532,7 @@ void p_drown (void)
 	switch (menugetc()) {
 	    case 'a':
 		drop();
-		if (Level->site[Player.x][Player.y].p_locf == L_WATER && Level->thing(Player.x,Player.y)) {
+		if (Level->site(Player.x,Player.y).p_locf == L_WATER && Level->thing(Player.x,Player.y)) {
 		    mprint ("It sinks without a trace.");
 		    Level->remove_things (Player.x, Player.y);
 		}
@@ -1543,10 +1543,10 @@ void p_drown (void)
 	    case 'c':
 		setgamestatus (SUPPRESS_PRINTING);
 		foreach (i, Player.pack)
-		    if (Level->site[Player.x][Player.y].p_locf != L_WATER)
+		    if (Level->site(Player.x,Player.y).p_locf != L_WATER)
 			p_drop_at (Player.x, Player.y, *i, i->number);
 		Player.pack.clear();
-		if (Level->site[Player.x][Player.y].p_locf == L_WATER)
+		if (Level->site(Player.x,Player.y).p_locf == L_WATER)
 		    mprint ("It sinks without a trace.");
 		resetgamestatus (SUPPRESS_PRINTING);
 		calc_melee();
@@ -2141,15 +2141,15 @@ void change_environment (int new_environment)
 	    make_country_monsters (Country[Player.x][Player.y].current_terrain_type);
 	    Player.x = WIDTH / 2;
 	    Player.y = LENGTH / 2;
-	    while (Level->site[Player.x][Player.y].locchar == WATER) {
+	    while (Level->site(Player.x,Player.y).locchar == WATER) {
 		if (Player.y < (int)LENGTH / 2 + 5)
 		    Player.y++;
 		else if (Player.x > (int)WIDTH / 2 - 10) {
 		    Player.x--;
 		    Player.y = LENGTH / 2 - 5;
 		} else {
-		    Level->site[Player.x][Player.y].locchar = Level->site[Player.x][Player.y].showchar = FLOOR;
-		    Level->site[Player.x][Player.y].p_locf = L_NO_OP;
+		    Level->site(Player.x,Player.y).locchar = Level->site(Player.x,Player.y).showchar = FLOOR;
+		    Level->site(Player.x,Player.y).p_locf = L_NO_OP;
 		}
 	    }
 	    ScreenOffset = 0;
@@ -2165,7 +2165,7 @@ void change_environment (int new_environment)
     }
     setlastxy (Player.x, Player.y);
     if (Current_Environment != E_COUNTRYSIDE)
-	showroom (Level->site[Player.x][Player.y].roomnumber);
+	showroom (Level->site(Player.x,Player.y).roomnumber);
     else
 	terrain_check (FALSE);
 }
@@ -3233,7 +3233,7 @@ void alert_guards (void)
     if (foundguard) {
 	mprint ("You hear a whistle and the sound of running feet!");
 	if (Current_Environment == E_CITY)
-	    Level->site[40][60].p_locf = L_NO_OP;	// pacify_guards restores this
+	    Level->site(40,60).p_locf = L_NO_OP;	// pacify_guards restores this
     }
     if (!foundguard && Current_Environment == E_CITY && !gamestatusp (DESTROYED_ORDER)) {
 	int suppress = gamestatusp (SUPPRESS_PRINTING);
@@ -3287,12 +3287,12 @@ static void destroy_order (void)
 	for (int j = 60; j < 63; j++) {
 	    if (i == 40 && (j == 60 || j == 61)) {
 		lreset (i, j, SECRET);
-		Level->site[i][j].locchar = FLOOR;
-		Level->site[i][j].p_locf = L_NO_OP;
+		Level->site(i,j).locchar = FLOOR;
+		Level->site(i,j).p_locf = L_NO_OP;
 		lset (i, j, CHANGED);
 	    } else {
-		Level->site[i][j].locchar = RUBBLE;
-		Level->site[i][j].p_locf = L_RUBBLE;
+		Level->site(i,j).locchar = RUBBLE;
+		Level->site(i,j).p_locf = L_RUBBLE;
 		lset (i, j, CHANGED);
 	    }
 	    monster& m = make_site_monster (i, j, GHOST);

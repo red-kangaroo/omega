@@ -255,7 +255,7 @@ static void s_ritual (void)
 	    mprint ("'Like wow, man! Colors!'");
 	    mprint ("Appreciative citizens throw you spare change.");
 	    Player.cash += random_range (50);
-	} else if ((roomno = Level->site[Player.x][Player.y].roomnumber) >= 0) {
+	} else if ((roomno = Level->site(Player.x,Player.y).roomnumber) >= 0) {
 	    if (RitualRoom == roomno)
 		mprint ("For some reason the ritual doesn't work this time...");
 	    else {
@@ -264,8 +264,8 @@ static void s_ritual (void)
 		    case RS_TREASURE_CHAMBER:
 			mprint ("Your spell sets off frenetic growth all around you!");
 			for (i = 0; i < 8; i++) {
-			    Level->site[Player.x + Dirs[0][i]][Player.y + Dirs[1][i]].locchar = HEDGE;
-			    Level->site[Player.x + Dirs[0][i]][Player.y + Dirs[1][i]].p_locf = L_TRIFID;
+			    Level->site(Player.x + Dirs[0][i],Player.y + Dirs[1][i]).locchar = HEDGE;
+			    Level->site(Player.x + Dirs[0][i],Player.y + Dirs[1][i]).p_locf = L_TRIFID;
 			    lset (Player.x + Dirs[0][i], Player.y + Dirs[1][i], CHANGED);
 			}
 			break;
@@ -285,15 +285,15 @@ static void s_ritual (void)
 			    mprint ("The mana fades away to nothingness.");
 			x = Player.x;
 			y = Player.y;
-			while (x >= 0 && Level->site[x - 1][y].roomnumber == RS_HIGH_MAGIC_SHRINE)
+			while (x >= 0 && Level->site(x - 1,y).roomnumber == RS_HIGH_MAGIC_SHRINE)
 			    x--;
-			while (y >= 0 && Level->site[x][y - 1].roomnumber == RS_HIGH_MAGIC_SHRINE)
+			while (y >= 0 && Level->site(x,y - 1).roomnumber == RS_HIGH_MAGIC_SHRINE)
 			    y--;
-			for (i = 0; Level->site[x][y].roomnumber == RS_HIGH_MAGIC_SHRINE;) {
-			    Level->site[x][y].roomnumber = RS_ZORCH;
+			for (i = 0; Level->site(x,y).roomnumber == RS_HIGH_MAGIC_SHRINE;) {
+			    Level->site(x,y).roomnumber = RS_ZORCH;
 			    x++;
 			    i++;
-			    if (Level->site[x][y].roomnumber != RS_HIGH_MAGIC_SHRINE) {
+			    if (Level->site(x,y).roomnumber != RS_HIGH_MAGIC_SHRINE) {
 				x -= i;
 				i = 0;
 				y++;
@@ -348,11 +348,11 @@ static void s_ritual (void)
 		}
 	    }
 	} else {
-	    if (RitualRoom == Level->site[Player.x][Player.y].roomnumber)
+	    if (RitualRoom == Level->site(Player.x,Player.y).roomnumber)
 		mprint ("The ritual fails for some unexplainable reason.");
 	    else {
 		mprint ("The ritual seems to be generating some spell effect.");
-		RitualRoom = Level->site[Player.x][Player.y].roomnumber;
+		RitualRoom = Level->site(Player.x,Player.y).roomnumber;
 		switch (RitualRoom) {
 		    case RS_WALLSPACE:
 			shadowform();

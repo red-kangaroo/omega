@@ -906,20 +906,21 @@ struct terrain {
 
 // dungeon locations
 struct location {
+    chtype locchar;		// terrain type
+    chtype showchar;		// char instantaneously drawn for site
+    int aux;			// signifies various things
     char p_locf;		// function executed when moved on
     unsigned char lstatus;	// seen,stopsrun,lit,secret,
     char roomnumber;		// so room can be named
     unsigned char buildaux;	// used in constructing level
-    int aux;			// signifies various things
-    chtype locchar;		// terrain type
-    chtype showchar;		// char instantaneously drawn for site
 };
 
-struct level {
-    struct location site[MAXWIDTH][MAXLENGTH];	// dungeon data
+class level {
+    vector<location> _site;	// dungeon data
+public:
     vector<monster> mlist;	// List of monsters on level
     vector<object> things;	// List of objects on level
-    struct level *next;		// pointer to next level in dungeon
+    level* next;		// pointer to next level in dungeon
     int environment;		// where kind of level is this?
     int last_visited;		// time player was last on this level
     char depth;			// which level is this
@@ -927,10 +928,14 @@ struct level {
     char numrooms;		// number of rooms on level
     uint8_t tunnelled;		// amount of tunnelling done on this level
 public:
+		level (void);
+    void	clear (void);
     monster*	creature (int x, int y);
     object*	thing (int x, int y);
     void	make_thing (int x, int y, unsigned tid, unsigned n = RANDOM);
     void	remove_things (int x, int y);
     void	add_thing (int x, int y, const object& o, unsigned n = RANDOM);
+    inline location& site (int x, int y)	{ return (_site[y*MAXWIDTH+x]); }
+    inline const location& site (int x, int y) const	{ return (const_cast<level*>(this)->site(x,y)); }
 };
 typedef level* plv;

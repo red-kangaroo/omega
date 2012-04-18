@@ -202,7 +202,7 @@ int main (int argc, const char* argv[])
     timeprint();
     calc_melee();
     if (Current_Environment != E_COUNTRYSIDE)
-	showroom (Level->site[Player.x][Player.y].roomnumber);
+	showroom (Level->site(Player.x,Player.y).roomnumber);
     else
 	terrain_check (FALSE);
 

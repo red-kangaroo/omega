@@ -319,23 +319,23 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 	    }
 	    mprint (Str1);
 	}
-    } else if (Level->site[xx][yy].locchar == HEDGE)
-	if (Level->site[xx][yy].p_locf != L_TRIFID) {
+    } else if (Level->site(xx,yy).locchar == HEDGE)
+	if (Level->site(xx,yy).p_locf != L_TRIFID) {
 	    if ((dtype == FLAME) || (dtype == ELECTRICITY)) {
 		mprint ("The hedge is blasted away!");
-		Level->site[xx][yy].p_locf = L_NO_OP;
-		Level->site[xx][yy].locchar = FLOOR;
+		Level->site(xx,yy).p_locf = L_NO_OP;
+		Level->site(xx,yy).locchar = FLOOR;
 		plotspot (xx, yy, TRUE);
 		lset (xx, yy, CHANGED);
 	    } else
 		mprint ("The hedge is unaffected.");
 	} else
 	    mprint ("The trifid absorbs the energy and laughs!");
-    else if (Level->site[xx][yy].locchar == WATER)
+    else if (Level->site(xx,yy).locchar == WATER)
 	if (dtype == FLAME) {
 	    mprint ("The water is vaporised!");
-	    Level->site[xx][yy].p_locf = L_NO_OP;
-	    Level->site[xx][yy].locchar = FLOOR;
+	    Level->site(xx,yy).p_locf = L_NO_OP;
+	    Level->site(xx,yy).locchar = FLOOR;
 	    lset (xx, yy, CHANGED);
 	}
 }
@@ -434,23 +434,23 @@ static void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
 	    m_status_set (target, HOSTILE);
 	    m_damage (target, random_range (dmg), dtype);
 	}
-	if (Level->site[ex][ey].locchar == HEDGE)
-	    if (Level->site[ex][ey].p_locf != L_TRIFID) {
+	if (Level->site(ex,ey).locchar == HEDGE)
+	    if (Level->site(ex,ey).p_locf != L_TRIFID) {
 		if ((dtype == FLAME) || (dtype == ELECTRICITY)) {
 		    mprint ("The hedge is blasted away!");
-		    Level->site[ex][ey].p_locf = L_NO_OP;
-		    Level->site[ex][ey].locchar = FLOOR;
+		    Level->site(ex,ey).p_locf = L_NO_OP;
+		    Level->site(ex,ey).locchar = FLOOR;
 		    plotspot (ex, ey, TRUE);
 		    lset (ex, ey, CHANGED);
 		} else
 		    mprint ("The hedge is unaffected.");
 	    } else
 		mprint ("The trifid absorbs the energy and laughs!");
-	else if (Level->site[ex][ey].locchar == WATER)
+	else if (Level->site(ex,ey).locchar == WATER)
 	    if (dtype == FLAME) {
 		mprint ("The water is vaporised!");
-		Level->site[ex][ey].p_locf = L_NO_OP;
-		Level->site[ex][ey].locchar = FLOOR;
+		Level->site(ex,ey).p_locf = L_NO_OP;
+		Level->site(ex,ey).locchar = FLOOR;
 		plotspot (ex, ey, TRUE);
 		lset (ex, ey, CHANGED);
 	    }
@@ -1314,32 +1314,32 @@ void sanctify (int blessing)
     if (blessing > -1) {
 	if (Level->environment == E_TEMPLE)
 	    mprint ("Odd, the spell has no effect. I wonder why.");
-	else if (Level->site[Player.x][Player.y].locchar == ALTAR)
+	else if (Level->site(Player.x,Player.y).locchar == ALTAR)
 	    mprint ("This site can't get any holier!");
 	else if (Player.patron == 0) {
 	    mprint ("The gods are angered!");
-	    Level->site[Player.x][Player.y].locchar = LAVA;
-	    Level->site[Player.x][Player.y].p_locf = L_LAVA;
+	    Level->site(Player.x,Player.y).locchar = LAVA;
+	    Level->site(Player.x,Player.y).p_locf = L_LAVA;
 	    lset (Player.x, Player.y, CHANGED);
 	    p_movefunction (L_LAVA);
 	} else {
-	    Level->site[Player.x][Player.y].locchar = ALTAR;
-	    Level->site[Player.x][Player.y].aux = Player.patron;
-	    Level->site[Player.x][Player.y].p_locf = L_ALTAR;
+	    Level->site(Player.x,Player.y).locchar = ALTAR;
+	    Level->site(Player.x,Player.y).aux = Player.patron;
+	    Level->site(Player.x,Player.y).p_locf = L_ALTAR;
 	    lset (Player.x, Player.y, CHANGED);
 	    mprint ("You are standing on sacred ground!");
 	}
     } else {
-	if (Level->site[Player.x][Player.y].locchar == ALTAR) {
+	if (Level->site(Player.x,Player.y).locchar == ALTAR) {
 	    mprint ("The altar crumbles before your unholy blast....");
-	    Level->site[Player.x][Player.y].locchar = FLOOR;
-	    Level->site[Player.x][Player.y].p_locf = L_NO_OP;
+	    Level->site(Player.x,Player.y).locchar = FLOOR;
+	    Level->site(Player.x,Player.y).p_locf = L_NO_OP;
 	    lset (Player.x, Player.y, CHANGED);
-	    if (Level->site[Player.x][Player.y].aux == Player.patron) {
+	    if (Level->site(Player.x,Player.y).aux == Player.patron) {
 		mprint ("Your deity is not amused....");
 		p_damage (Player.hp - 1, UNSTOPPABLE, "Divine Wrath");
 	    } else if ((Player.patron == ATHENA) || (Player.patron == ODIN)) {
-		if ((Level->site[Player.x][Player.y].aux == SET) || (Level->site[Player.x][Player.y].aux == HECATE)) {
+		if ((Level->site(Player.x,Player.y).aux == SET) || (Level->site(Player.x,Player.y).aux == HECATE)) {
 		    mprint ("Your deity applauds the eradication of Chaos' taint");
 		    gain_experience (1000);
 		} else {
@@ -1347,7 +1347,7 @@ void sanctify (int blessing)
 		    gain_experience (100);
 		}
 	    } else if ((Player.patron == SET) || (Player.patron == HECATE)) {
-		if ((Level->site[Player.x][Player.y].aux == ODIN) || (Level->site[Player.x][Player.y].aux == ATHENA)) {
+		if ((Level->site(Player.x,Player.y).aux == ODIN) || (Level->site(Player.x,Player.y).aux == ATHENA)) {
 		    mprint ("Your deity applauds the obliteration of Law");
 		    gain_experience (1000);
 		} else {
@@ -1394,7 +1394,7 @@ void summon (int blessing, int id)
     for (int i = 0; ((i < 8) && looking); i++) {
 	x = Player.x + Dirs[0][i];
 	y = Player.y + Dirs[1][i];
-	looking = (!inbounds (x, y) || Level->site[x][y].locchar != FLOOR || Level->creature(x,y));
+	looking = (!inbounds (x, y) || Level->site(x,y).locchar != FLOOR || Level->creature(x,y));
     }
 
     if (!looking) {
@@ -1584,7 +1584,7 @@ void clairvoyance (int vision)
     for (i = x - vision; i < x + vision + 1; i++)
 	for (j = y - vision; j < y + vision + 1; j++) {
 	    if (inbounds (i, j)) {
-		Level->site[i][j].showchar = SPACE;
+		Level->site(i,j).showchar = SPACE;
 		lreset (i, j, SECRET);
 		lset (i, j, CHANGED);
 		dodrawspot (i, j);
@@ -1711,50 +1711,50 @@ void disintegrate (int x, int y)
 	    m_damage (target, 250, UNSTOPPABLE);
 	    if (target->hp > 0)
 		mprint ("It was partially protected by its armor.");
-	} else if (Level->site[x][y].locchar == ALTAR) {
+	} else if (Level->site(x,y).locchar == ALTAR) {
 	    mprint ("Zzzzap! the altar seems unaffected...");
 	    mprint ("But an angry deity retaliates....");
 	    disintegrate (Player.x, Player.y);
-	} else if (Level->site[x][y].p_locf == L_TRAP_PIT) {
+	} else if (Level->site(x,y).p_locf == L_TRAP_PIT) {
 	    if (Current_Environment == Current_Dungeon) {
 		mprint ("A hole is blasted in the base of the pit!");
-		Level->site[x][y].locchar = TRAP;
-		Level->site[x][y].p_locf = L_TRAP_DOOR;
-		Level->site[x][y].aux = S_DISINTEGRATE;
+		Level->site(x,y).locchar = TRAP;
+		Level->site(x,y).p_locf = L_TRAP_DOOR;
+		Level->site(x,y).aux = S_DISINTEGRATE;
 		lset (x, y, CHANGED);
 	    } else
 		mprint ("The hole just gets deeper....");
-	} else if (Level->site[x][y].locchar == FLOOR) {
+	} else if (Level->site(x,y).locchar == FLOOR) {
 	    mprint ("You zap a hole in the floor!");
-	    Level->site[x][y].locchar = TRAP;
-	    Level->site[x][y].p_locf = L_TRAP_PIT;
+	    Level->site(x,y).locchar = TRAP;
+	    Level->site(x,y).p_locf = L_TRAP_PIT;
 	    lset (x, y, CHANGED);
-	} else if ((Level->site[x][y].locchar == WALL) || (Level->site[x][y].locchar == OPEN_DOOR) || (Level->site[x][y].locchar == CLOSED_DOOR) || (Level->site[x][y].locchar == PORTCULLIS) || (Level->site[x][y].locchar == STATUE)) {
+	} else if ((Level->site(x,y).locchar == WALL) || (Level->site(x,y).locchar == OPEN_DOOR) || (Level->site(x,y).locchar == CLOSED_DOOR) || (Level->site(x,y).locchar == PORTCULLIS) || (Level->site(x,y).locchar == STATUE)) {
 	    mprint ("The site is reduced to rubble!");
-	    if (Level->site[x][y].locchar == WALL)
+	    if (Level->site(x,y).locchar == WALL)
 		tunnelcheck();
-	    Level->site[x][y].p_locf = L_RUBBLE;
-	    Level->site[x][y].locchar = RUBBLE;
+	    Level->site(x,y).p_locf = L_RUBBLE;
+	    Level->site(x,y).locchar = RUBBLE;
 	    lreset (x, y, SECRET);
 	    lset (x, y, CHANGED);
-	} else if ((Level->site[x][y].locchar == RUBBLE) || (Level->site[x][y].locchar == TRAP)) {
+	} else if ((Level->site(x,y).locchar == RUBBLE) || (Level->site(x,y).locchar == TRAP)) {
 	    mprint ("The site is blasted clear!");
-	    Level->site[x][y].p_locf = L_NO_OP;
-	    Level->site[x][y].locchar = FLOOR;
+	    Level->site(x,y).p_locf = L_NO_OP;
+	    Level->site(x,y).locchar = FLOOR;
 	    lreset (x, y, SECRET);
 	    lset (x, y, CHANGED);
-	} else if (Level->site[x][y].locchar == HEDGE) {
-	    if (Level->site[x][y].p_locf == L_TRIFID) {
+	} else if (Level->site(x,y).locchar == HEDGE) {
+	    if (Level->site(x,y).p_locf == L_TRIFID) {
 		mprint ("The trifid screams as it disintgrates!");
 		gain_experience (50);
-		Level->site[x][y].p_locf = L_NO_OP;
-		Level->site[x][y].locchar = FLOOR;
+		Level->site(x,y).p_locf = L_NO_OP;
+		Level->site(x,y).locchar = FLOOR;
 		lreset (x, y, SECRET);
 		lset (x, y, CHANGED);
 	    } else {
 		mprint ("The hedge is blasted away!");
-		Level->site[x][y].p_locf = L_NO_OP;
-		Level->site[x][y].locchar = FLOOR;
+		Level->site(x,y).p_locf = L_NO_OP;
+		Level->site(x,y).locchar = FLOOR;
 		lreset (x, y, SECRET);
 		lset (x, y, CHANGED);
 	    }
@@ -1795,7 +1795,7 @@ void p_teleport (int type)
     if (type < 0) {
 	x = random_range (WIDTH);
 	y = random_range (LENGTH);
-	if ((Level->site[x][y].locchar != FLOOR) && (Level->site[x][y].locchar != OPEN_DOOR)) {
+	if ((Level->site(x,y).locchar != FLOOR) && (Level->site(x,y).locchar != OPEN_DOOR)) {
 	    mprint ("You teleported into a solid object....");
 	    mprint ("You are dead!");
 	    p_death ("teleportation into a solid object");
@@ -1807,7 +1807,7 @@ void p_teleport (int type)
 	findspace (&(Player.x), &(Player.y), -1);
     else {
 	setspot (&Player.x, &Player.y);
-	if (Level->site[Player.x][Player.y].locchar != FLOOR || Level->creature(Player.x,Player.y)) {
+	if (Level->site(Player.x,Player.y).locchar != FLOOR || Level->creature(Player.x,Player.y)) {
 	    mprint ("You feel deflected.");
 	    p_teleport (0);
 	}
@@ -2126,13 +2126,13 @@ void dispel (int blessing)
 		m_status_reset (*target, INTANGIBLE);
 	    } else
 		mprint ("The monster ignores the effect!");
-	} else if ((Level->site[x][y].p_locf == L_TRAP_FIRE) || (Level->site[x][y].p_locf == L_STATUE_WAKE) || (Level->site[x][y].p_locf == L_TRAP_TELEPORT) || (Level->site[x][y].p_locf == L_TRAP_DISINTEGRATE)) {
-	    Level->site[x][y].p_locf = L_NO_OP;
-	    if (Level->site[x][y].locchar == TRAP)
-		Level->site[x][y].locchar = FLOOR;
+	} else if ((Level->site(x,y).p_locf == L_TRAP_FIRE) || (Level->site(x,y).p_locf == L_STATUE_WAKE) || (Level->site(x,y).p_locf == L_TRAP_TELEPORT) || (Level->site(x,y).p_locf == L_TRAP_DISINTEGRATE)) {
+	    Level->site(x,y).p_locf = L_NO_OP;
+	    if (Level->site(x,y).locchar == TRAP)
+		Level->site(x,y).locchar = FLOOR;
 	    lset (x, y, CHANGED);
-	} else if (Level->site[x][y].p_locf == L_MAGIC_POOL)
-	    Level->site[x][y].p_locf = L_WATER;
+	} else if (Level->site(x,y).p_locf == L_MAGIC_POOL)
+	    Level->site(x,y).p_locf = L_WATER;
 	else
 	    mprint ("Nothing much seems to happen.");
     } else {
@@ -2296,10 +2296,10 @@ void drain (int blessing)
     } else if (blessing < 0) {
 	mprint ("You seem to lose energy, instead of gaining it!");
 	level_drain (3, "reversed energy drain");
-    } else if (Level->site[x][y].locchar == ALTAR) {
+    } else if (Level->site(x,y).locchar == ALTAR) {
 	mprint ("The altar collapses in on itself....");
-	Level->site[x][y].locchar = ABYSS;
-	Level->site[x][y].p_locf = L_ABYSS;
+	Level->site(x,y).locchar = ABYSS;
+	Level->site(x,y).p_locf = L_ABYSS;
 	lset (x, y, CHANGED);
 	if (!Player.patron) {
 	    mprint ("You drain some theurgic energy from the altar....");
@@ -2307,7 +2307,7 @@ void drain (int blessing)
 	    Player.hp += 20;
 	    Player.pow += 2;
 	}
-	if (Level->site[x][y].aux == Player.patron) {
+	if (Level->site(x,y).aux == Player.patron) {
 	    mprint ("Your deity is enraged.");
 	    mprint ("You are struck by godsfire.");
 	    p_damage (Player.hp - 1, UNSTOPPABLE, "godsfire");
@@ -2359,7 +2359,7 @@ void shadowform (void)
 
 void illuminate (int blessing)
 {
-    int r = Level->site[Player.x][Player.y].roomnumber;
+    int r = Level->site(Player.x,Player.y).roomnumber;
     if (r < RS_ROOMBASE)
 	mprint (blessing >= 0 ? "You see a faint glimmer of light which quickly fades." : "The gloom thickens for a moment.");
     else if (loc_statusp (Player.x, Player.y, LIT))
@@ -2367,10 +2367,10 @@ void illuminate (int blessing)
     else {
 	mprint (blessing >= 0 ? "The room lights up!" : "The room darkens!");
 	if (blessing < 0)
-	    spreadroomdark (Player.x, Player.y, Level->site[Player.x][Player.y].roomnumber);
+	    spreadroomdark (Player.x, Player.y, Level->site(Player.x,Player.y).roomnumber);
 	else {
 	    Player.status[ILLUMINATION] += blessing + 3;
-	    spreadroomlight (Player.x, Player.y, Level->site[Player.x][Player.y].roomnumber);
+	    spreadroomlight (Player.x, Player.y, Level->site(Player.x,Player.y).roomnumber);
 	}
     }
 }

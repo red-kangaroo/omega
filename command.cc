@@ -236,7 +236,7 @@ void p_process (void)
 		upstairs();
 		break;
 	    case '@':
-		p_movefunction (Level->site[Player.x][Player.y].p_locf);
+		p_movefunction (Level->site(Player.x,Player.y).p_locf);
 		Command_Duration = 5;
 		break;
 	    case '?':
@@ -718,14 +718,14 @@ static void disarm (void)
 
     if (!inbounds (x, y))
 	print3 ("Whoa, off the map...");
-    else if (Level->site[x][y].locchar != TRAP)
+    else if (Level->site(x,y).locchar != TRAP)
 	print3 ("You can't see a trap there!");
     else {
 	if (random_range (50 + difficulty() * 5) < Player.dex * 2 + Player.level * 3 + Player.rank[THIEVES] * 10) {
 	    print1 ("You disarmed the trap!");
 	    if (random_range (100) < Player.dex + Player.rank[THIEVES] * 10) {
 		unsigned componentId = NO_THING;
-		switch (Level->site[x][y].p_locf) {
+		switch (Level->site(x,y).p_locf) {
 		    case L_TRAP_DART: componentId = THING_DART_TRAP_COMPONENT; break;
 		    case L_TRAP_ACID: componentId = THING_ACID_TRAP_COMPONENT; break;
 		    case L_TRAP_SNARE: componentId = THING_SNARE_TRAP_COMPONENT; break;
@@ -744,15 +744,15 @@ static void disarm (void)
 		    gain_experience (25);
 		}
 	    }
-	    Level->site[x][y].p_locf = L_NO_OP;
-	    Level->site[x][y].locchar = FLOOR;
+	    Level->site(x,y).p_locf = L_NO_OP;
+	    Level->site(x,y).locchar = FLOOR;
 	    lset (x, y, CHANGED);
 	    gain_experience (5);
 	} else if (random_range (10 + difficulty() * 2) > Player.dex) {
 	    print1 ("You accidentally set off the trap!");
 	    Player.x = x;
 	    Player.y = y;
-	    p_movefunction (Level->site[x][y].p_locf);
+	    p_movefunction (Level->site(x,y).p_locf);
 	} else
 	    print1 ("You failed to disarm the trap.");
     }
@@ -890,10 +890,10 @@ static void magic (void)
 // go upstairs ('<' command)
 static void upstairs (void)
 {
-    if (Level->site[Player.x][Player.y].locchar != STAIRS_UP)
+    if (Level->site(Player.x,Player.y).locchar != STAIRS_UP)
 	print3 ("Not here!");
-    else if (Level->site[Player.x][Player.y].p_locf == L_ESCALATOR)
-	p_movefunction (Level->site[Player.x][Player.y].p_locf);
+    else if (Level->site(Player.x,Player.y).p_locf == L_ESCALATOR)
+	p_movefunction (Level->site(Player.x,Player.y).p_locf);
     else {
 	if (gamestatusp (MOUNTED))
 	    print2 ("You manage to get your horse upstairs.");
@@ -913,10 +913,10 @@ static void upstairs (void)
 // go downstairs ('>' command)
 static void downstairs (void)
 {
-    if (Level->site[Player.x][Player.y].locchar != STAIRS_DOWN)
+    if (Level->site(Player.x,Player.y).locchar != STAIRS_DOWN)
 	print3 ("Not here!");
-    else if (Level->site[Player.x][Player.y].p_locf == L_ENTER_CIRCLE || Level->site[Player.x][Player.y].p_locf == L_ENTER_COURT)
-	p_movefunction (Level->site[Player.x][Player.y].p_locf);
+    else if (Level->site(Player.x,Player.y).p_locf == L_ENTER_CIRCLE || Level->site(Player.x,Player.y).p_locf == L_ENTER_COURT)
+	p_movefunction (Level->site(Player.x,Player.y).p_locf);
     else {
 	if (gamestatusp (MOUNTED))
 	    print2 ("You manage to get your horse downstairs.");
@@ -1017,26 +1017,26 @@ static void opendoor (void)
     else {
 	ox = Player.x + Dirs[0][dir];
 	oy = Player.y + Dirs[1][dir];
-	if (Level->site[ox][oy].locchar == OPEN_DOOR) {
+	if (Level->site(ox,oy).locchar == OPEN_DOOR) {
 	    print3 ("That door is already open!");
 	    setgamestatus (SKIP_MONSTERS);
-	} else if (Level->site[ox][oy].locchar == PORTCULLIS) {
+	} else if (Level->site(ox,oy).locchar == PORTCULLIS) {
 	    print1 ("You try to lift the massive steel portcullis....");
 	    if (random_range (100) < Player.str) {
 		print2 ("Incredible. You bust a gut and lift the portcullis.");
-		Level->site[ox][oy].locchar = FLOOR;
+		Level->site(ox,oy).locchar = FLOOR;
 		lset (ox, oy, CHANGED);
 	    } else {
 		print2 ("Argh. You ruptured yourself.");
 		p_damage (Player.str, UNSTOPPABLE, "a portcullis");
 	    }
-	} else if ((Level->site[ox][oy].locchar != CLOSED_DOOR) || loc_statusp (ox, oy, SECRET)) {
+	} else if ((Level->site(ox,oy).locchar != CLOSED_DOOR) || loc_statusp (ox, oy, SECRET)) {
 	    print3 ("You can't open that!");
 	    setgamestatus (SKIP_MONSTERS);
-	} else if (Level->site[ox][oy].aux == LOCKED)
+	} else if (Level->site(ox,oy).aux == LOCKED)
 	    print3 ("That door seems to be locked.");
 	else {
-	    Level->site[ox][oy].locchar = OPEN_DOOR;
+	    Level->site(ox,oy).locchar = OPEN_DOOR;
 	    lset (ox, oy, CHANGED);
 	}
     }
@@ -1067,32 +1067,32 @@ static void bash_location (void)
 	    } else
 		print2 ("A sudden tension goes out of the air....");
 	} else {
-	    if (Level->site[ox][oy].locchar == WALL) {
+	    if (Level->site(ox,oy).locchar == WALL) {
 		print1 ("You hurl yourself at the wall!");
 		p_damage (Player.str, NORMAL_DAMAGE, "a suicidal urge");
-	    } else if (Level->site[ox][oy].locchar == OPEN_DOOR) {
+	    } else if (Level->site(ox,oy).locchar == OPEN_DOOR) {
 		print1 ("You hurl yourself through the open door!");
 		print2 ("Yaaaaah! ... thud.");
 		morewait();
 		Player.x = ox;
 		Player.y = oy;
 		p_damage (3, UNSTOPPABLE, "silliness");
-		p_movefunction (Level->site[Player.x][Player.y].p_locf);
+		p_movefunction (Level->site(Player.x,Player.y).p_locf);
 		setgamestatus (SKIP_MONSTERS);	// monsters are surprised...
-	    } else if (Level->site[ox][oy].locchar == CLOSED_DOOR) {
+	    } else if (Level->site(ox,oy).locchar == CLOSED_DOOR) {
 		if (loc_statusp (ox, oy, SECRET)) {
 		    print1 ("You found a secret door!");
 		    lreset (ox, oy, SECRET);
 		    lset (ox, oy, CHANGED);
 		}
-		if (Level->site[ox][oy].aux == LOCKED) {
+		if (Level->site(ox,oy).aux == LOCKED) {
 		    if (random_range (50 + difficulty() * 10) < Player.str) {
 			Player.x = ox;
 			Player.y = oy;
 			print2 ("You blast the door off its hinges!");
-			Level->site[ox][oy].locchar = FLOOR;
+			Level->site(ox,oy).locchar = FLOOR;
 			lset (ox, oy, CHANGED);
-			p_movefunction (Level->site[Player.x][Player.y].p_locf);
+			p_movefunction (Level->site(Player.x,Player.y).p_locf);
 			setgamestatus (SKIP_MONSTERS);	// monsters are surprised...
 		    } else {
 			print1 ("Crash! The door holds.");
@@ -1105,38 +1105,38 @@ static void bash_location (void)
 		    print2 ("You bash open the door!");
 		    if (random_range (30) > Player.str)
 			p_damage (1, UNSTOPPABLE, "a door");
-		    Level->site[ox][oy].locchar = OPEN_DOOR;
+		    Level->site(ox,oy).locchar = OPEN_DOOR;
 		    lset (ox, oy, CHANGED);
-		    p_movefunction (Level->site[Player.x][Player.y].p_locf);
+		    p_movefunction (Level->site(Player.x,Player.y).p_locf);
 		    setgamestatus (SKIP_MONSTERS);	// monsters are surprised...
 		}
-	    } else if (Level->site[ox][oy].locchar == STATUE) {
+	    } else if (Level->site(ox,oy).locchar == STATUE) {
 		statue_random (ox, oy);
-	    } else if (Level->site[ox][oy].locchar == PORTCULLIS) {
+	    } else if (Level->site(ox,oy).locchar == PORTCULLIS) {
 		print1 ("Really, you don't have a prayer.");
 		if (random_range (1000) < Player.str) {
 		    print2 ("The portcullis flies backwards into a thousand fragments.");
 		    print3 ("Wow. What a stud.");
 		    gain_experience (100);
-		    Level->site[ox][oy].locchar = FLOOR;
-		    Level->site[ox][oy].p_locf = L_NO_OP;
+		    Level->site(ox,oy).locchar = FLOOR;
+		    Level->site(ox,oy).p_locf = L_NO_OP;
 		    lset (ox, oy, CHANGED);
 		} else {
 		    print2 ("You only hurt yourself on the 3'' thick steel bars.");
 		    p_damage (Player.str, UNSTOPPABLE, "a portcullis");
 		}
-	    } else if (Level->site[ox][oy].locchar == ALTAR) {
-		if ((Player.patron > 0) && (Level->site[ox][oy].aux == Player.patron)) {
+	    } else if (Level->site(ox,oy).locchar == ALTAR) {
+		if ((Player.patron > 0) && (Level->site(ox,oy).aux == Player.patron)) {
 		    print1 ("You have a vision! An awesome angel hovers over the altar.");
 		    print2 ("The angel says: 'You twit, don't bash your own altar!'");
 		    print3 ("The angel slaps you upside the head for your presumption.");
 		    p_damage (Player.hp - 1, UNSTOPPABLE, "an annoyed angel");
-		} else if (Level->site[ox][oy].aux == 0) {
+		} else if (Level->site(ox,oy).aux == 0) {
 		    print1 ("The feeble powers of the minor godling are not enough to");
 		    print2 ("protect his altar! The altar crumbles away to dust.");
 		    print3 ("You feel almost unbearably smug.");
-		    Level->site[ox][oy].locchar = RUBBLE;
-		    Level->site[ox][oy].p_locf = L_RUBBLE;
+		    Level->site(ox,oy).locchar = RUBBLE;
+		    Level->site(ox,oy).p_locf = L_RUBBLE;
 		    lset (ox, oy, CHANGED);
 		    gain_experience (5);
 		} else {
@@ -1148,8 +1148,8 @@ static void bash_location (void)
 		    if (Player.rank[PRIESTHOOD] * 20 + Player.pow + Player.level > random_range (200)) {
 			morewait();
 			print1 ("The altar crumbles...");
-			Level->site[ox][oy].locchar = RUBBLE;
-			Level->site[ox][oy].p_locf = L_RUBBLE;
+			Level->site(ox,oy).locchar = RUBBLE;
+			Level->site(ox,oy).p_locf = L_RUBBLE;
 			lset (ox, oy, CHANGED);
 			morewait();
 			if (Player.rank[PRIESTHOOD]) {
@@ -1286,14 +1286,14 @@ static void closedoor (void)
     else {
 	ox = Player.x + Dirs[0][dir];
 	oy = Player.y + Dirs[1][dir];
-	if (Level->site[ox][oy].locchar == CLOSED_DOOR) {
+	if (Level->site(ox,oy).locchar == CLOSED_DOOR) {
 	    print3 ("That door is already closed!");
 	    setgamestatus (SKIP_MONSTERS);
-	} else if (Level->site[ox][oy].locchar != OPEN_DOOR) {
+	} else if (Level->site(ox,oy).locchar != OPEN_DOOR) {
 	    print3 ("You can't close that!");
 	    setgamestatus (SKIP_MONSTERS);
 	} else
-	    Level->site[ox][oy].locchar = CLOSED_DOOR;
+	    Level->site(ox,oy).locchar = CLOSED_DOOR;
 	lset (ox, oy, CHANGED);
     }
 }
@@ -1320,7 +1320,7 @@ static void moveplayer (int dx, int dy)
 	} else {
 	    Player.x += dx;
 	    Player.y += dy;
-	    p_movefunction (Level->site[Player.x][Player.y].p_locf);
+	    p_movefunction (Level->site(Player.x,Player.y).p_locf);
 
 	    // causes moves to take effectively 30 seconds in town without
 	    // monsters being sped up compared to player
@@ -1461,7 +1461,7 @@ static void examine (void)
 	    if (loc_statusp (x, y, SECRET))
 		print2 ("An age-worn stone wall.");
 	    else {
-		switch (Level->site[x][y].locchar) {
+		switch (Level->site(x,y).locchar) {
 		    case SPACE:		print2 ("An infinite void."); break;
 		    case PORTCULLIS:	print2 ("A heavy steel portcullis"); break;
 		    case ABYSS:		print2 ("An entrance to the infinite abyss"); break;
@@ -1472,13 +1472,13 @@ static void examine (void)
 			    print2 ("The ground.");
 			break;
 		    case WALL:
-			if (Level->site[x][y].aux == 0)		print2 ("A totally impervious wall.");
-			else if (Level->site[x][y].aux < 10)	print2 ("A pitted concrete wall.");
-			else if (Level->site[x][y].aux < 30)	print2 ("An age-worn sandstone wall.");
-			else if (Level->site[x][y].aux < 50)	print2 ("A smooth basalt wall.");
-			else if (Level->site[x][y].aux < 70)	print2 ("A solid granite wall.");
-			else if (Level->site[x][y].aux < 90)	print2 ("A wall of steel.");
-			else if (Level->site[x][y].aux < 210) {
+			if (Level->site(x,y).aux == 0)		print2 ("A totally impervious wall.");
+			else if (Level->site(x,y).aux < 10)	print2 ("A pitted concrete wall.");
+			else if (Level->site(x,y).aux < 30)	print2 ("An age-worn sandstone wall.");
+			else if (Level->site(x,y).aux < 50)	print2 ("A smooth basalt wall.");
+			else if (Level->site(x,y).aux < 70)	print2 ("A solid granite wall.");
+			else if (Level->site(x,y).aux < 90)	print2 ("A wall of steel.");
+			else if (Level->site(x,y).aux < 210) {
 			    if (Current_Environment == E_CITY)
 				print2 ("A thick wall of Rampart bluestone");
 			    else
@@ -1493,9 +1493,9 @@ static void examine (void)
 		    case STATUE:	print2 ("A strange-looking statue."); break;
 		    case STAIRS_UP:	print2 ("A stairway leading up."); break;
 		    case STAIRS_DOWN:	print2 ("A stairway leading down...."); break;
-		    case TRAP:		print2 (trapid (Level->site[x][y].p_locf)); break;
+		    case TRAP:		print2 (trapid (Level->site(x,y).p_locf)); break;
 		    case HEDGE:
-			if (Level->site[x][y].p_locf == L_EARTH_STATION)
+			if (Level->site(x,y).p_locf == L_EARTH_STATION)
 			    print2 ("A weird fibrillation of oozing tendrils.");
 			else
 			    print2 ("A brambly, thorny hedge.");
@@ -1506,11 +1506,11 @@ static void examine (void)
 		    case CHAIR:		print2 ("A chair."); break;
 		    case WHIRLWIND:	print2 ("A strange cyclonic electrical storm."); break;
 		    case WATER:
-			if (Level->site[x][y].p_locf == L_WATER)
+			if (Level->site(x,y).p_locf == L_WATER)
 			    print2 ("A deep pool of water.");
-			else if (Level->site[x][y].p_locf == L_CHAOS)
+			else if (Level->site(x,y).p_locf == L_CHAOS)
 			    print2 ("A pool of primal chaos.");
-			else if (Level->site[x][y].p_locf == L_WATER_STATION)
+			else if (Level->site(x,y).p_locf == L_WATER_STATION)
 			    print2 ("A bubbling pool of acid.");
 			else
 			    print2 ("An eerie pool of water.");
@@ -1738,7 +1738,7 @@ static void vault (void)
 		setgamestatus (SKIP_PLAYER);
 		p_damage ((Player.itemweight / 250), UNSTOPPABLE, "clumsiness");
 	    }
-	    p_movefunction (Level->site[Player.x][Player.y].p_locf);
+	    p_movefunction (Level->site(Player.x,Player.y).p_locf);
 	    if (Current_Environment != E_COUNTRYSIDE)
 		if (Level->thing(Player.x,Player.y) && optionp (PICKUP))
 		    pickup();
@@ -2010,11 +2010,11 @@ static void tunnel (void)
 	int oy = Player.y + Dirs[1][dir];
 	if (loc_statusp (ox, oy, SECRET))
 	    mprint ("You have no success as yet.");
-	else if (Level->site[ox][oy].locchar != WALL) {
+	else if (Level->site(ox,oy).locchar != WALL) {
 	    print3 ("You can't tunnel through that!");
 	    setgamestatus (SKIP_MONSTERS);
 	} else {
-	    int aux = Level->site[ox][oy].aux;
+	    int aux = Level->site(ox,oy).aux;
 	    if (random_range (20) == 1) {
 		if (!Player.has_possession(O_WEAPON_HAND)) {
 		    mprint ("Ouch! broke a fingernail...");
@@ -2029,8 +2029,8 @@ static void tunnel (void)
 		if ((aux > 0) && ((Player.str / 3) + random_range (100) > aux)) {
 		    mprint ("You carve a tunnel through the stone!");
 		    tunnelcheck();
-		    Level->site[ox][oy].locchar = RUBBLE;
-		    Level->site[ox][oy].p_locf = L_RUBBLE;
+		    Level->site(ox,oy).locchar = RUBBLE;
+		    Level->site(ox,oy).p_locf = L_RUBBLE;
 		    lset (ox, oy, CHANGED);
 		} else
 		    mprint ("No joy.");
@@ -2038,16 +2038,16 @@ static void tunnel (void)
 		if (aux > 0 && Player.possessions[O_WEAPON_HAND].dmg * 2 + random_range (100) > aux) {
 		    mprint ("You carve a tunnel through the stone!");
 		    tunnelcheck();
-		    Level->site[ox][oy].locchar = RUBBLE;
-		    Level->site[ox][oy].p_locf = L_RUBBLE;
+		    Level->site(ox,oy).locchar = RUBBLE;
+		    Level->site(ox,oy).p_locf = L_RUBBLE;
 		    lset (ox, oy, CHANGED);
 		} else
 		    mprint ("No luck.");
 	    } else if (aux > 0 && Player.possessions[O_WEAPON_HAND].dmg + random_range (100) > aux) {
 		mprint ("You carve a tunnel through the stone!");
 		tunnelcheck();
-		Level->site[ox][oy].locchar = RUBBLE;
-		Level->site[ox][oy].p_locf = L_RUBBLE;
+		Level->site(ox,oy).locchar = RUBBLE;
+		Level->site(ox,oy).p_locf = L_RUBBLE;
 		lset (ox, oy, CHANGED);
 	    } else
 		mprint ("You have no success as yet.");
@@ -2165,7 +2165,7 @@ static void city_move (void)
     else if (hostilemonstersnear()) {
 	setgamestatus (SKIP_MONSTERS);
 	print3 ("You can't move this way with hostile monsters around!");
-    } else if (Level->site[Player.x][Player.y].aux == NOCITYMOVE)
+    } else if (Level->site(Player.x,Player.y).aux == NOCITYMOVE)
 	print3 ("You can't use the 'M' command from this location.");
     else {
 	print1 ("Move to which establishment [? for help, ESCAPE to quit]");
@@ -2193,7 +2193,7 @@ static void city_move (void)
 	    mprint ("Made it!");
 	    drawvision (Player.x, Player.y);
 	    morewait();
-	    p_movefunction (Level->site[x][y].p_locf);
+	    p_movefunction (Level->site(x,y).p_locf);
 	}
     }
 }

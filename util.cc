@@ -56,11 +56,11 @@ int unblocked (int x, int y)
 {
     return (inbounds (x, y) &&
 	!Level->creature(x,y) &&
-	Level->site[x][y].locchar != WALL &&
-	Level->site[x][y].locchar != PORTCULLIS &&
-	Level->site[x][y].locchar != STATUE &&
-	Level->site[x][y].locchar != HEDGE &&
-	Level->site[x][y].locchar != CLOSED_DOOR &&
+	Level->site(x,y).locchar != WALL &&
+	Level->site(x,y).locchar != PORTCULLIS &&
+	Level->site(x,y).locchar != STATUE &&
+	Level->site(x,y).locchar != HEDGE &&
+	Level->site(x,y).locchar != CLOSED_DOOR &&
 	!loc_statusp (x, y, SECRET) && (x != Player.x || y != Player.y));
 }
 
@@ -69,10 +69,10 @@ int m_unblocked (struct monster *m, int x, int y)
 {
     if ((!inbounds (x, y)) || ((x == Player.x) && (y == Player.y)))
 	return (FALSE);
-    else if ((Level->creature(x,y) != NULL) || (Level->site[x][y].locchar == SPACE))
+    else if ((Level->creature(x,y) != NULL) || (Level->site(x,y).locchar == SPACE))
 	return (FALSE);
     else if (m_statusp (m, ONLYSWIM))
-	return (Level->site[x][y].locchar == WATER);
+	return (Level->site(x,y).locchar == WATER);
     else if (loc_statusp (x, y, SECRET)) {
 	if (m->movef == M_MOVE_SMART) {
 	    if (los_p (x, y, Player.x, Player.y)) {
@@ -86,30 +86,30 @@ int m_unblocked (struct monster *m, int x, int y)
 	    return (TRUE);
 	} else
 	    return (m_statusp (m, INTANGIBLE));
-    } else if ((Level->site[x][y].locchar == FLOOR) || (Level->site[x][y].locchar == OPEN_DOOR))
+    } else if ((Level->site(x,y).locchar == FLOOR) || (Level->site(x,y).locchar == OPEN_DOOR))
 	return (TRUE);
-    else if ((Level->site[x][y].locchar == PORTCULLIS) || (Level->site[x][y].locchar == WALL) || (Level->site[x][y].locchar == STATUE))
+    else if ((Level->site(x,y).locchar == PORTCULLIS) || (Level->site(x,y).locchar == WALL) || (Level->site(x,y).locchar == STATUE))
 	return (m_statusp (m, INTANGIBLE));
-    else if (Level->site[x][y].locchar == WATER)
+    else if (Level->site(x,y).locchar == WATER)
 	return (m_statusp (m, SWIMMING) || m_statusp (m, ONLYSWIM) || m_statusp (m, INTANGIBLE) || m_statusp (m, FLYING));
-    else if (Level->site[x][y].locchar == CLOSED_DOOR) {
+    else if (Level->site(x,y).locchar == CLOSED_DOOR) {
 	if (m->movef == M_MOVE_SMART) {
 	    mprint ("You hear a door creak open.");
-	    Level->site[x][y].locchar = OPEN_DOOR;
+	    Level->site(x,y).locchar = OPEN_DOOR;
 	    lset (x, y, CHANGED);
 	    return (TRUE);
 	} else if (random_range (m->dmg) > random_range (100)) {
 	    mprint ("You hear a door shattering.");
-	    Level->site[x][y].locchar = RUBBLE;
+	    Level->site(x,y).locchar = RUBBLE;
 	    lset (x, y, CHANGED);
 	    return (TRUE);
 	} else
 	    return (m_statusp (m, INTANGIBLE));
-    } else if (Level->site[x][y].locchar == LAVA)
+    } else if (Level->site(x,y).locchar == LAVA)
 	return ((m_immunityp (m, FLAME) && m_statusp (m, SWIMMING)) || m_statusp (m, INTANGIBLE) || m_statusp (m, FLYING));
-    else if (Level->site[x][y].locchar == FIRE)
+    else if (Level->site(x,y).locchar == FIRE)
 	return (m_statusp (m, INTANGIBLE) || m_immunityp (m, FLAME));
-    else if ((Level->site[x][y].locchar == TRAP) || (Level->site[x][y].locchar == HEDGE) || (Level->site[x][y].locchar == ABYSS))
+    else if ((Level->site(x,y).locchar == TRAP) || (Level->site(x,y).locchar == HEDGE) || (Level->site(x,y).locchar == ABYSS))
 	return ((m->movef == M_MOVE_CONFUSED) || m_statusp (m, INTANGIBLE) || m_statusp (m, FLYING));
     else
 	return (TRUE);
@@ -120,7 +120,7 @@ int view_unblocked (int x, int y)
 {
     if (!inbounds (x, y))
 	return (FALSE);
-    else if ((Level->site[x][y].locchar == WALL) || (Level->site[x][y].locchar == STATUE) || (Level->site[x][y].locchar == HEDGE) || (Level->site[x][y].locchar == FIRE) || (Level->site[x][y].locchar == CLOSED_DOOR) || loc_statusp (x, y, SECRET))
+    else if ((Level->site(x,y).locchar == WALL) || (Level->site(x,y).locchar == STATUE) || (Level->site(x,y).locchar == HEDGE) || (Level->site(x,y).locchar == FIRE) || (Level->site(x,y).locchar == CLOSED_DOOR) || loc_statusp (x, y, SECRET))
 	return (FALSE);
     else
 	return (TRUE);
@@ -180,7 +180,7 @@ void do_los (int pyx, int *x1, int *y1, int x2, int y2)
 	    error += 2 * step;
 	    blocked = !unblocked (*x1, *y1);
 	}
-	Level->site[*x1][*y1].showchar = pyx;
+	Level->site(*x1,*y1).showchar = pyx;
 	plotchar (pyx, *x1, *y1);
 	plotspot (ox, oy, TRUE);
 	napms (50);
@@ -244,7 +244,7 @@ void do_object_los (int pyx, int *x1, int *y1, int x2, int y2)
 	plotspot (ox, oy, TRUE);
 	if (unblocked (*x1, *y1)) {
 	    plotchar (pyx, *x1, *y1);
-	    Level->site[*x1][*y1].showchar = pyx;
+	    Level->site(*x1,*y1).showchar = pyx;
 	    napms (50);
 	}
     } while ((*x1 != x2 || *y1 != y2) && !blocked);
@@ -474,10 +474,10 @@ const char* month (void)
 // sets x,y there. There must *be* floor space somewhere on level....
 static int spaceok (int i, int j, int baux)
 {
-    return (Level->site[i][j].locchar == FLOOR &&
+    return (Level->site(i,j).locchar == FLOOR &&
 	    !Level->creature(i,j) &&
 	    !loc_statusp (i, j, SECRET) &&
-	    Level->site[i][j].buildaux != baux);
+	    Level->site(i,j).buildaux != baux);
 }
 
 void findspace (int *x, int *y, int baux)
