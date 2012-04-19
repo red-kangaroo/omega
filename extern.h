@@ -440,7 +440,7 @@ int screenmod(int y);
 int showhour(void);
 int showminute(void);
 const char* slotstr(int num);
-int strmem(int c, const char* s);
+bool strmem(int c, const char* s);
 int unblocked(int x, int y);
 int view_los_p(int x1, int y1, int x2, int y2);
 int view_unblocked(int x, int y);

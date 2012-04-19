@@ -472,7 +472,7 @@ const char* month (void)
 // Simms.
 // finds floor space on level with buildaux not equal to baux,
 // sets x,y there. There must *be* floor space somewhere on level....
-static int spaceok (int i, int j, int baux)
+static inline int spaceok (int i, int j, int baux)
 {
     return (Level->site(i,j).locchar == FLOOR &&
 	    !Level->creature(i,j) &&
@@ -480,39 +480,10 @@ static int spaceok (int i, int j, int baux)
 	    Level->site(i,j).buildaux != baux);
 }
 
-void findspace (int *x, int *y, int baux)
+void findspace (int* x, int* y, int baux)
 {
-    int tog = TRUE, done = FALSE;
     unsigned i, j;
-    do {
-	i = random_range (WIDTH);
-	j = random_range (LENGTH);
-	if (spaceok (i, j, baux)) {
-	    done = TRUE;
-	} else {
-	    if (tog) {
-		tog = !tog;
-		while (1) {
-		    if (++i >= WIDTH)
-			break;
-		    else if (spaceok (i, j, baux)) {
-			done = TRUE;
-			break;
-		    }
-		}
-	    } else {
-		tog = !tog;
-		while (1) {
-		    if (++j >= LENGTH)
-			break;
-		    else if (spaceok (i, j, baux)) {
-			done = TRUE;
-			break;
-		    }
-		}
-	    }
-	}
-    } while (!done);
+    while (!spaceok (i = random_range(WIDTH), j = random_range(LENGTH), baux)) ;
     *x = i;
     *y = j;
 }
@@ -529,12 +500,12 @@ int confirmation (void)
 }
 
 // is character c a member of string s
-int strmem (int c, const char* s)
+bool strmem (int c, const char* s)
 {
-    int i, found = FALSE;
-    for (i = 0; ((i < (int)strlen (s)) && (!found)); i++)
-	found = (s[i] == c);
-    return (found);
+    for (unsigned i = 0; i < strlen(s); ++i)
+	if (s[i] == c)
+	    return (true);
+    return (false);
 }
 
 void calc_weight (void)

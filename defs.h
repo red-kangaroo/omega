@@ -935,7 +935,7 @@ public:
     void	make_thing (int x, int y, unsigned tid, unsigned n = RANDOM);
     void	remove_things (int x, int y);
     void	add_thing (int x, int y, const object& o, unsigned n = RANDOM);
-    inline location& site (int x, int y)	{ return (_site[y*MAXWIDTH+x]); }
+    inline location& site (int x, int y)		{ return (_site[y*MAXWIDTH+x]); }
     inline const location& site (int x, int y) const	{ return (const_cast<level*>(this)->site(x,y)); }
 };
 typedef level* plv;
