@@ -2015,7 +2015,7 @@ static void tunnel (void)
 	    setgamestatus (SKIP_MONSTERS);
 	} else {
 	    int aux = Level->site(ox,oy).aux;
-	    if (random_range (20) == 1) {
+	    if (!random_range(20)) {
 		if (!Player.has_possession(O_WEAPON_HAND)) {
 		    mprint ("Ouch! broke a fingernail...");
 		    p_damage (Player.str / 6, UNSTOPPABLE, "a broken fingernail");

@@ -57,7 +57,7 @@ void level::clear (void)
     mlist.clear();
     next = NULL;
     last_visited = time(NULL);
-    fill (_site, (location){ WALL, SPACE, difficulty()*20, L_NO_OP, 0, RS_WALLSPACE, 0 });
+    fill (_site, (location){ WALL, SPACE, (uint8_t) min(UINT8_MAX,20u*difficulty()), L_NO_OP, 0, RS_WALLSPACE, 0 });
 }
 
 monster* level::creature (int x, int y)
@@ -274,7 +274,7 @@ void load_circle (int populate)
 		    break;
 		case '#':
 		    Level->site(i,j).locchar = WALL;
-		    Level->site(i,j).aux = 1000;
+		    Level->site(i,j).aux = 255;
 		    break;
 		case 'L':
 		    Level->site(i,j).locchar = FLOOR;
@@ -368,7 +368,7 @@ void load_court (int populate)
 		    break;
 		case '#':
 		    Level->site(i,j).locchar = WALL;
-		    Level->site(i,j).aux = 1000;
+		    Level->site(i,j).aux = 255;
 		    break;
 		case 'G':
 		    Level->site(i,j).locchar = FLOOR;
@@ -693,7 +693,7 @@ void load_city (int populate)
 		    break;
 		case '#':
 		    Level->site(i,j).locchar = WALL;
-		    Level->site(i,j).aux = 500;
+		    Level->site(i,j).aux = 255;
 		    break;
 		case '.':
 		    Level->site(i,j).locchar = FLOOR;

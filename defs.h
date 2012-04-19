@@ -26,7 +26,7 @@ enum {
     CASTLELEVELS = 16,
     CAVELEVELS = 10,
     VOLCANOLEVELS = 20,
-    NOCITYMOVE = 666,		// cannot use M command on site with this aux value
+    NOCITYMOVE = 250,		// cannot use M command on site with this aux value
     NUMTFOPTIONS = 7,		// number of options with TRUE/FALSE values
     VERBOSITY_LEVEL,		// The slot number of the two options not in Player.options
     SEARCH_DURATION,
@@ -908,11 +908,11 @@ struct terrain {
 struct location {
     chtype locchar;		// terrain type
     chtype showchar;		// char instantaneously drawn for site
-    int aux;			// signifies various things
-    char p_locf;		// function executed when moved on
-    unsigned char lstatus;	// seen,stopsrun,lit,secret,
-    char roomnumber;		// so room can be named
-    unsigned char buildaux;	// used in constructing level
+    uint8_t aux;		// signifies various things
+    uint8_t p_locf;		// function executed when moved on
+    uint8_t lstatus;		// seen,stopsrun,lit,secret,
+    uint8_t roomnumber;		// so room can be named
+    uint8_t buildaux;		// used in constructing level
 };
 
 class level {

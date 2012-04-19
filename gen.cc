@@ -967,7 +967,7 @@ void maze_level (void)
 		if (Level->site(i,j).locchar == WALL) {
 		    switch (Level->depth) {
 			case 1:
-			    Level->site(i,j).aux = 500;
+			    Level->site(i,j).aux = 255;
 			    break;
 			case 2:
 			    Level->site(i,j).locchar = WHIRLWIND;
