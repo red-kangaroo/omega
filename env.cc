@@ -4900,7 +4900,7 @@ void send_to_jail (void)
 void l_adept (void)
 {
     print1 ("You see a giant shimmering gate in the form of an omega.");
-    if (!gamestatusp (ATTACKED_ORACLE)) {
+    if (gamestatusp (SPOKE_TO_ORACLE)) {
 	if (Player.str + Player.con + Player.iq + Player.pow < 100)
 	    print2 ("A familiar female voice says: I would not advise this now....");
 	else
@@ -5347,78 +5347,59 @@ void l_countryside (void)
 
 void l_oracle (void)
 {
+    print1 ("You come before a blue crystal dais. There is a bell and a mirror.");
+    print2 ("Ring the bell [b], look in the mirror [m], or leave [ESCAPE] ");
     char response;
-    if (gamestatusp (ATTACKED_ORACLE) && (!gamestatusp (COMPLETED_ASTRAL))) {
-	print1 ("You come before a blue crystal dais. You see a broken mirror.");
-	print2 ("Look in the mirror? [yn] ");
-	if (ynq2() == 'y') {
-	    print1 ("A strange force rips you from your place....");
-	    Player.hp = 1;
-	    print2 ("You feel drained....");
-	    dataprint();
-	    print3 ("You find yourself in a weird flickery maze.");
-	    change_environment (E_ASTRAL);
-	}
-    } else {
-	print1 ("You come before a blue crystal dais. There is a bell and a mirror.");
-	print2 ("Ring the bell [b], look in the mirror [m], or leave [ESCAPE] ");
-	do
-	    response = (char) mcigetc();
-	while ((response != 'b') && (response != 'm') && (response != KEY_ESCAPE));
-	if (response == 'b') {
-	    print1 ("The ringing note seems to last forever.");
-	    print2 ("You notice a robed figure in front of you....");
+    do
+	response = mcigetc();
+    while (response != 'b' && response != 'm' && response != KEY_ESCAPE);
+    if (response == 'b') {
+	print1 ("The ringing note seems to last forever.");
+	print2 ("You notice a robed figure in front of you....");
+	morewait();
+	print1 ("The oracle doffs her cowl. Her eyes glitter with blue fire!");
+	print2 ("She stares at you...and speaks:");
+	setgamestatus (SPOKE_TO_ORACLE);
+	if (!gamestatusp (SPOKE_TO_DRUID)) {
+	    print3 ("'The ArchDruid speaks wisdom in his forest shrine.'");
+	} else if (!gamestatusp (COMPLETED_CAVES)) {
+	    print3 ("'Thou mayest find aught of interest in the caves to the South.'");
+	} else if (!gamestatusp (COMPLETED_SEWERS)) {
+	    print3 ("'Turn thy attention to the abyssal depths of the city.'");
+	} else if (!gamestatusp (COMPLETED_CASTLE)) {
+	    print3 ("'Explorest thou the depths of the Castle of the ArchMage.'");
+	} else if (!gamestatusp (COMPLETED_ASTRAL)) {
 	    morewait();
-	    print1 ("The oracle doffs her cowl. Her eyes glitter with blue fire!");
-	    print2 ("Attack her? [yn] ");
+	    print1 ("'Journey to the Astral Plane and meet the Gods' servants.'");
+	    print2 ("The oracle holds out her hand. Do you take it? [yn] ");
 	    if (ynq2() == 'y') {
-		setgamestatus (ATTACKED_ORACLE);
-		print1 ("The oracle deftly avoids your attack.");
-		print2 ("She sneers at you and vanishes.");
-	    } else {
-		print2 ("She stares at you...and speaks:");
-		if (!gamestatusp (SPOKE_TO_DRUID)) {
-		    print3 ("'The ArchDruid speaks wisdom in his forest shrine.'");
-		} else if (!gamestatusp (COMPLETED_CAVES)) {
-		    print3 ("'Thou mayest find aught of interest in the caves to the South.'");
-		} else if (!gamestatusp (COMPLETED_SEWERS)) {
-		    print3 ("'Turn thy attention to the abyssal depths of the city.'");
-		} else if (!gamestatusp (COMPLETED_CASTLE)) {
-		    print3 ("'Explorest thou the depths of the Castle of the ArchMage.'");
-		} else if (!gamestatusp (COMPLETED_ASTRAL)) {
-		    morewait();
-		    print1 ("'Journey to the Astral Plane and meet the Gods' servants.'");
-		    print2 ("The oracle holds out her hand. Do you take it? [yn] ");
-		    if (ynq2() == 'y') {
-			print1 ("'Beware: Only the Star Gem can escape the Astral Plane.'");
-			print2 ("A magic portal opens behind the oracle. She leads you");
-			morewait();
-			print1 ("through a sequence of special effects that would have");
-			print2 ("IL&M technicians cursing in awe and deposits you in an");
-			morewait();
-			clearmsg();
-			print1 ("odd looking room whose walls seem strangely insubstantial.");
-			gain_experience (5000);
-			change_environment (E_ASTRAL);
-		    } else
-			print3 ("You detect the hint of a sneer from the oracle.");
-		} else if (!gamestatusp (COMPLETED_VOLCANO)) {
-		    print3 ("'The infernal maw may yield its secrets to thee now.'");
-		} else if (!gamestatusp (COMPLETED_CHALLENGE)) {
-		    print3 ("'The challenge of adepthood yet awaits thee.'");
-		} else {
-		    morewait();
-		    print1 ("'My lord: Thou hast surpassed my tutelage forever.");
-		    print2 ("Fare thee well.'");
-		    print3 ("The oracle replaces her hood and seems to fade away....");
-		}
-	    }
-	} else if (response == 'm') {
-	    print1 ("You seem to see yourself. Odd....");
-	    knowledge (1);
-	} else
-	    print2 ("You leave this immanent place.");
-    }
+		print1 ("'Beware: Only the Star Gem can escape the Astral Plane.'");
+		print2 ("A magic portal opens behind the oracle. She leads you");
+		morewait();
+		print1 ("through a sequence of special effects that would have");
+		print2 ("IL&M technicians cursing in awe and deposits you in an");
+		morewait();
+		clearmsg();
+		print1 ("odd looking room whose walls seem strangely insubstantial.");
+		gain_experience (5000);
+		change_environment (E_ASTRAL);
+	    } else
+		print3 ("You detect the hint of a sneer from the oracle.");
+	} else if (!gamestatusp (COMPLETED_VOLCANO)) {
+	    print3 ("'The infernal maw may yield its secrets to thee now.'");
+	} else if (!gamestatusp (COMPLETED_CHALLENGE)) {
+	    print3 ("'The challenge of adepthood yet awaits thee.'");
+	} else {
+	    morewait();
+	    print1 ("'My lord: Thou hast surpassed my tutelage forever.");
+	    print2 ("Fare thee well.'");
+	    print3 ("The oracle replaces her hood and seems to fade away....");
+	}
+    } else if (response == 'm') {
+	print1 ("You seem to see yourself. Odd....");
+	knowledge (1);
+    } else
+	print2 ("You leave this immanent place.");
 }
 
 void l_mansion (void)

@@ -2004,14 +2004,14 @@ void m_death (struct monster *m)
 		    alert_guards();
 		break;
 	    case GOBLIN_KING:
-		if (!gamestatusp (ATTACKED_ORACLE)) {
+		if (gamestatusp (SPOKE_TO_ORACLE)) {
 		    mprint ("You seem to hear a woman's voice from far off:");
 		    mprint ("'Well done! Come to me now....'");
 		}
 		setgamestatus (COMPLETED_CAVES);
 		break;
 	    case GREAT_WYRM:
-		if (!gamestatusp (ATTACKED_ORACLE)) {
+		if (gamestatusp (SPOKE_TO_ORACLE)) {
 		    mprint ("A female voice sounds from just behind your ear:");
 		    mprint ("'Well fought! I have some new advice for you....'");
 		}
@@ -2028,7 +2028,7 @@ void m_death (struct monster *m)
 		break;
 	    case DEMON_EMP:
 		setgamestatus (COMPLETED_VOLCANO);
-		if (!gamestatusp (ATTACKED_ORACLE)) {
+		if (gamestatusp (SPOKE_TO_ORACLE)) {
 		    mprint ("You feel a soft touch on your shoulder...");
 		    mprint ("You turn around but there is no one there!");
 		    mprint ("You turn back and see a note: 'See me soon.'");
@@ -2036,7 +2036,7 @@ void m_death (struct monster *m)
 		}
 		break;
 	    case ELEM_MASTER:
-		if (!gamestatusp (ATTACKED_ORACLE)) {
+		if (gamestatusp (SPOKE_TO_ORACLE)) {
 		    mprint ("Words appear before you, traced in blue flame!");
 		    mprint ("'Return to the Prime Plane via the Circle of Sorcerors....'");
 		}

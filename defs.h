@@ -63,7 +63,7 @@ enum {
     PREPARED_VOID	= (1<<21),
     DESTROYED_ORDER	= (1<<22),
     GAVE_STARGEM	= (1<<23),
-    ATTACKED_ORACLE	= (1<<24),
+    SPOKE_TO_ORACLE	= (1<<24),
     UNDEAD_GUARDS	= (1<<25),
 };
 

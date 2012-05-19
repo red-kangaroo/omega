@@ -929,7 +929,7 @@ static void l_enter_court (void)
     print1 ("You have found a magical portal! Enter it? [yn] ");
     if (ynq1() == 'y') {
 	if (!gamestatusp (COMPLETED_CASTLE)) {
-	    if (!gamestatusp (ATTACKED_ORACLE)) {
+	    if (gamestatusp (SPOKE_TO_ORACLE)) {
 		print2 ("A dulcet voice says: 'Jolly good show!'");
 		morewait();
 	    }
