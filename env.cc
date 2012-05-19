@@ -26,7 +26,7 @@ static void wake_statue(int x, int y, int first);
 static void make_site_treasure(int i, int j, int itemlevel);
 static void make_specific_treasure(int i, int j, int iid);
 static void repair_jail(void);
-static void m_create (monster& m, int x, int y, int kind, int level);
+static void m_create (monster& m, int x, int y, int kind, unsigned level);
 static void make_creature (monster& m, int mid);
 static void determine_npc_behavior (monster& npc, int level, int behavior);
 static void make_log_npc (monster& npc);
@@ -3049,30 +3049,27 @@ static void special_village_site (int i, int j, int villagenum)
 // monsters for tactical encounters
 void make_country_monsters (int terrain)
 {
-    static const int8_t plains[10] = { BUNNY, BUNNY, HORNET, QUAIL, HAWK, DEER, WOLF, LION, BRIGAND, RANDOM };
-    static const int8_t forest[10] = { BUNNY, QUAIL, HAWK, BADGER, DEER, DEER, WOLF, BEAR, BRIGAND, RANDOM };
-    static const int8_t jungle[10] = { ANTEATER, PARROT, MAMBA, ANT, ANT, HYENA, HYENA, ELEPHANT, LION, RANDOM };
-    static const int8_t river[10] = { QUAIL, TROUT, TROUT, MANOWAR, BASS, BASS, CROC, CROC, BRIGAND, RANDOM };
-    static const int8_t swamp[10] = { BASS, BASS, CROC, CROC, BOGTHING, ANT, ANT, RANDOM, RANDOM, RANDOM };
-    static const int8_t desert[10] = { HAWK, HAWK, CAMEL, CAMEL, HYENA, HYENA, LION, LION, RANDOM, RANDOM };
-    static const int8_t tundra[10] = { WOLF, WOLF, BEAR, BEAR, DEER, DEER, RANDOM, RANDOM, RANDOM, RANDOM };
-    static const int8_t mountain[10] = { BUNNY, SHEEP, WOLF, WOLF, HAWK, HAWK, HAWK, RANDOM, RANDOM, RANDOM };
-    const int8_t* monsters = NULL;
+    static const int8_t plains[] = { BUNNY, BUNNY, HORNET, QUAIL, HAWK, DEER, WOLF, LION, BRIGAND, RANDOM };
+    static const int8_t forest[] = { BUNNY, QUAIL, HAWK, BADGER, DEER, DEER, WOLF, BEAR, BRIGAND, RANDOM };
+    static const int8_t jungle[] = { ANTEATER, PARROT, MAMBA, ANT, ANT, HYENA, HYENA, ELEPHANT, LION, RANDOM };
+    static const int8_t river[] = { QUAIL, TROUT, TROUT, MANOWAR, BASS, BASS, CROC, CROC, BRIGAND, RANDOM };
+    static const int8_t swamp[] = { BASS, BASS, CROC, CROC, BOGTHING, ANT, ANT, RANDOM, RANDOM, RANDOM };
+    static const int8_t desert[] = { HAWK, HAWK, CAMEL, CAMEL, HYENA, HYENA, LION, LION, RANDOM, RANDOM };
+    static const int8_t tundra[] = { WOLF, WOLF, BEAR, BEAR, DEER, DEER, RANDOM, RANDOM, RANDOM, RANDOM };
+    static const int8_t mountain[] = { BUNNY, SHEEP, WOLF, WOLF, HAWK, HAWK, HAWK, RANDOM, RANDOM, RANDOM };
+    const int8_t* monsters = mountain;
     switch (terrain) {
 	case PLAINS: monsters = plains; break;
 	case FOREST: monsters = forest; break;
 	case JUNGLE: monsters = jungle; break;
-	case RIVER: monsters = river; break;
-	case SWAMP: monsters = swamp; break;
-	case MOUNTAINS:
-	case PASS:
-	case VOLCANO: monsters = mountain; break;
+	case RIVER:  monsters = river;  break;
+	case SWAMP:  monsters = swamp;  break;
 	case DESERT: monsters = desert; break;
 	case TUNDRA: monsters = tundra; break;
     }
-    const unsigned nummonsters = (random_range (5) + 1) * (random_range (3) + 1);
+    const unsigned nummonsters = 1+random_range(8);
     for (unsigned i = 0; i < nummonsters; i++) {
-	monster& m = make_site_monster (random_range(WIDTH), random_range(LENGTH), monsters ? *(monsters+random_range(10)) : (int)RANDOM);
+	monster& m = make_site_monster (random_range(WIDTH), random_range(LENGTH), monsters[random_range(ArraySize(mountain))]);
 	m.sense = WIDTH;
 	if (m_statusp (m, ONLYSWIM)) {
 	    Level->site(m.x,m.y).locchar = WATER;
@@ -3203,22 +3200,11 @@ monster& make_site_monster (int i, int j, int mid, int wandering, int dlevel)
 // make and return an appropriate monster for the level and depth
 // called by populate_level, doesn't actually add to mlist for some reason
 // eventually to be more intelligent
-static void m_create (monster& m, int x, int y, int kind, int level)
+static void m_create (monster& m, int x, int y, int kind, unsigned level)
 {
-    int monster_range = NUMMONSTERS;
-    switch (level) {
-	case 0: monster_range = ML1; break;
-	case 1: monster_range = ML2; break;
-	case 2: monster_range = ML3; break;
-	case 3: monster_range = ML4; break;
-	case 4: monster_range = ML5; break;
-	case 5: monster_range = ML6; break;
-	case 6: monster_range = ML7; break;
-	case 7: monster_range = ML8; break;
-	case 8: monster_range = ML9; break;
-	case 9: monster_range = ML10; break;
-    }
-    int mid;
+    static const uint8_t _ranges[] = { ML1, ML2, ML3, ML4, ML5, ML6, ML7, ML8, ML9, ML10, NUMMONSTERS };
+    unsigned monster_range = _ranges[max(level,ArraySize(_ranges)-1)];
+    unsigned mid;
     do
 	mid = random_range (monster_range);
     while (Monsters[mid].uniqueness != COMMON);
@@ -3532,7 +3518,7 @@ int difficulty (void)
 	case E_COUNTRYSIDE:	return (7);
 	case E_CITY:		return (3);
 	case E_VILLAGE:		return (1);
-	case E_TACTICAL_MAP:	return (7);
+	case E_TACTICAL_MAP:	return (4);
 	case E_SEWERS:		return (depth / 6) + 3;
 	case E_CASTLE:		return (depth / 4) + 4;
 	case E_CAVES:		return (depth / 3) + 1;
