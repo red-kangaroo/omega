@@ -356,17 +356,14 @@ void m_vanish (struct monster *m)
 {
     mprintf ("%s vanishes in the twinkling of an eye!", m->name());
     Level->mlist.erase (m);
-    erase_monster (m);
+    levelrefresh();
 }
 
 // monster still in play
 void m_teleport (struct monster *m)
 {
-    erase_monster (m);
-    if (m_statusp (m, AWAKE)) {
-	findspace (&(m->x), &(m->y), -1);
-	levelrefresh();
-    }
+    findspace (&(m->x), &(m->y), -1);
+    levelrefresh();
 }
 
 static void m_move_leash (struct monster *m)

@@ -26,7 +26,7 @@ static WINDOW *Comwin, *Msg1w, *Msg2w, *Msg3w, *Msgw;
 
 void phaseprint (void)
 {
-    wclear (Phasew);
+    werase (Phasew);
     wprintw (Phasew, "Moon's Phase:\n");
     switch (Phase / 2) {
 	case 0:		wprintw (Phasew, "NEW"); break;
@@ -47,7 +47,7 @@ void phaseprint (void)
 
 void show_screen (void)
 {
-    wclear (Levelw);
+    werase (Levelw);
     int top = max (0, ScreenOffset);
     int bottom = min ((int)LENGTH, ScreenOffset + ScreenLength);
     for (int j = top; j < bottom; j++) {
@@ -183,8 +183,8 @@ void checkclear (void)
     int y1 = getcury (Msg1w), y2 = getcury (Msg2w);
     if ((y1 != 0) || (y2 != 0)) {
 	morewait();
-	wclear (Msg1w);
-	wclear (Msg2w);
+	werase (Msg1w);
+	werase (Msg2w);
 	wnoutrefresh (Msg1w);
 	wrefresh (Msg2w);
     }
@@ -193,9 +193,9 @@ void checkclear (void)
 // for external call
 void clearmsg (void)
 {
-    wclear (Msg1w);
-    wclear (Msg2w);
-    wclear (Msg3w);
+    werase (Msg1w);
+    werase (Msg2w);
+    werase (Msg3w);
     Msgw = Msg1w;
     wnoutrefresh (Msg1w);
     wnoutrefresh (Msg2w);
@@ -204,14 +204,14 @@ void clearmsg (void)
 
 void clearmsg3 (void)
 {
-    wclear (Msg3w);
+    werase (Msg3w);
     wrefresh (Msg3w);
 }
 
 void clearmsg1 (void)
 {
-    wclear (Msg1w);
-    wclear (Msg2w);
+    werase (Msg1w);
+    werase (Msg2w);
     Msgw = Msg1w;
     wnoutrefresh (Msg1w);
     wrefresh (Msg2w);
@@ -219,7 +219,7 @@ void clearmsg1 (void)
 
 void erase_level (void)
 {
-    wclear (Levelw);
+    werase (Levelw);
     wrefresh (Levelw);
 }
 
@@ -228,7 +228,7 @@ void print1 (const char* s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
 	buffercycle (s);
-	wclear (Msg1w);
+	werase (Msg1w);
 	wprintw (Msg1w, s);
 	wrefresh (Msg1w);
     }
@@ -250,7 +250,7 @@ void print2 (const char* s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
 	buffercycle (s);
-	wclear (Msg2w);
+	werase (Msg2w);
 	wprintw (Msg2w, s);
 	wrefresh (Msg2w);
     }
@@ -273,7 +273,7 @@ void print3 (const char* s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
 	buffercycle (s);
-	wclear (Msg3w);
+	werase (Msg3w);
 	wprintw (Msg3w, s);
 	wrefresh (Msg3w);
     }
@@ -299,12 +299,12 @@ void mprint (const char* s)
 	if (x + strlen (s) >= WIDTH) {
 	    buffercycle (s);
 	    if (Msgw == Msg1w) {
-		wclear (Msg2w);
+		werase (Msg2w);
 		Msgw = Msg2w;
 	    } else {
 		morewait();
-		wclear (Msg1w);
-		wclear (Msg2w);
+		werase (Msg1w);
+		werase (Msg2w);
 		wnoutrefresh (Msg2w);
 		Msgw = Msg1w;
 	    }
@@ -655,14 +655,14 @@ chtype getspot (int x, int y, int showmonster)
 
 void commanderror (void)
 {
-    wclear (Msg3w);
+    werase (Msg3w);
     wprintw (Msg3w, "%c : unknown command", Cmd);
     wrefresh (Msg3w);
 }
 
 void timeprint (void)
 {
-    wclear (Timew);
+    werase (Timew);
     wprintw (Timew, "%d:%d", showhour(), showminute());
     if (showminute() == 0)
 	waddch (Timew, '0');
@@ -675,7 +675,7 @@ void timeprint (void)
 
 void comwinprint (void)
 {
-    wclear (Comwin);
+    werase (Comwin);
     wprintw (Comwin, "Hit: %d  \n", Player.hit);
     wprintw (Comwin, "Dmg: %d  \n", Player.dmg);
     wprintw (Comwin, "Def: %d  \n", Player.defense);
@@ -686,7 +686,7 @@ void comwinprint (void)
 
 void dataprint (void)
 {
-    wclear (Dataw);
+    werase (Dataw);
     // WDT HACK: I should make these fields spaced and appropriately justified.
     // Maybe I don't feel like it right now.
     wprintw (Dataw, "Hp:%d/%d Mana:%d/%d Au:%d Level:%d/%d Carry:%d/%d \n", Player.hp, Player.maxhp, Player.mana, Player.maxmana, Player.cash, Player.level, Player.xp, Player.itemweight, Player.maxweight);
@@ -732,7 +732,7 @@ void morewait (void)
     if (gamestatusp (SUPPRESS_PRINTING))
 	return;
     do {
-	wclear (Morew);
+	werase (Morew);
 	if (display)
 	    wprintw (Morew, "***  MORE  ***");
 	else
@@ -741,7 +741,7 @@ void morewait (void)
 	wrefresh (Morew);
 	c = wgetch (Msgw);
     } while ((c != ' ') && (c != KEY_ENTER) && (c != EOF));
-    wclear (Morew);
+    werase (Morew);
     wrefresh (Morew);
 }
 
@@ -750,7 +750,7 @@ int stillonblock (void)
     int display = TRUE;
     int c;
     do {
-	wclear (Morew);
+	werase (Morew);
 	if (display)
 	    wprintw (Morew, "<<<STAY?>>>");
 	else
@@ -759,14 +759,14 @@ int stillonblock (void)
 	wrefresh (Morew);
 	c = wgetch (Msgw);
     } while ((c != ' ') && (c != KEY_ESCAPE) && (c != EOF));
-    wclear (Morew);
+    werase (Morew);
     wrefresh (Morew);
     return (c == ' ');
 }
 
 void menuclear (void)
 {
-    wclear (Menuw);
+    werase (Menuw);
     touchwin (Menuw);
     wrefresh (Menuw);
 }
@@ -776,7 +776,7 @@ void menuprint (const char* s)
     if (getcury(Menuw) >= ScreenLength - 2) {
 	wrefresh (Menuw);
 	morewait();
-	wclear (Menuw);
+	werase (Menuw);
 	touchwin (Menuw);
     }
     wprintw (Menuw, s);
@@ -852,7 +852,7 @@ const char* msgscanstring (void)
 
 void locprint (const char* s)
 {
-    wclear (Locw);
+    werase (Locw);
     wprintw (Locw, s);
     wrefresh (Locw);
 }
@@ -1041,7 +1041,7 @@ void menunumprint (int n)
     if (getcury(Menuw) >= ScreenLength - 2) {
 	wrefresh (Menuw);
 	morewait();
-	wclear (Menuw);
+	werase (Menuw);
 	touchwin (Menuw);
     }
     wprintw (Menuw, "%d", n);
@@ -1052,7 +1052,7 @@ void menulongprint (long n)
     if (getcury(Menuw) >= ScreenLength - 2) {
 	wrefresh (Menuw);
 	morewait();
-	wclear (Menuw);
+	werase (Menuw);
 	touchwin (Menuw);
     }
     wprintw (Menuw, "%ld", n);
@@ -1074,7 +1074,7 @@ static void dobackspace (void)
 void showflags (void)
 {
     phaseprint();
-    wclear (Flagw);
+    werase (Flagw);
     if (Player.food < 0)
 	wprintw (Flagw, "Starving\n");
     else if (Player.food <= 3)
@@ -1259,7 +1259,7 @@ void display_possessions (unsigned selection)
 	"%c%c finger:	%s\n\0"
 	"%c%c finger:	%s\n\0"
 	"%c%c finger:	%s\n";
-    wclear (Menuw);
+    werase (Menuw);
     unsigned slot = 0;
     const char* slotstr = _slotstr;
     foreach (o, Player.possessions) {
@@ -1276,7 +1276,7 @@ void display_possessions (unsigned selection)
 
 void display_options (unsigned selection)
 {
-    wclear (Menuw);
+    werase (Menuw);
     if (selection == 0) wstandout(Menuw);
     wprintw (Menuw, "Option BELLICOSE:	%s\n", optionp (BELLICOSE) ? "TRUE" : "FALSE");
     if (selection == 1) wstandout(Menuw); else wstandend(Menuw);
@@ -1323,15 +1323,15 @@ void deathprint (void)
 void clear_if_necessary (void)
 {
     if (getcurx(Msg1w) != 0) {
-	wclear (Msg1w);
+	werase (Msg1w);
 	wrefresh (Msg1w);
     }
     if (getcurx(Msg2w) != 0) {
-	wclear (Msg2w);
+	werase (Msg2w);
 	wrefresh (Msg2w);
     }
     if (getcurx(Msg3w) != 0) {
-	wclear (Msg3w);
+	werase (Msg3w);
 	wrefresh (Msg3w);
     }
 }
@@ -1369,7 +1369,7 @@ void bufferprint (void)
 	    i = 0;
 	if (i < 0)
 	    i = STRING_BUFFER_SIZE - 1;
-	wclear (Msg2w);
+	werase (Msg2w);
 	wprintw (Msg2w, Stringbuffer[i]);
 	wrefresh (Msg2w);
 	c = mgetc();

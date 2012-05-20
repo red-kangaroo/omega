@@ -2008,7 +2008,7 @@ void change_environment (int new_environment)
 			break;
 		}
 	    }
-	    if ((!emerging) || (TempLevel == NULL))
+	    if (!emerging || !TempLevel)
 		load_village (Villagenum, TRUE);
 	    else if (TempLevel->environment != E_VILLAGE)
 		load_village (Villagenum, TRUE);
