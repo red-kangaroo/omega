@@ -103,15 +103,12 @@ void level::add_thing (int x, int y, const object& o, unsigned n)
 // loads the arena level into Level
 void load_arena (void)
 {
-    TempLevel = Level;
-    if (ok_to_free (TempLevel)) {
-	free_level (TempLevel);
-	TempLevel = NULL;
-    }
-    Level = new level;
-    clear_level (Level);
     Level->environment = E_ARENA;
     const char* ld = Level_Arena;
+    WIDTH = Level->width = *ld++;
+    LENGTH = Level->height = *ld++;
+    Level->lastx = *ld++;
+    Level->lasty = *ld++;
     for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
 	for (unsigned i = 0; i < WIDTH; i++) {
 	    Level->site(i,j).lstatus = SEEN + LIT;
@@ -202,15 +199,12 @@ void load_arena (void)
 void load_circle (int populate)
 {
     int safe = (Player.rank[CIRCLE] >= INITIATE);
-    TempLevel = Level;
-    if (ok_to_free (TempLevel)) {
-	free_level (TempLevel);
-	TempLevel = NULL;
-    }
-    Level = new level;
-    clear_level (Level);
     Level->environment = E_CIRCLE;
     const char* ld = Level_Circle;
+    WIDTH = Level->width = *ld++;
+    LENGTH = Level->height = *ld++;
+    Level->lastx = *ld++;
+    Level->lasty = *ld++;
     for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
 	for (unsigned i = 0; i < WIDTH; ++i) {
 	    Level->site(i,j).lstatus = 0;
@@ -316,15 +310,14 @@ static monster& make_prime (int i, int j)
 // loads the court of the archmage into Level
 void load_court (int populate)
 {
-    TempLevel = Level;
-    if (ok_to_free (TempLevel)) {
-	free_level (TempLevel);
-	TempLevel = NULL;
-    }
-    Level = new level;
-    clear_level (Level);
     Level->environment = E_COURT;
     const char* ld = Level_Court;
+    WIDTH = Level->width = *ld++;
+    LENGTH = Level->height = *ld++;
+    Level->lastx = *ld++;
+    Level->lasty = *ld++;
+    LastCountryLocX = *ld++;
+    LastCountryLocY = *ld++;
     for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
 	for (unsigned i = 0; i < WIDTH; ++i) {
 	    Level->site(i,j).lstatus = 0;
@@ -402,14 +395,11 @@ static monster& make_archmage (int i, int j)
 // loads the abyss level into Level
 void load_abyss (void)
 {
-    TempLevel = Level;
-    if (ok_to_free (TempLevel)) {
-	free_level (TempLevel);
-	TempLevel = NULL;
-    }
-    Level = new level;
-    clear_level (Level);
     const char* ld = Level_Abyss;
+    WIDTH = Level->width = *ld++;
+    LENGTH = Level->height = *ld++;
+    Level->lastx = *ld++;
+    Level->lasty = *ld++;
     for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
 	for (unsigned i = 0; i < WIDTH; ++i) {
 	    char site = *ld++;
@@ -466,16 +456,13 @@ void load_abyss (void)
 void load_city (int populate)
 {
     initrand (E_CITY, 0);
-    TempLevel = Level;
-    if (ok_to_free (TempLevel)) {
-	free_level (TempLevel);
-	TempLevel = NULL;
-    }
-    Level = new level;
-    clear_level (Level);
     Level->depth = 0;
     Level->environment = E_CITY;
     const char* ld = Level_City;
+    WIDTH = Level->width = *ld++;
+    LENGTH = Level->height = *ld++;
+    Level->lastx = *ld++;
+    Level->lasty = *ld++;
     for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
 	for (unsigned i = 0; i < WIDTH; ++i) {
 	    lset (i, j, SEEN);
@@ -1146,15 +1133,12 @@ void load_dlair (int empty, int populate)
     }
     if (!populate)
 	empty = TRUE;
-    TempLevel = Level;
-    if (ok_to_free (TempLevel)) {
-	free_level (TempLevel);
-	TempLevel = NULL;
-    }
-    Level = new level;
-    clear_level (Level);
     Level->environment = E_DLAIR;
     const char* ld = Level_DragonLair;
+    WIDTH = Level->width = *ld++;
+    LENGTH = Level->height = *ld++;
+    Level->lastx = *ld++;
+    Level->lasty = *ld++;
     for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
 	for (unsigned i = 0; i < WIDTH; ++i) {
 	    Level->site(i,j).lstatus = 0;
@@ -1253,15 +1237,12 @@ void load_speak (int empty, int populate)
     }
     if (!populate)
 	empty = TRUE;
-    TempLevel = Level;
-    if (ok_to_free (TempLevel)) {
-	free_level (TempLevel);
-	TempLevel = NULL;
-    }
-    Level = new level;
-    clear_level (Level);
     Level->environment = E_STARPEAK;
     const char* ld = Level_StarPeak;
+    WIDTH = Level->width = *ld++;
+    LENGTH = Level->height = *ld++;
+    Level->lastx = *ld++;
+    Level->lasty = *ld++;
     for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
 	for (unsigned i = 0; i < WIDTH; ++i) {
 	    Level->site(i,j).lstatus = 0;
@@ -1359,15 +1340,12 @@ void load_misle (int empty, int populate)
     }
     if (!populate)
 	empty = TRUE;
-    TempLevel = Level;
-    if (ok_to_free (TempLevel)) {
-	free_level (TempLevel);
-	TempLevel = NULL;
-    }
-    Level = new level;
-    clear_level (Level);
     Level->environment = E_MAGIC_ISLE;
     const char* ld = Level_MagicIsle;
+    WIDTH = Level->width = *ld++;
+    LENGTH = Level->height = *ld++;
+    Level->lastx = *ld++;
+    Level->lasty = *ld++;
     for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
 	for (unsigned i = 0; i < WIDTH; ++i) {
 	    Level->site(i,j).lstatus = 0;
@@ -1427,15 +1405,12 @@ void load_misle (int empty, int populate)
 // loads a temple into Level
 void load_temple (int deity, int populate)
 {
-    TempLevel = Level;
-    if (ok_to_free (TempLevel)) {
-	free_level (TempLevel);
-	TempLevel = NULL;
-    }
-    Level = new level;
-    clear_level (Level);
     Level->environment = E_TEMPLE;
     const char* ld = Level_Temple;
+    WIDTH = Level->width = *ld++;
+    LENGTH = Level->height = *ld++;
+    Level->lastx = *ld++;
+    Level->lasty = *ld++;
     for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
 	for (unsigned i = 0; i < WIDTH; ++i) {
 	    switch (deity) {
@@ -2665,15 +2640,13 @@ void l_order (void)
 // loads the house level into Level
 void load_house (int kind, int populate)
 {
-    TempLevel = Level;
     initrand (Current_Environment, Player.x + Player.y + hour() * 10);
-    if (ok_to_free (TempLevel)) {
-	free_level (TempLevel);
-	TempLevel = NULL;
-    }
-    Level = new level;
-    clear_level (Level);
-    const char* ld = (kind == E_HOUSE ? Level_Home1 : (kind == E_MANSION ? Level_Home2 : Level_Home3));
+    Level->environment = kind;
+    const char* ld = (kind == E_HOUSE ? Level_House : (kind == E_MANSION ? Level_Mansion : Level_Hovel));
+    WIDTH = Level->width = *ld++;
+    LENGTH = Level->height = *ld++;
+    Level->lastx = *ld++;
+    Level->lasty = *ld++;
     unsigned stops = 0;
     for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
 	for (unsigned i = 0; i < WIDTH; ++i) {
@@ -2841,21 +2814,18 @@ static void make_mansion_npc (int i, int j)
 // loads the village level into Level
 void load_village (int villagenum, int populate)
 {
-    TempLevel = Level;
-    if (ok_to_free (TempLevel)) {
-	free_level (TempLevel);
-	TempLevel = NULL;
-    }
     initrand (Current_Environment, villagenum);
     assign_village_function (0, 0, TRUE);
-    Level = new level;
-    clear_level (Level);
     Level->environment = E_VILLAGE;
     static const char* _villages[] = {
 	Level_Village1, Level_Village2, Level_Village3,
 	Level_Village4, Level_Village5, Level_Village6
     };
     const char* ld = _villages[villagenum-1];
+    WIDTH = Level->width = *ld++;
+    LENGTH = Level->height = *ld++;
+    Level->lastx = *ld++;
+    Level->lasty = *ld++;
     for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
 	for (unsigned i = 0; i < WIDTH; ++i) {
 	    lset (i, j, SEEN);

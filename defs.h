@@ -916,17 +916,21 @@ struct location {
 };
 
 class level {
-    vector<location> _site;	// dungeon data
+    vector<location>	_site;	// dungeon data
 public:
-    vector<monster> mlist;	// List of monsters on level
-    vector<object> things;	// List of objects on level
-    level* next;		// pointer to next level in dungeon
-    int environment;		// where kind of level is this?
-    int last_visited;		// time player was last on this level
-    char depth;			// which level is this
-    char generated;		// has the level been made (visited) yet?
-    char numrooms;		// number of rooms on level
-    uint8_t tunnelled;		// amount of tunnelling done on this level
+    vector<monster>	mlist;		// List of monsters on level
+    vector<object>	things;		// List of objects on level
+    level*		next;		// pointer to next level in dungeon
+    int			environment;	// where kind of level is this?
+    int			last_visited;	// time player was last on this level
+    uint8_t		width;
+    uint8_t		height;
+    uint8_t		lastx;		// Last player position
+    uint8_t		lasty;
+    char		depth;		// which level is this
+    char		generated;	// has the level been made (visited) yet?
+    char		numrooms;	// number of rooms on level
+    uint8_t		tunnelled;	// amount of tunnelling done on this level
 public:
 		level (void);
     void	clear (void);

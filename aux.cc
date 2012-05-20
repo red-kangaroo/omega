@@ -1806,6 +1806,10 @@ void change_environment (int new_environment)
 	LastCountryLocX = Player.x;
 	LastCountryLocY = Player.y;
     }
+    if (Level) {
+	Level->lastx = Player.x;
+	Level->lasty = Player.y;
+    }
     if (((Last_Environment == E_CITY) || (Last_Environment == E_VILLAGE)) && ((new_environment == E_MANSION) || (new_environment == E_HOUSE) || (new_environment == E_HOVEL) || (new_environment == E_SEWERS) || (new_environment == E_ARENA))) {
 	LastTownLocX = Player.x;
 	LastTownLocY = Player.y;
@@ -1818,31 +1822,44 @@ void change_environment (int new_environment)
     Current_Environment = new_environment;
     switch (new_environment) {
 	case E_ARENA:
-	    LENGTH = 16;
-	    WIDTH = 64;
-	    Player.x = 5;
-	    Player.y = 7;
+	    TempLevel = Level;
+	    if (ok_to_free (TempLevel)) {
+		free_level (TempLevel);
+		TempLevel = NULL;
+	    }
+	    Level = new level;
+	    clear_level (Level);
 	    setgamestatus (ARENA_MODE);
 	    load_arena();
+	    Player.x = Level->lastx;
+	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
 	    show_screen();
 	    break;
 	case E_ABYSS:
-	    LENGTH = 16;
-	    WIDTH = 64;
-	    Player.x = 32;
-	    Player.y = 15;
+	    TempLevel = Level;
+	    if (ok_to_free (TempLevel)) {
+		free_level (TempLevel);
+		TempLevel = NULL;
+	    }
+	    Level = new level;
+	    clear_level (Level);
 	    load_abyss();
 	    abyss_file();
 	    lose_all_items();
+	    Player.x = Level->lastx;
+	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
 	    show_screen();
 	    break;
 	case E_CIRCLE:
-	    LENGTH = 16;
-	    WIDTH = 64;
-	    Player.x = 32;
-	    Player.y = 14;
+	    TempLevel = Level;
+	    if (ok_to_free (TempLevel)) {
+		free_level (TempLevel);
+		TempLevel = NULL;
+	    }
+	    Level = new level;
+	    clear_level (Level);
 	    load_circle (TRUE);
 	    if (object_uniqueness(STAR_GEM) == UNIQUE_TAKEN) {
 		print1 ("A bemused voice says:");
@@ -1874,151 +1891,165 @@ void change_environment (int new_environment)
 		print1 ("The strange form fades slowly.");
 		morewait();
 	    }
+	    Player.x = Level->lastx;
+	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
 	    show_screen();
 	    break;
 	case E_COURT:
-	    WIDTH = 64;
-	    LENGTH = 24;
-	    Player.x = 32;
-	    Player.y = 2;
-	    LastCountryLocX = 6;
-	    LastCountryLocY = 1;
+	    TempLevel = Level;
+	    if (ok_to_free (TempLevel)) {
+		free_level (TempLevel);
+		TempLevel = NULL;
+	    }
+	    Level = new level;
+	    clear_level (Level);
 	    load_court (TRUE);
+	    Player.x = Level->lastx;
+	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
 	    show_screen();
 	    break;
 	case E_MANSION:
-	    WIDTH = 64;
-	    LENGTH = 16;
+	    TempLevel = Level;
+	    if (ok_to_free (TempLevel)) {
+		free_level (TempLevel);
+		TempLevel = NULL;
+	    }
+	    Level = new level;
+	    clear_level (Level);
 	    load_house (E_MANSION, TRUE);
-	    Player.y = 8;
-	    Player.x = 2;
+	    Player.x = Level->lastx;
+	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
 	    show_screen();
 	    break;
 	case E_HOUSE:
-	    WIDTH = 64;
-	    LENGTH = 16;
+	    TempLevel = Level;
+	    if (ok_to_free (TempLevel)) {
+		free_level (TempLevel);
+		TempLevel = NULL;
+	    }
+	    Level = new level;
+	    clear_level (Level);
 	    load_house (E_HOUSE, TRUE);
-	    Player.y = 13;
-	    Player.x = 2;
+	    Player.x = Level->lastx;
+	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
 	    show_screen();
 	    break;
 	case E_HOVEL:
-	    WIDTH = 64;
-	    LENGTH = 16;
+	    TempLevel = Level;
+	    if (ok_to_free (TempLevel)) {
+		free_level (TempLevel);
+		TempLevel = NULL;
+	    }
+	    Level = new level;
+	    clear_level (Level);
 	    load_house (E_HOVEL, TRUE);
-	    Player.y = 9;
-	    Player.x = 2;
+	    Player.x = Level->lastx;
+	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
 	    show_screen();
 	    break;
 	case E_DLAIR:
-	    WIDTH = 64;
-	    LENGTH = 16;
-	    Player.y = 9;
-	    Player.x = 2;
+	    TempLevel = Level;
+	    if (ok_to_free (TempLevel)) {
+		free_level (TempLevel);
+		TempLevel = NULL;
+	    }
+	    Level = new level;
+	    clear_level (Level);
 	    load_dlair (gamestatusp (KILLED_DRAGONLORD), TRUE);
+	    Player.x = Level->lastx;
+	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
 	    show_screen();
 	    break;
 	case E_STARPEAK:
-	    WIDTH = 64;
-	    LENGTH = 16;
-	    Player.y = 9;
-	    Player.x = 2;
+	    TempLevel = Level;
+	    if (ok_to_free (TempLevel)) {
+		free_level (TempLevel);
+		TempLevel = NULL;
+	    }
+	    Level = new level;
+	    clear_level (Level);
 	    load_speak (gamestatusp (KILLED_LAWBRINGER), TRUE);
+	    Player.x = Level->lastx;
+	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
 	    show_screen();
 	    break;
 	case E_MAGIC_ISLE:
-	    WIDTH = 64;
-	    LENGTH = 16;
-	    Player.y = 14;
-	    Player.x = 62;
+	    TempLevel = Level;
+	    if (ok_to_free (TempLevel)) {
+		free_level (TempLevel);
+		TempLevel = NULL;
+	    }
+	    Level = new level;
+	    clear_level (Level);
 	    load_misle (gamestatusp (KILLED_EATER), TRUE);
+	    Player.x = Level->lastx;
+	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
 	    show_screen();
 	    break;
 	case E_TEMPLE:
-	    WIDTH = 64;
-	    LENGTH = 16;
+	    TempLevel = Level;
+	    if (ok_to_free (TempLevel)) {
+		free_level (TempLevel);
+		TempLevel = NULL;
+	    }
+	    Level = new level;
+	    clear_level (Level);
 	    load_temple (Country[Player.x][Player.y].aux, TRUE);
-	    Player.y = 15;
-	    Player.x = 32;
+	    Player.x = Level->lastx;
+	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
 	    show_screen();
 	    break;
 	case E_CITY:
-	    WIDTH = 64;
-	    LENGTH = 64;
 	    if (emerging) {
 		print1 ("You emerge onto the street.");
 		emerging = FALSE;
-	    } else {
+	    } else
 		print1 ("You pass through the massive gates of Rampart, the city.");
-		Player.x = 62;
-		Player.y = 21;
-	    }
-	    if (City == NULL)
-		load_city (TRUE);
 	    Level = City;
+	    if (!Level) {
+		TempLevel = Level;
+		if (ok_to_free (TempLevel)) {
+		    free_level (TempLevel);
+		    TempLevel = NULL;
+		}
+		Level = City = new level;
+		clear_level (Level);
+		load_city (TRUE);
+	    }
+	    Player.x = Level->lastx;
+	    Player.y = Level->lasty;
 	    ScreenOffset = Player.y - (ScreenLength / 2);
 	    show_screen();
 	    break;
 	case E_VILLAGE:
-	    WIDTH = 64;
-	    LENGTH = 16;
-	    if (!emerging) {
-		// different villages per different locations
-		switch (Country[Player.x][Player.y].aux) {
-		    case 1:
-			Player.x = 0;
-			Player.y = 6;
-			Villagenum = 1;
-			break;
-		    default:
-			print3 ("Very strange, a nonexistent village.");
-		    case 2:
-			Player.x = 39;
-			Player.y = 15;
-			Villagenum = 2;
-			break;
-		    case 3:
-			Player.x = 63;
-			Player.y = 8;
-			Villagenum = 3;
-			break;
-		    case 4:
-			Player.x = 32;
-			Player.y = 15;
-			Villagenum = 4;
-			break;
-		    case 5:
-			Player.x = 2;
-			Player.y = 8;
-			Villagenum = 5;
-			break;
-		    case 6:
-			Player.x = 2;
-			Player.y = 2;
-			Villagenum = 6;
-			break;
+	    if (!emerging || !TempLevel || TempLevel->environment != E_VILLAGE) {
+		TempLevel = Level;
+		if (ok_to_free (TempLevel)) {
+		    free_level (TempLevel);
+		    TempLevel = NULL;
 		}
-	    }
-	    if (!emerging || !TempLevel)
+		Level = new level;
+		clear_level (Level);
+		Villagenum = Country[Player.x][Player.y].aux;
 		load_village (Villagenum, TRUE);
-	    else if (TempLevel->environment != E_VILLAGE)
-		load_village (Villagenum, TRUE);
-	    else
+	    } else
 		Level = TempLevel;
 	    if (emerging) {
 		print1 ("You emerge onto the street.");
 		emerging = FALSE;
 	    } else
 		print1 ("You enter a small rural village.");
+	    Player.x = Level->lastx;
+	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
 	    show_screen();
 	    break;

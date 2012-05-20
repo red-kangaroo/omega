@@ -248,11 +248,16 @@ static void init_world (void)
 	CitySiteList[i][0] = FALSE;
     for (unsigned i = 0; i < ArraySize(ObjectAttrs); ++i)
 	ObjectAttrs[i] = Objects[i].uniqueness;
+    TempLevel = Level;
+    if (ok_to_free (TempLevel)) {
+	free_level (TempLevel);
+	TempLevel = NULL;
+    }
+    Level = City = new level;
+    clear_level (Level);
     load_city (TRUE);
-    WIDTH = 64;
-    LENGTH = 64;
-    Player.x = 62;
-    Player.y = 21;
+    Player.x = Level->lastx;
+    Player.y = Level->lasty;
     Level = City;
     Current_Environment = E_CITY;
     print1 ("You pass through the massive gates of Rampart, the city.");
