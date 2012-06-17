@@ -904,7 +904,6 @@ struct location {
     uint8_t p_locf;		// function executed when moved on
     uint8_t lstatus;		// seen,stopsrun,lit,secret,
     uint8_t roomnumber;		// so room can be named
-    uint8_t buildaux;		// used in constructing level
 };
 
 class level {

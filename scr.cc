@@ -296,7 +296,7 @@ void mprint (const char* s)
 {
     if (!gamestatusp (SUPPRESS_PRINTING)) {
 	unsigned x = getcurx (Msgw);
-	if (x + strlen (s) >= Level->width) {
+	if (x + strlen (s) >= MAXWIDTH) {
 	    buffercycle (s);
 	    if (Msgw == Msg1w) {
 		werase (Msg2w);

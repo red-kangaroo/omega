@@ -57,7 +57,7 @@ void level::clear (void)
     mlist.clear();
     next = NULL;
     last_visited = time(NULL);
-    fill (_site, (location){ WALL, SPACE, (uint8_t) min(UINT8_MAX,20u*difficulty()), L_NO_OP, 0, RS_WALLSPACE, 0 });
+    fill (_site, (location){ WALL, SPACE, (uint8_t) min(UINT8_MAX,20u*difficulty()), L_NO_OP, 0, RS_WALLSPACE });
 }
 
 monster* level::creature (int x, int y)

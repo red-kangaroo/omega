@@ -452,14 +452,15 @@ static void install_traps (void)
 // baux is so all rooms will have a key field.
 static void build_room (int x, int y, int l, char rsi, int baux)
 {
-    for (int i = x; i <= x + l; i++) {
-	for (int j = y; j <= y + l; j++) {
+    for (int j = y; j <= y + l; j++) {
+	for (int i = x; i <= x + l; i++) {
 	    Level->site(i,j).roomnumber = rsi;
-	    Level->site(i,j).buildaux = baux;
+	    if (baux)
+		Level->site(i,j).aux = baux;
 	}
     }
-    for (int i = x + 1; i < x + l; i++) {
-	for (int j = y + 1; j < y + l; j++) {
+    for (int j = y + 1; j < y + l; j++) {
+	for (int i = x + 1; i < x + l; i++) {
 	    Level->site(i,j).locchar = FLOOR;
 	    Level->site(i,j).p_locf = L_NO_OP;
 	}
@@ -528,7 +529,7 @@ static void sewer_level (void)
 	    lchar = WATER;
 	    rsi = RS_DROWNED_SEWER;
 	}
-	build_room (l, t, e, rsi, i);
+	build_room (l, t, e, rsi, 0);
 	sewer_corridor (l, t, -1, -1, lchar);
 	sewer_corridor (l + e, t, 1, -1, lchar);
 	sewer_corridor (l, t + e, -1, 1, lchar);
@@ -828,29 +829,30 @@ static void room_level (void)
     do {
 	t = random_range (Level->height - 10) + 1;
 	l = random_range (Level->width - 10) + 1;
-	e = 4 + random_range (5);
+	e = 6 + random_range (5);
     } while (Level->site(l,t).roomnumber != RS_WALLSPACE || Level->site(l + e,t).roomnumber != RS_WALLSPACE || Level->site(l,t + e).roomnumber != RS_WALLSPACE || Level->site(l + e,t + e).roomnumber != RS_WALLSPACE);
     char rsi = RS_ROOMBASE + random_range (NUMROOMNAMES);
     if (Current_Dungeon == E_SEWERS && random_range (2))
 	rsi = RS_SEWER_CONTROL_ROOM;
-    build_room (l, t, e, rsi, 1);
+    int buildaux = min(UINT8_MAX,20u*difficulty());
+    build_room (l, t, e, rsi, buildaux+1);
 
     for (i = 2; i <= Level->numrooms; i++) {
 	do {
 	    t = random_range (Level->height - 10) + 1;
 	    l = random_range (Level->width - 10) + 1;
-	    e = 4 + random_range (5);
+	    e = 6 + random_range (5);
 	} while (Level->site(l,t).roomnumber != RS_WALLSPACE || Level->site(l + e,t).roomnumber != RS_WALLSPACE || Level->site(l,t + e).roomnumber != RS_WALLSPACE || Level->site(l + e,t + e).roomnumber != RS_WALLSPACE);
 	rsi = RS_ROOMBASE + random_range (NUMROOMNAMES);
 	if (Current_Dungeon == E_SEWERS && random_range (2))
 	    rsi = RS_SEWER_CONTROL_ROOM;
-	build_room (l, t, e, rsi, i);
+	build_room (l, t, e, rsi, buildaux+i);
 
 	// One or two corridors going out
 	for (unsigned cri = 0, crn = 1+random_range(2); cri < crn; ++cri) {
 	    do {
 		findspace (&tx, &ty);
-	    } while (Level->site(tx,ty).buildaux == i);
+	    } while (Level->site(tx,ty).aux == buildaux+i);
 	    // figure out where to start corridor from
 	    if (ty <= t && tx <= l + e) {
 		fx = l + 1 + random_range (e - 1);
@@ -865,7 +867,7 @@ static void room_level (void)
 		fx = l;
 		fy = t + 1 + random_range (e - 1);
 	    }
-	    room_corridor (fx, fy, tx, ty, i);
+	    room_corridor (fx, fy, tx, ty, buildaux+i);
 	}
     }
 
@@ -903,7 +905,7 @@ static void room_corridor (int fx, int fy, int tx, int ty, int baux)
     do {
 	Level->site(fx,fy).locchar = FLOOR;
 	Level->site(fx,fy).roomnumber = RS_CORRIDOR;
-	Level->site(fx,fy).buildaux = baux;
+	Level->site(fx,fy).aux = baux;
 	dx = sign (tx - fx);
 	dy = sign (ty - fy);
 	if ((dx != 0) && (dy != 0)) {
@@ -914,7 +916,7 @@ static void room_corridor (int fx, int fy, int tx, int ty, int baux)
 	}
 	fx += dx;
 	fy += dy;
-    } while ((fx != tx || fy != ty) && (!Level->site(fx,fy).buildaux || Level->site(fx,fy).buildaux == baux));
+    } while ((fx != tx || fy != ty) && (!Level->site(fx,fy).aux || Level->site(fx,fy).aux == baux));
     makedoor (fx, fy);
 }
 
