@@ -26,13 +26,13 @@ void tunnelcheck (void)
     if ((Level->depth == 0 && Current_Environment != E_DLAIR) || Current_Environment == E_ASTRAL)
 	return;
     ++Level->tunnelled;
-    if (Level->tunnelled > LENGTH / 4)
+    if (Level->tunnelled > Level->height / 4)
 	mprint ("Dust and stone fragments fall on you from overhead.");
-    if (Level->tunnelled > LENGTH / 2)
+    if (Level->tunnelled > Level->height / 2)
 	mprint ("You hear groaning and creaking noises.");
-    if (Level->tunnelled > 3 * LENGTH / 4)
+    if (Level->tunnelled > 3 * Level->height / 4)
 	mprint ("The floor trembles and you hear a loud grinding screech.");
-    if (Level->tunnelled > LENGTH) {
+    if (Level->tunnelled > Level->height) {
 	mprint ("With a scream of tortured stone, the entire dungeon caves in!!!");
 	gain_experience (5000);
 	if (Player.status[SHADOWFORM]) {
@@ -2054,8 +2054,6 @@ void change_environment (int new_environment)
 	    show_screen();
 	    break;
 	case E_CAVES:
-	    WIDTH = 64;
-	    LENGTH = 64;
 	    print1 ("You enter a dark cleft in a hillside;");
 	    print2 ("You note signs of recent passage in the dirt nearby.");
 	    if (gamestatusp (MOUNTED)) {
@@ -2075,8 +2073,6 @@ void change_environment (int new_environment)
 	    change_level (0, 1, FALSE);
 	    break;
 	case E_VOLCANO:
-	    WIDTH = 64;
-	    LENGTH = 64;
 	    print1 ("You pass down through the glowing crater.");
 	    if (gamestatusp (MOUNTED)) {
 		morewait();
@@ -2095,8 +2091,6 @@ void change_environment (int new_environment)
 	    change_level (0, 1, FALSE);
 	    break;
 	case E_ASTRAL:
-	    WIDTH = 64;
-	    LENGTH = 64;
 	    print1 ("You are in a weird flickery maze.");
 	    if (gamestatusp (MOUNTED)) {
 		print2 ("Your horse doesn't seem to have made it....");
@@ -2113,8 +2107,6 @@ void change_environment (int new_environment)
 	    change_level (0, 1, FALSE);
 	    break;
 	case E_CASTLE:
-	    WIDTH = 64;
-	    LENGTH = 64;
 	    print1 ("You cross the drawbridge. Strange forms move beneath the water.");
 	    if (gamestatusp (MOUNTED)) {
 		morewait();
@@ -2132,8 +2124,6 @@ void change_environment (int new_environment)
 	    change_level (0, 1, FALSE);
 	    break;
 	case E_SEWERS:
-	    WIDTH = 64;
-	    LENGTH = 64;
 	    print1 ("You pry open a manhole and descend into the sewers below.");
 	    if (gamestatusp (MOUNTED)) {
 		print2 ("You horse waits patiently outside the sewer entrance....");
@@ -2149,8 +2139,6 @@ void change_environment (int new_environment)
 	    change_level (0, 1, FALSE);
 	    break;
 	case E_COUNTRYSIDE:
-	    WIDTH = 64;
-	    LENGTH = 64;
 	    print1 ("You return to the fresh air of the open countryside.");
 	    if (Last_Environment == E_CITY) {
 		Player.x = 27;
@@ -2165,19 +2153,17 @@ void change_environment (int new_environment)
 	    show_screen();
 	    break;
 	case E_TACTICAL_MAP:
-	    WIDTH = 64;
-	    LENGTH = 16;
 	    print1 ("You are now on the tactical screen; exit off any side to leave");
 	    make_country_screen (Country[Player.x][Player.y].current_terrain_type);
 	    make_country_monsters (Country[Player.x][Player.y].current_terrain_type);
-	    Player.x = WIDTH / 2;
-	    Player.y = LENGTH / 2;
+	    Player.x = Level->width / 2;
+	    Player.y = Level->height / 2;
 	    while (Level->site(Player.x,Player.y).locchar == WATER) {
-		if (Player.y < (int)LENGTH / 2 + 5)
+		if (Player.y < (int)Level->height / 2 + 5)
 		    Player.y++;
-		else if (Player.x > (int)WIDTH / 2 - 10) {
+		else if (Player.x > (int)Level->width / 2 - 10) {
 		    Player.x--;
-		    Player.y = LENGTH / 2 - 5;
+		    Player.y = Level->height / 2 - 5;
 		} else {
 		    Level->site(Player.x,Player.y).locchar = Level->site(Player.x,Player.y).showchar = FLOOR;
 		    Level->site(Player.x,Player.y).p_locf = L_NO_OP;
@@ -2433,8 +2419,8 @@ static void outdoors_random_event (void)
 	    } else if (num < 60) {
 		mprint ("The storm deposits you in a strange place....");
 		morewait();
-		Player.x = random_range (WIDTH);
-		Player.y = random_range (LENGTH);
+		Player.x = random_range (Level->width);
+		Player.y = random_range (Level->height);
 		screencheck (Player.y);
 	    } else if (num < 70) {
 		mprint ("A tendril of the storm condenses and falls into your hands.");

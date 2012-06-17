@@ -14,7 +14,7 @@ static int spaceok(int i, int j, int baux);
 // x and y on level?
 int inbounds (int x, int y)
 {
-    return (x >= 0 && y >= 0 && x < (int)WIDTH && y < (int)LENGTH);
+    return (x >= 0 && y >= 0 && x < (int)Level->width && y < (int)Level->height);
 }
 
 int random_range (int k)
@@ -30,7 +30,7 @@ int screenmod (int y)
 
 int offscreen (int y)
 {
-    return (y < 0 || y < ScreenOffset || y > ScreenOffset + ScreenLength - 1 || y > (int)LENGTH);
+    return (y < 0 || y < ScreenOffset || y > ScreenOffset + ScreenLength - 1 || y > (int)Level->height);
 }
 
 // always hit on a natural 0; never hit on a natural 19
@@ -483,7 +483,7 @@ static inline int spaceok (int i, int j, int baux)
 void findspace (int* x, int* y, int baux)
 {
     unsigned i, j;
-    while (!spaceok (i = random_range(WIDTH), j = random_range(LENGTH), baux)) ;
+    while (!spaceok (i = random_range(Level->width), j = random_range(Level->height), baux)) ;
     *x = i;
     *y = j;
 }

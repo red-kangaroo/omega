@@ -67,7 +67,7 @@ enum {
     UNDEAD_GUARDS	= (1<<25),
 };
 
-enum {
+enum EEnvironment {
     // non-existant environments for the random number seeding routine
     E_RESTORE = -2,
     E_RANDOM,
@@ -934,6 +934,8 @@ public:
 public:
 		level (void);
     void	clear (void);
+    void	resize (unsigned x, unsigned y)		{ width = x; height = y; }
+    const char*	init_from_data (int e, const char* d)	{ environment = e; resize (d[0], d[1]); lastx = d[2]; lasty = d[3]; return (d+4); }
     monster*	creature (int x, int y);
     object*	thing (int x, int y);
     void	make_thing (int x, int y, unsigned tid, unsigned n = RANDOM);

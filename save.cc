@@ -106,10 +106,10 @@ int restore_game (const char* savestr)
 		Level = City;
 	}
 	// this disgusting kludge because LENGTH and WIDTH are globals...
-	WIDTH = 64;
+	Level->width = 64;
 	switch (Current_Environment) {
 	    case E_COURT:
-		LENGTH = 24;
+		Level->height = 24;
 		break;
 	    case E_ARENA:
 	    case E_ABYSS:
@@ -122,10 +122,10 @@ int restore_game (const char* savestr)
 	    case E_MAGIC_ISLE:
 	    case E_TEMPLE:
 	    case E_VILLAGE:
-		LENGTH = 16;
+		Level->height = 16;
 		break;
 	    default:
-		LENGTH = 64;
+		Level->height = 64;
 		break;
 	}
 	print3 ("Restoration complete.");

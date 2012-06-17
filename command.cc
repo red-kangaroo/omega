@@ -1394,8 +1394,8 @@ static void movepincountry (int dx, int dy)
 			if (Player.possessions[O_BOOTS].blessing < 0) {
 			    print1 ("Whooah! -- Your boots launch you into the sky....");
 			    print2 ("You come down in a strange location....");
-			    Player.x = random_range (WIDTH);
-			    Player.y = random_range (LENGTH);
+			    Player.x = random_range (Level->width);
+			    Player.y = random_range (Level->height);
 			    morewait();
 			    clearmsg();
 			    print1 ("Your boots disintegrate with a malicious giggle...");

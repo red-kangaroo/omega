@@ -55,6 +55,7 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
     deepest[Current_Environment] = max (deepest[Current_Environment], tolevel);
     if (thislevel == NULL) {
 	thislevel = new level;
+	Level->resize (64, 64);
 	clear_level (thislevel);
 	Level = thislevel;
 	Level->next = Dungeon;
@@ -68,13 +69,13 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
 	Level->generated = TRUE;
 	switch (Current_Environment) {
 	    case E_CAVES:
-		if ((random_range (4) == 0) && (tolevel < MaxDungeonLevels))
+		if (!random_range(4) && tolevel < MaxDungeonLevels)
 		    room_level();
 		else
 		    cavern_level();
 		break;
 	    case E_SEWERS:
-		if ((random_range (4) == 0) && (tolevel < MaxDungeonLevels))
+		if (!random_range (4) && tolevel < MaxDungeonLevels)
 		    room_level();
 		else
 		    sewer_level();
@@ -87,15 +88,9 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
 		break;
 	    case E_VOLCANO:
 		switch (random_range (3)) {
-		    case 0:
-			cavern_level();
-			break;
-		    case 1:
-			room_level();
-			break;
-		    case 2:
-			maze_level();
-			break;
+		    case 0: cavern_level(); break;
+		    case 1: room_level(); break;
+		    case 2: maze_level(); break;
 		}
 		break;
 	    default:
@@ -184,7 +179,7 @@ static void corridor_crawl (int* fx, int* fy, int sx, int sy, int n, chtype loc,
     for (i = 0; i < n; i++) {
 	*fx += sx;
 	*fy += sy;
-	if ((*fx < (int)WIDTH) && (*fx > -1) && (*fy > -1) && (*fy < (int)LENGTH)) {
+	if ((*fx < (int)Level->width) && (*fx > -1) && (*fy > -1) && (*fy < (int)Level->height)) {
 	    Level->site(*fx,*fy).locchar = loc;
 	    if (Level->site(*fx,*fy).roomnumber == RS_WALLSPACE)
 		Level->site(*fx,*fy).roomnumber = rsi;
@@ -417,8 +412,8 @@ static void find_stairs (char fromlevel, char tolevel)
 	sitechar = STAIRS_DOWN;
     else
 	sitechar = STAIRS_UP;
-    for (unsigned i = 0; i < WIDTH; i++) {
-	for (unsigned j = 0; j < LENGTH; j++) {
+    for (unsigned i = 0; i < Level->width; i++) {
+	for (unsigned j = 0; j < Level->height; j++) {
 	    if ((Level->site(i,j).locchar == sitechar) && (!found)) {
 		found = true;
 		Player.x = i;
@@ -438,8 +433,8 @@ static void find_stairs (char fromlevel, char tolevel)
 
 void install_traps (void)
 {
-    for (unsigned i = 0; i < WIDTH; i++)
-	for (unsigned j = 0; j < LENGTH; j++)
+    for (unsigned i = 0; i < Level->width; i++)
+	for (unsigned j = 0; j < Level->height; j++)
 	    if (Level->site(i,j).locchar == FLOOR && Level->site(i,j).p_locf == L_NO_OP && random_range (500) <= (int)(Level->depth / 6))
 		Level->site(i,j).p_locf = TRAP_BASE + random_range (NUMTRAPS);
 }
@@ -478,21 +473,21 @@ void cavern_level (void)
 	rsi = RS_GOBLINKING;
     else
 	rsi = RS_CAVERN;
-    t = random_range (LENGTH / 2);
-    l = random_range (WIDTH / 2);
-    e = random_range (WIDTH / 8) + WIDTH / 8;
+    t = random_range (Level->height / 2);
+    l = random_range (Level->width / 2);
+    e = random_range (Level->width / 8) + Level->width / 8;
     build_square_room (t, l, e, rsi, 0);
 
     for (i = 0; i < 16; i++) {
 	findspace (&tx, &ty, -1);
-	fx = random_range (WIDTH - 2) + 1;
-	fy = random_range (LENGTH - 2) + 1;
+	fx = random_range (Level->width - 2) + 1;
+	fy = random_range (Level->height - 2) + 1;
 	straggle_corridor (fx, fy, tx, ty, FLOOR, RS_CORRIDOR);
     }
     while (random_range (3) == 1) {
 	findspace (&tx, &ty, -1);
-	fx = random_range (WIDTH - 2) + 1;
-	fy = random_range (LENGTH - 2) + 1;
+	fx = random_range (Level->width - 2) + 1;
+	fy = random_range (Level->height - 2) + 1;
 	straggle_corridor (fx, fy, tx, ty, WATER, RS_PONDS);
     }
     if (Current_Dungeon == E_CAVES) {
@@ -518,8 +513,8 @@ void sewer_level (void)
     rsi = RS_DRAINED_SEWER;
     for (i = 0; i < Level->numrooms; i++) {
 	do {
-	    t = random_range (LENGTH - 10) + 1;
-	    l = random_range (WIDTH - 10) + 1;
+	    t = random_range (Level->height - 10) + 1;
+	    l = random_range (Level->width - 10) + 1;
 	    e = 4;
 	} while ((Level->site(l,t).roomnumber == rsi) || (Level->site(l + e,t).roomnumber == rsi) || (Level->site(l,t + e).roomnumber == rsi) || (Level->site(l + e,t + e).roomnumber == rsi));
 	if (random_range (5)) {
@@ -569,8 +564,8 @@ static void sewer_corridor (int x, int y, int dx, int dy, chtype locchar)
 
 void install_specials (void)
 {
-    for (unsigned x = 0; x < WIDTH; x++) {
-	for (unsigned y = 0; y < LENGTH; y++) {
+    for (unsigned x = 0; x < Level->width; x++) {
+	for (unsigned y = 0; y < Level->height; y++) {
 	    if ((Level->site(x,y).locchar == FLOOR) && (Level->site(x,y).p_locf == L_NO_OP) && (random_range (300) < difficulty())) {
 		unsigned i = random_range (100);
 		if (i < 10) {
@@ -675,6 +670,7 @@ void make_country_screen (int terrain)
     Level = new level;
     clear_level (Level);
     Level->environment = E_TACTICAL_MAP;
+    Level->resize (64, 16);
     Level->generated = TRUE;
     switch (terrain) {
 	case FOREST:
@@ -702,8 +698,8 @@ void make_country_screen (int terrain)
     }
     if (nighttime()) {
 	print3 ("Night's gloom shrouds your sight.");
-	for (unsigned i = 0; i < WIDTH; i++) {
-	    for (unsigned j = 0; j < LENGTH; j++) {
+	for (unsigned i = 0; i < Level->width; i++) {
+	    for (unsigned j = 0; j < Level->height; j++) {
 		Level->site(i,j).showchar = SPACE;
 		Level->site(i,j).lstatus = 0;
 	    }
@@ -715,8 +711,8 @@ static void make_general_map (const char* terrain)
 {
     int size = strlen (terrain);
     char curr;
-    for (unsigned i = 0; i < WIDTH; ++i) {
-	for (unsigned j = 0; j < LENGTH; ++j) {
+    for (unsigned i = 0; i < Level->width; ++i) {
+	for (unsigned j = 0; j < Level->height; ++j) {
 	    if ((i == 0 && j == 0) || !random_range (5))
 		curr = terrain[random_range (size)];
 	    else if (j == 0 || (random_range (2) && i > 0))
@@ -743,7 +739,7 @@ static void make_general_map (const char* terrain)
 	    }
 	    Level->site(i,j).lstatus = SEEN + LIT;
 	    Level->site(i,j).roomnumber = RS_COUNTRYSIDE;
-	    if ((i == 0) || (j == 0) || (i == WIDTH - 1) || (j == LENGTH - 1))
+	    if (!i || !j || i+1 == Level->width || j+1 == Level->height)
 		Level->site(i,j).p_locf = L_TACTICAL_EXIT;
 	}
     }
@@ -757,10 +753,10 @@ static void make_plains (void)
 static void make_road (void)
 {
     make_general_map ("\"\"~4....");
-    for (unsigned x = WIDTH / 2 - 3; x <= WIDTH / 2 + 3; ++x) {
-	for (unsigned y = 0; y < LENGTH; ++y) {
+    for (unsigned x = Level->width / 2 - 3; x <= Level->width / 2 + 3u; ++x) {
+	for (unsigned y = 0; y < Level->height; ++y) {
 	    Level->site(x,y).locchar = Level->site(x,y).showchar = FLOOR;
-	    if (y != 0 && y != LENGTH - 1)
+	    if (y && y+1 != Level->height)
 		Level->site(x,y).p_locf = L_NO_OP;
 	}
     }
@@ -769,7 +765,7 @@ static void make_road (void)
 static void make_forest (void)
 {
     make_general_map ("\".");
-    straggle_corridor (0, random_range (LENGTH), WIDTH, random_range (LENGTH), WATER, RS_COUNTRYSIDE);
+    straggle_corridor (0, random_range (Level->height), Level->width, random_range (Level->height), WATER, RS_COUNTRYSIDE);
 }
 
 static void make_jungle (void)
@@ -780,15 +776,15 @@ static void make_jungle (void)
 static void make_river (void)
 {
     make_general_map ("\".......");
-    unsigned y = random_range (LENGTH);
-    unsigned y1 = random_range (LENGTH);
-    straggle_corridor (0, y, WIDTH, y1, WATER, RS_COUNTRYSIDE);
+    unsigned y = random_range (Level->height);
+    unsigned y1 = random_range (Level->height);
+    straggle_corridor (0, y, Level->width, y1, WATER, RS_COUNTRYSIDE);
     for (unsigned i = 0; i < 7; ++i) {
-	if (y > LENGTH / 2)	--y;
+	if (y > Level->height / 2)	--y;
 	else			++y;
-	if (y1 > LENGTH / 2)	--y1;
+	if (y1 > Level->height / 2)	--y1;
 	else			++y1;
-	straggle_corridor (0, y, WIDTH, y1, WATER, RS_COUNTRYSIDE);
+	straggle_corridor (0, y, Level->width, y1, WATER, RS_COUNTRYSIDE);
     }
 }
 
@@ -797,15 +793,15 @@ static void make_mountains (void)
     int i, x, y, x1, y1;
     make_general_map ("4...");
     x = 0;
-    y = random_range (LENGTH);
-    x1 = WIDTH;
-    y1 = random_range (LENGTH);
+    y = random_range (Level->height);
+    x1 = Level->width;
+    y1 = random_range (Level->height);
     straggle_corridor (x, y, x1, y1, WATER, RS_COUNTRYSIDE);
     for (i = 0; i < 7; i++) {
-	x = random_range (WIDTH);
-	x1 = random_range (WIDTH);
+	x = random_range (Level->width);
+	x1 = random_range (Level->width);
 	y = 0;
-	y1 = LENGTH;
+	y1 = Level->height;
 	straggle_corridor (x, y, x1, y1, WATER, RS_COUNTRYSIDE);
     }
 }
@@ -825,8 +821,8 @@ void room_level (void)
     Level->numrooms = random_range (8) + 9;
 
     do {
-	t = random_range (LENGTH - 10) + 1;
-	l = random_range (WIDTH - 10) + 1;
+	t = random_range (Level->height - 10) + 1;
+	l = random_range (Level->width - 10) + 1;
 	e = 4 + random_range (5);
     } while ((Level->site(l,t).roomnumber != RS_WALLSPACE) || (Level->site(l + e,t).roomnumber != RS_WALLSPACE) || (Level->site(l,t + e).roomnumber != RS_WALLSPACE) || (Level->site(l + e,t + e).roomnumber != RS_WALLSPACE));
     char rsi = RS_ROOMBASE + random_range (NUMROOMNAMES);
@@ -836,8 +832,8 @@ void room_level (void)
 
     for (i = 2; i <= Level->numrooms; i++) {
 	do {
-	    t = random_range (LENGTH - 10) + 1;
-	    l = random_range (WIDTH - 10) + 1;
+	    t = random_range (Level->height - 10) + 1;
+	    l = random_range (Level->width - 10) + 1;
 	    e = 4 + random_range (5);
 	} while ((Level->site(l,t).roomnumber != RS_WALLSPACE) || (Level->site(l + e,t).roomnumber != RS_WALLSPACE) || (Level->site(l,t + e).roomnumber != RS_WALLSPACE) || (Level->site(l + e,t + e).roomnumber != RS_WALLSPACE));
 	rsi = RS_ROOMBASE + random_range (NUMROOMNAMES);
@@ -960,10 +956,10 @@ void maze_level (void)
 		break;
 	}
     }
-    maze_corridor (random_range (WIDTH - 1) + 1, random_range (LENGTH - 1) + 1, random_range (WIDTH - 1) + 1, random_range (LENGTH - 1) + 1, rsi, 0);
+    maze_corridor (random_range (Level->width - 1) + 1, random_range (Level->height - 1) + 1, random_range (Level->width - 1) + 1, random_range (Level->height - 1) + 1, rsi, 0);
     if (Current_Dungeon == E_ASTRAL) {
-	for (unsigned i = 0; i < WIDTH; i++) {
-	    for (unsigned j = 0; j < LENGTH; j++) {
+	for (unsigned i = 0; i < Level->width; i++) {
+	    for (unsigned j = 0; j < Level->height; j++) {
 		if (Level->site(i,j).locchar == WALL) {
 		    switch (Level->depth) {
 			case 1:
@@ -1018,6 +1014,6 @@ static void maze_corridor (int fx, int fy, int tx, int ty, int rsi, int num)
 {
     if (num < 6) {
 	straggle_corridor (fx, fy, tx, ty, FLOOR, rsi);
-	maze_corridor (tx, ty, random_range (WIDTH - 1) + 1, random_range (LENGTH - 1) + 1, rsi, num + 1);
+	maze_corridor (tx, ty, random_range (Level->width - 1) + 1, random_range (Level->height - 1) + 1, rsi, num + 1);
     }
 }

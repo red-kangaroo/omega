@@ -103,14 +103,9 @@ void level::add_thing (int x, int y, const object& o, unsigned n)
 // loads the arena level into Level
 void load_arena (void)
 {
-    Level->environment = E_ARENA;
-    const char* ld = Level_Arena;
-    WIDTH = Level->width = *ld++;
-    LENGTH = Level->height = *ld++;
-    Level->lastx = *ld++;
-    Level->lasty = *ld++;
-    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
-	for (unsigned i = 0; i < WIDTH; i++) {
+    const char* ld = Level->init_from_data (E_ARENA, Level_Arena);
+    for (unsigned j = 0; j < Level->height; ++j, ++ld) {
+	for (unsigned i = 0; i < Level->width; i++) {
 	    Level->site(i,j).lstatus = SEEN + LIT;
 	    Level->site(i,j).roomnumber = RS_ARENA;
 	    char site = *ld++;
@@ -199,14 +194,9 @@ void load_arena (void)
 void load_circle (int populate)
 {
     int safe = (Player.rank[CIRCLE] >= INITIATE);
-    Level->environment = E_CIRCLE;
-    const char* ld = Level_Circle;
-    WIDTH = Level->width = *ld++;
-    LENGTH = Level->height = *ld++;
-    Level->lastx = *ld++;
-    Level->lasty = *ld++;
-    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
-	for (unsigned i = 0; i < WIDTH; ++i) {
+    const char* ld = Level->init_from_data (E_CIRCLE, Level_Circle);
+    for (unsigned j = 0; j < Level->height; ++j, ++ld) {
+	for (unsigned i = 0; i < Level->width; ++i) {
 	    Level->site(i,j).lstatus = 0;
 	    Level->site(i,j).roomnumber = RS_CIRCLE;
 	    Level->site(i,j).p_locf = L_NO_OP;
@@ -310,16 +300,11 @@ static monster& make_prime (int i, int j)
 // loads the court of the archmage into Level
 void load_court (int populate)
 {
-    Level->environment = E_COURT;
-    const char* ld = Level_Court;
-    WIDTH = Level->width = *ld++;
-    LENGTH = Level->height = *ld++;
-    Level->lastx = *ld++;
-    Level->lasty = *ld++;
+    const char* ld = Level->init_from_data (E_COURT, Level_Court);
     LastCountryLocX = *ld++;
     LastCountryLocY = *ld++;
-    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
-	for (unsigned i = 0; i < WIDTH; ++i) {
+    for (unsigned j = 0; j < Level->height; ++j, ++ld) {
+	for (unsigned i = 0; i < Level->width; ++i) {
 	    Level->site(i,j).lstatus = 0;
 	    Level->site(i,j).roomnumber = RS_COURT;
 	    Level->site(i,j).p_locf = L_NO_OP;
@@ -395,13 +380,9 @@ static monster& make_archmage (int i, int j)
 // loads the abyss level into Level
 void load_abyss (void)
 {
-    const char* ld = Level_Abyss;
-    WIDTH = Level->width = *ld++;
-    LENGTH = Level->height = *ld++;
-    Level->lastx = *ld++;
-    Level->lasty = *ld++;
-    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
-	for (unsigned i = 0; i < WIDTH; ++i) {
+    const char* ld = Level->init_from_data (E_ABYSS, Level_Abyss);
+    for (unsigned j = 0; j < Level->height; ++j, ++ld) {
+	for (unsigned i = 0; i < Level->width; ++i) {
 	    char site = *ld++;
 	    Level->site(i,j).roomnumber = RS_ADEPT;
 	    switch (site) {
@@ -457,14 +438,9 @@ void load_city (int populate)
 {
     initrand (E_CITY, 0);
     Level->depth = 0;
-    Level->environment = E_CITY;
-    const char* ld = Level_City;
-    WIDTH = Level->width = *ld++;
-    LENGTH = Level->height = *ld++;
-    Level->lastx = *ld++;
-    Level->lasty = *ld++;
-    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
-	for (unsigned i = 0; i < WIDTH; ++i) {
+    const char* ld = Level->init_from_data (E_CITY, Level_City);
+    for (unsigned j = 0; j < Level->height; ++j, ++ld) {
+	for (unsigned i = 0; i < Level->width; ++i) {
 	    lset (i, j, SEEN);
 	    char site = *ld++;
 	    switch (site) {
@@ -889,8 +865,8 @@ static void make_justiciar (int i, int j)
 void resurrect_guards (void)
 {
     const char* ld = Level_City;
-    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
-	for (unsigned i = 0; i < WIDTH; ++i) {
+    for (unsigned j = 0; j < Level->height; ++j, ++ld) {
+	for (unsigned i = 0; i < Level->width; ++i) {
 	    if (*ld++ == 'G') {
 		monster& m = make_site_monster (i, j, GUARD);
 		m.monstring = "undead guardsman";
@@ -1034,8 +1010,8 @@ static void repair_jail (void)
 void load_country (void)
 {
     const char* ld = Level_Country;
-    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
-	for (unsigned i = 0; i < WIDTH; ++i) {
+    for (unsigned j = 0; j < Level->height; ++j, ++ld) {
+	for (unsigned i = 0; i < Level->width; ++i) {
 	    char site = *ld++;
 	    Country[i][j].aux = 0;
 	    Country[i][j].status = 0;
@@ -1133,14 +1109,9 @@ void load_dlair (int empty, int populate)
     }
     if (!populate)
 	empty = TRUE;
-    Level->environment = E_DLAIR;
-    const char* ld = Level_DragonLair;
-    WIDTH = Level->width = *ld++;
-    LENGTH = Level->height = *ld++;
-    Level->lastx = *ld++;
-    Level->lasty = *ld++;
-    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
-	for (unsigned i = 0; i < WIDTH; ++i) {
+    const char* ld = Level->init_from_data (E_DLAIR, Level_DragonLair);
+    for (unsigned j = 0; j < Level->height; ++j, ++ld) {
+	for (unsigned i = 0; i < Level->width; ++i) {
 	    Level->site(i,j).lstatus = 0;
 	    if (i < 48)
 		Level->site(i,j).roomnumber = RS_CAVERN;
@@ -1237,14 +1208,9 @@ void load_speak (int empty, int populate)
     }
     if (!populate)
 	empty = TRUE;
-    Level->environment = E_STARPEAK;
-    const char* ld = Level_StarPeak;
-    WIDTH = Level->width = *ld++;
-    LENGTH = Level->height = *ld++;
-    Level->lastx = *ld++;
-    Level->lasty = *ld++;
-    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
-	for (unsigned i = 0; i < WIDTH; ++i) {
+    const char* ld = Level->init_from_data (E_STARPEAK, Level_StarPeak);
+    for (unsigned j = 0; j < Level->height; ++j, ++ld) {
+	for (unsigned i = 0; i < Level->width; ++i) {
 	    Level->site(i,j).lstatus = 0;
 	    Level->site(i,j).roomnumber = RS_STARPEAK;
 	    Level->site(i,j).p_locf = L_NO_OP;
@@ -1340,14 +1306,9 @@ void load_misle (int empty, int populate)
     }
     if (!populate)
 	empty = TRUE;
-    Level->environment = E_MAGIC_ISLE;
-    const char* ld = Level_MagicIsle;
-    WIDTH = Level->width = *ld++;
-    LENGTH = Level->height = *ld++;
-    Level->lastx = *ld++;
-    Level->lasty = *ld++;
-    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
-	for (unsigned i = 0; i < WIDTH; ++i) {
+    const char* ld = Level->init_from_data (E_MAGIC_ISLE, Level_MagicIsle);
+    for (unsigned j = 0; j < Level->height; ++j, ++ld) {
+	for (unsigned i = 0; i < Level->width; ++i) {
 	    Level->site(i,j).lstatus = 0;
 	    Level->site(i,j).roomnumber = RS_MAGIC_ISLE;
 	    Level->site(i,j).p_locf = L_NO_OP;
@@ -1405,14 +1366,9 @@ void load_misle (int empty, int populate)
 // loads a temple into Level
 void load_temple (int deity, int populate)
 {
-    Level->environment = E_TEMPLE;
-    const char* ld = Level_Temple;
-    WIDTH = Level->width = *ld++;
-    LENGTH = Level->height = *ld++;
-    Level->lastx = *ld++;
-    Level->lasty = *ld++;
-    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
-	for (unsigned i = 0; i < WIDTH; ++i) {
+    const char* ld = Level->init_from_data (E_TEMPLE, Level_Temple);
+    for (unsigned j = 0; j < Level->height; ++j, ++ld) {
+	for (unsigned i = 0; i < Level->width; ++i) {
 	    switch (deity) {
 		case ODIN:	Level->site(i,j).roomnumber = RS_ODIN; break;
 		case SET:	Level->site(i,j).roomnumber = RS_SET; break;
@@ -2641,15 +2597,10 @@ void l_order (void)
 void load_house (int kind, int populate)
 {
     initrand (Current_Environment, Player.x + Player.y + hour() * 10);
-    Level->environment = kind;
-    const char* ld = (kind == E_HOUSE ? Level_House : (kind == E_MANSION ? Level_Mansion : Level_Hovel));
-    WIDTH = Level->width = *ld++;
-    LENGTH = Level->height = *ld++;
-    Level->lastx = *ld++;
-    Level->lasty = *ld++;
+    const char* ld = Level->init_from_data (kind, kind == E_HOUSE ? Level_House : (kind == E_MANSION ? Level_Mansion : Level_Hovel));
     unsigned stops = 0;
-    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
-	for (unsigned i = 0; i < WIDTH; ++i) {
+    for (unsigned j = 0; j < Level->height; ++j, ++ld) {
+	for (unsigned i = 0; i < Level->width; ++i) {
 	    if (kind == E_HOVEL)
 		Level->site(i,j).lstatus = SEEN;
 	    else
@@ -2816,18 +2767,13 @@ void load_village (int villagenum, int populate)
 {
     initrand (Current_Environment, villagenum);
     assign_village_function (0, 0, TRUE);
-    Level->environment = E_VILLAGE;
     static const char* _villages[] = {
 	Level_Village1, Level_Village2, Level_Village3,
 	Level_Village4, Level_Village5, Level_Village6
     };
-    const char* ld = _villages[villagenum-1];
-    WIDTH = Level->width = *ld++;
-    LENGTH = Level->height = *ld++;
-    Level->lastx = *ld++;
-    Level->lasty = *ld++;
-    for (unsigned j = 0; j < LENGTH; ++j, ++ld) {
-	for (unsigned i = 0; i < WIDTH; ++i) {
+    const char* ld = Level->init_from_data (E_VILLAGE, _villages[villagenum-1]);
+    for (unsigned j = 0; j < Level->height; ++j, ++ld) {
+	for (unsigned i = 0; i < Level->width; ++i) {
 	    lset (i, j, SEEN);
 	    char site = *ld++;
 	    Level->site(i,j).p_locf = L_NO_OP;
@@ -3039,8 +2985,8 @@ void make_country_monsters (int terrain)
     }
     const unsigned nummonsters = 1+random_range(8);
     for (unsigned i = 0; i < nummonsters; i++) {
-	monster& m = make_site_monster (random_range(WIDTH), random_range(LENGTH), monsters[random_range(ArraySize(mountain))]);
-	m.sense = WIDTH;
+	monster& m = make_site_monster (random_range(Level->width), random_range(Level->height), monsters[random_range(ArraySize(mountain))]);
+	m.sense = Level->width;
 	if (m_statusp (m, ONLYSWIM)) {
 	    Level->site(m.x,m.y).locchar = WATER;
 	    Level->site(m.x,m.y).p_locf = L_WATER;
@@ -3449,15 +3395,15 @@ void stock_level (void)
     const unsigned numtreasures = 2 * random_range (difficulty() / 4) + 4;
     for (unsigned i, j, k = 0; k < numtreasures + 10; k++) {
 	do {
-	    i = random_range (WIDTH);
-	    j = random_range (LENGTH);
+	    i = random_range (Level->width);
+	    j = random_range (Level->height);
 	} while (Level->site(i,j).locchar != FLOOR);
 	make_site_treasure (i, j, difficulty());
 	// caves have more random cash strewn around
 	const unsigned cashFactor = (Current_Dungeon == E_CAVES ? 3 : 1);
 	for (unsigned l = 0; l < cashFactor; ++l) {
-	    i = random_range (WIDTH);
-	    j = random_range (LENGTH);
+	    i = random_range (Level->width);
+	    j = random_range (Level->height);
 	    Level->add_thing (i, j, make_cash (difficulty()));
 	}
     }
@@ -3896,8 +3842,8 @@ void statue_random (int x, int y)
 	    break;
 	case 9:
 	    print1 ("The statue extends an arm. Beams of light illuminate the level!");
-	    for (unsigned i = 0; i < WIDTH; i++) {
-		for (unsigned j = 0; j < LENGTH; j++) {
+	    for (unsigned i = 0; i < Level->width; i++) {
+		for (unsigned j = 0; j < Level->height; j++) {
 		    lset (i, j, SEEN);
 		    if (loc_statusp (i, j, SECRET)) {
 			lreset (i, j, SECRET);

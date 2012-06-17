@@ -34,10 +34,6 @@ uint8_t ObjectAttrs[TOTALITEMS] = {0};
 // locations of city sites [0] - found, [1] - x, [2] - y
 int CitySiteList[NUMCITYSITES][3];
 
-// Currently defined in caps since it is now a variable, was a constant
-unsigned LENGTH = MAXLENGTH;
-unsigned WIDTH = MAXWIDTH;
-
 long GameStatus = 0L;		// Game Status bit vector
 int ScreenLength = 0;		// How large is level window
 struct player Player;		// the player

@@ -464,7 +464,7 @@ void mondet (int blessing)
 	if (blessing > -1)
 	    plotmon (m);
 	else
-	    putspot (random_range (WIDTH), random_range (LENGTH), Monsters[random_range (NUMMONSTERS)].monchar);
+	    putspot (random_range (Level->width), random_range (Level->height), Monsters[random_range (NUMMONSTERS)].monchar);
     }
     levelrefresh();
     morewait();
@@ -475,7 +475,7 @@ void objdet (int blessing)
 {
     foreach (i, Level->things) {
 	if (blessing < 0)
-	    putspot (random_range (WIDTH), random_range (LENGTH), i->objchar);
+	    putspot (random_range (Level->width), random_range (Level->height), i->objchar);
 	else
 	    putspot (i->x, i->y, i->objchar);
     }
@@ -1637,8 +1637,8 @@ void learnspell (int blessing)
 
 void amnesia (void)
 {
-    for (unsigned j = 0; j < LENGTH; j++)
-	for (unsigned i = 0; i < WIDTH; i++)
+    for (unsigned j = 0; j < Level->height; j++)
+	for (unsigned i = 0; i < Level->width; i++)
 	    lreset (i, j, SEEN);
     erase_level();
     drawvision (Player.x, Player.y);
@@ -1793,8 +1793,8 @@ void p_teleport (int type)
     int x = Player.x, y = Player.y;
     drawspot (x, y);
     if (type < 0) {
-	x = random_range (WIDTH);
-	y = random_range (LENGTH);
+	x = random_range (Level->width);
+	y = random_range (Level->height);
 	if ((Level->site(x,y).locchar != FLOOR) && (Level->site(x,y).locchar != OPEN_DOOR)) {
 	    mprint ("You teleported into a solid object....");
 	    mprint ("You are dead!");
@@ -1868,8 +1868,8 @@ void strategic_teleport (int blessing)
 	mprint ("You are dragged into one!");
 	change_environment (E_COUNTRYSIDE);
 	do {
-	    Player.x = random_range (WIDTH);
-	    Player.y = random_range (LENGTH);
+	    Player.x = random_range (Level->width);
+	    Player.y = random_range (Level->height);
 	} while (Country[Player.x][Player.y].base_terrain_type == CHAOS_SEA);
     } else {
 	mprint ("Below each portal is a caption. Enter which one:");

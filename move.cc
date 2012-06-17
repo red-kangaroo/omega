@@ -220,8 +220,8 @@ void l_abyss (void)
 		morewait();
 		change_environment (E_COUNTRYSIDE);
 		do {
-		    Player.x = random_range (WIDTH);
-		    Player.y = random_range (LENGTH);
+		    Player.x = random_range (Level->width);
+		    Player.y = random_range (Level->height);
 		} while (Country[Player.x][Player.y].base_terrain_type == CHAOS_SEA);
 		p_damage (i * 50, NORMAL_DAMAGE, "a fall from a great height");
 	    } else {
@@ -392,8 +392,8 @@ void l_portcullis_trap (void)
     bool slam = false;
     print3 ("Click.");
     morewait();
-    for (unsigned i = max (Player.x - 5, 0); i < min (6u+Player.x, WIDTH); i++) {
-	for (unsigned j = max (Player.y - 5, 0); j < min (6u+Player.y, LENGTH); j++) {
+    for (unsigned i = max (Player.x - 5, 0); i < min (6u+Player.x, Level->width); i++) {
+	for (unsigned j = max (Player.y - 5, 0); j < min (6u+Player.y, Level->height); j++) {
 	    if ((Level->site(i,j).p_locf == L_PORTCULLIS) && (Level->site(i,j).locchar != PORTCULLIS)) {
 		Level->site(i,j).locchar = PORTCULLIS;
 		lset (i, j, CHANGED);
@@ -417,8 +417,8 @@ static void l_drop_every_portcullis (void)
     bool slam = false;
     print3 ("Click.");
     morewait();
-    for (unsigned i = 0; i < WIDTH; i++) {
-	for (unsigned j = 0; j < LENGTH; j++) {
+    for (unsigned i = 0; i < Level->width; i++) {
+	for (unsigned j = 0; j < Level->height; j++) {
 	    if (Level->site(i,j).p_locf == L_DROP_EVERY_PORTCULLIS) {
 		Level->site(i,j).p_locf = L_NO_OP;
 		lset (i, j, CHANGED);
@@ -442,8 +442,8 @@ static void l_drop_every_portcullis (void)
 void l_raise_portcullis (void)
 {
     bool open = false;
-    for (unsigned i = 0; i < WIDTH; i++) {
-	for (unsigned j = 0; j < LENGTH; j++) {
+    for (unsigned i = 0; i < Level->width; i++) {
+	for (unsigned j = 0; j < Level->height; j++) {
 	    if (Level->site(i,j).locchar == PORTCULLIS) {
 		Level->site(i,j).locchar = FLOOR;
 		lset (i, j, CHANGED);
@@ -653,8 +653,8 @@ static void stationcheck (void)
     print1 ("You feel regenerated.");
     Player.hp = Player.maxhp;
     dataprint();
-    for (unsigned i = 0; i < WIDTH; ++i)
-	for (unsigned j = 0; j < LENGTH; ++j)
+    for (unsigned i = 0; i < Level->width; ++i)
+	for (unsigned j = 0; j < Level->height; ++j)
 	    if ((Level->site(i,j).locchar == WATER) || (Level->site(i,j).locchar == HEDGE) || (Level->site(i,j).locchar == WHIRLWIND) || (Level->site(i,j).locchar == FIRE))
 		stationsleft = true;
     if (!stationsleft) {
@@ -978,8 +978,8 @@ static void l_balancestone (void)
 	    morewait();
 	    change_environment (E_COUNTRYSIDE);
 	    do {
-		Player.x = random_range (WIDTH);
-		Player.y = random_range (LENGTH);
+		Player.x = random_range (Level->width);
+		Player.y = random_range (Level->height);
 	    } while (Country[Player.x][Player.y].current_terrain_type == CHAOS_SEA);
 	    screencheck (Player.y);
 	    drawvision (Player.x, Player.y);

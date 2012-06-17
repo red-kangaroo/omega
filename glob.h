@@ -9,8 +9,6 @@ extern uint8_t ObjectAttrs[TOTALITEMS];		// attributes such as known and uniquen
 extern const struct object_data NullObject;
 extern int CitySiteList[NUMCITYSITES][3];	// locations of city sites [0] - found, [1] - x, [2] - y
 extern struct player Player;			// the player
-extern unsigned LENGTH;				// level y dimension
-extern unsigned WIDTH;				// level x dimension
 extern long GameStatus;				// Game Status bit vector
 extern int ScreenLength;			// How large is level window
 extern struct terrain Country[MAXWIDTH][MAXLENGTH];	// The countryside
