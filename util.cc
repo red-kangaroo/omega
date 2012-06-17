@@ -7,10 +7,6 @@
 
 //----------------------------------------------------------------------
 
-static int spaceok(int i, int j, int baux);
-
-//----------------------------------------------------------------------
-
 // x and y on level?
 int inbounds (int x, int y)
 {
@@ -468,24 +464,14 @@ const char* month (void)
     return (zstrn (_months, (Date % 360) / 30, 13));
 }
 
-// WDT: code for the following two functions contributed by Sheldon 
-// Simms.
-// finds floor space on level with buildaux not equal to baux,
-// sets x,y there. There must *be* floor space somewhere on level....
-static inline int spaceok (int i, int j, int baux)
-{
-    return (Level->site(i,j).locchar == FLOOR &&
-	    !Level->creature(i,j) &&
-	    !loc_statusp (i, j, SECRET) &&
-	    Level->site(i,j).buildaux != baux);
-}
-
-void findspace (int* x, int* y, int baux)
+void findspace (int* x, int* y)
 {
     unsigned i, j;
-    while (!spaceok (i = random_range(Level->width), j = random_range(Level->height), baux)) ;
-    *x = i;
-    *y = j;
+    do {
+	i = random_range(Level->width);
+	j = random_range(Level->height);
+    } while (Level->site(i,j).locchar != FLOOR || Level->creature(i,j) || loc_statusp (i, j, SECRET));
+    *x = i; *y = j;
 }
 
 int confirmation (void)

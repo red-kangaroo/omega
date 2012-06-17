@@ -1804,7 +1804,7 @@ void p_teleport (int type)
 	    Player.y = y;
 	}
     } else if (type == 0)
-	findspace (&(Player.x), &(Player.y), -1);
+	findspace (&Player.x, &Player.y);
     else {
 	setspot (&Player.x, &Player.y);
 	if (Level->site(Player.x,Player.y).locchar != FLOOR || Level->creature(Player.x,Player.y)) {

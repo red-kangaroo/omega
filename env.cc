@@ -3012,7 +3012,7 @@ void populate_level (int monstertype)
     for (int k = 0; k < nummonsters; k++) {
 
 	int i, j, monsterid = RANDOM;
-	findspace (&i, &j, -1);
+	findspace (&i, &j);
 
 	switch (monstertype) {
 	    case E_CAVES:
@@ -3094,7 +3094,7 @@ void wandercheck (void)
 {
     if (random_range (MaxDungeonLevels) < difficulty()) {
 	int x, y;
-	findspace (&x, &y, -1);
+	findspace (&x, &y);
 	make_site_monster (x, y, RANDOM);
     }
 }

@@ -362,7 +362,7 @@ void m_vanish (struct monster *m)
 // monster still in play
 void m_teleport (struct monster *m)
 {
-    findspace (&(m->x), &(m->y), -1);
+    findspace (&m->x, &m->y);
     levelrefresh();
 }
 

@@ -409,7 +409,7 @@ int day(void);
 int distance(int x1, int y1, int x2, int y2);
 void do_los(int pyx, int* x1, int* y1, int x2, int y2);
 void do_object_los(int pyx, int* x1, int* y1, int x2, int y2);
-void findspace(int* x, int* y, int baux);
+void findspace(int* x, int* y);
 void free_level(plv level);
 const char* getarticle(const char* str);
 void hint(void);
