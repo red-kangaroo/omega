@@ -3016,11 +3016,11 @@ void populate_level (int monstertype)
 
 	switch (monstertype) {
 	    case E_CAVES:
-		if (Level->depth * 10 + random_range (100) > 150)
+		if (Level->depth * 10 + random_range(100) > 150)
 		    monsterid = GOBLIN_SHAMAN;
-		else if (Level->depth * 10 + random_range (100) > 100)
+		else if (Level->depth * 10 + random_range(100) > 100)
 		    monsterid = GOBLIN_CHIEF;	// Goblin Chieftain
-		else if (random_range (100) > 50)
+		else if (random_range(100) > 50)
 		    monsterid = GOBLIN;
 		break;
 	    case E_SEWERS:
@@ -3119,7 +3119,7 @@ monster& make_site_monster (int i, int j, int mid, int wandering, int dlevel)
 static void m_create (monster& m, int x, int y, int kind, unsigned level)
 {
     static const uint8_t _ranges[] = { ML1, ML2, ML3, ML4, ML5, ML6, ML7, ML8, ML9, ML10, NUMMONSTERS };
-    unsigned monster_range = _ranges[max(level,ArraySize(_ranges)-1)];
+    unsigned monster_range = _ranges[min(level,ArraySize(_ranges)-1)];
     unsigned mid;
     do
 	mid = random_range (monster_range);

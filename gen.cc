@@ -914,7 +914,7 @@ static void room_corridor (int fx, int fy, int tx, int ty, int baux)
 	}
 	fx += dx;
 	fy += dy;
-    } while ((fx == tx && fy == ty) || (Level->site(fx,fy).buildaux && Level->site(fx,fy).buildaux != baux));
+    } while ((fx != tx || fy != ty) && (!Level->site(fx,fy).buildaux || Level->site(fx,fy).buildaux == baux));
     makedoor (fx, fy);
 }
 
