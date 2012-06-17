@@ -12,7 +12,7 @@ static void bolt(int fx, int fy, int tx, int ty, int hit, int dmg, int dtype);
 // enchant
 void enchant (int delta)
 {
-    int i, used = FALSE;
+    int i, used = false;
     long change_cash;
 
     if (delta < 0) {
@@ -30,7 +30,7 @@ void enchant (int delta)
 	} else {
 	    used = (Player.possessions[i].used);
 	    if (used) {
-		Player.possessions[i].used = FALSE;
+		Player.possessions[i].used = false;
 		item_use (Player.possessions[i]);
 	    }
 	    if (object_uniqueness(Player.possessions[i]) == COMMON)
@@ -42,7 +42,7 @@ void enchant (int delta)
 	    Player.possessions[i].charge = -1;
 	    Player.possessions[i].usef = I_NOTHING;
 	    if (used) {
-		Player.possessions[i].used = TRUE;
+		Player.possessions[i].used = true;
 		item_use (Player.possessions[i]);
 	    }
 	}
@@ -83,7 +83,7 @@ void enchant (int delta)
 		used = (Player.possessions[i].used);
 		if (used) {
 		    setgamestatus (SUPPRESS_PRINTING);
-		    Player.possessions[i].used = FALSE;
+		    Player.possessions[i].used = false;
 		    item_use (Player.possessions[i]);
 		    resetgamestatus (SUPPRESS_PRINTING);
 		}
@@ -94,7 +94,7 @@ void enchant (int delta)
 		    Player.possessions[i].charge += ((delta + 1) * (random_range (10) + 1));
 		if (used) {
 		    setgamestatus (SUPPRESS_PRINTING);
-		    Player.possessions[i].used = TRUE;
+		    Player.possessions[i].used = true;
 		    item_use (Player.possessions[i]);
 		    resetgamestatus (SUPPRESS_PRINTING);
 		}
@@ -123,7 +123,7 @@ void bless (int blessing)
 	    used = (Player.possessions[iidx].used);
 	    if (used) {
 		setgamestatus (SUPPRESS_PRINTING);
-		Player.possessions[iidx].used = FALSE;
+		Player.possessions[iidx].used = false;
 		item_use (Player.possessions[iidx]);
 		resetgamestatus (SUPPRESS_PRINTING);
 	    }
@@ -132,7 +132,7 @@ void bless (int blessing)
 		Player.possessions[iidx].plus = absv (Player.possessions[iidx].plus) - 1;
 	    if (used) {
 		setgamestatus (SUPPRESS_PRINTING);
-		Player.possessions[iidx].used = TRUE;
+		Player.possessions[iidx].used = true;
 		item_use (Player.possessions[iidx]);
 		resetgamestatus (SUPPRESS_PRINTING);
 	    }
@@ -143,10 +143,10 @@ void bless (int blessing)
 	    print1 ("Blessing your money has no effect.");
 	    morewait();
 	} else if (iidx != ABORT) {
-	    used = (Player.possessions[iidx].used == TRUE);
+	    used = (Player.possessions[iidx].used == true);
 	    if (used) {
 		setgamestatus (SUPPRESS_PRINTING);
-		Player.possessions[iidx].used = FALSE;
+		Player.possessions[iidx].used = false;
 		item_use (Player.possessions[iidx]);
 		resetgamestatus (SUPPRESS_PRINTING);
 	    }
@@ -170,7 +170,7 @@ void bless (int blessing)
 	    }
 	    if (used && Player.has_possession(iidx)) {
 		setgamestatus (SUPPRESS_PRINTING);
-		Player.possessions[iidx].used = TRUE;
+		Player.possessions[iidx].used = true;
 		item_use (Player.possessions[iidx]);
 		resetgamestatus (SUPPRESS_PRINTING);
 	    }
@@ -236,7 +236,7 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 	    boltchar = ('^' | CLR_LIGHT_BLUE_BLACK);
 	    break;
 	default:
-	    assert (FALSE);	// this should never happen, right? WDT
+	    assert (false);	// this should never happen, right? WDT
 	case NORMAL_DAMAGE:
 	    boltchar = ('!' | CLR_BROWN_BLACK);
 	    break;
@@ -325,7 +325,7 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 		mprint ("The hedge is blasted away!");
 		Level->site(xx,yy).p_locf = L_NO_OP;
 		Level->site(xx,yy).locchar = FLOOR;
-		plotspot (xx, yy, TRUE);
+		plotspot (xx, yy, true);
 		lset (xx, yy, CHANGED);
 	    } else
 		mprint ("The hedge is unaffected.");
@@ -440,7 +440,7 @@ static void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
 		    mprint ("The hedge is blasted away!");
 		    Level->site(ex,ey).p_locf = L_NO_OP;
 		    Level->site(ex,ey).locchar = FLOOR;
-		    plotspot (ex, ey, TRUE);
+		    plotspot (ex, ey, true);
 		    lset (ex, ey, CHANGED);
 		} else
 		    mprint ("The hedge is unaffected.");
@@ -451,7 +451,7 @@ static void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
 		mprint ("The water is vaporised!");
 		Level->site(ex,ey).p_locf = L_NO_OP;
 		Level->site(ex,ey).locchar = FLOOR;
-		plotspot (ex, ey, TRUE);
+		plotspot (ex, ey, true);
 		lset (ex, ey, CHANGED);
 	    }
     }
@@ -1095,9 +1095,9 @@ void flux (int blessing UNUSED)
     else {
 	mprint ("You stagger as the very nature of reality warps!");
 	erase_level();
-	Level->generated = FALSE;
+	Level->generated = false;
 	mprint ("The fabric of spacetime reknits....");
-	change_level (Level->depth - 1, Level->depth, TRUE);
+	change_level (Level->depth - 1, Level->depth, true);
     }
 }
 
@@ -1137,7 +1137,7 @@ void warp (int blessing)
 	    newlevel = random_range (MaxDungeonLevels - 1) + 1;
 	}
 	mprint ("You dematerialize...");
-	change_level (Level->depth, newlevel, FALSE);
+	change_level (Level->depth, newlevel, false);
     }
     roomcheck();
 }
@@ -1380,7 +1380,7 @@ void accuracy (int blessing)
 // if know id, then summon that monster; else (if < 0) get one.
 void summon (int blessing, int id)
 {
-    int looking = TRUE, x = 0, y = 0;
+    int looking = true, x = 0, y = 0;
 
     if (id < 0) {
 	if (blessing > 0) {
@@ -1603,11 +1603,11 @@ void aggravate (void)
 
 void learnspell (int blessing)
 {
-    int i, done = FALSE;
+    int i, done = false;
     if (blessing < 0) {
 	for (i = NUMSPELLS; ((i > -1) && (!done)); i--) {
 	    if (spell_is_known (ESpell(i))) {
-		done = TRUE;
+		done = true;
 		learn_object (SCROLL_SPELLS);
 		mprint ("You feel forgetful.");
 		forget_spell (ESpell(i));
@@ -1763,7 +1763,7 @@ void disintegrate (int x, int y)
 	if (!view_los_p (Player.x, Player.y, x, y))
 	    resetgamestatus (SUPPRESS_PRINTING);
 	else
-	    plotspot (x, y, TRUE);
+	    plotspot (x, y, true);
     }
 }
 
@@ -1834,7 +1834,7 @@ void apport (int blessing)
 	setspot (&x, &y);
 	if (Level->thing(x,y)) {
 	    pickup_at (x, y);
-	    plotspot (x, y, TRUE);
+	    plotspot (x, y, true);
 	} else
 	    mprint ("There's nothing there to apport!");
     } else {
@@ -1981,7 +1981,7 @@ void strategic_teleport (int blessing)
     screencheck (Player.y);
     drawvision (Player.x, Player.y);
     if (Current_Environment == E_COUNTRYSIDE)
-	terrain_check (FALSE);
+	terrain_check (false);
 }
 
 void hero (int blessing)
@@ -2019,9 +2019,9 @@ void level_return (void)
     if (Current_Environment == Current_Dungeon) {
 	mprint ("The vortex of mana carries you off!");
 	if (Level->depth > 1)
-	    change_level (Level->depth, 1, FALSE);
+	    change_level (Level->depth, 1, false);
 	else
-	    change_level (Level->depth, deepest[Current_Environment], FALSE);
+	    change_level (Level->depth, deepest[Current_Environment], false);
     } else if (Current_Environment == E_COUNTRYSIDE) {
 	mprint ("A mysterious force wafts you back home!");
 	Player.x = 27;
@@ -2035,12 +2035,12 @@ void level_return (void)
 
 void cure (int blessing)
 {
-    int happened = FALSE;
+    int happened = false;
     if (blessing > -1) {
 	if (Player.status[DISEASED]) {
 	    Player.status[DISEASED] = 0;
 	    mprint ("You feel hygienic!");
-	    happened = TRUE;
+	    happened = true;
 	}
 	if (Player.status[POISONED]) {
 	    Player.status[POISONED] -= 5 + blessing * 10;
@@ -2050,11 +2050,11 @@ void cure (int blessing)
 		Player.status[POISONED] = 0;
 		mprint ("The poison has been purged from your system.");
 	    }
-	    happened = TRUE;
+	    happened = true;
 	}
 	if (Player.status[BLINDED]) {
 	    Player.status[BLINDED] = 0;
-	    happened = TRUE;
+	    happened = true;
 	    mprint ("Cobwebs clear from before your eyes.");
 	}
 	if (!happened)

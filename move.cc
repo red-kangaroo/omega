@@ -97,7 +97,7 @@ void l_chaos (void)
 	print2 ("A mysterious force protects you from the Chaos!");
 	print3 ("Wow.... You feel a bit smug.");
 	gain_experience (500);
-	saved = TRUE;
+	saved = true;
     } else {
 	print2 ("Uh oh....");
 	if (saved)
@@ -196,7 +196,7 @@ void l_abyss (void)
 		print1 ("The All-In-One must have taken pity on you.");
 		print2 ("A transdimensional portal appears...");
 		morewait();
-		change_level (Level->depth, Level->depth + 1, FALSE);
+		change_level (Level->depth, Level->depth + 1, false);
 		gain_experience (2000);
 		Player.alignment -= 50;
 	    }
@@ -228,7 +228,7 @@ void l_abyss (void)
 		print2 ("You built up some velocity during your fall, though....");
 		morewait();
 		p_damage (i * 5, NORMAL_DAMAGE, "a fall through the abyss");
-		change_level (Level->depth, Level->depth + i, FALSE);
+		change_level (Level->depth, Level->depth + i, false);
 		gain_experience (i * i * 50);
 	    }
 	}
@@ -286,7 +286,7 @@ static void l_lift (void)
 	    print2 ("You rematerialize.....");
 	} else
 	    print1 ("You rematerialize.....");
-	change_level (Level->depth, (response == 'd' ? Level->depth + levelnum : Level->depth - levelnum), FALSE);
+	change_level (Level->depth, (response == 'd' ? Level->depth + levelnum : Level->depth - levelnum), false);
 	roomcheck();
     }
 }
@@ -676,7 +676,7 @@ static void stationcheck (void)
 // be dropped, then the void must be entered.
 static void l_void_station (void)
 {
-    int i, something = FALSE;
+    int i, something = false;
     print1 ("You are at the brink of an endless void. Enter it? [yn] ");
     if (ynq() == 'y') {
 	if (Level->mlist.empty()) {
@@ -695,7 +695,7 @@ static void l_void_station (void)
 	    if (!something)
 		for (i = 0; i < MAXITEMS && !something; i++)
 		    if (Player.has_possession(i))
-			something = TRUE;
+			something = true;
 	    if (something) {
 		print1 ("The flow of power is disrupted by something!");
 		print2 ("The power is unbalanced! You lose control!");
@@ -1038,7 +1038,7 @@ static void l_voidstone (void)
 	print1 ("You feel negated.");
 	morewait();
 	Player.mana = 0;
-	toggle_item_use (TRUE);
+	toggle_item_use (true);
 	for (i = 0; i < NUMSTATI; i++)
 	    Player.status[i] = 0;
 	for (i = 0; i < MAXITEMS; i++)
@@ -1047,7 +1047,7 @@ static void l_voidstone (void)
 		Player.possessions[i].plus = 0;
 		Player.possessions[i].usef = I_NOTHING;
 	    }
-	toggle_item_use (FALSE);
+	toggle_item_use (false);
 	calc_melee();
     } else
 	print1 ("You back away from the strange rock.");
@@ -1142,7 +1142,7 @@ void p_movefunction (int movef)
 {
     // loc functs above traps should be activated whether levitating or not
     drawvision (Player.x, Player.y);
-    sign_print (Player.x, Player.y, FALSE);
+    sign_print (Player.x, Player.y, false);
     if (Player.status[SHADOWFORM])
 	switch (movef) {	// player in shadow form is unable to do most things
 	    case L_CHAOS:

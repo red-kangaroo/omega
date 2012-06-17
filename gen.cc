@@ -43,7 +43,7 @@ void clear_level (struct level *dungeon_level)
 
 // Looks for level tolevel in current dungeon which is named by
 // Dungeon, which may be NULL. If the level is found, and rewrite_level
-// is FALSE, and the level has already been generated, nothing happens
+// is false, and the level has already been generated, nothing happens
 // beyond Level being set correctly. Otherwise the level is recreated
 // from scratch
 void change_level (int fromlevel, int tolevel, int rewrite_level)
@@ -66,7 +66,7 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
 	initrand (Current_Environment, tolevel);
 	Level->environment = Current_Environment;
 	Level->depth = tolevel;
-	Level->generated = TRUE;
+	Level->generated = true;
 	switch (Current_Environment) {
 	    case E_CAVES:
 		if (!random_range(4) && tolevel < MaxDungeonLevels)
@@ -540,7 +540,7 @@ void sewer_level (void)
 
 static void sewer_corridor (int x, int y, int dx, int dy, chtype locchar)
 {
-    int continuing = TRUE;
+    int continuing = true;
     makedoor (x, y);
     x += dx;
     y += dy;
@@ -671,7 +671,7 @@ void make_country_screen (int terrain)
     clear_level (Level);
     Level->environment = E_TACTICAL_MAP;
     Level->resize (64, 16);
-    Level->generated = TRUE;
+    Level->generated = true;
     switch (terrain) {
 	case FOREST:
 	    make_forest();
@@ -904,7 +904,7 @@ void room_level (void)
 // have buildaux field == baux
 static void room_corridor (int fx, int fy, int tx, int ty, int baux)
 {
-    int dx, dy, continuing = TRUE;
+    int dx, dy, continuing = true;
 
     dx = sign (tx - fx);
     dy = sign (ty - fy);

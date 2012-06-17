@@ -63,7 +63,7 @@ void player::swap_possessions (unsigned b)
     object& bo = possessions[b];
     if (!slottable (ao, b))
 	return;
-    if (cursed(bo) == TRUE + TRUE) {
+    if (cursed(bo) == true + true) {
 	mprint ("That object is cursed, you can't remove it");
 	return;
     }
@@ -397,14 +397,14 @@ int getitem (chtype itype)
 {
     char invstr[64];
     char key;
-    int k = 0, ok = FALSE, drewmenu = FALSE, found = FALSE;
+    int k = 0, ok = false, drewmenu = false, found = false;
 
     found = ((itype == NULL_ITEM) || ((itype == CASH) && (Player.cash > 0)));
     invstr[0] = 0;
     foreach (o, Player.possessions) {
 	if (o->id == NO_THING) continue;
 	if (itype == NULL_ITEM || itype == CASH || o->objchar == itype || (itype == FOOD && o->objchar == CORPSE)) {
-	    found = TRUE;
+	    found = true;
 	    invstr[k++] = index_to_key (distance(Player.possessions.begin(),o));
 	    invstr[k] = 0;
 	}
@@ -423,21 +423,21 @@ int getitem (chtype itype)
     while (!ok) {
 	key = (char) mcigetc();
 	if (key == '?') {
-	    drewmenu = TRUE;
+	    drewmenu = true;
 	    display_possessions();
 	} else if (key == KEY_ESCAPE)
-	    ok = TRUE;
+	    ok = true;
 	else if (key == (CASH & 0xff)) {
 	    if (itype == CASH)
-		ok = TRUE;
+		ok = true;
 	    else {
 		print3 ("You cannot select cash now.");
-		ok = FALSE;
+		ok = false;
 	    }
 	} else if (!strmem (key, invstr) || key_to_index (key) == O_UP_IN_AIR)
 	    print3 ("Nope! Try again [? for inventory, ESCAPE to quit]:");
 	else
-	    ok = TRUE;
+	    ok = true;
     }
     if (drewmenu)
 	xredraw();
@@ -480,11 +480,11 @@ static int get_to_pack (const object& o)
     if (Player.pack.size() >= MAXPACK) {
 	print3 ("Your pack is full.");
 	morewait();
-	return (FALSE);
+	return (false);
     } else {
 	push_pack (o);
 	print3 ("Putting item in pack.");
-	return (TRUE);
+	return (true);
     }
 }
 
@@ -563,9 +563,9 @@ static int take_from_pack (int slot)
 	print3 ("Pack is empty!");
     else {
 	pack_item = 0;
-	int quitting = FALSE, ok = TRUE;
+	int quitting = false, ok = true;
 	do {
-	    ok = TRUE;
+	    ok = true;
 	    unsigned last_item = aux_display_pack (pack_item, slot);
 	    if (last_item == Player.pack.size() && pack_item == 0)
 		print1 ("Enter pack slot letter or ESCAPE to quit.");
@@ -580,19 +580,19 @@ static int take_from_pack (int slot)
 		// WDT HACK -- display some help instead.
 		print1 ("Help not implemented (sorry).");
 		morewait();
-		ok = FALSE;
+		ok = false;
 	    } else if (response == KEY_ESCAPE)
-		quitting = TRUE;
+		quitting = true;
 	    else if (response == '+') {
 		if (last_item < Player.pack.size())
 		    pack_item = last_item;
-		ok = FALSE;
+		ok = false;
 	    } else if (response == '-') {
 		// WDT HACK: this _should_ make us page up.  Sadly,
 		// I have no way of calculating how much I'll be paging up.
 		// This is fixable, but I have no idea how much work...
 		pack_item = 0;
-		ok = FALSE;
+		ok = false;
 	    } else {
 		ok = ((response >= 'a') && (response < char('a' + Player.pack.size())));
 		if (ok)
@@ -620,7 +620,7 @@ void do_inventory_control (void)
 // are taken, no time is used up.
 static void inventory_control (void)
 {
-    int slot = 0, done = FALSE;
+    int slot = 0, done = false;
     int response;
     clearmsg3();
     checkclear();
@@ -718,7 +718,7 @@ static void inventory_control (void)
 		    Player.remove_possession(O_UP_IN_AIR);
 		    print3 ("Object 'up in air' dropped.");
 		}
-		done = TRUE;
+		done = true;
 		break;
 	    default:
 		if (key_to_index (response) > 0)
@@ -755,7 +755,7 @@ static int get_item_number (pob o)
 static void drop_from_slot (int slot)
 {
     if (Player.has_possession(slot)) {
-	if (cursed (Player.possessions[slot]) == TRUE + TRUE)
+	if (cursed (Player.possessions[slot]) == true + true)
 	    print3 ("It sticks to your fingers!");
 	else {
 	    int n = get_item_number (&Player.possessions[slot]);
@@ -773,7 +773,7 @@ static void put_to_pack (int slot)
 {
     if (!Player.has_possession(slot))
 	print3 ("Slot is empty!");
-    else if (cursed(Player.possessions[slot]) == TRUE + TRUE)
+    else if (cursed(Player.possessions[slot]) == true + true)
 	print3 ("Item is cursed!");
     else {
 	int n = get_item_number (&Player.possessions[slot]);
@@ -804,24 +804,24 @@ object split_item (const object& item, unsigned n)
 static bool slottable (const object& o, int slot)
 {
     if (o.id == NO_THING) {
-	return (FALSE);
+	return (false);
     } else if (slot == O_ARMOR && o.objchar != ARMOR) {
 	print3 ("Only armor can go in the armor slot!");
-	return (FALSE);
+	return (false);
     } else if (slot == O_SHIELD && o.objchar != SHIELD) {
 	print3 ("Only a shield can go in the shield slot!");
-	return (FALSE);
+	return (false);
     } else if (slot == O_BOOTS && o.objchar != BOOTS) {
 	print3 ("Only boots can go in the boots slot!");
-	return (FALSE);
+	return (false);
     } else if (slot == O_CLOAK && o.objchar != CLOAK) {
 	print3 ("Only a cloak can go in the cloak slot!");
-	return (FALSE);
+	return (false);
     } else if (slot >= O_RING1 && o.objchar != RING) {
 	print3 ("Only a ring can go in a ring slot!");
-	return (FALSE);
+	return (false);
     }
-    return (TRUE);
+    return (true);
 }
 
 // ->;WDT HACK: this is bad factoring.  I want to use this, but it's
@@ -846,10 +846,10 @@ static bool item_useable (const object& o, int slot)
 	return (false);
 }
 
-// returns FALSE if not cursed, TRUE if cursed but not used, TRUE + TRUE if cursed and used
+// returns false if not cursed, true if cursed but not used, true + true if cursed and used
 int cursed (const object& o)
 {
-    return (o.blessing < 0 ? (o.used == TRUE) + TRUE : FALSE);
+    return (o.blessing < 0 ? (o.used == true) + true : false);
 }
 
 // returns true if item with id and charge is found in pack or in

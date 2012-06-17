@@ -145,25 +145,25 @@ void showroom (int i)
 int player_on_sanctuary (void)
 {
     if ((Player.x == Player.sx) && (Player.y == Player.sy))
-	return (TRUE);
+	return (true);
     else {
 	if (Player.patron) {
 	    if ((Level->site(Player.x,Player.y).locchar == ALTAR) && (Level->site(Player.x,Player.y).aux == Player.patron))
-		return (TRUE);
+		return (true);
 	    else
-		return (FALSE);
+		return (false);
 	} else
-	    return (FALSE);
+	    return (false);
     }
 }
 
-// check a move attempt, maybe attack something, return TRUE if ok to move.
+// check a move attempt, maybe attack something, return true if ok to move.
 // x y is the proposed place to move to
 int p_moveable (int x, int y)
 {
     setgamestatus (SKIP_MONSTERS);
     if (!inbounds (x, y))
-	return (FALSE);
+	return (false);
     else if (Player.status[SHADOWFORM]) {
 	switch (Level->site(x,y).p_locf) {
 	    case L_CHAOS:
@@ -172,26 +172,26 @@ int p_moveable (int x, int y)
 		return confirmation();
 	    default:
 		resetgamestatus (SKIP_MONSTERS);
-		return (TRUE);
+		return (true);
 	}
     } else if (loc_statusp (x, y, SECRET)) {
 	if (!gamestatusp (FAST_MOVE))
 	    print3 ("Ouch!");
-	return (FALSE);
+	return (false);
     } else if (Level->creature(x,y)) {
 	if (!gamestatusp (FAST_MOVE)) {
 	    fight_monster (Level->creature(x,y));
 	    resetgamestatus (SKIP_MONSTERS);
-	    return (FALSE);
+	    return (false);
 	} else
-	    return (FALSE);
+	    return (false);
     } else if ((Level->site(x,y).locchar == WALL) || (Level->site(x,y).locchar == STATUE) || (Level->site(x,y).locchar == PORTCULLIS) || (Level->site(x,y).locchar == CLOSED_DOOR)
 	       || (gamestatusp (FAST_MOVE)
 		   && ((Level->site(x,y).locchar == HEDGE) || (Level->site(x,y).locchar == LAVA) || (Level->site(x,y).locchar == ABYSS) || (Level->site(x,y).locchar == VOID_CHAR) || (Level->site(x,y).locchar == FIRE)
 		       || (Level->site(x,y).locchar == WHIRLWIND) || (Level->site(x,y).locchar == WATER) || (Level->site(x,y).locchar == LIFT) || (Level->site(x,y).locchar == TRAP)))) {
 	if (!gamestatusp (FAST_MOVE))
 	    print3 ("Ouch!");
-	return (FALSE);
+	return (false);
     } else if (optionp (CONFIRM)) {
 	if ((Level->site(x,y).locchar == HEDGE) || (Level->site(x,y).locchar == LAVA) || (Level->site(x,y).locchar == FIRE) || (Level->site(x,y).locchar == WHIRLWIND) || (Level->site(x,y).locchar == ABYSS) || (Level->site(x,y).locchar == VOID_CHAR)
 	    || (Level->site(x,y).locchar == WATER) || (Level->site(x,y).locchar == RUBBLE) || (Level->site(x,y).locchar == LIFT) || (Level->site(x,y).locchar == TRAP)) {
@@ -200,9 +200,9 @@ int p_moveable (int x, int y)
 		if (Level->site(x,y).locchar != WATER || Level->site(x,y).p_locf != L_WATER) {
 		    print1 ("You can't convince your steed to continue.");
 		    setgamestatus (SKIP_MONSTERS);
-		    return (FALSE);
+		    return (false);
 		} else
-		    return (TRUE);
+		    return (true);
 	    } else if (confirmation())
 		resetgamestatus (SKIP_MONSTERS);
 	    else
@@ -210,11 +210,11 @@ int p_moveable (int x, int y)
 	    return (!gamestatusp (SKIP_MONSTERS));
 	} else {
 	    resetgamestatus (SKIP_MONSTERS);
-	    return (TRUE);
+	    return (true);
 	}
     } else {
 	resetgamestatus (SKIP_MONSTERS);
-	return (TRUE);
+	return (true);
     }
 }
 
@@ -222,14 +222,14 @@ int p_moveable (int x, int y)
 int p_country_moveable (int x, int y)
 {
     if (!inbounds (x, y))
-	return (FALSE);
+	return (false);
     else if (optionp (CONFIRM)) {
 	if ((Country->site(x,y).showchar == CHAOS_SEA) || (Country->site(x,y).showchar == MOUNTAINS))
 	    return (confirmation());
 	else
-	    return (TRUE);
+	    return (true);
     } else
-	return (TRUE);
+	return (true);
 }
 
 // search once particular spot
@@ -341,17 +341,17 @@ void calc_melee (void)
 static void fight_monster (struct monster *m)
 {
     int hitmod = 0;
-    int reallyfight = TRUE;
+    int reallyfight = true;
 
     if (Player.status[AFRAID]) {
 	print3 ("You are much too afraid to fight!");
-	reallyfight = FALSE;
+	reallyfight = false;
     } else if (player_on_sanctuary()) {
 	print3 ("You restrain yourself from desecrating this holy place.");
-	reallyfight = FALSE;
+	reallyfight = false;
     } else if (Player.status[SHADOWFORM]) {
 	print3 ("Your attack has no effect in your shadowy state.");
-	reallyfight = FALSE;
+	reallyfight = false;
     } else if (Player.status[BERSERK] < 1 && !m_statusp (m, HOSTILE)) {
 	if (!optionp (BELLICOSE))
 	    reallyfight = confirmation();
@@ -366,7 +366,7 @@ static void fight_monster (struct monster *m)
 	    Player.alignment -= 2;	// chaotic action
 	m_status_set (*m, AWAKE);
 	m_status_set (*m, HOSTILE);
-	m->attacked = TRUE;
+	m->attacked = true;
 	Player.hit += hitmod;
 	tacplayer (m);
 	Player.hit -= hitmod;
@@ -664,18 +664,18 @@ void gain_experience (int amount)
 }
 
 // try to hit a monster in an adjacent space. If there are none
-// return FALSE. Note if you're berserk you get to attack ALL
+// return false. Note if you're berserk you get to attack ALL
 // adjacent monsters!
 int goberserk (void)
 {
-    int wentberserk = FALSE, i;
+    int wentberserk = false, i;
     char meleestr[80];
     strcpy (meleestr, Player.meleestr);
     strcpy (Player.meleestr, "lLlClH");
     for (i = 0; i < 8; i++) {
 	monster* m = Level->creature(Player.x + Dirs[0][i], Player.y + Dirs[1][i]);
 	if (m) {
-	    wentberserk = TRUE;
+	    wentberserk = true;
 	    fight_monster(m);
 	    morewait();
 	}
@@ -895,7 +895,7 @@ void threaten (struct monster *m)
 	    print2 ("It drops its treasure and flees.");
 	    m_dropstuff (m);
 	    Level->mlist.erase (m);
-	    putspot (m->x, m->y, getspot (m->x, m->y, FALSE));
+	    putspot (m->x, m->y, getspot (m->x, m->y, false));
 	} else {
 	    Player.alignment += 2;
 	    print2 ("'If you love something set it free ... '");
@@ -905,7 +905,7 @@ void threaten (struct monster *m)
 	    }
 	    print3 ("It departs with a renewed sense of its own mortality.");
 	    Level->mlist.erase (m);
-	    putspot (m->x, m->y, getspot (m->x, m->y, FALSE));
+	    putspot (m->x, m->y, getspot (m->x, m->y, false));
 	}
     }
 }
@@ -1415,7 +1415,7 @@ void tenminute_status_check (void)
 // Increase in level at appropriate experience gain
 static void gain_level (void)
 {
-    int gained = FALSE;
+    int gained = false;
     int hp_gain;
 
     if (gamestatusp (SUPPRESS_PRINTING))
@@ -1423,7 +1423,7 @@ static void gain_level (void)
     while (expval (Player.level + 1) <= Player.xp) {
 	if (!gained)
 	    morewait();
-	gained = TRUE;
+	gained = true;
 	Player.level++;
 	print1 ("You have attained a new experience level!");
 	print2 ("You are now ");
@@ -1687,10 +1687,10 @@ static void tacplayer (struct monster *m)
 // checks to see if player hits with hitmod vs. monster m at location hitloc
 static int player_hit (int hitmod, int hitloc, struct monster *m)
 {
-    int blocks = FALSE, goodblocks = 0, hit;
+    int blocks = false, goodblocks = 0, hit;
     if (m->hp < 1) {
 	mprint ("Unfortunately, your opponent is already dead!");
-	return (FALSE);
+	return (false);
     } else {
 	if (hitloc == 'X')
 	    hitloc = random_loc();
@@ -1699,7 +1699,7 @@ static int player_hit (int hitmod, int hitloc, struct monster *m)
 
 	for (unsigned i = 0; i < strlen (m->meleestr); i += 2) {
 	    if ((m->meleestr[i] == 'B') || (m->meleestr[i] == 'R')) {
-		blocks = TRUE;
+		blocks = true;
 		if (hitloc == m->meleestr[i + 1])
 		    goodblocks++;
 	    }
@@ -1723,7 +1723,7 @@ static int player_hit (int hitmod, int hitloc, struct monster *m)
 }
 
 // This function is used to undo all items temporarily, should
-// always be used in pairs with on being TRUE and FALSE, and may cause
+// always be used in pairs with on being true and false, and may cause
 // anomalous stats and item-usage if used indiscriminately
 void toggle_item_use (int on)
 {
@@ -1793,7 +1793,7 @@ void enter_site (int site)
 // Switches context dungeon/countryside/city, etc
 void change_environment (int new_environment)
 {
-    int i, emerging = FALSE;
+    int i, emerging = false;
 
     Player.sx = -1;
     Player.sy = -1;		// reset sanctuary if there was one
@@ -1816,7 +1816,7 @@ void change_environment (int new_environment)
     } else if (((Last_Environment == E_MANSION) || (Last_Environment == E_HOUSE) || (Last_Environment == E_HOVEL) || (Last_Environment == E_SEWERS) || (Last_Environment == E_ARENA)) && ((new_environment == E_CITY) || (new_environment == E_VILLAGE))) {
 	Player.x = LastTownLocX;
 	Player.y = LastTownLocY;
-	emerging = TRUE;
+	emerging = true;
     }
 
     Current_Environment = new_environment;
@@ -1860,7 +1860,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_circle (TRUE);
+	    load_circle (true);
 	    if (object_uniqueness(STAR_GEM) == UNIQUE_TAKEN) {
 		print1 ("A bemused voice says:");
 		print2 ("'Why are you here? You already have the Star Gem!'");
@@ -1904,7 +1904,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_court (TRUE);
+	    load_court (true);
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -1918,7 +1918,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_house (E_MANSION, TRUE);
+	    load_house (E_MANSION, true);
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -1932,7 +1932,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_house (E_HOUSE, TRUE);
+	    load_house (E_HOUSE, true);
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -1946,7 +1946,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_house (E_HOVEL, TRUE);
+	    load_house (E_HOVEL, true);
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -1960,7 +1960,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_dlair (gamestatusp (KILLED_DRAGONLORD), TRUE);
+	    load_dlair (gamestatusp (KILLED_DRAGONLORD), true);
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -1974,7 +1974,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_speak (gamestatusp (KILLED_LAWBRINGER), TRUE);
+	    load_speak (gamestatusp (KILLED_LAWBRINGER), true);
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -1988,7 +1988,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_misle (gamestatusp (KILLED_EATER), TRUE);
+	    load_misle (gamestatusp (KILLED_EATER), true);
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -2002,7 +2002,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_temple (Country->site(Player.x,Player.y).aux, TRUE);
+	    load_temple (Country->site(Player.x,Player.y).aux, true);
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -2011,7 +2011,7 @@ void change_environment (int new_environment)
 	case E_CITY:
 	    if (emerging) {
 		print1 ("You emerge onto the street.");
-		emerging = FALSE;
+		emerging = false;
 	    } else
 		print1 ("You pass through the massive gates of Rampart, the city.");
 	    Level = City;
@@ -2023,7 +2023,7 @@ void change_environment (int new_environment)
 		}
 		Level = City = new level;
 		clear_level (Level);
-		load_city (TRUE);
+		load_city (true);
 	    }
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
@@ -2040,12 +2040,12 @@ void change_environment (int new_environment)
 		Level = new level;
 		clear_level (Level);
 		Villagenum = Country->site(Player.x,Player.y).aux;
-		load_village (Villagenum, TRUE);
+		load_village (Villagenum, true);
 	    } else
 		Level = TempLevel;
 	    if (emerging) {
 		print1 ("You emerge onto the street.");
-		emerging = FALSE;
+		emerging = false;
 	    } else
 		print1 ("You enter a small rural village.");
 	    Player.x = Level->lastx;
@@ -2070,7 +2070,7 @@ void change_environment (int new_environment)
 		Level = NULL;
 		Current_Dungeon = E_CAVES;
 	    }
-	    change_level (0, 1, FALSE);
+	    change_level (0, 1, false);
 	    break;
 	case E_VOLCANO:
 	    print1 ("You pass down through the glowing crater.");
@@ -2088,7 +2088,7 @@ void change_environment (int new_environment)
 		Level = NULL;
 		Current_Dungeon = E_VOLCANO;
 	    }
-	    change_level (0, 1, FALSE);
+	    change_level (0, 1, false);
 	    break;
 	case E_ASTRAL:
 	    print1 ("You are in a weird flickery maze.");
@@ -2104,7 +2104,7 @@ void change_environment (int new_environment)
 		Level = NULL;
 		Current_Dungeon = E_ASTRAL;
 	    }
-	    change_level (0, 1, FALSE);
+	    change_level (0, 1, false);
 	    break;
 	case E_CASTLE:
 	    print1 ("You cross the drawbridge. Strange forms move beneath the water.");
@@ -2121,7 +2121,7 @@ void change_environment (int new_environment)
 		Level = NULL;
 		Current_Dungeon = E_CASTLE;
 	    }
-	    change_level (0, 1, FALSE);
+	    change_level (0, 1, false);
 	    break;
 	case E_SEWERS:
 	    print1 ("You pry open a manhole and descend into the sewers below.");
@@ -2136,7 +2136,7 @@ void change_environment (int new_environment)
 		Level = NULL;
 		Current_Dungeon = E_SEWERS;
 	    }
-	    change_level (0, 1, FALSE);
+	    change_level (0, 1, false);
 	    break;
 	case E_COUNTRYSIDE:
 	    print1 ("You return to the fresh air of the open countryside.");
@@ -2185,7 +2185,7 @@ void change_environment (int new_environment)
     if (Current_Environment != E_COUNTRYSIDE)
 	showroom (Level->site(Player.x,Player.y).roomnumber);
     else
-	terrain_check (FALSE);
+	terrain_check (false);
 }
 
 // check every ten minutes
@@ -2382,14 +2382,14 @@ static void outdoors_random_event (void)
 		morewait();
 		mprint ("You feel average...");
 		morewait();
-		toggle_item_use (TRUE);
+		toggle_item_use (true);
 		Player.str = Player.maxstr = Player.con = Player.maxcon = Player.dex = Player.maxdex = Player.agi = Player.maxagi = Player.iq = Player.maxiq = Player.pow = Player.maxpow =
 		    ((Player.maxstr + Player.maxcon + Player.maxdex + Player.maxagi + Player.maxiq + Player.maxpow + 12) / 6);
-		toggle_item_use (FALSE);
+		toggle_item_use (false);
 	    } else if (num < 30) {
 		mprint ("Your entire body glows with an eerie flickering light.");
 		morewait();
-		toggle_item_use (TRUE);
+		toggle_item_use (true);
 		for (i = 1; i < MAXITEMS; i++)
 		    if (Player.has_possession(i)) {
 			Player.possessions[i].plus++;
@@ -2397,7 +2397,7 @@ static void outdoors_random_event (void)
 			    Player.possessions[i].charge += 10;
 			Player.possessions[i].blessing += 10;
 		    }
-		toggle_item_use (FALSE);
+		toggle_item_use (false);
 		cleanse (1);
 		mprint ("You feel filled with energy!");
 		morewait();
@@ -2557,14 +2557,14 @@ int magic_resist (int hostile_magic)
 	    mprint ("Thinking fast, you defend youself with a counterspell!");
 	    Player.mana -= hostile_magic * hostile_magic;
 	    dataprint();
-	    return (TRUE);
+	    return (true);
 	}
     }
     if (Player.level / 4 + Player.status[PROTECTION] + random_range (20) > hostile_magic + random_range (30)) {
 	mprint ("You resist the spell!");
-	return (TRUE);
+	return (true);
     } else
-	return (FALSE);
+	return (false);
 }
 
 void terrain_check (int takestime)
@@ -2945,13 +2945,13 @@ static int sitenums[NUMCITYSITES] = {	// the order matches sitenames[]
 
 static void showknownsites (int first, int last)
 {
-    int i, printed = FALSE;
+    int i, printed = false;
 
     menuclear();
     menuprint ("\nPossible Sites:\n");
     for (i = first; i <= last; i++)
 	if (CitySiteList[sitenums[i] - CITYSITEBASE][0]) {
-	    printed = TRUE;
+	    printed = true;
 	    menuprint (sitenames[i]);
 	    menuprint ("\n");
 	}
@@ -3040,7 +3040,7 @@ int parsecitysite (void)
 // are there hostile monsters within 2 moves?
 int hostilemonstersnear (void)
 {
-    int hostile = FALSE;
+    int hostile = false;
     for (int i = Player.x - 2; ((i < Player.x + 3) && (!hostile)); i++)
 	for (int j = Player.y - 2; ((j < Player.y + 3) && (!hostile)); j++)
 	    if (inbounds (i, j))
@@ -3053,7 +3053,7 @@ int hostilemonstersnear (void)
 // if alignment of stone is alignment of player, gets done sooner
 int stonecheck (int alignment)
 {
-    int *stone, match = FALSE, cycle = FALSE, i;
+    int *stone, match = false, cycle = false, i;
 
     if (alignment == 1) {
 	stone = &Lawstone;
@@ -3063,7 +3063,7 @@ int stonecheck (int alignment)
 	match = Player.alignment < 0;
     } else {
 	stone = &Mindstone;
-	match = FALSE;
+	match = false;
     }
     *stone += random_range (4) + (match ? random_range (4) : 0);
     switch ((*stone)++) {
@@ -3224,7 +3224,7 @@ int stonecheck (int alignment)
 	    print1 ("The stone glows cosmic!");
 	    print2 ("The stone's energy field quiets for a moment...");
 	    *stone = 50;
-	    cycle = TRUE;
+	    cycle = true;
 	    break;
 	default:
 	    print1 ("The stone glows polka-dot (?!?!?!?)");
@@ -3240,10 +3240,10 @@ int stonecheck (int alignment)
 
 void alert_guards (void)
 {
-    int foundguard = FALSE;
+    int foundguard = false;
     foreach (m, Level->mlist) {
 	if ((m->id == GUARD || (m->id == HISCORE_NPC && m->aux2 == NPC_JUSTICIAR)) && m->hp > 0) {
-	    foundguard = TRUE;
+	    foundguard = true;
 	    m_status_set (*m, AWAKE);
 	    m_status_set (*m, HOSTILE);
 	}

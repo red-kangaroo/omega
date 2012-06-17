@@ -325,13 +325,13 @@ static void m_follow_move (struct monster *m)
 // allows monsters to fall into pools, revealed traps, etc
 static void m_confused_move (struct monster *m)
 {
-    int i, nx, ny, done = FALSE;
+    int i, nx, ny, done = false;
     erase_monster (m);
     for (i = 0; ((i < 8) && (!done)); i++) {
 	nx = m->x + random_range (3) - 1;
 	ny = m->y + random_range (3) - 1;
 	if (unblocked (nx, ny) && ((nx != Player.x) || (ny != Player.y))) {
-	    done = TRUE;
+	    done = true;
 	    movemonster (m, nx, ny);
 	}
     }
@@ -339,13 +339,13 @@ static void m_confused_move (struct monster *m)
 
 static void m_random_move (struct monster *m)
 {
-    int i, nx, ny, done = FALSE;
+    int i, nx, ny, done = false;
     erase_monster (m);
     for (i = 0; ((i < 8) && (!done)); i++) {
 	nx = m->x + random_range (3) - 1;
 	ny = m->y + random_range (3) - 1;
 	if (m_unblocked (m, nx, ny) && ((nx != Player.x) || (ny != Player.y))) {
-	    done = TRUE;
+	    done = true;
 	    movemonster (m, nx, ny);
 	}
     }
@@ -381,7 +381,7 @@ static void m_move_leash (struct monster *m)
 	    // otherwise, we'd lose either the dog or the other monster.
 	} else if (los_p (Player.x, Player.y, m->x, m->y)) {
 	    mprint ("You see the dog jerked back by its chain!");
-	    plotspot (m->x, m->y, FALSE);
+	    plotspot (m->x, m->y, false);
 	} else
 	    mprint ("You hear a strangled sort of yelp!");
 	m->x = m->aux1;
@@ -822,7 +822,7 @@ static void m_talk_servant (struct monster *m)
     else {
 	print1 ("Show me.");
 	show_screen();
-	drawmonsters (TRUE);
+	drawmonsters (true);
 	setspot (&x, &y);
 	monster* om = Level->creature(x,y);
 	if (!om || om->id != target)
@@ -1099,14 +1099,14 @@ static void monster_melee (struct monster *m, int hitloc, int bonus)
 // checks to see if player hits with hitmod vs. monster m at location hitloc
 static int monster_hit (struct monster *m, int hitloc, int bonus)
 {
-    int blocks = FALSE, goodblocks = 0, hit, riposte = FALSE;
+    int blocks = false, goodblocks = 0, hit, riposte = false;
     for (unsigned i = 0; i < strlen (Player.meleestr); i += 2) {
 	if (Player.meleestr[i] == 'B' || Player.meleestr[i] == 'R') {
-	    blocks = TRUE;
+	    blocks = true;
 	    if (hitloc == Player.meleestr[i + 1]) {
 		goodblocks++;
 		if (Player.meleestr[i] == 'R')
-		    riposte = TRUE;
+		    riposte = true;
 	    }
 	}
     }
@@ -1647,7 +1647,7 @@ static void m_sp_lw (struct monster *m)
 
 static void m_sp_angel (struct monster *m)
 {
-    int hostile = FALSE;
+    int hostile = false;
     switch (m->aux1) {
 	case ATHENA:
 	case ODIN:
@@ -1906,7 +1906,7 @@ void m_death (struct monster *m)
 	    Arena_Victory = m->level+1;	// won this round of arena combat
 	if (random_range(2) || m->uniqueness != COMMON)
 	    drop_at (m->x, m->y, make_corpse(*m));
-	plotspot (m->x, m->y, FALSE);
+	plotspot (m->x, m->y, false);
 	switch (m->id) {
 	    case HISCORE_NPC:
 		switch (m->aux2) {

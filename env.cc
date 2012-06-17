@@ -50,7 +50,7 @@ level::level (void)
 // erase the level w/o deallocating it
 void level::clear (void)
 {
-    generated = FALSE;
+    generated = false;
     numrooms = 0;
     tunnelled = 0;
     depth = 0;
@@ -135,7 +135,7 @@ void load_arena (void)
 	SPECTRE, BANDERSNATCH, LICHE, AUTO_MAJOR, JABBERWOCK, JOTUN, HISCORE_NPC
     };
     monster& m = make_site_monster (60, 7, _opponents[min((unsigned)Arena_Opponent,ArraySize(_opponents))]);
-    Arena_Victory = FALSE;
+    Arena_Victory = false;
 
     if (m.id == HISCORE_NPC) {
 	if (Player.rank[ARENA] < CHAMPION && Player.rank[ARENA] >= TRAINEE) {
@@ -174,7 +174,7 @@ void load_arena (void)
 	m.corpsestr = strdup (Str2);
     }
     m.uniqueness = UNIQUE_MADE;
-    m.attacked = TRUE;
+    m.attacked = true;
     m_status_set (m, HOSTILE);
     m.sense = 50;
     m.pickup (Objects[THING_DOOR_OPENER]);
@@ -458,7 +458,7 @@ void load_city (int populate)
 		case 't':
 		    Level->site(i,j).locchar = FLOOR;
 		    Level->site(i,j).p_locf = L_TEMPLE;
-		    CitySiteList[L_TEMPLE - CITYSITEBASE][0] = TRUE;
+		    CitySiteList[L_TEMPLE - CITYSITEBASE][0] = true;
 		    CitySiteList[L_TEMPLE - CITYSITEBASE][1] = i;
 		    CitySiteList[L_TEMPLE - CITYSITEBASE][2] = j;
 		    break;
@@ -480,28 +480,28 @@ void load_city (int populate)
 		case 'C':
 		    Level->site(i,j).locchar = OPEN_DOOR;
 		    Level->site(i,j).p_locf = L_COLLEGE;
-		    CitySiteList[L_COLLEGE - CITYSITEBASE][0] = TRUE;
+		    CitySiteList[L_COLLEGE - CITYSITEBASE][0] = true;
 		    CitySiteList[L_COLLEGE - CITYSITEBASE][1] = i;
 		    CitySiteList[L_COLLEGE - CITYSITEBASE][2] = j;
 		    break;
 		case 's':
 		    Level->site(i,j).locchar = OPEN_DOOR;
 		    Level->site(i,j).p_locf = L_SORCERORS;
-		    CitySiteList[L_SORCERORS - CITYSITEBASE][0] = TRUE;
+		    CitySiteList[L_SORCERORS - CITYSITEBASE][0] = true;
 		    CitySiteList[L_SORCERORS - CITYSITEBASE][1] = i;
 		    CitySiteList[L_SORCERORS - CITYSITEBASE][2] = j;
 		    break;
 		case 'M':
 		    Level->site(i,j).locchar = OPEN_DOOR;
 		    Level->site(i,j).p_locf = L_MERC_GUILD;
-		    CitySiteList[L_MERC_GUILD - CITYSITEBASE][0] = TRUE;
+		    CitySiteList[L_MERC_GUILD - CITYSITEBASE][0] = true;
 		    CitySiteList[L_MERC_GUILD - CITYSITEBASE][1] = i;
 		    CitySiteList[L_MERC_GUILD - CITYSITEBASE][2] = j;
 		    break;
 		case 'c':
 		    Level->site(i,j).locchar = OPEN_DOOR;
 		    Level->site(i,j).p_locf = L_CASTLE;
-		    CitySiteList[L_CASTLE - CITYSITEBASE][0] = TRUE;
+		    CitySiteList[L_CASTLE - CITYSITEBASE][0] = true;
 		    CitySiteList[L_CASTLE - CITYSITEBASE][1] = i;
 		    CitySiteList[L_CASTLE - CITYSITEBASE][2] = j;
 		    break;
@@ -511,14 +511,14 @@ void load_city (int populate)
 		case 'P':
 		    Level->site(i,j).locchar = OPEN_DOOR;
 		    Level->site(i,j).p_locf = L_ORDER;
-		    CitySiteList[L_ORDER - CITYSITEBASE][0] = TRUE;
+		    CitySiteList[L_ORDER - CITYSITEBASE][0] = true;
 		    CitySiteList[L_ORDER - CITYSITEBASE][1] = i;
 		    CitySiteList[L_ORDER - CITYSITEBASE][2] = j;
 		    break;
 		case 'H':
 		    Level->site(i,j).locchar = OPEN_DOOR;
 		    Level->site(i,j).p_locf = L_CHARITY;
-		    CitySiteList[L_CHARITY - CITYSITEBASE][0] = TRUE;
+		    CitySiteList[L_CHARITY - CITYSITEBASE][0] = true;
 		    CitySiteList[L_CHARITY - CITYSITEBASE][1] = i;
 		    CitySiteList[L_CHARITY - CITYSITEBASE][2] = j;
 		    break;
@@ -534,14 +534,14 @@ void load_city (int populate)
 		case 'A':
 		    Level->site(i,j).locchar = OPEN_DOOR;
 		    Level->site(i,j).p_locf = L_ARENA;
-		    CitySiteList[L_ARENA - CITYSITEBASE][0] = TRUE;
+		    CitySiteList[L_ARENA - CITYSITEBASE][0] = true;
 		    CitySiteList[L_ARENA - CITYSITEBASE][1] = i;
 		    CitySiteList[L_ARENA - CITYSITEBASE][2] = j;
 		    break;
 		case 'B':
 		    Level->site(i,j).locchar = OPEN_DOOR;
 		    Level->site(i,j).p_locf = L_BANK;
-		    CitySiteList[L_BANK - CITYSITEBASE][0] = TRUE;
+		    CitySiteList[L_BANK - CITYSITEBASE][0] = true;
 		    CitySiteList[L_BANK - CITYSITEBASE][1] = i;
 		    CitySiteList[L_BANK - CITYSITEBASE][2] = j;
 		    lset (i, j + 1, STOPS);
@@ -552,7 +552,7 @@ void load_city (int populate)
 		case 'X':
 		    Level->site(i,j).locchar = FLOOR;
 		    Level->site(i,j).p_locf = L_COUNTRYSIDE;
-		    CitySiteList[L_COUNTRYSIDE - CITYSITEBASE][0] = TRUE;
+		    CitySiteList[L_COUNTRYSIDE - CITYSITEBASE][0] = true;
 		    CitySiteList[L_COUNTRYSIDE - CITYSITEBASE][1] = i;
 		    CitySiteList[L_COUNTRYSIDE - CITYSITEBASE][2] = j;
 		    break;
@@ -704,7 +704,7 @@ static void assign_city_function (int x, int y)
     static int permutation[64];	// number of x's in city map
     int i, j, k, l;
 
-    Level->site(x,y).aux = TRUE;
+    Level->site(x,y).aux = true;
 
     lset (x, y + 1, STOPS);
     lset (x + 1, y, STOPS);
@@ -1108,7 +1108,7 @@ void load_dlair (int empty, int populate)
 	morewait();
     }
     if (!populate)
-	empty = TRUE;
+	empty = true;
     const char* ld = Level->init_from_data (E_DLAIR, Level_DragonLair);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
@@ -1207,7 +1207,7 @@ void load_speak (int empty, int populate)
 	morewait();
     }
     if (!populate)
-	empty = TRUE;
+	empty = true;
     const char* ld = Level->init_from_data (E_STARPEAK, Level_StarPeak);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
@@ -1305,7 +1305,7 @@ void load_misle (int empty, int populate)
 	morewait();
     }
     if (!populate)
-	empty = TRUE;
+	empty = true;
     const char* ld = Level->init_from_data (E_MAGIC_ISLE, Level_MagicIsle);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
@@ -1798,9 +1798,9 @@ void l_arena (void)
 	change_environment (E_ARENA);
 	print1 ("Let the battle begin....");
 
-	time_clock (TRUE);
+	time_clock (true);
 	while (Current_Environment == E_ARENA)
-	    time_clock (FALSE);
+	    time_clock (false);
 
 	// WDT -- Sheldon Simms points out that these objects are not
 	// wastes of space; on the contrary, they can be carried out of the
@@ -1875,7 +1875,7 @@ void l_arena (void)
 
 void l_thieves_guild (void)
 {
-    unsigned fee, count, number, done = FALSE, dues = 1000;
+    unsigned fee, count, number, done = false, dues = 1000;
     char c, action;
     print1 ("You have penetrated to the Lair of the Thieves' Guild.");
     if (!nighttime())
@@ -1913,9 +1913,9 @@ void l_thieves_guild (void)
 	    showmenu();
 	    action = mgetc();
 	    if (action == KEY_ESCAPE)
-		done = TRUE;
+		done = true;
 	    else if (action == 'a') {
-		done = TRUE;
+		done = true;
 		if (Player.rank[THIEVES] >= TMEMBER)
 		    print2 ("You are already a member!");
 		else if (Player.alignment > 10)
@@ -2109,7 +2109,7 @@ void l_thieves_guild (void)
 void l_college (void)
 {
     char action;
-    int done = FALSE, enrolled = FALSE;
+    int done = false, enrolled = false;
     print1 ("The Collegium Magii. Founded 16937, AOF.");
     if (nighttime())
 	print2 ("The Registration desk is closed at night....");
@@ -2138,7 +2138,7 @@ void l_college (void)
 	    showmenu();
 	    action = mgetc();
 	    if (action == KEY_ESCAPE)
-		done = TRUE;
+		done = true;
 	    else if (action == 'a') {
 		if (Player.rank[COLLEGE] >= NOVICE)
 		    print2 ("You are already enrolled!");
@@ -2150,7 +2150,7 @@ void l_college (void)
 		    if (Player.iq > 17) {
 			print2 ("You are given a scholarship!");
 			morewait();
-			enrolled = TRUE;
+			enrolled = true;
 		    } else {
 			print1 ("Tuition is 1000Au. ");
 			nprint1 ("Pay it? [yn] ");
@@ -2159,7 +2159,7 @@ void l_college (void)
 				print2 ("You don't have the funds!");
 			    else {
 				Player.cash -= 1000;
-				enrolled = TRUE;
+				enrolled = true;
 				dataprint();
 			    }
 			}
@@ -2279,7 +2279,7 @@ void l_college (void)
 void l_sorcerors (void)
 {
     char action;
-    bool done = FALSE;
+    bool done = false;
     unsigned fee = 3000;
     long total;
     print1 ("The Circle of Sorcerors.");
@@ -2313,7 +2313,7 @@ void l_sorcerors (void)
 	    showmenu();
 	    action = mgetc();
 	    if (action == KEY_ESCAPE)
-		done = TRUE;
+		done = true;
 	    else if (action == 'a') {
 		if (Player.rank[CIRCLE] >= INITIATE)
 		    print2 ("You are already an initiate!");
@@ -2371,7 +2371,7 @@ void l_sorcerors (void)
 		    bless (-1);
 		    print3 ("Die, false sorceror!");
 		    p_damage (25, UNSTOPPABLE, "a sorceror's curse");
-		    done = TRUE;
+		    done = true;
 		} else if (Player.rank[CIRCLE] == PRIME) {
 		    print2 ("You are at the pinnacle of mastery in the Circle.");
 		} else if (Player.rank[CIRCLE] == HIGHSORCEROR) {
@@ -2418,7 +2418,7 @@ void l_sorcerors (void)
 		    }
 		}
 	    } else if (action == 'c') {
-		done = TRUE;
+		done = true;
 		fee = Player.level * 100;
 		if (Player.rank[CIRCLE])
 		    fee = fee / 2;
@@ -2766,7 +2766,7 @@ static void make_mansion_npc (int i, int j)
 void load_village (int villagenum, int populate)
 {
     initrand (Current_Environment, villagenum);
-    assign_village_function (0, 0, TRUE);
+    assign_village_function (0, 0, true);
     static const char* _villages[] = {
 	Level_Village1, Level_Village2, Level_Village3,
 	Level_Village4, Level_Village5, Level_Village6
@@ -2811,7 +2811,7 @@ void load_village (int villagenum, int populate)
 			make_site_monster (i, j, SHEEP);
 		    break;
 		case 'x':
-		    assign_village_function (i, j, FALSE);
+		    assign_village_function (i, j, false);
 		    break;
 		case 'X':
 		    Level->site(i,j).locchar = FLOOR;
@@ -3457,7 +3457,7 @@ int difficulty (void)
 // the bank; can be broken into (!)
 void l_bank (void)
 {
-    int done = FALSE, valid = FALSE;
+    int done = false, valid = false;
     long amount;
     char response;
     char passwd[64];
@@ -3496,7 +3496,7 @@ void l_bank (void)
 		strcpy (passwd, msgscanstring());
 		valid = (strcmp (passwd, Password) == 0);
 		if (!valid) {
-		    done = TRUE;
+		    done = true;
 		    menuclear();
 		    menuprint ("Alert! Alert! Invalid Password!\n");
 		    menuprint ("The police are being summoned!\n");
@@ -3574,7 +3574,7 @@ void l_bank (void)
 	    } else if (response == 'X') {
 		clearmsg();
 		print1 ("Bye!");
-		done = TRUE;
+		done = true;
 	    } else if ((response == 'O') && (strcmp (Password, "") == 0)) {
 		clearmsg();
 		print1 ("Opening new account.");
@@ -3582,10 +3582,10 @@ void l_bank (void)
 		strcpy (Password, msgscanstring());
 		if (strcmp (Password, "") == 0) {
 		    print3 ("Illegal to use null password -- aborted.");
-		    done = TRUE;
+		    done = true;
 		} else {
 		    print2 ("Password validated; account saved.");
-		    valid = TRUE;
+		    valid = true;
 		}
 	    } else
 		print3 (" Illegal command.");
@@ -3597,7 +3597,7 @@ void l_bank (void)
 
 void l_armorer (void)
 {
-    int done = FALSE;
+    int done = false;
     char action;
     if (hour() == 12)
 	print3 ("Unfortunately, this is Julie's lunch hour -- try again later.");
@@ -3609,7 +3609,7 @@ void l_armorer (void)
 	    print1 ("Julie's: Buy Armor, Weapons, or Leave [a,w,ESCAPE] ");
 	    action = mgetc();
 	    if (action == KEY_ESCAPE)
-		done = TRUE;
+		done = true;
 	    else if (action == 'a')
 		buyfromstock (ARMORID, 10);
 	    else if (action == 'w')
@@ -3704,7 +3704,7 @@ void l_club (void)
 
 void l_gym (void)
 {
-    int done = TRUE;
+    int done = true;
     int trained = 0;
     clearmsg();
     do {
@@ -3714,7 +3714,7 @@ void l_gym (void)
 	    mlongprint (Gymcredit);
 	    nprint1 ("Au.");
 	}
-	done = FALSE;
+	done = false;
 	menuclear();
 	menuprint ("Train for 2000 Au. Choose:\n");
 	menuprint ("\na: work out in the weight room");
@@ -3744,7 +3744,7 @@ void l_gym (void)
 		    print1 ("You towel yourself off, and find the exit.");
 		else
 		    print1 ("A refreshing bath, and you're on your way.");
-		done = TRUE;
+		done = true;
 		break;
 	    default:
 		trained--;
@@ -3787,7 +3787,7 @@ void statue_random (int x, int y)
 	    print1 ("The statue crumbles with a clatter of gravel.");
 	    Level->site(x,y).locchar = RUBBLE;
 	    Level->site(x,y).p_locf = L_RUBBLE;
-	    plotspot (x, y, TRUE);
+	    plotspot (x, y, true);
 	    lset (x, y, CHANGED);
 	    break;
 	case 1:
@@ -3797,7 +3797,7 @@ void statue_random (int x, int y)
 	    print1 ("The statue crumbles with a clatter of gravel.");
 	    Level->site(x,y).locchar = RUBBLE;
 	    Level->site(x,y).p_locf = L_RUBBLE;
-	    plotspot (x, y, TRUE);
+	    plotspot (x, y, true);
 	    lset (x, y, CHANGED);
 	    make_site_treasure (x, y, difficulty());
 	    break;
@@ -3861,7 +3861,7 @@ void l_statue_wake (void)
     int i;
     int x = Player.x, y = Player.y;
     for (i = 0; i < 9; i++)
-	wake_statue (x + Dirs[0][i], y + Dirs[1][i], TRUE);
+	wake_statue (x + Dirs[0][i], y + Dirs[1][i], true);
 }
 
 static void wake_statue (int x, int y, int first)
@@ -3876,13 +3876,13 @@ static void wake_statue (int x, int y, int first)
 	monster& m = make_site_monster (x, y, 0, 1);
 	m_status_set (m, HOSTILE);
 	for (int i = 0; i < 8; i++)
-	    wake_statue (x + Dirs[0][i], y + Dirs[1][i], FALSE);
+	    wake_statue (x + Dirs[0][i], y + Dirs[1][i], false);
     }
 }
 
 void l_casino (void)
 {
-    int i, done = FALSE, a, b, c, match;
+    int i, done = false, a, b, c, match;
     char response;
     print1 ("Rampart Mithril Nugget Casino.");
     if (random_range (10) == 1)
@@ -4004,7 +4004,7 @@ void l_casino (void)
 		    }
 		}
 	    } else if (response == KEY_ESCAPE)
-		done = TRUE;
+		done = true;
 	}
     }
 }
@@ -4183,14 +4183,14 @@ void l_tavern (void)
 		    Player.status[DISEASED] = 0;
 		    Player.food = 40;
 		    // reduce temporary stat gains to max stat levels
-		    toggle_item_use (TRUE);
+		    toggle_item_use (true);
 		    Player.str = min (Player.str, Player.maxstr);
 		    Player.con = min (Player.con, Player.maxcon);
 		    Player.agi = min (Player.agi, Player.maxagi);
 		    Player.dex = min (Player.dex, Player.maxdex);
 		    Player.iq = min (Player.iq, Player.maxiq);
 		    Player.pow = min (Player.pow, Player.maxpow);
-		    toggle_item_use (FALSE);
+		    toggle_item_use (false);
 		    timeprint();
 		    dataprint();
 		    showflags();
@@ -4320,8 +4320,8 @@ void l_dpw (void)
 void l_library (void)
 {
     char response;
-    bool studied = FALSE;
-    bool done = FALSE;
+    bool studied = false;
+    bool done = false;
     unsigned fee = 1000;
     print1 ("Rampart Public Library.");
     if (nighttime())
@@ -4343,11 +4343,11 @@ void l_library (void)
 	    if (ynq1() == 'y') {
 		if (Player.cash < fee) {
 		    print2 ("No payee, No studee.");
-		    done = TRUE;
+		    done = true;
 		} else {
 		    Player.cash -= fee;
 		    do {
-			studied = TRUE;
+			studied = true;
 			dataprint();
 			menuclear();
 			menuprint ("Peruse a scroll:\n");
@@ -4402,15 +4402,15 @@ void l_library (void)
 				morewait();
 			    }
 			} else if (response == KEY_ESCAPE) {
-			    done = TRUE;
+			    done = true;
 			    print1 ("That was an expensive browse...");
 			} else
-			    studied = FALSE;
+			    studied = false;
 		    } while (!studied);
 		}
 		xredraw();
 	    } else {
-		done = TRUE;
+		done = true;
 		if (studied)
 		    print2 ("Come back anytime we're open, 7am to 8pm.");
 		else
@@ -4543,7 +4543,7 @@ void l_pawn_shop (void)
 
 void l_condo (void)
 {
-    int done = FALSE, weeksleep = FALSE;
+    int done = false, weeksleep = false;
     char response;
 
     if (!gamestatusp (SOLD_CONDO)) {
@@ -4569,7 +4569,7 @@ void l_condo (void)
 		if (Player.cash < 1000)
 		    print2 ("Hey, pay the rent or out you go....");
 		else {
-		    weeksleep = TRUE;
+		    weeksleep = true;
 		    Player.cash -= 1000;
 		    dataprint();
 		}
@@ -4611,7 +4611,7 @@ void l_condo (void)
 		    }
 		}
 	    } else if (response == 'c') {
-		weeksleep = TRUE;
+		weeksleep = true;
 		print1 ("You take a week off to rest...");
 		morewait();
 	    } else if (response == 'd') {
@@ -4621,7 +4621,7 @@ void l_condo (void)
 		    p_win();
 		}
 	    } else if (response == KEY_ESCAPE)
-		done = TRUE;
+		done = true;
 	}
 	xredraw();
     }
@@ -4629,7 +4629,7 @@ void l_condo (void)
 	clearmsg();
 	print1 ("Taking a week off to rest...");
 	morewait();
-	toggle_item_use (TRUE);
+	toggle_item_use (true);
 	Player.hp = Player.maxhp;
 	Player.str = Player.maxstr;
 	Player.agi = Player.maxagi;
@@ -4640,7 +4640,7 @@ void l_condo (void)
 	for (unsigned i = 0; i < NUMSTATI; i++)
 	    if (Player.status[i] < 1000)
 		Player.status[i] = 0;
-	toggle_item_use (FALSE);
+	toggle_item_use (false);
 	Player.food = 36;
 	print2 ("You're once again fit and ready to continue your adventure.");
 	Time += 60 * 24 * 7;
@@ -4862,7 +4862,7 @@ void l_adept (void)
 
 void l_trifid (void)
 {
-    int damage = 0, stuck = TRUE;
+    int damage = 0, stuck = true;
     print1 ("The hedge comes alive with a surge of alien growth!");
     while (stuck) {
 	dataprint();
@@ -4876,7 +4876,7 @@ void l_trifid (void)
 	    Level->site(Player.x,Player.y).p_locf = L_NO_OP;
 	    lset (Player.x, Player.y, CHANGED);
 	    gain_experience (1000);
-	    stuck = FALSE;
+	    stuck = false;
 	} else {
 	    p_damage (damage, UNSTOPPABLE, "a trifid");
 	    morewait();
@@ -4894,7 +4894,7 @@ void l_trifid (void)
 		    if (Player.str > random_range (200)) {
 			print1 ("Amazing! You're now free.");
 			print2 ("The trifid writhes hungrily at you.");
-			stuck = FALSE;
+			stuck = false;
 		    } else
 			print1 ("Well, THAT didn't work.");
 		    break;
@@ -4905,7 +4905,7 @@ void l_trifid (void)
 		    if (Player.patron == DRUID && Player.rank[PRIESTHOOD] >= LAY+random_range(HIGHPRIEST-LAY)) {
 			print1 ("A shaft of golden light bathes the alien plant");
 			print2 ("which grudginly lets you go....");
-			stuck = FALSE;
+			stuck = false;
 		    } else
 			print1 ("You receive no divine aid as yet.");
 		    break;
@@ -5050,14 +5050,14 @@ void l_brothel (void)
 			Player.status[POISONED] = 0;
 			Player.hp = Player.maxhp;
 			// reduce temporary stat gains to max stat levels
-			toggle_item_use (TRUE);
+			toggle_item_use (true);
 			Player.str = min (Player.str, Player.maxstr);
 			Player.con = min (Player.con, Player.maxcon);
 			Player.agi = min (Player.agi, Player.maxagi);
 			Player.dex = min (Player.dex, Player.maxdex);
 			Player.iq = min (Player.iq, Player.maxiq);
 			Player.pow = min (Player.pow, Player.maxpow);
-			toggle_item_use (FALSE);
+			toggle_item_use (false);
 			if (Player.preference == 'n')
 			    Player.iq++;	// whatever :-)
 			else
@@ -5105,7 +5105,7 @@ void l_brothel (void)
 void sign_print (int x, int y, int signp)
 {
     if ((Level->site(x,y).p_locf >= CITYSITEBASE) && (Level->site(x,y).p_locf < CITYSITEBASE + NUMCITYSITES))
-	CitySiteList[Level->site(x,y).p_locf - CITYSITEBASE][0] = TRUE;
+	CitySiteList[Level->site(x,y).p_locf - CITYSITEBASE][0] = true;
     switch (Level->site(x,y).p_locf) {
 	case L_CHARITY:
 	    print1 ("You notice a sign: The Rampart Orphanage And Hospice For The Needy.");

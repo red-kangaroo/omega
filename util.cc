@@ -38,9 +38,9 @@ int hitp (int hit, int ac)
 {
     int roll = random_range (20);
     if (roll == 0)
-	return (TRUE);
+	return (true);
     else if (roll == 19)
-	return (FALSE);
+	return (false);
     else
 	return (roll < (hit - ac));
 }
@@ -68,9 +68,9 @@ int unblocked (int x, int y)
 int m_unblocked (struct monster *m, int x, int y)
 {
     if ((!inbounds (x, y)) || ((x == Player.x) && (y == Player.y)))
-	return (FALSE);
+	return (false);
     else if ((Level->creature(x,y) != NULL) || (Level->site(x,y).locchar == SPACE))
-	return (FALSE);
+	return (false);
     else if (m_statusp (m, ONLYSWIM))
 	return (Level->site(x,y).locchar == WATER);
     else if (loc_statusp (x, y, SECRET)) {
@@ -83,11 +83,11 @@ int m_unblocked (struct monster *m, int x, int y)
 		mprint ("You hear a door creak open, and then close again.");
 	    // smart monsters would close secret doors behind them if the
 	    // player didn't see them using it
-	    return (TRUE);
+	    return (true);
 	} else
 	    return (m_statusp (m, INTANGIBLE));
     } else if ((Level->site(x,y).locchar == FLOOR) || (Level->site(x,y).locchar == OPEN_DOOR))
-	return (TRUE);
+	return (true);
     else if ((Level->site(x,y).locchar == PORTCULLIS) || (Level->site(x,y).locchar == WALL) || (Level->site(x,y).locchar == STATUE))
 	return (m_statusp (m, INTANGIBLE));
     else if (Level->site(x,y).locchar == WATER)
@@ -97,12 +97,12 @@ int m_unblocked (struct monster *m, int x, int y)
 	    mprint ("You hear a door creak open.");
 	    Level->site(x,y).locchar = OPEN_DOOR;
 	    lset (x, y, CHANGED);
-	    return (TRUE);
+	    return (true);
 	} else if (random_range (m->dmg) > random_range (100)) {
 	    mprint ("You hear a door shattering.");
 	    Level->site(x,y).locchar = RUBBLE;
 	    lset (x, y, CHANGED);
-	    return (TRUE);
+	    return (true);
 	} else
 	    return (m_statusp (m, INTANGIBLE));
     } else if (Level->site(x,y).locchar == LAVA)
@@ -112,18 +112,18 @@ int m_unblocked (struct monster *m, int x, int y)
     else if ((Level->site(x,y).locchar == TRAP) || (Level->site(x,y).locchar == HEDGE) || (Level->site(x,y).locchar == ABYSS))
 	return ((m->movef == M_MOVE_CONFUSED) || m_statusp (m, INTANGIBLE) || m_statusp (m, FLYING));
     else
-	return (TRUE);
+	return (true);
 }
 
 // can you see through a spot?
 int view_unblocked (int x, int y)
 {
     if (!inbounds (x, y))
-	return (FALSE);
+	return (false);
     else if ((Level->site(x,y).locchar == WALL) || (Level->site(x,y).locchar == STATUE) || (Level->site(x,y).locchar == HEDGE) || (Level->site(x,y).locchar == FIRE) || (Level->site(x,y).locchar == CLOSED_DOOR) || loc_statusp (x, y, SECRET))
-	return (FALSE);
+	return (false);
     else
-	return (TRUE);
+	return (true);
 }
 
 // do_los moves pyx along a lineofsight from x1 to x2
@@ -182,10 +182,10 @@ void do_los (int pyx, int *x1, int *y1, int x2, int y2)
 	}
 	Level->site(*x1,*y1).showchar = pyx;
 	plotchar (pyx, *x1, *y1);
-	plotspot (ox, oy, TRUE);
+	plotspot (ox, oy, true);
 	napms (50);
     } while ((*x1 != x2 || *y1 != y2) && !blocked);
-    plotspot (*x1, *y1, TRUE);
+    plotspot (*x1, *y1, true);
     levelrefresh();
 }
 
@@ -241,7 +241,7 @@ void do_object_los (int pyx, int *x1, int *y1, int x2, int y2)
 	    error += 2 * step;
 	    blocked = !unblocked (*x1, *y1);
 	}
-	plotspot (ox, oy, TRUE);
+	plotspot (ox, oy, true);
 	if (unblocked (*x1, *y1)) {
 	    plotchar (pyx, *x1, *y1);
 	    Level->site(*x1,*y1).showchar = pyx;
@@ -252,7 +252,7 @@ void do_object_los (int pyx, int *x1, int *y1, int x2, int y2)
 	*x1 = ox;
 	*y1 = oy;
     }
-    plotspot (*x1, *y1, TRUE);
+    plotspot (*x1, *y1, true);
     levelrefresh();
 }
 
@@ -288,7 +288,7 @@ int los_p (int x1, int y1, int x2, int y2)
 	delta = 2 * absv (x2 - x1);
     }
     if (major == -1)		// x1,y2 already == x2,y2
-	return TRUE;
+	return true;
     error = 0;
     do {
 	x1 += Dirs[0][major];
@@ -342,7 +342,7 @@ int view_los_p (int x1, int y1, int x2, int y2)
 	delta = 2 * absv (x2 - x1);
     }
     if (major == -1)		// x1,y2 already == x2,y2
-	return TRUE;
+	return true;
     error = 0;
     do {
 	x1 += Dirs[0][major];

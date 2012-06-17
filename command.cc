@@ -208,7 +208,7 @@ void p_process (void)
 		rename_player();
 		break;
 	    case 'S':
-		save (optionp (COMPRESS), FALSE);
+		save (optionp (COMPRESS), false);
 		break;
 	    case 'T':
 		tunnel();
@@ -359,28 +359,28 @@ void p_country_process (void)
 
     drawvision (Player.x, Player.y);
     do {
-	no_op = FALSE;
+	no_op = false;
 	Cmd = mgetc();
 	clear_if_necessary();
 	switch (Cmd) {
 	    case ' ':
 	    case 13:
-		no_op = TRUE;
+		no_op = true;
 		break;
 	    case 7:
 		wizard();
 		break;		// ^g
 	    case 12:
 		xredraw();
-		no_op = TRUE;
+		no_op = true;
 		break;		// ^l
 	    case 16:
 		bufferprint();
-		no_op = TRUE;
+		no_op = true;
 		break;		// ^p
 	    case 18:
 		xredraw();
-		no_op = TRUE;
+		no_op = true;
 		break;		// ^r
 	    case 23:
 		if (gamestatusp (CHEATED))
@@ -424,7 +424,7 @@ void p_country_process (void)
 		rename_player();
 		break;
 	    case 'S':
-		save (optionp (COMPRESS), FALSE);
+		save (optionp (COMPRESS), false);
 		break;
 	    case 'V':
 		version();
@@ -434,7 +434,7 @@ void p_country_process (void)
 		break;
 	    case '?':
 		help();
-		no_op = TRUE;
+		no_op = true;
 		break;
 	    case '4':
 	    case 'h':
@@ -470,7 +470,7 @@ void p_country_process (void)
 		break;
 	    default:
 		commanderror();
-		no_op = TRUE;
+		no_op = true;
 		break;
 	}
     } while (no_op);
@@ -904,7 +904,7 @@ static void upstairs (void)
 	    else
 		change_environment (E_COUNTRYSIDE);
 	} else
-	    change_level (Level->depth, Level->depth - 1, FALSE);
+	    change_level (Level->depth, Level->depth - 1, false);
 	roomcheck();
     }
     setgamestatus (SKIP_MONSTERS);
@@ -922,7 +922,7 @@ static void downstairs (void)
 	    print2 ("You manage to get your horse downstairs.");
 	if (Current_Environment == Current_Dungeon) {
 	    print1 ("You descend a level.");
-	    change_level (Level->depth, Level->depth + 1, FALSE);
+	    change_level (Level->depth, Level->depth + 1, false);
 	    roomcheck();
 	} else if ((Current_Environment == E_CITY) || (Last_Environment == E_CITY))
 	    change_environment (E_SEWERS);
@@ -1205,7 +1205,7 @@ void bash_item (void)
 void save (int compress, int force)
 {
     char fname[100];
-    int pos, ok = TRUE;
+    int pos, ok = true;
 
     clearmsg();
     if (gamestatusp (ARENA_MODE)) {
@@ -1215,7 +1215,7 @@ void save (int compress, int force)
 	} else {
 	    print3 ("Can't save the game in the arena!");
 	    setgamestatus (SKIP_MONSTERS);
-	    ok = FALSE;
+	    ok = false;
 	}
     } else if (Current_Environment == E_ABYSS) {
 	if (force)
@@ -1223,7 +1223,7 @@ void save (int compress, int force)
 	else {
 	    print3 ("Can't save the game in the Adept's Challenge!");
 	    setgamestatus (SKIP_MONSTERS);
-	    ok = FALSE;
+	    ok = false;
 	}
     } else if (Current_Environment == E_TACTICAL_MAP) {
 	if (force)
@@ -1231,7 +1231,7 @@ void save (int compress, int force)
 	else {
 	    print3 ("Can't save the game in the tactical map!");
 	    setgamestatus (SKIP_MONSTERS);
-	    ok = FALSE;
+	    ok = false;
 	}
     }
     if (!force && ok) {
@@ -1243,13 +1243,13 @@ void save (int compress, int force)
 	strcpy (fname, msgscanstring());
 	if (fname[0] == '\0') {
 	    print1 ("No save file entered - save aborted.");
-	    ok = FALSE;
+	    ok = false;
 	}
 	for (pos = 0; fname[pos] && isprint (fname[pos]) && !isspace (fname[pos]); pos++);
 	if (fname[pos]) {
 	    sprintf (Str1, "Illegal character '%c' in filename - Save aborted.", fname[pos]);
 	    print1 (Str1);
-	    ok = FALSE;
+	    ok = false;
 	}
 	if (ok) {
 	    if (save_game (fname)) {
@@ -1354,7 +1354,7 @@ static void moveplayer (int dx, int dy)
 // handle a h,j,k,l, etc.
 static void movepincountry (int dx, int dy)
 {
-    int takestime = TRUE;
+    int takestime = true;
     if ((Player.maxweight < Player.itemweight) && random_range (2) && (!Player.status[LEVITATING])) {
 	if (gamestatusp (MOUNTED)) {
 	    print1 ("Your horse refuses to carry you and your pack another step!");
@@ -1390,7 +1390,7 @@ static void movepincountry (int dx, int dy)
 		Player.y += dy;
 		if (!gamestatusp (MOUNTED) && Player.has_possession(O_BOOTS)) {
 		    if (Player.possessions[O_BOOTS].usef == I_BOOTS_7LEAGUE) {
-			takestime = FALSE;
+			takestime = false;
 			if (Player.possessions[O_BOOTS].blessing < 0) {
 			    print1 ("Whooah! -- Your boots launch you into the sky....");
 			    print2 ("You come down in a strange location....");
@@ -1426,7 +1426,7 @@ static void movepincountry (int dx, int dy)
 // look at some spot
 static void examine (void)
 {
-    int x = Player.x, y = Player.y, drewmenu = FALSE;
+    int x = Player.x, y = Player.y, drewmenu = false;
     clearmsg();
     // WDT HACK: I'm not sure I buy that one shouldn't be able to examine
     // when one is blind.  However, the 'right' way to do it is certainly
@@ -1532,7 +1532,7 @@ static void examine (void)
 		showmenu();
 	    }
 	    morewait();
-	    sign_print (x, y, TRUE);
+	    sign_print (x, y, true);
 	}
     }
     if (drewmenu)
@@ -1589,7 +1589,7 @@ static void fire (void)
 	setgamestatus (SKIP_MONSTERS);
     else if (ii == CASHVALUE)
 	print3 ("Can't fire money at something!");
-    else if (cursed (Player.possessions[ii]) == TRUE+TRUE)
+    else if (cursed (Player.possessions[ii]) == true+true)
 	print3 ("You can't seem to get rid of it!");
     else if (Player.possessions[O_WEAPON_HAND].id == WEAPON_CROSSBOW &&
 	     Player.possessions[O_WEAPON_HAND].aux != LOADED && Player.possessions[ii].id == WEAPON_BOLT) {
@@ -1757,7 +1757,7 @@ static void tacoptions (void)
 
     setgamestatus (SKIP_MONSTERS);
 
-    done = FALSE;
+    done = false;
     actionsleft = maneuvers();
     place = 0;
     do {
@@ -1910,7 +1910,7 @@ static void tacoptions (void)
 		break;
 	    case KEY_ENTER:
 	    case KEY_ESCAPE:
-		done = TRUE;
+		done = true;
 		break;
 	}
 	//    if (actionsleft < 1) morewait();
@@ -2155,7 +2155,7 @@ void dismount_steed (void)
 
 static void city_move (void)
 {
-    int site, x = Player.x, y = Player.y, toggle = FALSE;
+    int site, x = Player.x, y = Player.y, toggle = false;
     clearmsg();
     if (Current_Environment != E_CITY) {
 	print3 ("This command only works in the city!");

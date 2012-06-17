@@ -27,10 +27,10 @@ int save_game (const char* savestr)
 	if (access (savestr, W_OK) == 0) {
 	    mprint (" Overwrite old file?");
 	    if (ynq() != 'y')
-		return (FALSE);
+		return (false);
 	} else {
 	    mprint (" File already exists.");
-	    return (FALSE);
+	    return (false);
 	}
     }
     print1 ("Saving Game....");
@@ -72,14 +72,14 @@ int save_game (const char* savestr)
 
 // read player data, city level, dungeon level,
 // check on validity of save file, etc.
-// return TRUE if game restored, FALSE otherwise
+// return true if game restored, false otherwise
 int restore_game (const char* savestr)
 {
     if (access (savestr, F_OK | R_OK | W_OK) == -1) {	// access uses real uid
 	print1 ("Unable to access save file: ");
 	nprint1 (savestr);
 	morewait();
-	return FALSE;
+	return false;
     }
 
     memblock buf;
@@ -109,9 +109,9 @@ int restore_game (const char* savestr)
 	snprintf (ArrayBlock(errbuf), "Error restoring %s: %s", savestr, e.what().c_str());
 	print1 (errbuf);
 	morewait();
-	return (FALSE);
+	return (false);
     }
-    return (TRUE);
+    return (true);
 }
 
 // saves game on SIGHUP
@@ -337,7 +337,7 @@ static void restore_level (istream& is)
     is >> ios::align(alignof(Level->environment)) >> Level->environment >> Level->last_visited
 	>> Level->width >> Level->height >> Level->lastx >> Level->lasty
 	>> Level->depth >> Level->generated >> Level->numrooms >> Level->tunnelled;
-    Level->generated = TRUE;
+    Level->generated = true;
     temp_env = Current_Environment;
     Current_Environment = Level->environment;
     switch (Level->environment) {
@@ -347,21 +347,21 @@ static void restore_level (istream& is)
 	    break;
 	case E_CITY:
 	    City = Level;
-	    load_city (FALSE);
+	    load_city (false);
 	    break;
 	case E_VILLAGE:
-	    load_village (Country->site(LastCountryLocX,LastCountryLocY).aux, FALSE);
+	    load_village (Country->site(LastCountryLocX,LastCountryLocY).aux, false);
 	    break;
 	case E_CAVES:
 	    initrand (Current_Environment, Level->depth);
-	    if ((random_range (4) == 0) && (Level->depth < MaxDungeonLevels))
+	    if (!random_range(4) && Level->depth < MaxDungeonLevels)
 		room_level();
 	    else
 		cavern_level();
 	    break;
 	case E_SEWERS:
 	    initrand (Current_Environment, Level->depth);
-	    if ((random_range (4) == 0) && (Level->depth < MaxDungeonLevels))
+	    if (!random_range(4) && Level->depth < MaxDungeonLevels)
 		room_level();
 	    else
 		sewer_level();
@@ -377,39 +377,33 @@ static void restore_level (istream& is)
 	case E_VOLCANO:
 	    initrand (Current_Environment, Level->depth);
 	    switch (random_range (3)) {
-		case 0:
-		    cavern_level();
-		    break;
-		case 1:
-		    room_level();
-		    break;
-		case 2:
-		    maze_level();
-		    break;
+		case 0: cavern_level(); break;
+		case 1: room_level(); break;
+		case 2: maze_level(); break;
 	    }
 	    break;
 	case E_HOVEL:
 	case E_MANSION:
 	case E_HOUSE:
-	    load_house (Level->environment, FALSE);
+	    load_house (Level->environment, false);
 	    break;
 	case E_DLAIR:
-	    load_dlair (gamestatusp (KILLED_DRAGONLORD), FALSE);
+	    load_dlair (gamestatusp (KILLED_DRAGONLORD), false);
 	    break;
 	case E_STARPEAK:
-	    load_speak (gamestatusp (KILLED_LAWBRINGER), FALSE);
+	    load_speak (gamestatusp (KILLED_LAWBRINGER), false);
 	    break;
 	case E_MAGIC_ISLE:
-	    load_misle (gamestatusp (KILLED_EATER), FALSE);
+	    load_misle (gamestatusp (KILLED_EATER), false);
 	    break;
 	case E_TEMPLE:
-	    load_temple (Country->site(LastCountryLocX,LastCountryLocY).aux, FALSE);
+	    load_temple (Country->site(LastCountryLocX,LastCountryLocY).aux, false);
 	    break;
 	case E_CIRCLE:
-	    load_circle (FALSE);
+	    load_circle (false);
 	    break;
 	case E_COURT:
-	    load_court (FALSE);
+	    load_court (false);
 	    break;
 	default:
 	    print3 ("This dungeon not implemented!");

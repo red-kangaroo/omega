@@ -53,7 +53,7 @@ void initplayer (void)
     Player.alignment = 0;
     Player.cash = 250;
     FILE* fd;
-    int oldchar = FALSE;
+    int oldchar = false;
     if ((fd = omegarc_check()) != NULL) {
 	int i;
 	fread ((char*) &i, sizeof (int), 1, fd);
@@ -61,7 +61,7 @@ void initplayer (void)
 	    print1 ("Out of date .omegarc! Make another!");
 	    morewait();
 	} else {
-	    oldchar = TRUE;
+	    oldchar = true;
 	    fread ((char*) &Player, sizeof (Player), 1, fd);
 	    fread ((char*) &Searchnum, sizeof (int), 1, fd);
 	    fread ((char*) &Verbosity, sizeof (char), 1, fd);

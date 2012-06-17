@@ -70,7 +70,7 @@ int ViewHour = -1;		// crystal ball use marker
 int ZapHour = -1;		// staff of enchantment use marker
 int HelmHour = -1;		// helm of teleportation use marker
 int Constriction = 0;		// Dragonlord Attack State
-int Blessing = FALSE;		// Altar Blessing State
+int Blessing = false;		// Altar Blessing State
 int LastDay = -1;		// DPW date of dole
 int RitualHour = -1;		// last use of ritual magic
 int RitualRoom = -1;		// last room of ritual magic
@@ -116,9 +116,9 @@ const char Prime[] = "Blackskull";
 const char Shadowlord[] = "Shadowspawn";
 
 // New globals which used to be statics
-int twiddle = FALSE;
-int saved = FALSE;
-int onewithchaos = FALSE;
+int twiddle = false;
+int saved = false;
+int onewithchaos = false;
 int club_hinthour = 0;
 int winnings = 0;
 int tavern_hinthour;
@@ -148,9 +148,9 @@ static int game_restore (int argc, const char* argv[])
 	    printf ("Try again with the right save file, luser!\n");
 	    exit (0);
 	}
-	return (TRUE);
+	return (true);
     } else
-	return (FALSE);
+	return (false);
 }
 
 int main (int argc, const char* argv[])
@@ -200,18 +200,18 @@ int main (int argc, const char* argv[])
     if (Current_Environment != E_COUNTRYSIDE)
 	showroom (Level->site(Player.x,Player.y).roomnumber);
     else
-	terrain_check (FALSE);
+	terrain_check (false);
 
     screencheck (Player.y);
 
     // game cycle
     if (!continuing)
-	time_clock (TRUE);
-    while (TRUE) {
+	time_clock (true);
+    while (true) {
 	if (Current_Environment == E_COUNTRYSIDE)
 	    p_country_process();
 	else
-	    time_clock (FALSE);
+	    time_clock (false);
     }
 }
 
@@ -225,7 +225,7 @@ static void signalexit (int sig UNUSED)
     mprint ("Want to try and save the game?");
     reply = ynq();
     if (reply == 'y')
-	save (FALSE, TRUE);	// don't compress, force save
+	save (false, true);	// don't compress, force save
     else if (reply == EOF)
 	signalsave (0);
     mprint ("Bye!");
@@ -243,12 +243,12 @@ static void init_world (void)
     clear_level (Country);
     load_country();
     for (int i = 0; i < NUMCITYSITES; i++)
-	CitySiteList[i][0] = FALSE;
+	CitySiteList[i][0] = false;
     for (unsigned i = 0; i < ArraySize(ObjectAttrs); ++i)
 	ObjectAttrs[i] = Objects[i].uniqueness;
     Level = City = new level;
     clear_level (Level);
-    load_city (TRUE);
+    load_city (true);
     Player.x = Level->lastx;
     Player.y = Level->lasty;
     Level = City;

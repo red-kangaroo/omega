@@ -59,7 +59,7 @@ void show_screen (void)
 		    c = Country->site(i,j).showchar;
 	    } else {
 		if (loc_statusp (i, j, SEEN))
-		    c = getspot (i, j, FALSE);
+		    c = getspot (i, j, false);
 	    }
 	    wattrset (Levelw, CHARATTR(c));
 	    waddch (Levelw, c & 0xff);
@@ -445,7 +445,7 @@ static void drawplayer (void)
 	waddch (Levelw, (PLAYER & 0xff));
     } else {
 	if (inbounds (lastx, lasty) && !offscreen (lasty))
-	    plotspot (lastx, lasty, (Player.status[BLINDED] > 0 ? FALSE : TRUE));
+	    plotspot (lastx, lasty, (Player.status[BLINDED] > 0 ? false : true));
 	wmove (Levelw, screenmod (Player.y), Player.x);
 	if ((!Player.status[INVISIBLE]) || Player.status[TRUESIGHT]) {
 	    wattrset (Levelw, CHARATTR (PLAYER));
@@ -486,8 +486,8 @@ void drawvision (int x, int y)
 			    dodrawspot (x + i, y + j);
 	    }
 	    drawplayer();
-	    drawmonsters (FALSE);	// erase all monsters
-	    drawmonsters (TRUE);	// draw those now visible
+	    drawmonsters (false);	// erase all monsters
+	    drawmonsters (true);	// draw those now visible
 	}
 	if ((!gamestatusp (FAST_MOVE)) || (!optionp (JUMPMOVE)))
 	    omshowcursor (Player.x, Player.y);
@@ -530,7 +530,7 @@ void drawspot (int x, int y)
 {
     chtype c;
     if (inbounds (x, y)) {
-	c = getspot (x, y, FALSE);
+	c = getspot (x, y, false);
 	if (c != Level->site(x,y).showchar)
 	    if (view_los_p (Player.x, Player.y, x, y)) {
 		lset (x, y, SEEN);
@@ -545,7 +545,7 @@ void dodrawspot (int x, int y)
 {
     chtype c;
     if (inbounds (x, y)) {
-	c = getspot (x, y, FALSE);
+	c = getspot (x, y, false);
 	if (c != Level->site(x,y).showchar) {
 	    lset (x, y, SEEN);
 	    Level->site(x,y).showchar = c;
@@ -628,7 +628,7 @@ void drawmonsters (int display)
 void erase_monster (struct monster *m)
 {
     if (loc_statusp (m->x, m->y, SEEN))
-	putspot (m->x, m->y, getspot (m->x, m->y, FALSE));
+	putspot (m->x, m->y, getspot (m->x, m->y, false));
     else
 	blotspot (m->x, m->y);
 }
@@ -656,7 +656,7 @@ chtype getspot (int x, int y, int showmonster)
 	case HEDGE:
 	    if (showmonster && m) {
 		if (m_statusp (*m, M_INVISIBLE) && !Player.status[TRUESIGHT])
-		    return (getspot (x, y, FALSE));
+		    return (getspot (x, y, false));
 		else
 		    return (m->monchar);
 	    } else
@@ -668,7 +668,7 @@ chtype getspot (int x, int y, int showmonster)
 		nThings += (o->x == x && o->y == y);
 	    if (showmonster && m) {
 		if (m_statusp (*m, M_INVISIBLE) && !Player.status[TRUESIGHT])
-		    return (getspot (x, y, FALSE));
+		    return (getspot (x, y, false));
 		else
 		    return (m->monchar);
 	    } else if (nThings == 1)
@@ -755,7 +755,7 @@ void menuaddch (int c)
 
 void morewait (void)
 {
-    int display = TRUE;
+    int display = true;
     int c;
     if (gamestatusp (SUPPRESS_PRINTING))
 	return;
@@ -775,7 +775,7 @@ void morewait (void)
 
 int stillonblock (void)
 {
-    int display = TRUE;
+    int display = true;
     int c;
     do {
 	werase (Morew);
@@ -846,7 +846,7 @@ void draw_explosion (chtype pyx, int x, int y)
 	napms (150);
     }
     for (i = 0; i < 9; i++)
-	plotspot (x + Dirs[0][i], y + Dirs[1][i], TRUE);
+	plotspot (x + Dirs[0][i], y + Dirs[1][i], true);
     wrefresh (Levelw);
 }
 
@@ -906,7 +906,7 @@ void drawscreen (void)
 
 int getnumber (int range)
 {
-    int done = FALSE, value = 1;
+    int done = false, value = 1;
     int atom;
 
     if (range == 1)
@@ -924,7 +924,7 @@ int getnumber (int range)
 	    else if ((atom == '<') && (value > 1))
 		value--;
 	    else if (atom == KEY_ESCAPE)
-		done = TRUE;
+		done = true;
 	}
     }
     return (value);
@@ -1212,7 +1212,7 @@ void screencheck (int y)
 	ScreenOffset = y - ScreenLength / 2;
 	show_screen();
 	if (Current_Environment != E_COUNTRYSIDE)
-	    drawmonsters (TRUE);
+	    drawmonsters (true);
 	if (!offscreen (Player.y))
 	    drawplayer();
     }
@@ -1236,7 +1236,7 @@ static void lightspot (int x, int y)
     lset (x, y, LIT);
     lset (x, y, SEEN);
     lset (x, y, CHANGED);
-    c = getspot (x, y, FALSE);
+    c = getspot (x, y, false);
     Level->site(x,y).showchar = c;
     putspot (x, y, c);
 }
@@ -1306,19 +1306,19 @@ void display_options (unsigned selection)
 {
     werase (Menuw);
     if (selection == 0) wstandout(Menuw);
-    wprintw (Menuw, "Option BELLICOSE:	%s\n", optionp (BELLICOSE) ? "TRUE" : "FALSE");
+    wprintw (Menuw, "Option BELLICOSE:	%s\n", optionp (BELLICOSE) ? "true" : "false");
     if (selection == 1) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option JUMPMOVE:	%s\n", optionp (JUMPMOVE) ? "TRUE" : "FALSE");
+    wprintw (Menuw, "Option JUMPMOVE:	%s\n", optionp (JUMPMOVE) ? "true" : "false");
     if (selection == 2) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option RUNSTOP:	%s\n", optionp (RUNSTOP) ? "TRUE" : "FALSE");
+    wprintw (Menuw, "Option RUNSTOP:	%s\n", optionp (RUNSTOP) ? "true" : "false");
     if (selection == 3) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option PICKUP:	%s\n", optionp (PICKUP) ? "TRUE" : "FALSE");
+    wprintw (Menuw, "Option PICKUP:	%s\n", optionp (PICKUP) ? "true" : "false");
     if (selection == 4) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option CONFIRM:	%s\n", optionp (CONFIRM) ? "TRUE" : "FALSE");
+    wprintw (Menuw, "Option CONFIRM:	%s\n", optionp (CONFIRM) ? "true" : "false");
     if (selection == 5) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option PACKADD:	%s\n", optionp (PACKADD) ? "TRUE" : "FALSE");
+    wprintw (Menuw, "Option PACKADD:	%s\n", optionp (PACKADD) ? "true" : "false");
     if (selection == 6) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option COMPRESS:	%s\n", optionp (COMPRESS) ? "TRUE" : "FALSE");
+    wprintw (Menuw, "Option COMPRESS:	%s\n", optionp (COMPRESS) ? "true" : "false");
     if (selection == 7) wstandout(Menuw); else wstandend(Menuw);
     wprintw (Menuw, "Option VERBOSITY: %s\n", (Verbosity == VERBOSE ? "Verbose" : (Verbosity == MEDIUM ? "Medium" : "Terse")));
     if (selection == 8) wstandout(Menuw); else wstandend(Menuw);

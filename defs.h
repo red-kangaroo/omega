@@ -27,7 +27,7 @@ enum {
     CAVELEVELS = 10,
     VOLCANOLEVELS = 20,
     NOCITYMOVE = 250,		// cannot use M command on site with this aux value
-    NUMTFOPTIONS = 7,		// number of options with TRUE/FALSE values
+    NUMTFOPTIONS = 7,		// number of options with true/false values
     VERBOSITY_LEVEL,		// The slot number of the two options not in Player.options
     SEARCH_DURATION,
     NUMOPTIONS = SEARCH_DURATION-1	// total number of player options

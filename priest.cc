@@ -68,7 +68,7 @@ void l_altar (void)
 		    cleanse (1);
 		    heal (10);
 		    bless (1);
-		    Blessing = FALSE;
+		    Blessing = false;
 		    increase_priest_rank (deity);
 		} else {
 		    print1 ("Your ardent plea is ignored.");
@@ -91,7 +91,7 @@ void l_altar (void)
 		    Player.remove_possession (i, 1);
 		    print2 ("A violet nimbus settles around your head and slowly fades.");
 		    morewait();
-		    Blessing = TRUE;
+		    Blessing = true;
 		} else {
 		    print1 ("A darkling glow envelopes your offering!");
 		    print2 ("The glow slowly fades....");
@@ -115,9 +115,9 @@ void l_altar (void)
 
 static int check_sacrilege (int deity)
 {
-    int sacrilege = FALSE;
+    int sacrilege = false;
     if ((Player.patron != deity) && (Player.patron > 0)) {
-	sacrilege = TRUE;
+	sacrilege = true;
 	Player.pow--;
 	Player.maxpow--;
 	switch (Player.patron) {
@@ -126,7 +126,7 @@ static int check_sacrilege (int deity)
 		morewait();
 		if (deity == ATHENA) {
 		    print2 ("However, Athena intercedes on your behalf.");
-		    sacrilege = FALSE;
+		    sacrilege = false;
 		} else {
 		    print2 ("You are struck by a thunderbolt!");
 		    p_damage (Player.level * 5, UNSTOPPABLE, "Odin's wrath");
@@ -147,7 +147,7 @@ static int check_sacrilege (int deity)
 		if (deity == HECATE) {
 		    print1 ("But since you pray to a friendly deity,");
 		    print2 ("Set decides not to punish you.");
-		    sacrilege = FALSE;
+		    sacrilege = false;
 		} else {
 		    print2 ("You are blasted by a shaft of black fire!");
 		    p_damage (Player.level * 5, UNSTOPPABLE, "Set's anger");
@@ -167,7 +167,7 @@ static int check_sacrilege (int deity)
 		morewait();
 		if (deity == SET) {
 		    print1 ("But ignores the affront since she likes Set.");
-		    sacrilege = FALSE;
+		    sacrilege = false;
 		} else {
 		    print1 ("You are zapped by dark moonbeams!");
 		    p_damage (Player.level * 5, UNSTOPPABLE, "Hecate's malice");
@@ -185,7 +185,7 @@ static int check_sacrilege (int deity)
 		morewait();
 		if (deity == ODIN) {
 		    print2 ("But lets you off this time since Odin is also Lawful.");
-		    sacrilege = FALSE;
+		    sacrilege = false;
 		} else {
 		    print2 ("You are zorched by godsfire!");
 		    if (Player.hp > 0) {
@@ -203,7 +203,7 @@ static int check_sacrilege (int deity)
 		break;
 	    case DESTINY:
 		print2 ("The Lords of Destiny ignore your lack of faith.");
-		sacrilege = FALSE;
+		sacrilege = false;
 		morewait();
 		break;
 	    case DRUID:

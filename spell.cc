@@ -222,15 +222,15 @@ static void s_ritual (void)
     mprint ("You begin your ritual....");
     mprint ("You enter a deep trance. Time Passes...");
     setgamestatus (SKIP_PLAYER);
-    time_clock (FALSE);
+    time_clock (false);
     setgamestatus (SKIP_PLAYER);
-    time_clock (FALSE);
+    time_clock (false);
     setgamestatus (SKIP_PLAYER);
-    time_clock (FALSE);
+    time_clock (false);
     setgamestatus (SKIP_PLAYER);
-    time_clock (FALSE);
+    time_clock (false);
     setgamestatus (SKIP_PLAYER);
-    time_clock (FALSE);
+    time_clock (false);
     if (RitualHour == hour())
 	mprint ("Your mental fatigue prevents from completing the ritual!");
     else if (random_range (100) > Player.iq + Player.pow + Player.level)
@@ -239,15 +239,15 @@ static void s_ritual (void)
 	mprint ("You charge the ritual with magical energy and focus your will.");
 	mprint ("Time Passes...");
 	setgamestatus (SKIP_PLAYER);
-	time_clock (FALSE);
+	time_clock (false);
 	setgamestatus (SKIP_PLAYER);
-	time_clock (FALSE);
+	time_clock (false);
 	setgamestatus (SKIP_PLAYER);
-	time_clock (FALSE);
+	time_clock (false);
 	setgamestatus (SKIP_PLAYER);
-	time_clock (FALSE);
+	time_clock (false);
 	setgamestatus (SKIP_PLAYER);
-	time_clock (FALSE);
+	time_clock (false);
 	RitualHour = hour();
 	// set of random conditions for different ritual effects
 	if (Current_Environment == E_CITY) {
@@ -695,13 +695,13 @@ static const ESpell spell_ids[] = {	// in the same order as spell_names[]
 
 static void showknownspells (int first, int last)
 {
-    int i, printed = FALSE;
+    int i, printed = false;
 
     menuclear();
     menuprint ("\nPossible Spells:\n");
     for (i = first; i <= last; i++)
 	if (spell_is_known (spell_ids[i])) {
-	    printed = TRUE;
+	    printed = true;
 	    menuprint (spell_names[i]);
 	    menuprint (" (");
 	    menunumprint (Spells[spell_ids[i]].powerdrain);
