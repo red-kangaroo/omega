@@ -37,21 +37,8 @@ void tunnelcheck (void)
 	gain_experience (5000);
 	if (Player.status[SHADOWFORM]) {
 	    change_environment (E_COUNTRYSIDE);
-	    switch (Country->site(Player.x,Player.y).locchar) {
-		case CASTLE:
-		case STARPEAK:
-		case CAVES:
-		case VOLCANO:
-		    Country->site(Player.x,Player.y).showchar = MOUNTAINS;
-		    break;
-		case DRAGONLAIR:
-		    Country->site(Player.x,Player.y).showchar = DESERT;
-		    break;
-		case MAGIC_ISLE:
-		    Country->site(Player.x,Player.y).showchar = CHAOS_SEA;
-		    break;
-	    }
-	    Country->site(Player.x,Player.y).locchar = Country->site(Player.x,Player.y).showchar;
+	    c_set (Player.x, Player.y, SEEN);
+	    c_set (Player.x, Player.y, SECRET);
 	    c_set (Player.x, Player.y, CHANGED);
 	    print1 ("In your shadowy state, you float back up to the surface.");
 	    return;
@@ -223,13 +210,11 @@ int p_country_moveable (int x, int y)
 {
     if (!inbounds (x, y))
 	return (false);
-    else if (optionp (CONFIRM)) {
-	if ((Country->site(x,y).showchar == CHAOS_SEA) || (Country->site(x,y).showchar == MOUNTAINS))
-	    return (confirmation());
-	else
-	    return (true);
-    } else
-	return (true);
+    else if (optionp(CONFIRM) &&
+		(Country->site(x,y).showchar() == CHAOS_SEA ||
+		 Country->site(x,y).showchar() == MOUNTAINS))
+	return (confirmation());
+    return (true);
 }
 
 // search once particular spot
@@ -2155,8 +2140,8 @@ void change_environment (int new_environment)
 	    break;
 	case E_TACTICAL_MAP:
 	    print1 ("You are now on the tactical screen; exit off any side to leave");
-	    make_country_screen (Country->site(Player.x,Player.y).showchar);
-	    make_country_monsters (Country->site(Player.x,Player.y).showchar);
+	    make_country_screen (Country->site(Player.x,Player.y).showchar());
+	    make_country_monsters (Country->site(Player.x,Player.y).showchar());
 	    Player.x = Level->width / 2;
 	    Player.y = Level->height / 2;
 	    while (Level->site(Player.x,Player.y).locchar == WATER) {
@@ -2166,7 +2151,7 @@ void change_environment (int new_environment)
 		    Player.x--;
 		    Player.y = Level->height / 2 - 5;
 		} else {
-		    Level->site(Player.x,Player.y).locchar = Level->site(Player.x,Player.y).showchar = FLOOR;
+		    Level->site(Player.x,Player.y).locchar = FLOOR;
 		    Level->site(Player.x,Player.y).p_locf = L_NO_OP;
 		}
 	    }
@@ -2315,7 +2300,7 @@ static void outdoors_random_event (void)
     int num, i, j;
     switch (random_range (300)) {
 	case 0:
-	    switch (Country->site(Player.x,Player.y).showchar) {
+	    switch (Country->site(Player.x,Player.y).showchar()) {
 		case TUNDRA:
 		    mprint ("It begins to snow. Heavily.");
 		    break;
@@ -2484,15 +2469,14 @@ static void outdoors_random_event (void)
 		resetgamestatus (LOST);
 		mprint ("You know where you are now.");
 	    }
-	    for (i = Player.x - 5; i < Player.x + 6; i++)
-		for (j = Player.y - 5; j < Player.y + 6; j++)
+	    for (i = Player.x - 5; i < Player.x + 6; i++) {
+		for (j = Player.y - 5; j < Player.y + 6; j++) {
 		    if (inbounds (i, j)) {
 			c_set (i, j, SEEN);
-			if (Country->site(i,j).showchar != Country->site(i,j).locchar) {
-			    c_set (i, j, CHANGED);
-			    Country->site(i,j).showchar = Country->site(i,j).locchar;
-			}
+			c_set (i, j, CHANGED);
 		    }
+		}
+	    }
 	    show_screen();
 	    break;
 	case 12:
@@ -2604,7 +2588,7 @@ void terrain_check (int takestime)
 	    case 1: print2 ("The road goes ever onward...."); break;
 	}
     }
-    switch (Country->site(Player.x,Player.y).showchar) {
+    switch (Country->site(Player.x,Player.y).showchar()) {
 	case RIVER:
 	    if ((Player.y < 6) && (Player.x > 20))
 		locprint ("Star Lake.");
@@ -2876,18 +2860,18 @@ void countrysearch (void)
     int x, y;
     Time += 60;
     hourly_check();
-    for (x = Player.x - 1; x < Player.x + 2; x++)
-	for (y = Player.y - 1; y < Player.y + 2; y++)
-	    if (inbounds (x, y)) {
-		if (Country->site(x,y).showchar != Country->site(x,y).locchar) {
-		    clearmsg();
-		    mprint ("Your search was fruitful!");
-		    Country->site(x,y).showchar = Country->site(x,y).locchar;
-		    c_set (x, y, CHANGED);
-		    mprint ("You discovered:");
-		    mprint (countryid (Country->site(x,y).locchar));
-		}
-	    }
+    for (x = Player.x - 1; x < Player.x + 2; x++) {
+	for (y = Player.y - 1; y < Player.y + 2; y++) {
+	    if (!inbounds (x, y) || !c_statusp (x,y, SECRET))
+		continue;
+	    clearmsg();
+	    mprint ("Your search was fruitful!");
+	    c_reset (x, y, SECRET);
+	    c_set (x, y, CHANGED);
+	    mprint ("You discovered:");
+	    mprint (countryid (Country->site(x,y).locchar));
+	}
+    }
 }
 
 const char* countryid (int terrain)

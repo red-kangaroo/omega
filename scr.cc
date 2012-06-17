@@ -54,10 +54,9 @@ void show_screen (void)
 	wmove (Levelw, screenmod (j), 0);
 	for (unsigned i = 0; i < Level->width; i++) {
 	    chtype c = SPACE;
-	    if (Current_Environment == E_COUNTRYSIDE) {
-		if (c_statusp (i, j, SEEN))
-		    c = Country->site(i,j).showchar;
-	    } else {
+	    if (Current_Environment == E_COUNTRYSIDE)
+		c = Country->site(i,j).showchar();
+	    else {
 		if (loc_statusp (i, j, SEEN))
 		    c = getspot (i, j, false);
 	    }
@@ -436,7 +435,7 @@ static void drawplayer (void)
     if (Current_Environment == E_COUNTRYSIDE) {
 	if (inbounds (lastx, lasty) && !offscreen (lasty)) {
 	    wmove (Levelw, screenmod (lasty), lastx);
-	    chtype c = Country->site(lastx,lasty).showchar;
+	    chtype c = Country->site(lastx,lasty).showchar();
 	    wattrset (Levelw, CHARATTR (c));
 	    waddch (Levelw, (c & 0xff));
 	}
@@ -500,7 +499,7 @@ void drawvision (int x, int y)
 		    c_set (x + i, y + j, SEEN);
 		    if (!offscreen (y + j)) {
 			wmove (Levelw, screenmod (y + j), x + i);
-			c = Country->site(x+i,y+j).showchar;
+			c = Country->site(x+i,y+j).showchar();
 			wattrset (Levelw, CHARATTR (c));
 			waddch (Levelw, (c & 0xff));
 		    }
@@ -528,29 +527,22 @@ void levelrefresh (void)
 // draws a particular spot under if in line-of-sight
 void drawspot (int x, int y)
 {
-    chtype c;
     if (inbounds (x, y)) {
-	c = getspot (x, y, false);
-	if (c != Level->site(x,y).showchar)
-	    if (view_los_p (Player.x, Player.y, x, y)) {
-		lset (x, y, SEEN);
-		Level->site(x,y).showchar = c;
-		putspot (x, y, c);
-	    }
+	chtype c = getspot (x, y, false);
+	if (view_los_p (Player.x, Player.y, x, y)) {
+	    lset (x, y, SEEN);
+	    putspot (x, y, c);
+	}
     }
 }
 
 // draws a particular spot regardless of line-of-sight
 void dodrawspot (int x, int y)
 {
-    chtype c;
     if (inbounds (x, y)) {
-	c = getspot (x, y, false);
-	if (c != Level->site(x,y).showchar) {
-	    lset (x, y, SEEN);
-	    Level->site(x,y).showchar = c;
-	    putspot (x, y, c);
-	}
+	chtype c = getspot (x, y, false);
+	lset (x, y, SEEN);
+	putspot (x, y, c);
     }
 }
 
@@ -561,7 +553,7 @@ static void blankoutspot (int i, int j)
 	lreset (i, j, LIT);
 	lset (i, j, CHANGED);
 	if (Level->site(i,j).locchar == FLOOR) {
-	    Level->site(i,j).showchar = SPACE;
+	    lreset (i, j, SEEN);
 	    putspot (i, j, SPACE);
 	}
     }
@@ -572,7 +564,6 @@ static void blotspot (int i, int j)
 {
     if (inbounds (i, j)) {
 	lreset (i, j, SEEN);
-	Level->site(i,j).showchar = SPACE;
 	if (!offscreen (j)) {
 	    wmove (Levelw, screenmod (j), i);
 	    wattrset (Levelw, CHARATTR (SPACE));
@@ -1232,13 +1223,10 @@ void spreadroomlight (int x, int y, int roomno)
 // illuminate one spot at x y
 static void lightspot (int x, int y)
 {
-    chtype c;
     lset (x, y, LIT);
     lset (x, y, SEEN);
     lset (x, y, CHANGED);
-    c = getspot (x, y, false);
-    Level->site(x,y).showchar = c;
-    putspot (x, y, c);
+    putspot (x, y, getspot (x, y, false));
 }
 
 void spreadroomdark (int x, int y, int roomno)

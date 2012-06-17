@@ -176,7 +176,6 @@ void do_los (int pyx, int *x1, int *y1, int x2, int y2)
 	    error += 2 * step;
 	    blocked = !unblocked (*x1, *y1);
 	}
-	Level->site(*x1,*y1).showchar = pyx;
 	plotchar (pyx, *x1, *y1);
 	plotspot (ox, oy, true);
 	napms (50);
@@ -240,7 +239,6 @@ void do_object_los (int pyx, int *x1, int *y1, int x2, int y2)
 	plotspot (ox, oy, true);
 	if (unblocked (*x1, *y1)) {
 	    plotchar (pyx, *x1, *y1);
-	    Level->site(*x1,*y1).showchar = pyx;
 	    napms (50);
 	}
     } while ((*x1 != x2 || *y1 != y2) && !blocked);

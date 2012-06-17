@@ -47,11 +47,12 @@ void p_process (void)
 {
     static int searchval = 0;
 
-    if (Player.status[BERSERK])
+    if (Player.status[BERSERK]) {
 	if (goberserk()) {
 	    setgamestatus (SKIP_PLAYER);
 	    drawvision (Player.x, Player.y);
 	}
+    }
     if (!gamestatusp (SKIP_PLAYER)) {
 	if (searchval > 0) {
 	    searchval--;
@@ -409,7 +410,7 @@ void p_country_process (void)
 		dismount_steed();
 		break;
 	    case 'H':
-		hunt (Country->site(Player.x,Player.y).showchar);
+		hunt (Country->site(Player.x,Player.y).showchar());
 		break;
 	    case 'I':
 		do_inventory_control();
@@ -1022,7 +1023,7 @@ static void opendoor (void)
 	    setgamestatus (SKIP_MONSTERS);
 	} else if (Level->site(ox,oy).locchar == PORTCULLIS) {
 	    print1 ("You try to lift the massive steel portcullis....");
-	    if (random_range (100) < Player.str) {
+	    if (random_range(100) < Player.str) {
 		print2 ("Incredible. You bust a gut and lift the portcullis.");
 		Level->site(ox,oy).locchar = FLOOR;
 		lset (ox, oy, CHANGED);
@@ -1030,7 +1031,7 @@ static void opendoor (void)
 		print2 ("Argh. You ruptured yourself.");
 		p_damage (Player.str, UNSTOPPABLE, "a portcullis");
 	    }
-	} else if ((Level->site(ox,oy).locchar != CLOSED_DOOR) || loc_statusp (ox, oy, SECRET)) {
+	} else if (Level->site(ox,oy).locchar != CLOSED_DOOR || loc_statusp (ox, oy, SECRET)) {
 	    print3 ("You can't open that!");
 	    setgamestatus (SKIP_MONSTERS);
 	} else if (Level->site(ox,oy).aux == LOCKED)
@@ -1447,7 +1448,7 @@ static void examine (void)
 		print3 ("How should I know what that is?");
 	    else {
 		mprint ("That terrain is:");
-		mprint (countryid (Country->site(x,y).showchar));
+		mprint (countryid (Country->site(x,y).showchar()));
 	    }
 	} else if (!view_los_p (Player.x, Player.y, x, y))
 	    print3 ("I refuse to examine something I can't see.");

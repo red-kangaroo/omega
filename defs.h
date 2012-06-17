@@ -898,12 +898,14 @@ public:
 
 // dungeon locations
 struct location {
-    chtype locchar;		// terrain type
-    chtype showchar;		// char instantaneously drawn for site
-    uint8_t aux;		// signifies various things
-    uint8_t p_locf;		// function executed when moved on
-    uint8_t lstatus;		// seen,stopsrun,lit,secret,
-    uint8_t roomnumber;		// so room can be named
+    chtype	locchar;	// terrain type
+    uint8_t	aux;		// signifies various things
+    uint8_t	p_locf;		// function executed when moved on
+    uint8_t	lstatus;	// seen,stopsrun,lit,secret,
+    uint8_t	roomnumber;	// so room can be named
+public:
+    inline bool	operator== (const location& l) const	{ return (locchar == l.locchar); }
+    chtype	showchar (void) const noexcept PURE;
 };
 
 class level {

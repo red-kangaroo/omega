@@ -1733,10 +1733,8 @@ static void m_sp_mirror (struct monster *m)
 	    for (i = 0; i < 5; i++) {
 		x = m->x + random_range (13) - 6;
 		y = m->y + random_range (13) - 6;
-		if (inbounds (x, y)) {
-		    Level->site(x,y).showchar = m->monchar;
+		if (inbounds (x, y))
 		    putspot (x, y, m->monchar);
-		}
 	    }
 	}
     }

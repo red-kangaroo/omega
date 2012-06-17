@@ -1581,15 +1581,16 @@ void clairvoyance (int vision)
     int x = Player.x, y = Player.y;
     mprint ("Clairvoyance... ");
     setspot (&x, &y);
-    for (i = x - vision; i < x + vision + 1; i++)
+    for (i = x - vision; i < x + vision + 1; i++) {
 	for (j = y - vision; j < y + vision + 1; j++) {
 	    if (inbounds (i, j)) {
-		Level->site(i,j).showchar = SPACE;
 		lreset (i, j, SECRET);
 		lset (i, j, CHANGED);
+		lset (i, j, SEEN);
 		dodrawspot (i, j);
 	    }
 	}
+    }
     levelrefresh();
 }
 

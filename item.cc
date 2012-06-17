@@ -1768,7 +1768,7 @@ static void i_stargem (pob o)
 	screencheck (3);
 	drawvision (Player.x, Player.y);
 	locprint ("Star Peak");
-	Country->site(Player.x,Player.y).showchar = Country->site(Player.x,Player.y).locchar;
+	c_reset (Player.x, Player.y, SECRET);
 	c_set (Player.x, Player.y, CHANGED);
 	print2 ("The Star Gem's brilliance seems to fade.");
     }

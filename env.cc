@@ -33,6 +33,27 @@ static void make_log_npc (monster& npc);
 
 //----------------------------------------------------------------------
 
+chtype location::showchar (void) const noexcept
+{
+    if (!(lstatus & SEEN))
+	return (' ');
+    if (lstatus & SECRET) {
+	switch (locchar) {
+	    case CASTLE:
+	    case CAVES:
+	    case PASS:
+	    case STARPEAK:
+	    case VOLCANO:	return (MOUNTAINS);
+	    case DRAGONLAIR:	return (DESERT);
+	    case MAGIC_ISLE:	return (CHAOS_SEA);
+	    default:		return (WALL);
+	}
+    }
+    return (locchar);
+}
+
+//----------------------------------------------------------------------
+
 level::level (void)
 : _site (MAXWIDTH*MAXLENGTH)
 , mlist()
@@ -57,7 +78,7 @@ void level::clear (void)
     mlist.clear();
     next = NULL;
     last_visited = time(NULL);
-    fill (_site, (location){ WALL, SPACE, (uint8_t) min(UINT8_MAX,20u*difficulty()), L_NO_OP, 0, RS_WALLSPACE });
+    fill (_site, (location){ WALL, (uint8_t) min(UINT8_MAX,20u*difficulty()), L_NO_OP, 0, RS_WALLSPACE });
 }
 
 monster* level::creature (int x, int y)
@@ -126,7 +147,6 @@ void load_arena (void)
 		    Level->site(i,j).locchar = FLOOR;
 		    break;
 	    }
-	    Level->site(i,j).showchar = Level->site(i,j).locchar;
 	}
     }
 
@@ -586,7 +606,6 @@ void load_city (int populate)
 			make_major_undead (i, j);
 		    break;
 		case 'V':
-		    Level->site(i,j).showchar = WALL;
 		    Level->site(i,j).locchar = FLOOR;
 		    Level->site(i,j).p_locf = L_VAULT;
 		    if (populate)
@@ -595,7 +614,6 @@ void load_city (int populate)
 		    lset (i, j, SECRET);
 		    break;
 		case '%':
-		    Level->site(i,j).showchar = WALL;
 		    Level->site(i,j).locchar = FLOOR;
 		    Level->site(i,j).p_locf = L_TRAP_SIREN;
 		    if (populate)
@@ -634,7 +652,6 @@ void load_city (int populate)
 		    Level->site(i,j).aux = DESTINY;
 		    break;
 		case '^':
-		    Level->site(i,j).showchar = WALL;
 		    Level->site(i,j).locchar = FLOOR;
 		    Level->site(i,j).p_locf = TRAP_BASE + random_range (NUMTRAPS);
 		    lset (i, j, SECRET);
@@ -662,7 +679,6 @@ void load_city (int populate)
 		    Level->site(i,j).locchar = FLOOR;
 		    break;
 		case ',':
-		    Level->site(i,j).showchar = WALL;
 		    Level->site(i,j).locchar = FLOOR;
 		    Level->site(i,j).aux = NOCITYMOVE;
 		    lset (i, j, SECRET);
@@ -676,13 +692,6 @@ void load_city (int populate)
 		default:
 		    printf ("\nOops... missed a case: '%c'   \n", site);
 		    morewait();
-	    }
-
-	    if (loc_statusp (i, j, SEEN)) {
-		if (loc_statusp (i, j, SECRET))
-		    Level->site(i,j).showchar = WALL;
-		else
-		    Level->site(i,j).showchar = Level->site(i,j).locchar;
 	    }
 	}
     }
@@ -1018,31 +1027,31 @@ void load_country (void)
 	    switch (site) {
 		case (PASS & 0xff):
 		    Level->site(i,j).locchar = PASS;
-		    Level->site(i,j).showchar = MOUNTAINS;
+		    Level->site(i,j).lstatus |= SECRET;
 		    break;
 		case (CASTLE & 0xff):
 		    Level->site(i,j).locchar = CASTLE;
-		    Level->site(i,j).showchar = MOUNTAINS;
+		    Level->site(i,j).lstatus |= SECRET;
 		    break;
 		case (STARPEAK & 0xff):
 		    Level->site(i,j).locchar = STARPEAK;
-		    Level->site(i,j).showchar = MOUNTAINS;
+		    Level->site(i,j).lstatus |= SECRET;
 		    break;
 		case (CAVES & 0xff):
 		    Level->site(i,j).locchar = CAVES;
-		    Level->site(i,j).showchar = MOUNTAINS;
+		    Level->site(i,j).lstatus |= SECRET;
 		    break;
 		case (VOLCANO & 0xff):
 		    Level->site(i,j).locchar = VOLCANO;
-		    Level->site(i,j).showchar = MOUNTAINS;
+		    Level->site(i,j).lstatus |= SECRET;
 		    break;
 		case (DRAGONLAIR & 0xff):
 		    Level->site(i,j).locchar = DRAGONLAIR;
-		    Level->site(i,j).showchar = DESERT;
+		    Level->site(i,j).lstatus |= SECRET;
 		    break;
 		case (MAGIC_ISLE & 0xff):
 		    Level->site(i,j).locchar = MAGIC_ISLE;
-		    Level->site(i,j).showchar = CHAOS_SEA;
+		    Level->site(i,j).lstatus |= SECRET;
 		    break;
 		case 'a':
 		case 'b':
@@ -1050,7 +1059,7 @@ void load_country (void)
 		case 'd':
 		case 'e':
 		case 'f':
-		    Level->site(i,j).showchar = Level->site(i,j).locchar = VILLAGE;
+		    Level->site(i,j).locchar = VILLAGE;
 		    Level->site(i,j).aux = 1 + site - 'a';
 		    break;
 		case '1':
@@ -1059,41 +1068,41 @@ void load_country (void)
 		case '4':
 		case '5':
 		case '6':
-		    Level->site(i,j).showchar = Level->site(i,j).locchar = TEMPLE;
+		    Level->site(i,j).locchar = TEMPLE;
 		    Level->site(i,j).aux = site - '0';
 		    break;
 		case (PLAINS & 0xff):
-		    Level->site(i,j).showchar = Level->site(i,j).locchar = PLAINS;
+		    Level->site(i,j).locchar = PLAINS;
 		    break;
 		case (TUNDRA & 0xff):
-		    Level->site(i,j).showchar = Level->site(i,j).locchar = TUNDRA;
+		    Level->site(i,j).locchar = TUNDRA;
 		    break;
 		case (ROAD & 0xff):
-		    Level->site(i,j).showchar = Level->site(i,j).locchar = ROAD;
+		    Level->site(i,j).locchar = ROAD;
 		    break;
 		case (MOUNTAINS & 0xff):
-		    Level->site(i,j).showchar = Level->site(i,j).locchar = MOUNTAINS;
+		    Level->site(i,j).locchar = MOUNTAINS;
 		    break;
 		case (RIVER & 0xff):
-		    Level->site(i,j).showchar = Level->site(i,j).locchar = RIVER;
+		    Level->site(i,j).locchar = RIVER;
 		    break;
 		case (CITY & 0xff):
-		    Level->site(i,j).showchar = Level->site(i,j).locchar = CITY;
+		    Level->site(i,j).locchar = CITY;
 		    break;
 		case (FOREST & 0xff):
-		    Level->site(i,j).showchar = Level->site(i,j).locchar = FOREST;
+		    Level->site(i,j).locchar = FOREST;
 		    break;
 		case (JUNGLE & 0xff):
-		    Level->site(i,j).showchar = Level->site(i,j).locchar = JUNGLE;
+		    Level->site(i,j).locchar = JUNGLE;
 		    break;
 		case (SWAMP & 0xff):
-		    Level->site(i,j).showchar = Level->site(i,j).locchar = SWAMP;
+		    Level->site(i,j).locchar = SWAMP;
 		    break;
 		case (DESERT & 0xff):
-		    Level->site(i,j).showchar = Level->site(i,j).locchar = DESERT;
+		    Level->site(i,j).locchar = DESERT;
 		    break;
 		case (CHAOS_SEA & 0xff):
-		    Level->site(i,j).showchar = Level->site(i,j).locchar = CHAOS_SEA;
+		    Level->site(i,j).locchar = CHAOS_SEA;
 		    break;
 	    }
 	}
@@ -1148,9 +1157,7 @@ void load_dlair (int empty, int populate)
 		    break;
 		case 'S':
 		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).showchar = WALL;
-		    if (!empty)
-			lset (i, j, SECRET);
+		    lset (i, j, SECRET);
 		    Level->site(i,j).roomnumber = RS_SECRETPASSAGE;
 		    break;
 		case '$':
@@ -1218,7 +1225,6 @@ void load_speak (int empty, int populate)
 	    switch (site) {
 		case 'S':
 		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).showchar = WALL;
 		    lset (i, j, SECRET);
 		    Level->site(i,j).roomnumber = RS_SECRETPASSAGE;
 		    break;
@@ -2650,13 +2656,11 @@ void load_house (int kind, int populate)
 		    break;
 		case 'S':
 		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).showchar = WALL;
 		    lset (i, j, SECRET);
 		    Level->site(i,j).roomnumber = RS_SECRETPASSAGE;
 		    break;
 		case '3':
 		    Level->site(i,j).locchar = SAFE;
-		    Level->site(i,j).showchar = WALL;
 		    lset (i, j, SECRET);
 		    Level->site(i,j).p_locf = L_SAFE;
 		    break;
@@ -2728,7 +2732,6 @@ void load_house (int kind, int populate)
 			make_site_monster (i, j, AUTO_MINOR);
 		    break;
 	    }
-	    Level->site(i,j).showchar = ' ';
 	}
     }
     initrand (E_RESTORE, 0);
@@ -2862,10 +2865,6 @@ void load_village (int villagenum, int populate)
 		    Level->site(i,j).locchar = STATUE;
 		    break;
 	    }
-	    if (loc_statusp (i, j, SECRET))
-		Level->site(i,j).showchar = WALL;
-	    else
-		Level->site(i,j).showchar = Level->site(i,j).locchar;
 	}
     }
     initrand (E_RESTORE, 0);
@@ -5438,10 +5437,7 @@ void l_cartographer (void)
 	    for (i = x - 15; i <= x + 15; i++) {
 		for (j = y - 15; j <= y + 15; j++) {
 		    if (i >= 0 && i < Country->width && j >= 0 && j < Country->height) {
-			if (Country->site(i,j).showchar != Country->site(i,j).locchar) {
-			    c_set (i, j, CHANGED);
-			    Country->site(i,j).showchar = Country->site(i,j).locchar;
-			}
+			c_set (i, j, CHANGED);
 			c_set (i, j, SEEN);
 		    }
 		}

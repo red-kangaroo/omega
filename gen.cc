@@ -704,12 +704,9 @@ void make_country_screen (int terrain)
     }
     if (nighttime()) {
 	print3 ("Night's gloom shrouds your sight.");
-	for (unsigned i = 0; i < Level->width; i++) {
-	    for (unsigned j = 0; j < Level->height; j++) {
-		Level->site(i,j).showchar = SPACE;
+	for (unsigned i = 0; i < Level->width; ++i)
+	    for (unsigned j = 0; j < Level->height; ++j)
 		Level->site(i,j).lstatus = 0;
-	    }
-	}
     }
 }
 
@@ -727,19 +724,19 @@ static void make_general_map (const char* terrain)
 		curr = Level->site(i,j - 1).locchar & 0xff;
 	    switch (curr) {
 		case (FLOOR & 0xff):
-		    Level->site(i,j).locchar = Level->site(i,j).showchar = FLOOR;
+		    Level->site(i,j).locchar = FLOOR;
 		    Level->site(i,j).p_locf = L_NO_OP;
 		    break;
 		case (HEDGE & 0xff):
-		    Level->site(i,j).locchar = Level->site(i,j).showchar = HEDGE;
+		    Level->site(i,j).locchar = HEDGE;
 		    Level->site(i,j).p_locf = L_HEDGE;
 		    break;
 		case (WATER & 0xff):
-		    Level->site(i,j).locchar = Level->site(i,j).showchar = WATER;
+		    Level->site(i,j).locchar = WATER;
 		    Level->site(i,j).p_locf = L_WATER;
 		    break;
 		case (RUBBLE & 0xff):
-		    Level->site(i,j).locchar = Level->site(i,j).showchar = RUBBLE;
+		    Level->site(i,j).locchar = RUBBLE;
 		    Level->site(i,j).p_locf = L_RUBBLE;
 		    break;
 	    }
@@ -761,7 +758,7 @@ static void make_road (void)
     make_general_map ("\"\"~4....");
     for (unsigned x = Level->width / 2 - 3; x <= Level->width / 2 + 3u; ++x) {
 	for (unsigned y = 0; y < Level->height; ++y) {
-	    Level->site(x,y).locchar = Level->site(x,y).showchar = FLOOR;
+	    Level->site(x,y).locchar = FLOOR;
 	    if (y && y+1 != Level->height)
 		Level->site(x,y).p_locf = L_NO_OP;
 	}
