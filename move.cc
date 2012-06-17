@@ -222,7 +222,7 @@ void l_abyss (void)
 		do {
 		    Player.x = random_range (Level->width);
 		    Player.y = random_range (Level->height);
-		} while (Country[Player.x][Player.y].base_terrain_type == CHAOS_SEA);
+		} while (Country->site(Player.x,Player.y).showchar == CHAOS_SEA);
 		p_damage (i * 50, NORMAL_DAMAGE, "a fall from a great height");
 	    } else {
 		print2 ("You built up some velocity during your fall, though....");
@@ -980,7 +980,7 @@ static void l_balancestone (void)
 	    do {
 		Player.x = random_range (Level->width);
 		Player.y = random_range (Level->height);
-	    } while (Country[Player.x][Player.y].current_terrain_type == CHAOS_SEA);
+	    } while (Country->site(Player.x,Player.y).showchar == CHAOS_SEA);
 	    screencheck (Player.y);
 	    drawvision (Player.x, Player.y);
 	} else {

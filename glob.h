@@ -11,11 +11,11 @@ extern int CitySiteList[NUMCITYSITES][3];	// locations of city sites [0] - found
 extern struct player Player;			// the player
 extern long GameStatus;				// Game Status bit vector
 extern int ScreenLength;			// How large is level window
-extern struct terrain Country[MAXWIDTH][MAXLENGTH];	// The countryside
-extern struct level *City;			// The city of Rampart
-extern struct level *TempLevel;			// Place holder
-extern struct level *Dungeon;			// Pointer to current Dungeon
-extern struct level *Level;			// Pointer to current Level
+extern struct level* Country;			// The countryside
+extern struct level* City;			// The city of Rampart
+extern struct level* TempLevel;			// Place holder
+extern struct level* Dungeon;			// Pointer to current Dungeon
+extern struct level* Level;			// Pointer to current Level
 extern int Current_Dungeon;			// What is Dungeon now (an E_ constant)
 extern int Villagenum;				// Current Village number
 extern int ScreenOffset;			// Offset of displayed screen to level
@@ -162,9 +162,9 @@ static inline bool loc_statusp (int x, int y, unsigned stat)	{ return (Level->si
 static inline void lset (int x, int y, unsigned stat)		{ Level->site(x,y).lstatus |= stat; }
 static inline void lreset (int x, int y, unsigned stat)		{ Level->site(x,y).lstatus &= ~stat; }
 
-static inline bool c_statusp (int x, int y, unsigned stat)	{ return (Country[x][y].status & stat); }
-static inline void c_set (int x, int y, unsigned stat)		{ Country[x][y].status |= stat; }
-static inline void c_reset(int x, int y, unsigned stat)		{ Country[x][y].status &= ~stat; }
+static inline bool c_statusp (int x, int y, unsigned stat)	{ return (Country->site(x,y).lstatus & stat); }
+static inline void c_set (int x, int y, unsigned stat)		{ Country->site(x,y).lstatus |= stat; }
+static inline void c_reset(int x, int y, unsigned stat)		{ Country->site(x,y).lstatus &= ~stat; }
 
 static inline bool m_statusp (const monster_data* m,unsigned s)	{ return (m->status & s); }
 static inline void m_status_set (monster* m, unsigned s)	{ m->status |= s; }

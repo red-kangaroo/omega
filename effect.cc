@@ -1870,7 +1870,7 @@ void strategic_teleport (int blessing)
 	do {
 	    Player.x = random_range (Level->width);
 	    Player.y = random_range (Level->height);
-	} while (Country[Player.x][Player.y].base_terrain_type == CHAOS_SEA);
+	} while (Country->site(Player.x,Player.y).locchar == CHAOS_SEA);
     } else {
 	mprint ("Below each portal is a caption. Enter which one:");
 	menuclear();

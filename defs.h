@@ -896,14 +896,6 @@ public:
     streamsize	stream_size (void) const;
 };
 
-// terrain locations
-struct terrain {
-    chtype base_terrain_type;
-    chtype current_terrain_type;
-    char aux;
-    char status;
-};
-
 // dungeon locations
 struct location {
     chtype locchar;		// terrain type

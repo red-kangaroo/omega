@@ -1768,7 +1768,7 @@ static void i_stargem (pob o)
 	screencheck (3);
 	drawvision (Player.x, Player.y);
 	locprint ("Star Peak");
-	Country[Player.x][Player.y].current_terrain_type = Country[Player.x][Player.y].base_terrain_type;
+	Country->site(Player.x,Player.y).showchar = Country->site(Player.x,Player.y).locchar;
 	c_set (Player.x, Player.y, CHANGED);
 	print2 ("The Star Gem's brilliance seems to fade.");
     }

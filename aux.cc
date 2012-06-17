@@ -37,21 +37,21 @@ void tunnelcheck (void)
 	gain_experience (5000);
 	if (Player.status[SHADOWFORM]) {
 	    change_environment (E_COUNTRYSIDE);
-	    switch (Country[Player.x][Player.y].base_terrain_type) {
+	    switch (Country->site(Player.x,Player.y).locchar) {
 		case CASTLE:
 		case STARPEAK:
 		case CAVES:
 		case VOLCANO:
-		    Country[Player.x][Player.y].current_terrain_type = MOUNTAINS;
+		    Country->site(Player.x,Player.y).showchar = MOUNTAINS;
 		    break;
 		case DRAGONLAIR:
-		    Country[Player.x][Player.y].current_terrain_type = DESERT;
+		    Country->site(Player.x,Player.y).showchar = DESERT;
 		    break;
 		case MAGIC_ISLE:
-		    Country[Player.x][Player.y].current_terrain_type = CHAOS_SEA;
+		    Country->site(Player.x,Player.y).showchar = CHAOS_SEA;
 		    break;
 	    }
-	    Country[Player.x][Player.y].base_terrain_type = Country[Player.x][Player.y].current_terrain_type;
+	    Country->site(Player.x,Player.y).locchar = Country->site(Player.x,Player.y).showchar;
 	    c_set (Player.x, Player.y, CHANGED);
 	    print1 ("In your shadowy state, you float back up to the surface.");
 	    return;
@@ -224,7 +224,7 @@ int p_country_moveable (int x, int y)
     if (!inbounds (x, y))
 	return (FALSE);
     else if (optionp (CONFIRM)) {
-	if ((Country[x][y].current_terrain_type == CHAOS_SEA) || (Country[x][y].current_terrain_type == MOUNTAINS))
+	if ((Country->site(x,y).showchar == CHAOS_SEA) || (Country->site(x,y).showchar == MOUNTAINS))
 	    return (confirmation());
 	else
 	    return (TRUE);
@@ -2002,7 +2002,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_temple (Country[Player.x][Player.y].aux, TRUE);
+	    load_temple (Country->site(Player.x,Player.y).aux, TRUE);
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -2039,7 +2039,7 @@ void change_environment (int new_environment)
 		}
 		Level = new level;
 		clear_level (Level);
-		Villagenum = Country[Player.x][Player.y].aux;
+		Villagenum = Country->site(Player.x,Player.y).aux;
 		load_village (Villagenum, TRUE);
 	    } else
 		Level = TempLevel;
@@ -2140,6 +2140,7 @@ void change_environment (int new_environment)
 	    break;
 	case E_COUNTRYSIDE:
 	    print1 ("You return to the fresh air of the open countryside.");
+	    Level = Country;
 	    if (Last_Environment == E_CITY) {
 		Player.x = 27;
 		Player.y = 19;
@@ -2154,8 +2155,8 @@ void change_environment (int new_environment)
 	    break;
 	case E_TACTICAL_MAP:
 	    print1 ("You are now on the tactical screen; exit off any side to leave");
-	    make_country_screen (Country[Player.x][Player.y].current_terrain_type);
-	    make_country_monsters (Country[Player.x][Player.y].current_terrain_type);
+	    make_country_screen (Country->site(Player.x,Player.y).showchar);
+	    make_country_monsters (Country->site(Player.x,Player.y).showchar);
 	    Player.x = Level->width / 2;
 	    Player.y = Level->height / 2;
 	    while (Level->site(Player.x,Player.y).locchar == WATER) {
@@ -2314,7 +2315,7 @@ static void outdoors_random_event (void)
     int num, i, j;
     switch (random_range (300)) {
 	case 0:
-	    switch (Country[Player.x][Player.y].current_terrain_type) {
+	    switch (Country->site(Player.x,Player.y).showchar) {
 		case TUNDRA:
 		    mprint ("It begins to snow. Heavily.");
 		    break;
@@ -2487,9 +2488,9 @@ static void outdoors_random_event (void)
 		for (j = Player.y - 5; j < Player.y + 6; j++)
 		    if (inbounds (i, j)) {
 			c_set (i, j, SEEN);
-			if (Country[i][j].current_terrain_type != Country[i][j].base_terrain_type) {
+			if (Country->site(i,j).showchar != Country->site(i,j).locchar) {
 			    c_set (i, j, CHANGED);
-			    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type;
+			    Country->site(i,j).showchar = Country->site(i,j).locchar;
 			}
 		    }
 	    show_screen();
@@ -2603,7 +2604,7 @@ void terrain_check (int takestime)
 	    case 1: print2 ("The road goes ever onward...."); break;
 	}
     }
-    switch (Country[Player.x][Player.y].current_terrain_type) {
+    switch (Country->site(Player.x,Player.y).showchar) {
 	case RIVER:
 	    if ((Player.y < 6) && (Player.x > 20))
 		locprint ("Star Lake.");
@@ -2805,7 +2806,7 @@ void terrain_check (int takestime)
 	    mprint ("The castle is hewn from solid granite. The drawbridge is down.");
 	    break;
 	case TEMPLE:
-	    switch (Country[Player.x][Player.y].aux) {
+	    switch (Country->site(Player.x,Player.y).aux) {
 		case ODIN:
 		    locprint ("A rough-hewn granite temple.");
 		    break;
@@ -2878,13 +2879,13 @@ void countrysearch (void)
     for (x = Player.x - 1; x < Player.x + 2; x++)
 	for (y = Player.y - 1; y < Player.y + 2; y++)
 	    if (inbounds (x, y)) {
-		if (Country[x][y].current_terrain_type != Country[x][y].base_terrain_type) {
+		if (Country->site(x,y).showchar != Country->site(x,y).locchar) {
 		    clearmsg();
 		    mprint ("Your search was fruitful!");
-		    Country[x][y].current_terrain_type = Country[x][y].base_terrain_type;
+		    Country->site(x,y).showchar = Country->site(x,y).locchar;
 		    c_set (x, y, CHANGED);
 		    mprint ("You discovered:");
-		    mprint (countryid (Country[x][y].base_terrain_type));
+		    mprint (countryid (Country->site(x,y).locchar));
 		}
 	    }
 }

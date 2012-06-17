@@ -523,10 +523,11 @@ void calc_weight (void)
 // returns true if its ok to get rid of a level
 int ok_to_free (plv level)
 {
-    if (level == NULL)
-	return (FALSE);
-    else
-	return ((level->environment != E_CITY) && (level->environment != E_VILLAGE) && (level->environment != Current_Dungeon));
+    return (level &&
+	    level->environment != E_COUNTRYSIDE &&
+	    level->environment != E_CITY &&
+	    level->environment != E_VILLAGE &&
+	    level->environment != Current_Dungeon);
 }
 
 // Free up monsters and items on a level

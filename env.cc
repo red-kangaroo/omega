@@ -1009,40 +1009,40 @@ static void repair_jail (void)
 // loads the countryside level from the data file
 void load_country (void)
 {
-    const char* ld = Level_Country;
+    const char* ld = Level->init_from_data (E_COUNTRYSIDE, Level_Country);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
 	    char site = *ld++;
-	    Country[i][j].aux = 0;
-	    Country[i][j].status = 0;
+	    Level->site(i,j).aux = 0;
+	    Level->site(i,j).lstatus = 0;
 	    switch (site) {
 		case (PASS & 0xff):
-		    Country[i][j].base_terrain_type = PASS;
-		    Country[i][j].current_terrain_type = MOUNTAINS;
+		    Level->site(i,j).locchar = PASS;
+		    Level->site(i,j).showchar = MOUNTAINS;
 		    break;
 		case (CASTLE & 0xff):
-		    Country[i][j].base_terrain_type = CASTLE;
-		    Country[i][j].current_terrain_type = MOUNTAINS;
+		    Level->site(i,j).locchar = CASTLE;
+		    Level->site(i,j).showchar = MOUNTAINS;
 		    break;
 		case (STARPEAK & 0xff):
-		    Country[i][j].base_terrain_type = STARPEAK;
-		    Country[i][j].current_terrain_type = MOUNTAINS;
+		    Level->site(i,j).locchar = STARPEAK;
+		    Level->site(i,j).showchar = MOUNTAINS;
 		    break;
 		case (CAVES & 0xff):
-		    Country[i][j].base_terrain_type = CAVES;
-		    Country[i][j].current_terrain_type = MOUNTAINS;
+		    Level->site(i,j).locchar = CAVES;
+		    Level->site(i,j).showchar = MOUNTAINS;
 		    break;
 		case (VOLCANO & 0xff):
-		    Country[i][j].base_terrain_type = VOLCANO;
-		    Country[i][j].current_terrain_type = MOUNTAINS;
+		    Level->site(i,j).locchar = VOLCANO;
+		    Level->site(i,j).showchar = MOUNTAINS;
 		    break;
 		case (DRAGONLAIR & 0xff):
-		    Country[i][j].base_terrain_type = DRAGONLAIR;
-		    Country[i][j].current_terrain_type = DESERT;
+		    Level->site(i,j).locchar = DRAGONLAIR;
+		    Level->site(i,j).showchar = DESERT;
 		    break;
 		case (MAGIC_ISLE & 0xff):
-		    Country[i][j].base_terrain_type = MAGIC_ISLE;
-		    Country[i][j].current_terrain_type = CHAOS_SEA;
+		    Level->site(i,j).locchar = MAGIC_ISLE;
+		    Level->site(i,j).showchar = CHAOS_SEA;
 		    break;
 		case 'a':
 		case 'b':
@@ -1050,8 +1050,8 @@ void load_country (void)
 		case 'd':
 		case 'e':
 		case 'f':
-		    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type = VILLAGE;
-		    Country[i][j].aux = 1 + site - 'a';
+		    Level->site(i,j).showchar = Level->site(i,j).locchar = VILLAGE;
+		    Level->site(i,j).aux = 1 + site - 'a';
 		    break;
 		case '1':
 		case '2':
@@ -1059,41 +1059,41 @@ void load_country (void)
 		case '4':
 		case '5':
 		case '6':
-		    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type = TEMPLE;
-		    Country[i][j].aux = site - '0';
+		    Level->site(i,j).showchar = Level->site(i,j).locchar = TEMPLE;
+		    Level->site(i,j).aux = site - '0';
 		    break;
 		case (PLAINS & 0xff):
-		    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type = PLAINS;
+		    Level->site(i,j).showchar = Level->site(i,j).locchar = PLAINS;
 		    break;
 		case (TUNDRA & 0xff):
-		    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type = TUNDRA;
+		    Level->site(i,j).showchar = Level->site(i,j).locchar = TUNDRA;
 		    break;
 		case (ROAD & 0xff):
-		    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type = ROAD;
+		    Level->site(i,j).showchar = Level->site(i,j).locchar = ROAD;
 		    break;
 		case (MOUNTAINS & 0xff):
-		    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type = MOUNTAINS;
+		    Level->site(i,j).showchar = Level->site(i,j).locchar = MOUNTAINS;
 		    break;
 		case (RIVER & 0xff):
-		    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type = RIVER;
+		    Level->site(i,j).showchar = Level->site(i,j).locchar = RIVER;
 		    break;
 		case (CITY & 0xff):
-		    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type = CITY;
+		    Level->site(i,j).showchar = Level->site(i,j).locchar = CITY;
 		    break;
 		case (FOREST & 0xff):
-		    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type = FOREST;
+		    Level->site(i,j).showchar = Level->site(i,j).locchar = FOREST;
 		    break;
 		case (JUNGLE & 0xff):
-		    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type = JUNGLE;
+		    Level->site(i,j).showchar = Level->site(i,j).locchar = JUNGLE;
 		    break;
 		case (SWAMP & 0xff):
-		    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type = SWAMP;
+		    Level->site(i,j).showchar = Level->site(i,j).locchar = SWAMP;
 		    break;
 		case (DESERT & 0xff):
-		    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type = DESERT;
+		    Level->site(i,j).showchar = Level->site(i,j).locchar = DESERT;
 		    break;
 		case (CHAOS_SEA & 0xff):
-		    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type = CHAOS_SEA;
+		    Level->site(i,j).showchar = Level->site(i,j).locchar = CHAOS_SEA;
 		    break;
 	    }
 	}
@@ -3143,7 +3143,7 @@ static void make_creature (monster& m, int mid)
     if ((mid == ANGEL) || (mid == HIGH_ANGEL) || (mid == ARCHANGEL)) {
 	// aux1 field of an angel is its deity
 	if (Current_Environment == E_TEMPLE)
-	    m.aux1 = Country[LastCountryLocX][LastCountryLocY].aux;
+	    m.aux1 = Country->site(LastCountryLocX,LastCountryLocY).aux;
 	else
 	    m.aux1 = random_range (6) + 1;
 	strcpy (Str3, Monsters[mid].monstring);
@@ -5423,41 +5423,25 @@ void l_cartographer (void)
 	    Player.cash -= 500;
 	    dataprint();
 	    switch (Villagenum) {
-		case 1:
-		    x = 56;
-		    y = 5;
-		    break;
+		case 1: x = 56; y =  5; break;
 		default:
-		case 2:
-		    x = 35;
-		    y = 11;
-		    break;
-		case 3:
-		    x = 10;
-		    y = 40;
-		    break;
-		case 4:
-		    x = 7;
-		    y = 6;
-		    break;
-		case 5:
-		    x = 40;
-		    y = 43;
-		    break;
-		case 6:
-		    x = 20;
-		    y = 41;
-		    break;
+		case 2: x = 35; y = 11; break;
+		case 3: x = 10; y = 40; break;
+		case 4: x =  7; y =  6; break;
+		case 5: x = 40; y = 43; break;
+		case 6: x = 20; y = 41; break;
 	    }
-	    for (i = x - 15; i <= x + 15; i++)
-		for (j = y - 15; j <= y + 15; j++)
-		    if ((i >= 0) && (i < 64) && (j >= 0) && (j < 64)) {
-			if (Country[i][j].current_terrain_type != Country[i][j].base_terrain_type) {
+	    for (i = x - 15; i <= x + 15; i++) {
+		for (j = y - 15; j <= y + 15; j++) {
+		    if (i >= 0 && i < Country->width && j >= 0 && j < Country->height) {
+			if (Country->site(i,j).showchar != Country->site(i,j).locchar) {
 			    c_set (i, j, CHANGED);
-			    Country[i][j].current_terrain_type = Country[i][j].base_terrain_type;
+			    Country->site(i,j).showchar = Country->site(i,j).locchar;
 			}
 			c_set (i, j, SEEN);
 		    }
+		}
+	    }
 	}
     } else
 	print3 ("Don't blame me if you get lost....");

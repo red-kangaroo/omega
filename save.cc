@@ -4,9 +4,7 @@
 
 //----------------------------------------------------------------------
 
-static void restore_country(istream& is);
 static void restore_level(istream& is);
-static void save_country(ostream& os);
 static void save_level(ostream& os, plv level);
 
 //----------------------------------------------------------------------
@@ -42,7 +40,7 @@ int save_game (const char* savestr)
 	ostream os (buf);
 
 	os << Player;
-	save_country (os);
+	save_level (os, Country);
 	save_level (os, City);
 
 	if (Current_Environment == E_CITY || Current_Environment == E_COUNTRYSIDE)
@@ -88,11 +86,9 @@ int restore_game (const char* savestr)
     try {
 	buf.read_file (savestr);
 	istream is (buf);
-
 	print1 ("Restoring...");
-
 	is >> Player;
-	restore_country (is);
+	restore_level (is);
 	restore_level (is);	// the city level
 	int i;
 	is >> i;
@@ -104,29 +100,6 @@ int restore_game (const char* savestr)
 	    }
 	    if (Current_Environment == E_CITY)
 		Level = City;
-	}
-	// this disgusting kludge because LENGTH and WIDTH are globals...
-	Level->width = 64;
-	switch (Current_Environment) {
-	    case E_COURT:
-		Level->height = 24;
-		break;
-	    case E_ARENA:
-	    case E_ABYSS:
-	    case E_CIRCLE:
-	    case E_MANSION:
-	    case E_HOUSE:
-	    case E_HOVEL:
-	    case E_DLAIR:
-	    case E_STARPEAK:
-	    case E_MAGIC_ISLE:
-	    case E_TEMPLE:
-	    case E_VILLAGE:
-		Level->height = 16;
-		break;
-	    default:
-		Level->height = 64;
-		break;
 	}
 	print3 ("Restoration complete.");
 	ScreenOffset = -1000;	// to force a redraw
@@ -315,7 +288,9 @@ static void save_level (ostream& os, plv level)
 {
     unsigned run;
     uint16_t i, j;
-    os << ios::align(alignof(level->environment)) << level->environment << level->depth << level->numrooms << level->tunnelled;
+    os << ios::align(alignof(level->environment)) << level->environment << level->last_visited
+	<< level->width << level->height << level->lastx << level->lasty
+	<< level->depth << level->generated << level->numrooms << level->tunnelled;
     for (j = 0; j < MAXLENGTH; j++) {
 	for (i = 0; i < MAXWIDTH; i++) {
 	    if (level->site(i,j).lstatus & CHANGED) {	// this loc has been changed
@@ -359,19 +334,23 @@ static void restore_level (istream& is)
 
     Level = new level;
     clear_level (Level);
-    is >> ios::align(alignof(Level->environment)) >> Level->environment >> Level->depth >> Level->numrooms >> Level->tunnelled;
+    is >> ios::align(alignof(Level->environment)) >> Level->environment >> Level->last_visited
+	>> Level->width >> Level->height >> Level->lastx >> Level->lasty
+	>> Level->depth >> Level->generated >> Level->numrooms >> Level->tunnelled;
     Level->generated = TRUE;
     temp_env = Current_Environment;
     Current_Environment = Level->environment;
     switch (Level->environment) {
 	case E_COUNTRYSIDE:
+	    Country = Level;
 	    load_country();
 	    break;
 	case E_CITY:
+	    City = Level;
 	    load_city (FALSE);
 	    break;
 	case E_VILLAGE:
-	    load_village (Country[LastCountryLocX][LastCountryLocY].aux, FALSE);
+	    load_village (Country->site(LastCountryLocX,LastCountryLocY).aux, FALSE);
 	    break;
 	case E_CAVES:
 	    initrand (Current_Environment, Level->depth);
@@ -424,7 +403,7 @@ static void restore_level (istream& is)
 	    load_misle (gamestatusp (KILLED_EATER), FALSE);
 	    break;
 	case E_TEMPLE:
-	    load_temple (Country[LastCountryLocX][LastCountryLocY].aux, FALSE);
+	    load_temple (Country->site(LastCountryLocX,LastCountryLocY).aux, FALSE);
 	    break;
 	case E_CIRCLE:
 	    load_circle (FALSE);
@@ -560,65 +539,4 @@ streamsize object::stream_size (void) const
     ++r; if (truename && strcmp (truename, Objects[id].truename)) r += strlen(truename);
     ++r; if (cursestr && strcmp (cursestr, Objects[id].cursestr)) r += strlen(truename);
     return (Align(r,stream_align(*this)));
-}
-
-static void save_country (ostream& os)
-{
-    unsigned i, j;
-    for (i = 0; i < MAXWIDTH; i++) {
-	for (j = 0; j < MAXLENGTH; j++) {
-	    if (c_statusp (i, j, CHANGED)) {
-		os << ios::align(alignof(i)) << i << j;
-		os.write (&Country[i][j], sizeof(Country[i][j]));
-	    }
-	}
-    }
-    os << ios::align(alignof(i)) << i << j;
-    // since we don't mark the 'seen' bits as CHANGED, need to save a bitmask
-    unsigned long mask = 0;
-    int run = 8*sizeof (mask);
-    os.align (alignof(mask));
-    for (i = 0; i < MAXWIDTH; i++) {
-	for (j = 0; j < MAXLENGTH; j++) {
-	    if (run == 0) {
-		run = 8 * sizeof(mask);
-		os << mask;
-		mask = 0;
-	    }
-	    mask >>= 1;
-	    if (c_statusp (i, j, SEEN))
-		mask |= (1UL << (sizeof(mask)*8 - 1));
-	    --run;
-	}
-    }
-    if (run < (int)(8 * sizeof(long int)))
-	os << mask;
-}
-
-static void restore_country (istream& is)
-{
-    int i, j;
-    int run;
-    unsigned long int mask = 0;
-
-    load_country();
-    is >> ios::align(alignof(i)) >> i >> j;
-    while (i < MAXWIDTH && j < MAXLENGTH) {
-	is.read (&Country[i][j], sizeof(Country[i][j]));
-	is >> ios::align(alignof(i)) >> i >> j;
-    }
-    run = 0;
-    is.align (alignof(mask));
-    for (i = 0; i < MAXWIDTH; i++) {
-	for (j = 0; j < MAXLENGTH; j++) {
-	    if (run == 0) {
-		run = 8*sizeof(mask);
-		is >> mask;
-	    }
-	    if (mask & 1)
-		c_set (i, j, SEEN);
-	    mask >>= 1;
-	    run--;
-	}
-    }
 }

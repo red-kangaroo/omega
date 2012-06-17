@@ -409,7 +409,7 @@ void p_country_process (void)
 		dismount_steed();
 		break;
 	    case 'H':
-		hunt (Country[Player.x][Player.y].current_terrain_type);
+		hunt (Country->site(Player.x,Player.y).showchar);
 		break;
 	    case 'I':
 		do_inventory_control();
@@ -430,7 +430,7 @@ void p_country_process (void)
 		version();
 		break;
 	    case '>':
-		enter_site (Country[Player.x][Player.y].base_terrain_type);
+		enter_site (Country->site(Player.x,Player.y).locchar);
 		break;
 	    case '?':
 		help();
@@ -1447,7 +1447,7 @@ static void examine (void)
 		print3 ("How should I know what that is?");
 	    else {
 		mprint ("That terrain is:");
-		mprint (countryid (Country[x][y].current_terrain_type));
+		mprint (countryid (Country->site(x,y).showchar));
 	    }
 	} else if (!view_los_p (Player.x, Player.y, x, y))
 	    print3 ("I refuse to examine something I can't see.");
@@ -2125,7 +2125,7 @@ static void hunt (int terrain)
 	    fertility = 80;
 	    break;
     }
-    if (((Date % 360 < 60) || (Date % 360 > 300)) && (terrain != DESERT) && (terrain != JUNGLE)) {
+    if ((Date % 360 < 60 || Date % 360 > 300) && terrain != DESERT && terrain != JUNGLE) {
 	mprint ("The cold weather impedes your hunt....");
 	fertility = fertility / 2;
     }

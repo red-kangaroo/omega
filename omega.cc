@@ -37,11 +37,11 @@ int CitySiteList[NUMCITYSITES][3];
 long GameStatus = 0L;		// Game Status bit vector
 int ScreenLength = 0;		// How large is level window
 struct player Player;		// the player
-struct terrain Country[MAXWIDTH][MAXLENGTH];	// The countryside
-struct level *City = NULL;	// The city of Rampart
-struct level *TempLevel = NULL;	// Place holder
-struct level *Level = NULL;	// Pointer to current Level
-struct level *Dungeon = NULL;	// Pointer to current Dungeon
+struct level* Country = NULL;	// The countryside
+struct level* City = NULL;	// The city of Rampart
+struct level* TempLevel = NULL;	// Place holder
+struct level* Level = NULL;	// Pointer to current Level
+struct level* Dungeon = NULL;	// Pointer to current Dungeon
 int Villagenum = 0;		// Current Village number
 int ScreenOffset = 0;		// Offset of displayed screen to level
 int MaxDungeonLevels = 0;	// Deepest level allowed in dungeon
@@ -236,19 +236,16 @@ static void signalexit (int sig UNUSED)
 // Start up game with new dungeons; start with player in city
 static void init_world (void)
 {
-    City = Level = TempLevel = Dungeon = NULL;
+    TempLevel = Dungeon = NULL;
     for (int env = 0; env <= E_MAX; env++)
 	level_seed[env] = rand();
+    Level = Country = new level;
+    clear_level (Country);
     load_country();
     for (int i = 0; i < NUMCITYSITES; i++)
 	CitySiteList[i][0] = FALSE;
     for (unsigned i = 0; i < ArraySize(ObjectAttrs); ++i)
 	ObjectAttrs[i] = Objects[i].uniqueness;
-    TempLevel = Level;
-    if (ok_to_free (TempLevel)) {
-	free_level (TempLevel);
-	TempLevel = NULL;
-    }
     Level = City = new level;
     clear_level (Level);
     load_city (TRUE);

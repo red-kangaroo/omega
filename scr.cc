@@ -56,7 +56,7 @@ void show_screen (void)
 	    chtype c = SPACE;
 	    if (Current_Environment == E_COUNTRYSIDE) {
 		if (c_statusp (i, j, SEEN))
-		    c = Country[i][j].current_terrain_type;
+		    c = Country->site(i,j).showchar;
 	    } else {
 		if (loc_statusp (i, j, SEEN))
 		    c = getspot (i, j, FALSE);
@@ -405,12 +405,10 @@ static int lastx = -1, lasty = -1;
 
 static void drawplayer (void)
 {
-    int c;
-
     if (Current_Environment == E_COUNTRYSIDE) {
 	if (inbounds (lastx, lasty) && !offscreen (lasty)) {
 	    wmove (Levelw, screenmod (lasty), lastx);
-	    c = Country[lastx][lasty].current_terrain_type;
+	    chtype c = Country->site(lastx,lasty).showchar;
 	    wattrset (Levelw, CHARATTR (c));
 	    waddch (Levelw, (c & 0xff));
 	}
@@ -468,17 +466,19 @@ void drawvision (int x, int y)
 	oldx = x;
 	oldy = y;
     } else {
-	for (i = -1; i < 2; i++)
-	    for (j = -1; j < 2; j++)
+	for (i = -1; i < 2; i++) {
+	    for (j = -1; j < 2; j++) {
 		if (inbounds (x + i, y + j)) {
 		    c_set (x + i, y + j, SEEN);
 		    if (!offscreen (y + j)) {
 			wmove (Levelw, screenmod (y + j), x + i);
-			c = Country[x + i][y + j].current_terrain_type;
+			c = Country->site(x+i,y+j).showchar;
 			wattrset (Levelw, CHARATTR (c));
 			waddch (Levelw, (c & 0xff));
 		    }
 		}
+	    }
+	}
 	drawplayer();
 	omshowcursor (Player.x, Player.y);
     }
