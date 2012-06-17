@@ -196,18 +196,12 @@ void statue_random(int x, int y);
 void stock_level(void);
 void wandercheck(void);
 // gen.c
-void cavern_level(void);
 void change_level(int fromlevel, int tolevel, int rewrite_level);
 void clear_level(struct level *dungeon_level);
 void free_dungeon(void);
-void install_specials(void);
-void install_traps(void);
+void generate_level (int fromlevel, int tolevel);
 void make_country_screen(int terrain);
-void make_stairs(int fromlevel);
-void maze_level(void);
-void room_level(void);
 const char* roomname(int ri);
-void sewer_level(void);
 // inv.c
 int cursed (const object& o);
 void do_inventory_control(void);

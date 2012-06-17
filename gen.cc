@@ -20,6 +20,13 @@ static void maze_corridor(int fx, int fy, int tx, int ty, int rsi, int num);
 static void room_corridor(int fx, int fy, int tx, int ty, int baux);
 static void sewer_corridor(int x, int y, int dx, int dy, chtype locchar);
 static void straggle_corridor(int fx, int fy, int tx, int ty, chtype loc, char rsi);
+static void cavern_level(void);
+static void install_specials(void);
+static void install_traps(void);
+static void make_stairs(int fromlevel);
+static void maze_level(void);
+static void room_level(void);
+static void sewer_level(void);
 
 //----------------------------------------------------------------------
 
@@ -40,6 +47,49 @@ void clear_level (struct level *dungeon_level)
 	dungeon_level->clear();
 }
 
+void generate_level (int fromlevel, int tolevel)
+{
+    initrand (Current_Environment, tolevel);
+    Level->environment = Current_Environment;
+    Level->depth = tolevel;
+    Level->generated = true;
+    switch (Current_Environment) {
+	case E_CAVES:
+	    if (!random_range(4) && tolevel < MaxDungeonLevels)
+		room_level();
+	    else
+		cavern_level();
+	    break;
+	case E_SEWERS:
+	    if (!random_range (4) && tolevel < MaxDungeonLevels)
+		room_level();
+	    else
+		sewer_level();
+	    break;
+	case E_CASTLE:
+	    room_level();
+	    break;
+	case E_ASTRAL:
+	    maze_level();
+	    break;
+	case E_VOLCANO:
+	    switch (random_range (3)) {
+		case 0: cavern_level(); break;
+		case 1: room_level(); break;
+		case 2: maze_level(); break;
+	    }
+	    break;
+	default:
+	    print3 ("This dungeon not implemented!");
+	    break;
+    }
+    install_traps();
+    install_specials();
+    make_stairs (fromlevel);
+    make_stairs (fromlevel);
+    initrand (E_RESTORE, 0);
+}
+
 // Looks for level tolevel in current dungeon which is named by
 // Dungeon, which may be NULL. If the level is found, and rewrite_level
 // is false, and the level has already been generated, nothing happens
@@ -52,55 +102,16 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
     Player.sy = -1;		// sanctuary effect dispelled
     thislevel = findlevel (Dungeon, tolevel);
     deepest[Current_Environment] = max (deepest[Current_Environment], tolevel);
-    if (thislevel == NULL) {
+    if (!thislevel) {
 	thislevel = new level;
-	Level->resize (64, 64);
+	thislevel->resize (64, 64);
 	clear_level (thislevel);
-	Level = thislevel;
-	Level->next = Dungeon;
+	thislevel->next = Dungeon;
 	Dungeon = Level;
     }
     Level = thislevel;
-    if ((!Level->generated) || rewrite_level) {
-	initrand (Current_Environment, tolevel);
-	Level->environment = Current_Environment;
-	Level->depth = tolevel;
-	Level->generated = true;
-	switch (Current_Environment) {
-	    case E_CAVES:
-		if (!random_range(4) && tolevel < MaxDungeonLevels)
-		    room_level();
-		else
-		    cavern_level();
-		break;
-	    case E_SEWERS:
-		if (!random_range (4) && tolevel < MaxDungeonLevels)
-		    room_level();
-		else
-		    sewer_level();
-		break;
-	    case E_CASTLE:
-		room_level();
-		break;
-	    case E_ASTRAL:
-		maze_level();
-		break;
-	    case E_VOLCANO:
-		switch (random_range (3)) {
-		    case 0: cavern_level(); break;
-		    case 1: room_level(); break;
-		    case 2: maze_level(); break;
-		}
-		break;
-	    default:
-		print3 ("This dungeon not implemented!");
-		break;
-	}
-	install_traps();
-	install_specials();
-	make_stairs (fromlevel);
-	make_stairs (fromlevel);
-	initrand (E_RESTORE, 0);
+    if (!Level->generated || rewrite_level) {
+	generate_level (fromlevel, tolevel);
 	populate_level (Current_Environment);
 	stock_level();
     }
@@ -429,7 +440,7 @@ static void find_stairs (char fromlevel, char tolevel)
     }
 }
 
-void install_traps (void)
+static void install_traps (void)
 {
     for (unsigned i = 0; i < Level->width; i++)
 	for (unsigned j = 0; j < Level->height; j++)
@@ -455,7 +466,7 @@ static void build_room (int x, int y, int l, char rsi, int baux)
     }
 }
 
-void cavern_level (void)
+static void cavern_level (void)
 {
     int i, fx, fy, tx, ty, t, l, e;
     char rsi;
@@ -496,7 +507,7 @@ void cavern_level (void)
     }
 }
 
-void sewer_level (void)
+static void sewer_level (void)
 {
     int i, tx, ty, t, l, e;
     char rsi;
@@ -555,7 +566,7 @@ static void sewer_corridor (int x, int y, int dx, int dy, chtype locchar)
 	makedoor (x, y);
 }
 
-void install_specials (void)
+static void install_specials (void)
 {
     for (unsigned x = 0; x < Level->width; x++) {
 	for (unsigned y = 0; y < Level->height; y++) {
@@ -627,7 +638,7 @@ void install_specials (void)
 // fromlevel determines whether the player is placed on the up or the down
 // staircase. The aux value is currently unused elsewhere, but is set 
 // to the destination level.
-void make_stairs (int fromlevel)
+static void make_stairs (int fromlevel)
 {
     int i, j;
     // no stairway out of astral
@@ -808,7 +819,7 @@ static void make_swamp (void)
 // builds a room. Then, for each successive room, sends off at least one
 // corridor which is guaranteed to connect up to another room, thus guaranteeing
 // fully connected level.
-void room_level (void)
+static void room_level (void)
 {
     int i, fx, fy, tx, ty, t, l, e;
 
@@ -907,7 +918,7 @@ static void room_corridor (int fx, int fy, int tx, int ty, int baux)
     makedoor (fx, fy);
 }
 
-void maze_level (void)
+static void maze_level (void)
 {
     int tx, ty;
     char rsi = RS_VOLCANO;

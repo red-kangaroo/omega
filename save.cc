@@ -353,34 +353,11 @@ static void restore_level (istream& is)
 	    load_village (Country->site(LastCountryLocX,LastCountryLocY).aux, false);
 	    break;
 	case E_CAVES:
-	    initrand (Current_Environment, Level->depth);
-	    if (!random_range(4) && Level->depth < MaxDungeonLevels)
-		room_level();
-	    else
-		cavern_level();
-	    break;
 	case E_SEWERS:
-	    initrand (Current_Environment, Level->depth);
-	    if (!random_range(4) && Level->depth < MaxDungeonLevels)
-		room_level();
-	    else
-		sewer_level();
-	    break;
 	case E_CASTLE:
-	    initrand (Current_Environment, Level->depth);
-	    room_level();
-	    break;
 	case E_ASTRAL:
-	    initrand (Current_Environment, Level->depth);
-	    maze_level();
-	    break;
 	case E_VOLCANO:
-	    initrand (Current_Environment, Level->depth);
-	    switch (random_range (3)) {
-		case 0: cavern_level(); break;
-		case 1: room_level(); break;
-		case 2: maze_level(); break;
-	    }
+	    generate_level (-1, Level->depth);
 	    break;
 	case E_HOVEL:
 	case E_MANSION:
@@ -408,13 +385,6 @@ static void restore_level (istream& is)
 	default:
 	    print3 ("This dungeon not implemented!");
 	    break;
-    }
-    if (Level->depth > 0) {	// dungeon...
-	install_traps();
-	install_specials();
-	make_stairs (-1);
-	make_stairs (-1);
-	initrand (E_RESTORE, 0);
     }
     Current_Environment = temp_env;
     is >> ios::align(alignof(i)) >> i >> j;
