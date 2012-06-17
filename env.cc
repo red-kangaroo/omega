@@ -4362,20 +4362,24 @@ void l_library (void)
 			if (response == 'a') {
 			    print1 ("You unfurl an ancient, yellowing scroll...");
 			    morewait();
-			    theologyfile();
+			    displayfile (Data_ScrollReligion);
+			    xredraw();
 			} else if (response == 'b') {
 			    print1 ("You unroll a slick four-color document...");
 			    morewait();
-			    cityguidefile();
+			    displayfile (Data_ScrollRampartGuide);
+			    xredraw();
 			} else if (response == 'c') {
 			    print1 ("This scroll is written in a strange magical script...");
 			    morewait();
-			    wishfile();
+			    displayfile (Data_ScrollHiMagick);
+			    xredraw();
 			} else if (response == 'd') {
 			    print1 ("You find a strange document, obviously misfiled");
 			    print2 ("under the heading 'acrylic fungus painting technique'");
 			    morewait();
-			    adeptfile();
+			    displayfile (Data_ScrollAdept);
+			    xredraw();
 			} else if (response == 'e') {
 			    if (random_range (30) > Player.iq) {
 				print2 ("You feel more knowledgeable!");

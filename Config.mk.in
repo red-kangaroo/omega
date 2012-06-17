@@ -29,7 +29,7 @@ LIBS		:=
 ifdef DEBUG
     CXXFLAGS	+= -O0 -g
 else
-    CXXFLAGS	+= -Os -g0 -DNDEBUG=1
+    CXXFLAGS	+= -Os -g0 -DNDEBUG=1 -fno-rtti
     LDFLAGS	+= -s
 endif
 O		:= .o/

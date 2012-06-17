@@ -1774,7 +1774,7 @@ static void tacoptions (void)
 	mnumprint (actionsleft);
 	switch (mgetc()) {
 	    case '?':
-		combat_help();
+		displayfile (Help_Combat);
 		draw_again = 1;
 		break;
 	    case 'a':

@@ -329,13 +329,41 @@ void mprintf (const char* fmt, ...)
     va_end (args);
 }
 
+// display a file given a string name of file
+void displayfile (const char* filestr)
+{
+    clear();
+    refresh();
+    const char* ld = filestr;
+    char d;
+    for (d = ' '; *ld && d != 'q' && d != KEY_ESCAPE;) {
+	if (getcury(stdscr) > ScreenLength) {
+	    standout();
+	    printw ("\n-More-");
+	    standend();
+	    refresh();
+	    d = getch();
+	    clear();
+	}
+	addch (*ld++);
+    }
+    if ((char) d != 'q' && (char) d != KEY_ESCAPE) {
+	standout();
+	printw ("\n-Done-");
+	standend();
+	refresh();
+	getch();
+    }
+    clear();
+    refresh();
+}
+
 void omega_title (void)
 {
-    showmotd();
+    displayfile (Data_Title);
     clear();
     touchwin (stdscr);
     refresh();
-    //  showscores();*//* DG
 }
 
 static void clrgen_init (void)

@@ -111,10 +111,10 @@ static void initstats (void)
 	omegan_character_stats();
     else {
 	user_character_stats();
-	user_intro();
 	print1 ("Do you want to save this set-up to .omegarc in your home directory? [yn] ");
 	if (ynq1() == 'y')
 	    save_omegarc();
+	displayfile (Data_Intro);
     }
     xredraw();
 }

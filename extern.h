@@ -195,17 +195,6 @@ void sign_print(int x, int y, int signp);
 void statue_random(int x, int y);
 void stock_level(void);
 void wandercheck(void);
-// file.c
-void abyss_file(void);
-void adeptfile(void);
-void cityguidefile(void);
-void combat_help(void);
-void displayfile(const char* filedata);
-void inv_help(void);
-void showmotd(void);
-void theologyfile(void);
-void user_intro(void);
-void wishfile(void);
 // gen.c
 void cavern_level(void);
 void change_level(int fromlevel, int tolevel, int rewrite_level);
@@ -329,6 +318,7 @@ void commanderror(void);
 void comwinprint(void);
 void dataprint(void);
 void deathprint(void);
+void displayfile(const char* filedata);
 void display_bigwin(void);
 void display_death(const char* source);
 void display_options (unsigned selection);

@@ -1845,7 +1845,7 @@ void change_environment (int new_environment)
 	    Level = new level;
 	    clear_level (Level);
 	    load_abyss();
-	    abyss_file();
+	    displayfile (Data_AbyssIntro);
 	    lose_all_items();
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;

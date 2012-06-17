@@ -706,8 +706,10 @@ static void inventory_control (void)
 		showmenu();
 		clearmsg();
 		print1 ("Display full help? (y/n)");
-		if (ynq1() == 'y')
-		    inv_help();
+		if (ynq1() == 'y') {
+		    displayfile (Help_Inventory);
+		    xredraw();
+		}
 		display_possessions (slot);
 		break;
 	    case KEY_ESCAPE:
