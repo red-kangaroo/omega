@@ -5,19 +5,17 @@
 
 static monster& make_prime(int i, int j);
 static monster& make_archmage(int i, int j);
-static void assign_city_function(int x, int y);
+static void assign_city_function (location& s, int x, int y);
 static void make_justiciar(int i, int j);
-static void mazesite(int i, int j, int populate);
-static void randommazesite(int i, int j, int populate);
+static void mazesite (location& s, int i, int j, bool populate);
 static void make_minor_undead(int i, int j);
 static void make_major_undead(int i, int j);
 static void random_temple_site(int i, int j, int deity, int populate);
 static void make_high_priest(int i, int j, int deity);
 static void make_house_npc(int i, int j);
 static void make_mansion_npc(int i, int j);
-static void assign_village_function(int x, int y, int setup);
+static void assign_village_function (location& s, int x, int y, bool setup);
 static void make_food_bin(int i, int j);
-static void special_village_site(int i, int j, int villagenum);
 static void buyfromstock(int base, int numitems);
 static void cureforpay(void);
 static void gymtrain(uint8_t* maxstat, uint8_t* stat);
@@ -127,24 +125,20 @@ void load_arena (void)
     const char* ld = Level->init_from_data (E_ARENA, Level_Arena);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; i++) {
-	    Level->site(i,j).lstatus = SEEN + LIT;
-	    Level->site(i,j).roomnumber = RS_ARENA;
-	    char site = *ld++;
-	    Level->site(i,j).p_locf = L_NO_OP;
-	    switch (site) {
+	    location& s (Level->site(i,j));
+	    s.locchar = FLOOR;
+	    s.p_locf = L_NO_OP;
+	    s.lstatus = SEEN| LIT;
+	    s.roomnumber = RS_ARENA;
+	    switch (*ld++) {
 		case 'P':
-		    Level->site(i,j).locchar = PORTCULLIS;
-		    Level->site(i,j).p_locf = L_PORTCULLIS;
+		    s.p_locf = L_PORTCULLIS;
+		    s.locchar = PORTCULLIS;
 		    break;
 		case 'X':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_ARENA_EXIT;
-		    break;
+		    s.p_locf = L_ARENA_EXIT;
 		case '#':
-		    Level->site(i,j).locchar = WALL;
-		    break;
-		case '.':
-		    Level->site(i,j).locchar = FLOOR;
+		    s.locchar = WALL;
 		    break;
 	    }
 	}
@@ -185,13 +179,10 @@ void load_arena (void)
 	}
     }
     if (m.level != 20) {
-	strcpy (Str1, nameprint());
-	strcat (Str1, " the ");
-	strcat (Str1, m.monstring);
-	m.monstring = strdup (Str1);
-	strcpy (Str2, "The corpse of ");
-	strcat (Str2, Str1);
-	m.corpsestr = strdup (Str2);
+	char buf[128];
+	snprintf (ArrayBlock(buf), "The corpse of %s the %s", nameprint(), m.monstring);
+	m.corpsestr = strdup (buf);
+	m.monstring = strdup (buf+strlen("The corpse of "));
     }
     m.uniqueness = UNIQUE_MADE;
     m.attacked = true;
@@ -217,13 +208,13 @@ void load_circle (int populate)
     const char* ld = Level->init_from_data (E_CIRCLE, Level_Circle);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
-	    Level->site(i,j).lstatus = 0;
-	    Level->site(i,j).roomnumber = RS_CIRCLE;
-	    Level->site(i,j).p_locf = L_NO_OP;
-	    char site = *ld++;
-	    switch (site) {
+	    location& s (Level->site(i,j));
+	    s.locchar = FLOOR;
+	    s.p_locf = L_NO_OP;
+	    s.lstatus = 0;
+	    s.roomnumber = RS_CIRCLE;
+	    switch (*ld++) {
 		case 'P':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate) {
 			monster& m = make_prime (i, j);
 			m.specialf = M_SP_PRIME;
@@ -232,7 +223,6 @@ void load_circle (int populate)
 		    }
 		    break;
 		case 'D':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate) {
 			monster& m = make_site_monster (i, j, DEMON_PRINCE);
 			if (safe)
@@ -241,7 +231,6 @@ void load_circle (int populate)
 		    }
 		    break;
 		case 's':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate) {
 			monster& m = make_site_monster (i, j, SERV_CHAOS);
 			m.specialf = M_SP_COURT;
@@ -250,7 +239,6 @@ void load_circle (int populate)
 		    }
 		    break;
 		case 'e':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate) {
 			monster& m = make_site_monster (i, j, ENCHANTOR);
 			m.specialf = M_SP_COURT;
@@ -259,7 +247,6 @@ void load_circle (int populate)
 		    }
 		    break;
 		case 'n':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate) {
 			monster& m = make_site_monster (i, j, NECROMANCER);
 			m.specialf = M_SP_COURT;
@@ -268,7 +255,6 @@ void load_circle (int populate)
 		    }
 		    break;
 		case 'T':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate) {
 			monster& m = make_site_monster (i, j, THAUMATURGIST);
 			m.specialf = M_SP_COURT;
@@ -277,30 +263,23 @@ void load_circle (int populate)
 		    }
 		    break;
 		case '#':
-		    Level->site(i,j).locchar = WALL;
-		    Level->site(i,j).aux = 255;
+		    s.locchar = WALL;
+		    s.aux = 255;
 		    break;
 		case 'L':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_CIRCLE_LIBRARY;
+		    s.p_locf = L_CIRCLE_LIBRARY;
 		    break;
 		case '?':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_TOME1;
+		    s.p_locf = L_TOME1;
 		    break;
 		case '!':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_TOME2;
+		    s.p_locf = L_TOME2;
 		    break;
 		case 'S':
-		    Level->site(i,j).locchar = FLOOR;
 		    lset (i, j, SECRET);
 		    break;
-		case '.':
-		    Level->site(i,j).locchar = FLOOR;
-		    break;
 		case '-':
-		    Level->site(i,j).locchar = CLOSED_DOOR;
+		    s.locchar = CLOSED_DOOR;
 		    break;
 	    }
 	}
@@ -325,14 +304,15 @@ void load_court (int populate)
     LastCountryLocY = *ld++;
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
-	    Level->site(i,j).lstatus = 0;
-	    Level->site(i,j).roomnumber = RS_COURT;
-	    Level->site(i,j).p_locf = L_NO_OP;
-	    char site = *ld++;
-	    switch (site) {
+	    location& s (Level->site(i,j));
+	    s.locchar = FLOOR;
+	    s.p_locf = L_NO_OP;
+	    s.lstatus = 0;
+	    s.roomnumber = RS_COURT;
+	    switch (*ld++) {
 		case '5':
-		    Level->site(i,j).locchar = CHAIR;
-		    Level->site(i,j).p_locf = L_THRONE;
+		    s.locchar = CHAIR;
+		    s.p_locf = L_THRONE;
 		    if (populate) {
 			make_specific_treasure (i, j, SCEPTRE_OF_HIGH_MAGIC);
 			monster& m = make_archmage (i, j);
@@ -341,7 +321,6 @@ void load_court (int populate)
 		    }
 		    break;
 		case 'e':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate) {
 			monster& m = make_site_monster (i, j, ENCHANTOR);
 			m_status_reset (m, HOSTILE);
@@ -349,7 +328,6 @@ void load_court (int populate)
 		    }
 		    break;
 		case 'n':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate) {
 			monster& m = make_site_monster (i, j, NECROMANCER);
 			m_status_reset (m, HOSTILE);
@@ -357,7 +335,6 @@ void load_court (int populate)
 		    }
 		    break;
 		case 'T':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate) {
 			monster& m = make_site_monster (i, j, THAUMATURGIST);
 			m_status_reset (m, HOSTILE);
@@ -365,23 +342,18 @@ void load_court (int populate)
 		    }
 		    break;
 		case '#':
-		    Level->site(i,j).locchar = WALL;
-		    Level->site(i,j).aux = 255;
+		    s.locchar = WALL;
+		    s.aux = 255;
 		    break;
 		case 'G':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate) {
 			monster& m = make_site_monster (i, j, GUARD);
 			m_status_reset (m, HOSTILE);
 		    }
 		    break;
 		case '<':
-		    Level->site(i,j).locchar = STAIRS_UP;
-		    Level->site(i,j).p_locf = L_ESCALATOR;
-		    break;
-		case '.':
-		    Level->site(i,j).locchar = FLOOR;
+		    s.locchar = STAIRS_UP;
+		    s.p_locf = L_ESCALATOR;
 		    break;
 	    }
 	}
@@ -403,50 +375,45 @@ void load_abyss (void)
     const char* ld = Level->init_from_data (E_ABYSS, Level_Abyss);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
-	    char site = *ld++;
-	    Level->site(i,j).roomnumber = RS_ADEPT;
-	    switch (site) {
+	    location& s (Level->site(i,j));
+	    s.locchar = FLOOR;
+	    s.roomnumber = RS_ADEPT;
+	    switch (*ld++) {
 		case '0':
-		    Level->site(i,j).locchar = VOID_CHAR;
-		    Level->site(i,j).p_locf = L_VOID;
+		    s.locchar = VOID_CHAR;
+		    s.p_locf = L_VOID;
 		    break;
 		case 'V':
-		    Level->site(i,j).locchar = VOID_CHAR;
-		    Level->site(i,j).p_locf = L_VOID_STATION;
+		    s.locchar = VOID_CHAR;
+		    s.p_locf = L_VOID_STATION;
 		    break;
 		case '1':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_VOICE1;
+		    s.p_locf = L_VOICE1;
 		    break;
 		case '2':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_VOICE2;
+		    s.p_locf = L_VOICE2;
 		    break;
 		case '3':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_VOICE3;
+		    s.p_locf = L_VOICE3;
 		    break;
 		case '~':
-		    Level->site(i,j).locchar = WATER;
-		    Level->site(i,j).p_locf = L_WATER_STATION;
+		    s.locchar = WATER;
+		    s.p_locf = L_WATER_STATION;
 		    break;
 		case ';':
-		    Level->site(i,j).locchar = FIRE;
-		    Level->site(i,j).p_locf = L_FIRE_STATION;
+		    s.locchar = FIRE;
+		    s.p_locf = L_FIRE_STATION;
 		    break;
 		case '(':
-		    Level->site(i,j).locchar = HEDGE;
-		    Level->site(i,j).p_locf = L_EARTH_STATION;
+		    s.locchar = HEDGE;
+		    s.p_locf = L_EARTH_STATION;
 		    break;
 		case '6':
-		    Level->site(i,j).locchar = WHIRLWIND;
-		    Level->site(i,j).p_locf = L_AIR_STATION;
+		    s.locchar = WHIRLWIND;
+		    s.p_locf = L_AIR_STATION;
 		    break;
 		case '#':
-		    Level->site(i,j).locchar = WALL;
-		    break;
-		case '.':
-		    Level->site(i,j).locchar = FLOOR;
+		    s.locchar = WALL;
 		    break;
 	    }
 	}
@@ -461,106 +428,100 @@ void load_city (int populate)
     const char* ld = Level->init_from_data (E_CITY, Level_City);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
-	    lset (i, j, SEEN);
-	    char site = *ld++;
-	    switch (site) {
+	    location& s (Level->site(i,j));
+	    s.locchar = FLOOR;
+	    s.lstatus |= SEEN;
+	    switch (*ld++) {
 		case 'g':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_GARDEN;
+		    s.p_locf = L_GARDEN;
 		    break;
 		case 'y':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_CEMETARY;
+		    s.p_locf = L_CEMETARY;
 		    break;
 		case 'x':
-		    assign_city_function (i, j);
+		    assign_city_function (s, i, j);
 		    break;
 		case 't':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_TEMPLE;
+		    s.p_locf = L_TEMPLE;
 		    CitySiteList[L_TEMPLE - CITYSITEBASE][0] = true;
 		    CitySiteList[L_TEMPLE - CITYSITEBASE][1] = i;
 		    CitySiteList[L_TEMPLE - CITYSITEBASE][2] = j;
 		    break;
 		case 'T':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_PORTCULLIS_TRAP;
-		    Level->site(i,j).aux = NOCITYMOVE;
+		    s.p_locf = L_PORTCULLIS_TRAP;
+		    s.aux = NOCITYMOVE;
 		    break;
 		case 'R':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_RAISE_PORTCULLIS;
-		    Level->site(i,j).aux = NOCITYMOVE;
+		    s.p_locf = L_RAISE_PORTCULLIS;
+		    s.aux = NOCITYMOVE;
 		    break;
 		case '7':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_PORTCULLIS;
-		    Level->site(i,j).aux = NOCITYMOVE;
+		    s.p_locf = L_PORTCULLIS;
+		    s.aux = NOCITYMOVE;
 		    break;
 		case 'C':
-		    Level->site(i,j).locchar = OPEN_DOOR;
-		    Level->site(i,j).p_locf = L_COLLEGE;
+		    s.locchar = OPEN_DOOR;
+		    s.p_locf = L_COLLEGE;
 		    CitySiteList[L_COLLEGE - CITYSITEBASE][0] = true;
 		    CitySiteList[L_COLLEGE - CITYSITEBASE][1] = i;
 		    CitySiteList[L_COLLEGE - CITYSITEBASE][2] = j;
 		    break;
 		case 's':
-		    Level->site(i,j).locchar = OPEN_DOOR;
-		    Level->site(i,j).p_locf = L_SORCERORS;
+		    s.locchar = OPEN_DOOR;
+		    s.p_locf = L_SORCERORS;
 		    CitySiteList[L_SORCERORS - CITYSITEBASE][0] = true;
 		    CitySiteList[L_SORCERORS - CITYSITEBASE][1] = i;
 		    CitySiteList[L_SORCERORS - CITYSITEBASE][2] = j;
 		    break;
 		case 'M':
-		    Level->site(i,j).locchar = OPEN_DOOR;
-		    Level->site(i,j).p_locf = L_MERC_GUILD;
+		    s.locchar = OPEN_DOOR;
+		    s.p_locf = L_MERC_GUILD;
 		    CitySiteList[L_MERC_GUILD - CITYSITEBASE][0] = true;
 		    CitySiteList[L_MERC_GUILD - CITYSITEBASE][1] = i;
 		    CitySiteList[L_MERC_GUILD - CITYSITEBASE][2] = j;
 		    break;
 		case 'c':
-		    Level->site(i,j).locchar = OPEN_DOOR;
-		    Level->site(i,j).p_locf = L_CASTLE;
+		    s.locchar = OPEN_DOOR;
+		    s.p_locf = L_CASTLE;
 		    CitySiteList[L_CASTLE - CITYSITEBASE][0] = true;
 		    CitySiteList[L_CASTLE - CITYSITEBASE][1] = i;
 		    CitySiteList[L_CASTLE - CITYSITEBASE][2] = j;
 		    break;
 		case 'm':
-		    mazesite (i, j, populate);
+		    mazesite (s, i, j, populate);
 		    break;
 		case 'P':
-		    Level->site(i,j).locchar = OPEN_DOOR;
-		    Level->site(i,j).p_locf = L_ORDER;
+		    s.locchar = OPEN_DOOR;
+		    s.p_locf = L_ORDER;
 		    CitySiteList[L_ORDER - CITYSITEBASE][0] = true;
 		    CitySiteList[L_ORDER - CITYSITEBASE][1] = i;
 		    CitySiteList[L_ORDER - CITYSITEBASE][2] = j;
 		    break;
 		case 'H':
-		    Level->site(i,j).locchar = OPEN_DOOR;
-		    Level->site(i,j).p_locf = L_CHARITY;
+		    s.locchar = OPEN_DOOR;
+		    s.p_locf = L_CHARITY;
 		    CitySiteList[L_CHARITY - CITYSITEBASE][0] = true;
 		    CitySiteList[L_CHARITY - CITYSITEBASE][1] = i;
 		    CitySiteList[L_CHARITY - CITYSITEBASE][2] = j;
 		    break;
 		case 'j':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate)
 			make_justiciar (i, j);
 		    break;
 		case 'J':
-		    Level->site(i,j).locchar = CLOSED_DOOR;
-		    Level->site(i,j).p_locf = L_JAIL;
+		    s.locchar = CLOSED_DOOR;
+		    s.p_locf = L_JAIL;
 		    break;
 		case 'A':
-		    Level->site(i,j).locchar = OPEN_DOOR;
-		    Level->site(i,j).p_locf = L_ARENA;
+		    s.locchar = OPEN_DOOR;
+		    s.p_locf = L_ARENA;
 		    CitySiteList[L_ARENA - CITYSITEBASE][0] = true;
 		    CitySiteList[L_ARENA - CITYSITEBASE][1] = i;
 		    CitySiteList[L_ARENA - CITYSITEBASE][2] = j;
 		    break;
 		case 'B':
-		    Level->site(i,j).locchar = OPEN_DOOR;
-		    Level->site(i,j).p_locf = L_BANK;
+		    s.locchar = OPEN_DOOR;
+		    s.p_locf = L_BANK;
 		    CitySiteList[L_BANK - CITYSITEBASE][0] = true;
 		    CitySiteList[L_BANK - CITYSITEBASE][1] = i;
 		    CitySiteList[L_BANK - CITYSITEBASE][2] = j;
@@ -570,25 +531,21 @@ void load_city (int populate)
 		    lset (i, j - 1, STOPS);
 		    break;
 		case 'X':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_COUNTRYSIDE;
+		    s.p_locf = L_COUNTRYSIDE;
 		    CitySiteList[L_COUNTRYSIDE - CITYSITEBASE][0] = true;
 		    CitySiteList[L_COUNTRYSIDE - CITYSITEBASE][1] = i;
 		    CitySiteList[L_COUNTRYSIDE - CITYSITEBASE][2] = j;
 		    break;
 		case 'v':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_VAULT;
-		    Level->site(i,j).aux = NOCITYMOVE;
+		    s.p_locf = L_VAULT;
+		    s.aux = NOCITYMOVE;
 		    lset (i, j, SECRET);
 		    break;
 		case 'S':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).aux = NOCITYMOVE;
+		    s.aux = NOCITYMOVE;
 		    lset (i, j, SECRET);
 		    break;
 		case 'G':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate) {
 			monster& m = make_site_monster (i, j, GUARD);
 			m.aux1 = i;
@@ -596,102 +553,89 @@ void load_city (int populate)
 		    }
 		    break;
 		case 'u':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate)
 			make_minor_undead (i, j);
 		    break;
 		case 'U':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate)
 			make_major_undead (i, j);
 		    break;
 		case 'V':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_VAULT;
+		    s.p_locf = L_VAULT;
 		    if (populate)
 			make_site_treasure (i, j, 5);
-		    Level->site(i,j).aux = NOCITYMOVE;
+		    s.aux = NOCITYMOVE;
 		    lset (i, j, SECRET);
 		    break;
 		case '%':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_TRAP_SIREN;
+		    s.p_locf = L_TRAP_SIREN;
 		    if (populate)
 			make_site_treasure (i, j, 5);
-		    Level->site(i,j).aux = NOCITYMOVE;
+		    s.aux = NOCITYMOVE;
 		    lset (i, j, SECRET);
 		    break;
 		case '$':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate)
 			make_site_treasure (i, j, 5);
 		    break;
 		case '2':
-		    Level->site(i,j).locchar = ALTAR;
-		    Level->site(i,j).p_locf = L_ALTAR;
-		    Level->site(i,j).aux = ODIN;
+		    s.locchar = ALTAR;
+		    s.p_locf = L_ALTAR;
+		    s.aux = ODIN;
 		    break;
 		case '3':
-		    Level->site(i,j).locchar = ALTAR;
-		    Level->site(i,j).p_locf = L_ALTAR;
-		    Level->site(i,j).aux = SET;
+		    s.locchar = ALTAR;
+		    s.p_locf = L_ALTAR;
+		    s.aux = SET;
 		    break;
 		case '4':
-		    Level->site(i,j).locchar = ALTAR;
-		    Level->site(i,j).p_locf = L_ALTAR;
-		    Level->site(i,j).aux = ATHENA;
+		    s.locchar = ALTAR;
+		    s.p_locf = L_ALTAR;
+		    s.aux = ATHENA;
 		    break;
 		case '5':
-		    Level->site(i,j).locchar = ALTAR;
-		    Level->site(i,j).p_locf = L_ALTAR;
-		    Level->site(i,j).aux = HECATE;
+		    s.locchar = ALTAR;
+		    s.p_locf = L_ALTAR;
+		    s.aux = HECATE;
 		    break;
 		case '6':
-		    Level->site(i,j).locchar = ALTAR;
-		    Level->site(i,j).p_locf = L_ALTAR;
-		    Level->site(i,j).aux = DESTINY;
+		    s.locchar = ALTAR;
+		    s.p_locf = L_ALTAR;
+		    s.aux = DESTINY;
 		    break;
 		case '^':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = TRAP_BASE + random_range (NUMTRAPS);
+		    s.p_locf = TRAP_BASE + random_range (NUMTRAPS);
 		    lset (i, j, SECRET);
 		    break;
 		case '(':
-		    Level->site(i,j).locchar = HEDGE;
+		    s.locchar = HEDGE;
 		    break;
 		case '~':
-		    Level->site(i,j).locchar = WATER;
-		    Level->site(i,j).p_locf = L_WATER;
+		    s.locchar = WATER;
+		    s.p_locf = L_WATER;
 		    break;
 		case '=':
-		    Level->site(i,j).locchar = WATER;
-		    Level->site(i,j).p_locf = L_MAGIC_POOL;
+		    s.locchar = WATER;
+		    s.p_locf = L_MAGIC_POOL;
 		    break;
 		case '*':
-		    Level->site(i,j).locchar = WALL;
-		    Level->site(i,j).aux = 10;
+		    s.locchar = WALL;
+		    s.aux = 10;
 		    break;
 		case '#':
-		    Level->site(i,j).locchar = WALL;
-		    Level->site(i,j).aux = 255;
-		    break;
-		case '.':
-		    Level->site(i,j).locchar = FLOOR;
+		    s.locchar = WALL;
+		    s.aux = 255;
 		    break;
 		case ',':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).aux = NOCITYMOVE;
+		    s.aux = NOCITYMOVE;
 		    lset (i, j, SECRET);
 		    break;
 		case '-':
-		    Level->site(i,j).locchar = CLOSED_DOOR;
+		    s.locchar = CLOSED_DOOR;
 		    break;
 		case '1':
-		    Level->site(i,j).locchar = STATUE;
+		    s.locchar = STATUE;
 		    break;
-		default:
-		    printf ("\nOops... missed a case: '%c'   \n", site);
-		    morewait();
 	    }
 	}
     }
@@ -706,14 +650,19 @@ void load_city (int populate)
     initrand (E_RESTORE, 0);
 }
 
-static void assign_city_function (int x, int y)
+static void assign_city_function (location& s, int x, int y)
 {
-    static int setup = 0;
-    static int next = 0;
-    static int permutation[64];	// number of x's in city map
-    int i, j, k, l;
+    static uint8_t permutation[64];	// number of x's in city map
+    static unsigned next = 0;
+    static bool setup = false;
+    if (!setup) {
+	iota (ArrayRange(permutation), 0);
+	random_shuffle (ArrayRange(permutation));
+	setup = true;
+    }
 
-    Level->site(x,y).aux = true;
+    s.locchar = OPEN_DOOR;
+    s.aux = true;
 
     lset (x, y + 1, STOPS);
     lset (x + 1, y, STOPS);
@@ -721,144 +670,27 @@ static void assign_city_function (int x, int y)
     lset (x, y - 1, STOPS);
     lset (x, y, STOPS);
 
-    if (setup == 0) {
-	setup = 1;
-	for (i = 0; i < 64; i++)
-	    permutation[i] = i;
-	for (i = 0; i < 500; i++) {
-	    j = random_range (64);
-	    k = random_range (64);
-	    l = permutation[j];
-	    permutation[j] = permutation[k];
-	    permutation[k] = l;
-	}
+    static const uint8_t _citylocs[] = {
+	L_ARMORER, L_CLUB, L_GYM, L_THIEVES_GUILD, L_HEALER,
+	L_CASINO, L_DINER, L_CRAP, L_COMMANDANT, L_COMMANDANT,
+	L_COMMANDANT, L_TAVERN, L_ALCHEMIST, L_DPW, L_LIBRARY,
+	L_PAWN_SHOP, L_CONDO, L_BROTHEL
+    };
+    unsigned loc;
+    if (next >= ArraySize(permutation) || ArraySize(_citylocs) <= (loc = permutation[next++])) {
+	s.locchar = CLOSED_DOOR;
+	unsigned ht = rand() % 8;
+	s.p_locf = (ht < 2 ? L_HOVEL : (ht > 6 ? L_MANSION : L_HOUSE));
+	if (rand()%4)
+	    s.aux = LOCKED;
+    } else {
+	uint8_t sitef = _citylocs[loc];
+	CitySiteList[sitef - CITYSITEBASE][1] = x;
+	CitySiteList[sitef - CITYSITEBASE][2] = y;
+	s.p_locf = sitef;
+	if (sitef == L_BROTHEL || sitef == L_THIEVES_GUILD)
+	    s.locchar = CLOSED_DOOR;
     }
-    if (next > 63) {		// in case someone changes the no. of x's
-	Level->site(x,y).locchar = CLOSED_DOOR;
-	Level->site(x,y).p_locf = L_HOUSE;
-	if (random_range (5))
-	    Level->site(x,y).aux = LOCKED;
-    } else
-	switch (permutation[next]) {
-	    case 0:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_ARMORER;
-		CitySiteList[L_ARMORER - CITYSITEBASE][1] = x;
-		CitySiteList[L_ARMORER - CITYSITEBASE][2] = y;
-		break;
-	    case 1:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_CLUB;
-		CitySiteList[L_CLUB - CITYSITEBASE][1] = x;
-		CitySiteList[L_CLUB - CITYSITEBASE][2] = y;
-		break;
-	    case 2:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_GYM;
-		CitySiteList[L_GYM - CITYSITEBASE][1] = x;
-		CitySiteList[L_GYM - CITYSITEBASE][2] = y;
-		break;
-	    case 3:
-		Level->site(x,y).locchar = CLOSED_DOOR;
-		Level->site(x,y).p_locf = L_THIEVES_GUILD;
-		CitySiteList[L_THIEVES_GUILD - CITYSITEBASE][1] = x;
-		CitySiteList[L_THIEVES_GUILD - CITYSITEBASE][2] = y;
-		break;
-	    case 4:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_HEALER;
-		CitySiteList[L_HEALER - CITYSITEBASE][1] = x;
-		CitySiteList[L_HEALER - CITYSITEBASE][2] = y;
-		break;
-	    case 5:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_CASINO;
-		CitySiteList[L_CASINO - CITYSITEBASE][1] = x;
-		CitySiteList[L_CASINO - CITYSITEBASE][2] = y;
-		break;
-	    case 7:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_DINER;
-		CitySiteList[L_DINER - CITYSITEBASE][1] = x;
-		CitySiteList[L_DINER - CITYSITEBASE][2] = y;
-		break;
-	    case 8:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_CRAP;
-		CitySiteList[L_CRAP - CITYSITEBASE][1] = x;
-		CitySiteList[L_CRAP - CITYSITEBASE][2] = y;
-		break;
-	    case 6:
-	    case 9:
-	    case 20:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_COMMANDANT;
-		CitySiteList[L_COMMANDANT - CITYSITEBASE][1] = x;
-		CitySiteList[L_COMMANDANT - CITYSITEBASE][2] = y;
-		break;
-	    case 21:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_TAVERN;
-		CitySiteList[L_TAVERN - CITYSITEBASE][1] = x;
-		CitySiteList[L_TAVERN - CITYSITEBASE][2] = y;
-		break;
-	    case 10:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_ALCHEMIST;
-		CitySiteList[L_ALCHEMIST - CITYSITEBASE][1] = x;
-		CitySiteList[L_ALCHEMIST - CITYSITEBASE][2] = y;
-		break;
-	    case 11:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_DPW;
-		CitySiteList[L_DPW - CITYSITEBASE][1] = x;
-		CitySiteList[L_DPW - CITYSITEBASE][2] = y;
-		break;
-	    case 12:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_LIBRARY;
-		CitySiteList[L_LIBRARY - CITYSITEBASE][1] = x;
-		CitySiteList[L_LIBRARY - CITYSITEBASE][2] = y;
-		break;
-	    case 13:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_PAWN_SHOP;
-		CitySiteList[L_PAWN_SHOP - CITYSITEBASE][1] = x;
-		CitySiteList[L_PAWN_SHOP - CITYSITEBASE][2] = y;
-		break;
-	    case 14:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_CONDO;
-		CitySiteList[L_CONDO - CITYSITEBASE][1] = x;
-		CitySiteList[L_CONDO - CITYSITEBASE][2] = y;
-		break;
-	    case 15:
-		Level->site(x,y).locchar = CLOSED_DOOR;
-		Level->site(x,y).p_locf = L_BROTHEL;
-		CitySiteList[L_BROTHEL - CITYSITEBASE][1] = x;
-		CitySiteList[L_BROTHEL - CITYSITEBASE][2] = y;
-		break;
-	    default:
-		Level->site(x,y).locchar = CLOSED_DOOR;
-		switch (random_range (6)) {
-		    case 0:
-			Level->site(x,y).p_locf = L_HOVEL;
-			break;
-		    case 1:
-		    case 2:
-		    case 3:
-		    case 4:
-			Level->site(x,y).p_locf = L_HOUSE;
-			break;
-		    case 5:
-			Level->site(x,y).p_locf = L_MANSION;
-			break;
-		}
-		if (random_range (5))
-		    Level->site(x,y).aux = LOCKED;
-		break;
-	}
-    next++;
 }
 
 // makes a hiscore npc for mansions
@@ -894,13 +726,13 @@ void resurrect_guards (void)
     }
 }
 
-static void mazesite (int i, int j, int populate)
+static void mazesite (location& s, int i, int j, bool populate)
 {
     static const char* _mazes[] = { Level_Maze1, Level_Maze2, Level_Maze3, Level_Maze4 };
     static const char* ld = NULL;
     static int k = 0;
     if (!ld)
-	ld = _mazes[random_range(ArraySize(_mazes))];
+	ld = _mazes[rand()%ArraySize(_mazes)];
     char site = *ld++;
     if (++k >= 286) {
 	k = 0;
@@ -908,62 +740,44 @@ static void mazesite (int i, int j, int populate)
     }
     switch (site) {
 	case '(':
-	    Level->site(i,j).locchar = HEDGE;
-	    if (random_range (10))
-		Level->site(i,j).p_locf = L_HEDGE;
-	    else
-		Level->site(i,j).p_locf = L_TRIFID;
+	    s.locchar = HEDGE;
+	    s.p_locf = L_HEDGE;
+	    if (!random_range(10))
+		s.p_locf = L_TRIFID;
 	    break;
 	case '-':
-	    Level->site(i,j).locchar = CLOSED_DOOR;
-	    break;
-	case '.':
-	    Level->site(i,j).locchar = FLOOR;
+	    s.locchar = CLOSED_DOOR;
 	    break;
 	case '>':
-	    Level->site(i,j).locchar = STAIRS_DOWN;
-	    Level->site(i,j).p_locf = L_SEWER;
+	    s.locchar = STAIRS_DOWN;
+	    s.p_locf = L_SEWER;
 	    break;
 	case 'z':
-	    Level->site(i,j).locchar = FLOOR;
-	    Level->site(i,j).p_locf = L_MAZE;
+	    s.p_locf = L_MAZE;
 	    break;
 	case 'O':
-	    Level->site(i,j).locchar = OPEN_DOOR;
-	    Level->site(i,j).p_locf = L_ORACLE;
+	    s.locchar = OPEN_DOOR;
+	    s.p_locf = L_ORACLE;
 	    CitySiteList[L_ORACLE - CITYSITEBASE][1] = i;
 	    CitySiteList[L_ORACLE - CITYSITEBASE][2] = j;
 	    break;
 	case 's':
-	    randommazesite (i, j, populate);
+	    switch (rand()%4) {
+		case 0:
+		    s.p_locf = TRAP_BASE + random_range (NUMTRAPS);
+		    break;
+		case 1:
+		    if (populate)
+			make_site_monster (i, j, RANDOM);
+		    break;
+		case 2:
+		    if (populate)
+			make_site_treasure (i, j, 5);
+		    break;
+	    }
 	    break;
     }
     lreset (i, j, SEEN);
-}
-
-static void randommazesite (int i, int j, int populate)
-{
-    switch (random_range (7)) {
-	case 0:
-	case 1:
-	    Level->site(i,j).locchar = FLOOR;
-	    Level->site(i,j).p_locf = TRAP_BASE + random_range (NUMTRAPS);
-	    break;
-	case 2:
-	case 3:
-	    Level->site(i,j).locchar = FLOOR;
-	    if (populate)
-		make_site_monster (i, j, RANDOM);
-	    break;
-	case 4:
-	case 5:
-	    Level->site(i,j).locchar = FLOOR;
-	    if (populate)
-		make_site_treasure (i, j, 5);
-	    break;
-	default:
-	    Level->site(i,j).locchar = FLOOR;
-    }
 }
 
 // undead are not hostile unless disturbed....
@@ -992,8 +806,8 @@ static void repair_jail (void)
 	"##7#7#7#7##",
 	"##R#R#R#R##"
     };
-    for (unsigned i = 0; i < ArraySize(jail); i++) {
-	for (unsigned j = 0; j < ArraySize(jail[i]); j++) {
+    for (unsigned j = 0; j < ArraySize(jail); ++j) {
+	for (unsigned i = 0; i < ArraySize(jail[0]); ++i) {
 	    chtype locchar = FLOOR;
 	    char p_locf = L_NO_OP;
 	    int aux = NOCITYMOVE;
@@ -1007,9 +821,10 @@ static void repair_jail (void)
 		p_locf = L_PORTCULLIS;
 	    if (jail[j][i] == 'R')
 		p_locf = L_RAISE_PORTCULLIS;
-	    City->site(i + 35,j + 52).locchar = locchar;
-	    City->site(i + 35,j + 52).p_locf = p_locf;
-	    City->site(i + 35,j + 52).aux = aux;
+	    location& s (City->site(i+35,j+52));
+	    s.locchar = locchar;
+	    s.p_locf = p_locf;
+	    s.aux = aux;
 	    lreset (i + 35, j + 52, CHANGED);
 	}
     }
@@ -1021,37 +836,38 @@ void load_country (void)
     const char* ld = Level->init_from_data (E_COUNTRYSIDE, Level_Country);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
+	    location& s (Level->site(i,j));
+	    s.aux = 0;
+	    s.lstatus = 0;
 	    char site = *ld++;
-	    Level->site(i,j).aux = 0;
-	    Level->site(i,j).lstatus = 0;
 	    switch (site) {
 		case (PASS & 0xff):
-		    Level->site(i,j).locchar = PASS;
-		    Level->site(i,j).lstatus |= SECRET;
+		    s.locchar = PASS;
+		    s.lstatus |= SECRET;
 		    break;
 		case (CASTLE & 0xff):
-		    Level->site(i,j).locchar = CASTLE;
-		    Level->site(i,j).lstatus |= SECRET;
+		    s.locchar = CASTLE;
+		    s.lstatus |= SECRET;
 		    break;
 		case (STARPEAK & 0xff):
-		    Level->site(i,j).locchar = STARPEAK;
-		    Level->site(i,j).lstatus |= SECRET;
+		    s.locchar = STARPEAK;
+		    s.lstatus |= SECRET;
 		    break;
 		case (CAVES & 0xff):
-		    Level->site(i,j).locchar = CAVES;
-		    Level->site(i,j).lstatus |= SECRET;
+		    s.locchar = CAVES;
+		    s.lstatus |= SECRET;
 		    break;
 		case (VOLCANO & 0xff):
-		    Level->site(i,j).locchar = VOLCANO;
-		    Level->site(i,j).lstatus |= SECRET;
+		    s.locchar = VOLCANO;
+		    s.lstatus |= SECRET;
 		    break;
 		case (DRAGONLAIR & 0xff):
-		    Level->site(i,j).locchar = DRAGONLAIR;
-		    Level->site(i,j).lstatus |= SECRET;
+		    s.locchar = DRAGONLAIR;
+		    s.lstatus |= SECRET;
 		    break;
 		case (MAGIC_ISLE & 0xff):
-		    Level->site(i,j).locchar = MAGIC_ISLE;
-		    Level->site(i,j).lstatus |= SECRET;
+		    s.locchar = MAGIC_ISLE;
+		    s.lstatus |= SECRET;
 		    break;
 		case 'a':
 		case 'b':
@@ -1059,8 +875,8 @@ void load_country (void)
 		case 'd':
 		case 'e':
 		case 'f':
-		    Level->site(i,j).locchar = VILLAGE;
-		    Level->site(i,j).aux = 1 + site - 'a';
+		    s.locchar = VILLAGE;
+		    s.aux = 1 + site - 'a';
 		    break;
 		case '1':
 		case '2':
@@ -1068,41 +884,41 @@ void load_country (void)
 		case '4':
 		case '5':
 		case '6':
-		    Level->site(i,j).locchar = TEMPLE;
-		    Level->site(i,j).aux = site - '0';
+		    s.locchar = TEMPLE;
+		    s.aux = site - '0';
 		    break;
 		case (PLAINS & 0xff):
-		    Level->site(i,j).locchar = PLAINS;
+		    s.locchar = PLAINS;
 		    break;
 		case (TUNDRA & 0xff):
-		    Level->site(i,j).locchar = TUNDRA;
+		    s.locchar = TUNDRA;
 		    break;
 		case (ROAD & 0xff):
-		    Level->site(i,j).locchar = ROAD;
+		    s.locchar = ROAD;
 		    break;
 		case (MOUNTAINS & 0xff):
-		    Level->site(i,j).locchar = MOUNTAINS;
+		    s.locchar = MOUNTAINS;
 		    break;
 		case (RIVER & 0xff):
-		    Level->site(i,j).locchar = RIVER;
+		    s.locchar = RIVER;
 		    break;
 		case (CITY & 0xff):
-		    Level->site(i,j).locchar = CITY;
+		    s.locchar = CITY;
 		    break;
 		case (FOREST & 0xff):
-		    Level->site(i,j).locchar = FOREST;
+		    s.locchar = FOREST;
 		    break;
 		case (JUNGLE & 0xff):
-		    Level->site(i,j).locchar = JUNGLE;
+		    s.locchar = JUNGLE;
 		    break;
 		case (SWAMP & 0xff):
-		    Level->site(i,j).locchar = SWAMP;
+		    s.locchar = SWAMP;
 		    break;
 		case (DESERT & 0xff):
-		    Level->site(i,j).locchar = DESERT;
+		    s.locchar = DESERT;
 		    break;
 		case (CHAOS_SEA & 0xff):
-		    Level->site(i,j).locchar = CHAOS_SEA;
+		    s.locchar = CHAOS_SEA;
 		    break;
 	    }
 	}
@@ -1121,84 +937,69 @@ void load_dlair (int empty, int populate)
     const char* ld = Level->init_from_data (E_DLAIR, Level_DragonLair);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
-	    Level->site(i,j).lstatus = 0;
+	    location& s (Level->site(i,j));
+	    s.locchar = FLOOR;
+	    s.p_locf = L_NO_OP;
+	    s.lstatus = 0;
 	    if (i < 48)
-		Level->site(i,j).roomnumber = RS_CAVERN;
+		s.roomnumber = RS_CAVERN;
 	    else
-		Level->site(i,j).roomnumber = RS_DRAGONLORD;
-	    Level->site(i,j).p_locf = L_NO_OP;
-	    char site = *ld++;
-	    switch (site) {
+		s.roomnumber = RS_DRAGONLORD;
+	    switch (*ld++) {
 		case 'D':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty) {
 			monster& m = make_site_monster (i, j, DRAGON_LORD);
 			m.specialf = M_SP_LAIR;
 		    }
 		    break;
 		case 'd':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty) {
-			monster& m = make_site_monster (i, j, DRAGON);	// elite dragons, actually
+			monster& m = make_site_monster (i, j, DRAGON);
 			m.specialf = M_SP_LAIR;
-			m.hit *= 2;
+			m.hit *= 2;	// elite dragons, actually
 			m.dmg *= 2;
 		    }
 		    break;
 		case 'W':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty)
 			make_site_monster (i, j, KING_WYV);
 		    break;
 		case 'M':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty)
 			make_site_monster (i, j, RANDOM);
 		    break;
 		case 'S':
-		    Level->site(i,j).locchar = FLOOR;
 		    lset (i, j, SECRET);
-		    Level->site(i,j).roomnumber = RS_SECRETPASSAGE;
+		    s.roomnumber = RS_SECRETPASSAGE;
 		    break;
 		case '$':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty)
 			make_site_treasure (i, j, 10);
 		    break;
 		case 's':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_TRAP_SIREN;
+		    s.p_locf = L_TRAP_SIREN;
 		    break;
 		case '7':
 		    if (!empty)
-			Level->site(i,j).locchar = PORTCULLIS;
-		    else
-			Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_PORTCULLIS;
+			s.locchar = PORTCULLIS;
+		    s.p_locf = L_PORTCULLIS;
 		    break;
 		case 'R':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_RAISE_PORTCULLIS;
+		    s.p_locf = L_RAISE_PORTCULLIS;
 		    break;
 		case 'p':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_PORTCULLIS;
+		    s.p_locf = L_PORTCULLIS;
 		    break;
 		case 'T':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty)
-			Level->site(i,j).p_locf = L_PORTCULLIS_TRAP;
+			s.p_locf = L_PORTCULLIS_TRAP;
 		    break;
 		case 'X':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_TACTICAL_EXIT;
+		    s.p_locf = L_TACTICAL_EXIT;
 		    break;
 		case '#':
-		    Level->site(i,j).locchar = WALL;
-		    Level->site(i,j).aux = 150;
-		    break;
-		case '.':
-		    Level->site(i,j).locchar = FLOOR;
+		    s.locchar = WALL;
+		    s.aux = 150;
 		    break;
 	    }
 	}
@@ -1218,18 +1019,17 @@ void load_speak (int empty, int populate)
     const char* ld = Level->init_from_data (E_STARPEAK, Level_StarPeak);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
-	    Level->site(i,j).lstatus = 0;
-	    Level->site(i,j).roomnumber = RS_STARPEAK;
-	    Level->site(i,j).p_locf = L_NO_OP;
-	    char site = *ld++;
-	    switch (site) {
+	    location& s (Level->site(i,j));
+	    s.locchar = FLOOR;
+	    s.lstatus = 0;
+	    s.roomnumber = RS_STARPEAK;
+	    s.p_locf = L_NO_OP;
+	    switch (*ld++) {
 		case 'S':
-		    Level->site(i,j).locchar = FLOOR;
 		    lset (i, j, SECRET);
-		    Level->site(i,j).roomnumber = RS_SECRETPASSAGE;
+		    s.roomnumber = RS_SECRETPASSAGE;
 		    break;
 		case 'L':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty) {
 			monster& m = make_site_monster (i, j, LAWBRINGER);
 			if (safe)
@@ -1237,7 +1037,6 @@ void load_speak (int empty, int populate)
 		    }
 		    break;
 		case 's':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty) {
 			monster& m = make_site_monster (i, j, SERV_LAW);
 			if (safe)
@@ -1245,7 +1044,6 @@ void load_speak (int empty, int populate)
 		    }
 		    break;
 		case 'M':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty) {
 			monster& m = make_site_monster (i, j, -1);
 			if (safe)
@@ -1253,50 +1051,40 @@ void load_speak (int empty, int populate)
 		    }
 		    break;
 		case '$':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty)
 			make_site_treasure (i, j, 10);
 		    break;
 		case '7':
 		    if (!empty)
-			Level->site(i,j).locchar = PORTCULLIS;
-		    else
-			Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_PORTCULLIS;
+			s.locchar = PORTCULLIS;
+		    s.p_locf = L_PORTCULLIS;
 		    break;
 		case 'R':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_RAISE_PORTCULLIS;
+		    s.p_locf = L_RAISE_PORTCULLIS;
 		    break;
 		case '-':
-		    Level->site(i,j).locchar = CLOSED_DOOR;
+		    s.locchar = CLOSED_DOOR;
 		    break;
 		case '|':
-		    Level->site(i,j).locchar = OPEN_DOOR;
+		    s.locchar = OPEN_DOOR;
 		    break;
 		case 'p':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_PORTCULLIS;
+		    s.p_locf = L_PORTCULLIS;
 		    break;
 		case 'T':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty)
-			Level->site(i,j).p_locf = L_PORTCULLIS_TRAP;
+			s.p_locf = L_PORTCULLIS_TRAP;
 		    break;
 		case 'X':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_TACTICAL_EXIT;
+		    s.p_locf = L_TACTICAL_EXIT;
 		    break;
 		case '#':
-		    Level->site(i,j).locchar = WALL;
-		    Level->site(i,j).aux = 150;
+		    s.locchar = WALL;
+		    s.aux = 150;
 		    break;
 		case '4':
-		    Level->site(i,j).locchar = RUBBLE;
-		    Level->site(i,j).p_locf = L_RUBBLE;
-		    break;
-		case '.':
-		    Level->site(i,j).locchar = FLOOR;
+		    s.locchar = RUBBLE;
+		    s.p_locf = L_RUBBLE;
 		    break;
 	    }
 	}
@@ -1315,54 +1103,48 @@ void load_misle (int empty, int populate)
     const char* ld = Level->init_from_data (E_MAGIC_ISLE, Level_MagicIsle);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
-	    Level->site(i,j).lstatus = 0;
-	    Level->site(i,j).roomnumber = RS_MAGIC_ISLE;
-	    Level->site(i,j).p_locf = L_NO_OP;
-	    char site = *ld++;
-	    switch (site) {
+	    location& s (Level->site(i,j));
+	    s.locchar = FLOOR;
+	    s.lstatus = 0;
+	    s.roomnumber = RS_MAGIC_ISLE;
+	    s.p_locf = L_NO_OP;
+	    switch (*ld++) {
 		case 'E':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty)
 			make_site_monster (i, j, EATER);
 		    break;
 		case 'm':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty)
 			make_site_monster (i, j, MIL_PRIEST);
 		    break;
 		case 'n':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!empty)
 			make_site_monster (i, j, NAZGUL);
 		    break;
 		case 'X':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_TACTICAL_EXIT;
+		    s.p_locf = L_TACTICAL_EXIT;
 		    break;
 		case '#':
-		    Level->site(i,j).locchar = WALL;
-		    Level->site(i,j).aux = 150;
+		    s.locchar = WALL;
+		    s.aux = 150;
 		    break;
 		case '4':
-		    Level->site(i,j).locchar = RUBBLE;
-		    Level->site(i,j).p_locf = L_RUBBLE;
+		    s.locchar = RUBBLE;
+		    s.p_locf = L_RUBBLE;
 		    break;
 		case '~':
-		    Level->site(i,j).locchar = WATER;
-		    Level->site(i,j).p_locf = L_CHAOS;
+		    s.locchar = WATER;
+		    s.p_locf = L_CHAOS;
 		    break;
 		case '=':
-		    Level->site(i,j).locchar = WATER;
-		    Level->site(i,j).p_locf = L_MAGIC_POOL;
+		    s.locchar = WATER;
+		    s.p_locf = L_MAGIC_POOL;
 		    break;
 		case '-':
-		    Level->site(i,j).locchar = CLOSED_DOOR;
+		    s.locchar = CLOSED_DOOR;
 		    break;
 		case '|':
-		    Level->site(i,j).locchar = OPEN_DOOR;
-		    break;
-		case '.':
-		    Level->site(i,j).locchar = FLOOR;
+		    s.locchar = OPEN_DOOR;
 		    break;
 	    }
 	}
@@ -1372,82 +1154,65 @@ void load_misle (int empty, int populate)
 // loads a temple into Level
 void load_temple (int deity, int populate)
 {
+    const uint8_t roomid = deity - ODIN + RS_ODIN;
     const char* ld = Level->init_from_data (E_TEMPLE, Level_Temple);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
-	    switch (deity) {
-		case ODIN:	Level->site(i,j).roomnumber = RS_ODIN; break;
-		case SET:	Level->site(i,j).roomnumber = RS_SET; break;
-		case HECATE:	Level->site(i,j).roomnumber = RS_HECATE; break;
-		case ATHENA:	Level->site(i,j).roomnumber = RS_ATHENA; break;
-		case DRUID:	Level->site(i,j).roomnumber = RS_DRUID; break;
-		case DESTINY:	Level->site(i,j).roomnumber = RS_DESTINY; break;
-	    }
-	    char site = *ld++;
-	    switch (site) {
+	    location& s (Level->site(i,j));
+	    s.locchar = FLOOR;
+	    s.roomnumber = roomid;
+	    switch (*ld++) {
 		case '8':
-		    Level->site(i,j).locchar = ALTAR;
-		    Level->site(i,j).p_locf = L_ALTAR;
-		    Level->site(i,j).aux = deity;
+		    s.locchar = ALTAR;
+		    s.p_locf = L_ALTAR;
+		    s.aux = deity;
 		    break;
 		case 'H':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate && (!Player.patron || Player.name != Priest[Player.patron] || Player.rank[PRIESTHOOD] != HIGHPRIEST))
 			make_high_priest (i, j, deity);
 		    break;
 		case 'S':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (!Player.patron || Player.name != Priest[Player.patron] || Player.rank[PRIESTHOOD] != HIGHPRIEST)
 			lset (i, j, SECRET);
 		    break;
 		case 'W':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (deity != Player.patron && deity != DRUID)
-			Level->site(i,j).p_locf = L_TEMPLE_WARNING;
+			s.p_locf = L_TEMPLE_WARNING;
 		    break;
 		case 'm':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate)
 			make_site_monster (i, j, MIL_PRIEST);
 		    break;
 		case 'd':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate)
 			make_site_monster (i, j, DOBERMAN);
 		    break;
 		case 'X':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_TACTICAL_EXIT;
+		    s.p_locf = L_TACTICAL_EXIT;
 		    break;
 		case '#':
 		    if (deity != DRUID) {
-			Level->site(i,j).locchar = WALL;
-			Level->site(i,j).aux = 150;
+			s.locchar = WALL;
+			s.aux = 150;
 		    } else {
-			Level->site(i,j).locchar = HEDGE;
-			Level->site(i,j).p_locf = L_HEDGE;
+			s.locchar = HEDGE;
+			s.p_locf = L_HEDGE;
 		    }
 		    break;
-		case '.':
-		    Level->site(i,j).locchar = FLOOR;
-		    break;
 		case 'x':
-		    Level->site(i,j).locchar = FLOOR;
 		    random_temple_site (i, j, deity, populate);
 		    break;
 		case '?':
-		    if (deity != DESTINY)
-			Level->site(i,j).locchar = FLOOR;
-		    else {
-			Level->site(i,j).locchar = ABYSS;
-			Level->site(i,j).p_locf = L_ADEPT;
+		    if (deity == DESTINY) {
+			s.locchar = ABYSS;
+			s.p_locf = L_ADEPT;
 		    }
 		    break;
 		case '-':
-		    Level->site(i,j).locchar = CLOSED_DOOR;
+		    s.locchar = CLOSED_DOOR;
 		    break;
 		case '|':
-		    Level->site(i,j).locchar = OPEN_DOOR;
+		    s.locchar = OPEN_DOOR;
 		    break;
 	    }
 	}
@@ -2607,127 +2372,105 @@ void load_house (int kind, int populate)
     unsigned stops = 0;
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
-	    if (kind == E_HOVEL)
-		Level->site(i,j).lstatus = SEEN;
-	    else
-		Level->site(i,j).lstatus = 0;
-	    Level->site(i,j).roomnumber = RS_CORRIDOR;
-	    Level->site(i,j).p_locf = L_NO_OP;
-	    char site = *ld++;
-	    switch (site) {
+	    location& s (Level->site(i,j));
+	    s.locchar = FLOOR;
+	    s.lstatus = (kind == E_HOVEL ? SEEN : 0);
+	    s.roomnumber = RS_CORRIDOR;
+	    s.p_locf = L_NO_OP;
+	    switch (*ld++) {
 		case 'N':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).roomnumber = RS_BEDROOM;
+		    s.roomnumber = RS_BEDROOM;
 		    if (random_range (2) && populate)
 			make_house_npc (i, j);
 		    break;
 		case 'H':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).roomnumber = RS_BEDROOM;
+		    s.roomnumber = RS_BEDROOM;
 		    if (random_range (2) && populate)
 			make_mansion_npc (i, j);
 		    break;
 		case 'D':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).roomnumber = RS_DININGROOM;
+		    s.roomnumber = RS_DININGROOM;
 		    break;
 		case '.':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (stops) {
 			lset (i, j, STOPS);
 			stops = 0;
 		    }
 		    break;
 		case 'c':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).roomnumber = RS_CLOSET;
+		    s.roomnumber = RS_CLOSET;
 		    break;
 		case 'G':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).roomnumber = RS_BATHROOM;
+		    s.roomnumber = RS_BATHROOM;
 		    break;
 		case 'B':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).roomnumber = RS_BEDROOM;
+		    s.roomnumber = RS_BEDROOM;
 		    break;
 		case 'K':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).roomnumber = RS_KITCHEN;
+		    s.roomnumber = RS_KITCHEN;
 		    break;
 		case 'S':
-		    Level->site(i,j).locchar = FLOOR;
 		    lset (i, j, SECRET);
-		    Level->site(i,j).roomnumber = RS_SECRETPASSAGE;
+		    s.roomnumber = RS_SECRETPASSAGE;
 		    break;
 		case '3':
-		    Level->site(i,j).locchar = SAFE;
+		    s.locchar = SAFE;
 		    lset (i, j, SECRET);
-		    Level->site(i,j).p_locf = L_SAFE;
+		    s.p_locf = L_SAFE;
 		    break;
 		case '^':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = TRAP_BASE + random_range (NUMTRAPS);
+		    s.p_locf = TRAP_BASE + random_range (NUMTRAPS);
 		    break;
 		case 'P':
-		    Level->site(i,j).locchar = PORTCULLIS;
-		    Level->site(i,j).p_locf = L_PORTCULLIS;
+		    s.locchar = PORTCULLIS;
+		    s.p_locf = L_PORTCULLIS;
 		    break;
 		case 'R':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_RAISE_PORTCULLIS;
+		    s.p_locf = L_RAISE_PORTCULLIS;
 		    break;
 		case 'p':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_PORTCULLIS;
+		    s.p_locf = L_PORTCULLIS;
 		    break;
 		case 'T':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_PORTCULLIS_TRAP;
+		    s.p_locf = L_PORTCULLIS_TRAP;
 		    break;
 		case 'X':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_HOUSE_EXIT;
+		    s.p_locf = L_HOUSE_EXIT;
 		    stops = 1;
 		    break;
 		case '#':
-		    Level->site(i,j).locchar = WALL;
+		    s.locchar = WALL;
 		    switch (kind) {
-			case E_HOVEL:
-			    Level->site(i,j).aux = 10;
-			    break;
-			case E_HOUSE:
-			    Level->site(i,j).aux = 50;
-			    break;
-			case E_MANSION:
-			    Level->site(i,j).aux = 150;
-			    break;
+			case E_HOVEL: s.aux = 10; break;
+			case E_HOUSE: s.aux = 50; break;
+			case E_MANSION: s.aux = 150; break;
 		    }
 		    break;
 		case '|':
-		    Level->site(i,j).locchar = OPEN_DOOR;
-		    Level->site(i,j).roomnumber = RS_CORRIDOR;
+		    s.locchar = OPEN_DOOR;
+		    s.roomnumber = RS_CORRIDOR;
 		    lset (i, j, STOPS);
 		    break;
 		case '+':
-		    Level->site(i,j).locchar = CLOSED_DOOR;
-		    Level->site(i,j).roomnumber = RS_CORRIDOR;
-		    Level->site(i,j).aux = LOCKED;
+		    s.locchar = CLOSED_DOOR;
+		    s.roomnumber = RS_CORRIDOR;
+		    s.aux = LOCKED;
 		    lset (i, j, STOPS);
 		    break;
 		case 'd':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).roomnumber = RS_CORRIDOR;
+		    s.locchar = FLOOR;
+		    s.roomnumber = RS_CORRIDOR;
 		    if (populate)
 			make_site_monster (i, j, DOBERMAN);
 		    break;
 		case 'a':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).roomnumber = RS_CORRIDOR;
-		    Level->site(i,j).p_locf = L_TRAP_SIREN;
+		    s.locchar = FLOOR;
+		    s.roomnumber = RS_CORRIDOR;
+		    s.p_locf = L_TRAP_SIREN;
 		    break;
 		case 'A':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).roomnumber = RS_CORRIDOR;
+		    s.locchar = FLOOR;
+		    s.roomnumber = RS_CORRIDOR;
 		    if (populate)
 			make_site_monster (i, j, AUTO_MINOR);
 		    break;
@@ -2769,7 +2512,8 @@ static void make_mansion_npc (int i, int j)
 void load_village (int villagenum, int populate)
 {
     initrand (Current_Environment, villagenum);
-    assign_village_function (0, 0, true);
+    location d;
+    assign_village_function (d, 0, 0, true);
     static const char* _villages[] = {
 	Level_Village1, Level_Village2, Level_Village3,
 	Level_Village4, Level_Village5, Level_Village6
@@ -2777,51 +2521,43 @@ void load_village (int villagenum, int populate)
     const char* ld = Level->init_from_data (E_VILLAGE, _villages[villagenum-1]);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
-	    lset (i, j, SEEN);
-	    char site = *ld++;
-	    Level->site(i,j).p_locf = L_NO_OP;
-	    switch (site) {
+	    location& s (Level->site(i,j));
+	    s.locchar = FLOOR;
+	    s.lstatus |= SEEN;
+	    s.p_locf = L_NO_OP;
+	    switch (*ld++) {
 		case 'f':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate)
 			make_food_bin (i, j);
 		    break;
 		case 'g':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_GRANARY;
+		    s.p_locf = L_GRANARY;
 		    break;
 		case 'h':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate)
 			make_site_monster (i, j, HORSE);
 		    break;
 		case 'S':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_STABLES;
+		    s.p_locf = L_STABLES;
 		    break;
 		case 'H':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate)
 			make_site_monster (i, j, MERCHANT);
 		    break;
 		case 'C':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_COMMONS;
+		    s.p_locf = L_COMMONS;
 		    break;
 		case 's':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate)
 			make_site_monster (i, j, SHEEP);
 		    break;
 		case 'x':
-		    assign_village_function (i, j, false);
+		    assign_village_function (s, i, j, false);
 		    break;
 		case 'X':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_COUNTRYSIDE;
+		    s.p_locf = L_COUNTRYSIDE;
 		    break;
 		case 'G':
-		    Level->site(i,j).locchar = FLOOR;
 		    if (populate) {
 			monster& m = make_site_monster (i, j, GUARD);
 			m.aux1 = i;
@@ -2829,40 +2565,41 @@ void load_village (int villagenum, int populate)
 		    }
 		    break;
 		case '^':
-		    Level->site(i,j).locchar = FLOOR;
-		    Level->site(i,j).p_locf = L_TRAP_SIREN;
+		    s.p_locf = L_TRAP_SIREN;
 		    break;
 		case '(':
-		    Level->site(i,j).locchar = HEDGE;
-		    Level->site(i,j).p_locf = L_HEDGE;
+		    s.locchar = HEDGE;
+		    s.p_locf = L_HEDGE;
 		    break;
 		case '~':
-		    Level->site(i,j).locchar = WATER;
-		    Level->site(i,j).p_locf = L_WATER;
+		    s.locchar = WATER;
+		    s.p_locf = L_WATER;
 		    break;
 		case '+':
-		    Level->site(i,j).locchar = WATER;
-		    Level->site(i,j).p_locf = L_CHAOS;
+		    s.locchar = WATER;
+		    s.p_locf = L_CHAOS;
 		    break;
 		case '\'':
-		    Level->site(i,j).locchar = HEDGE;
-		    Level->site(i,j).p_locf = L_TRIFID;
+		    s.locchar = HEDGE;
+		    s.p_locf = L_TRIFID;
 		    break;
-		case '!':
-		    special_village_site (i, j, villagenum);
-		    break;
+		case '!': {
+		    static const uint8_t _vstone[] = {
+			L_LAWSTONE, L_BALANCESTONE, L_CHAOSTONE,
+			L_MINDSTONE, L_SACRIFICESTONE, L_VOIDSTONE
+		    };
+		    s.locchar = ALTAR;
+		    s.p_locf = _vstone[villagenum-1];
+		    break; }
 		case '#':
-		    Level->site(i,j).locchar = WALL;
-		    Level->site(i,j).aux = 100;
-		    break;
-		case '.':
-		    Level->site(i,j).locchar = FLOOR;
+		    s.locchar = WALL;
+		    s.aux = 100;
 		    break;
 		case '-':
-		    Level->site(i,j).locchar = CLOSED_DOOR;
+		    s.locchar = CLOSED_DOOR;
 		    break;
 		case '1':
-		    Level->site(i,j).locchar = STATUE;
+		    s.locchar = STATUE;
 		    break;
 	    }
 	}
@@ -2876,85 +2613,35 @@ static void make_food_bin (int i, int j)
 	Level->make_thing (i, j, FOOD_GRAIN);
 }
 
-static void assign_village_function (int x, int y, int setup)
+static void assign_village_function (location& s, int x, int y, bool setup)
 {
-    static int next = 0;
-    static int permutation[24];	// number of x's in village map
-    int i, j, k;
+    static unsigned next = 0;
+    static uint8_t permutation[24];	// number of x's in village map
 
     if (setup) {
 	next = 0;
-	for (i = 0; i < 24; i++)
-	    permutation[i] = i;
-	for (i = 0; i < 24; i++) {
-	    j = permutation[i];
-	    k = random_range (24);
-	    permutation[i] = permutation[k];
-	    permutation[k] = j;
-	}
+	iota (ArrayRange(permutation), 0);
+	random_shuffle (ArrayRange(permutation));
+	return;
+    }
+
+    lset (x, y + 1, STOPS);
+    lset (x + 1, y, STOPS);
+    lset (x - 1, y, STOPS);
+    lset (x, y - 1, STOPS);
+    lset (x, y, STOPS);
+
+    static const uint8_t _villageloc[] = {
+	L_ARMORER, L_HEALER, L_TAVERN, L_COMMANDANT, L_CARTOGRAPHER
+    };
+    unsigned loc;
+    if (next >= ArraySize(permutation) || ArraySize(_villageloc) <= (loc = permutation[next++])) {
+	s.locchar = CLOSED_DOOR;
+	s.aux = rand()%1 ? LOCKED : 0;
+	s.p_locf = rand()%1 ? L_HOVEL : L_HOUSE;
     } else {
-
-	lset (x, y + 1, STOPS);
-	lset (x + 1, y, STOPS);
-	lset (x - 1, y, STOPS);
-	lset (x, y - 1, STOPS);
-	lset (x, y, STOPS);
-
-	switch (permutation[next++]) {
-	    case 0:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_ARMORER;
-		break;
-	    case 1:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_HEALER;
-		break;
-	    case 2:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_TAVERN;
-		break;
-	    case 3:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_COMMANDANT;
-		break;
-	    case 4:
-		Level->site(x,y).locchar = OPEN_DOOR;
-		Level->site(x,y).p_locf = L_CARTOGRAPHER;
-		break;
-	    default:
-		Level->site(x,y).locchar = CLOSED_DOOR;
-		if (random_range (2))
-		    Level->site(x,y).aux = LOCKED;
-		if (random_range (2))
-		    Level->site(x,y).p_locf = L_HOVEL;
-		else
-		    Level->site(x,y).p_locf = L_HOUSE;
-		break;
-	}
-    }
-}
-
-static void special_village_site (int i, int j, int villagenum)
-{
-    if (villagenum == 1) {
-	Level->site(i,j).locchar = ALTAR;
-	Level->site(i,j).p_locf = L_LAWSTONE;
-    }
-    if (villagenum == 2) {
-	Level->site(i,j).locchar = ALTAR;
-	Level->site(i,j).p_locf = L_BALANCESTONE;
-    } else if (villagenum == 3) {
-	Level->site(i,j).locchar = ALTAR;
-	Level->site(i,j).p_locf = L_CHAOSTONE;
-    } else if (villagenum == 4) {
-	Level->site(i,j).locchar = ALTAR;
-	Level->site(i,j).p_locf = L_MINDSTONE;
-    } else if (villagenum == 5) {
-	Level->site(i,j).locchar = ALTAR;
-	Level->site(i,j).p_locf = L_SACRIFICESTONE;
-    } else if (villagenum == 6) {
-	Level->site(i,j).locchar = ALTAR;
-	Level->site(i,j).p_locf = L_VOIDSTONE;
+	s.locchar = OPEN_DOOR;
+	s.p_locf = _villageloc[loc];
     }
 }
 
@@ -3139,39 +2826,19 @@ static void make_creature (monster& m, int mid)
     if (mid == -1)
 	mid = random_range (ML9);
     m = Monsters[mid];
-    if ((mid == ANGEL) || (mid == HIGH_ANGEL) || (mid == ARCHANGEL)) {
+    if (mid == ANGEL || mid == HIGH_ANGEL || mid == ARCHANGEL) {
 	// aux1 field of an angel is its deity
 	if (Current_Environment == E_TEMPLE)
 	    m.aux1 = Country->site(LastCountryLocX,LastCountryLocY).aux;
 	else
-	    m.aux1 = random_range (6) + 1;
-	strcpy (Str3, Monsters[mid].monstring);
-	switch (m.aux1) {
-	    case ODIN:
-		strcat (Str3, " of Odin");
-		break;
-	    case SET:
-		strcat (Str3, " of Set");
-		break;
-	    case HECATE:
-		strcat (Str3, " of Hecate");
-		break;
-	    case ATHENA:
-		strcat (Str3, " of Athena");
-		break;
-	    case DESTINY:
-		strcat (Str3, " of Destiny");
-		break;
-	    case DRUID:
-		strcat (Str3, " of the Balance");
-		break;
-	}
+	    m.aux1 = random_range(6) + 1;
+	static const char _religion[][8] = { "Odin", "Set", "Hecate", "Athena", "Destiny", "Balance" };
+	snprintf (ArrayBlock(Str3), "%s of %s", Monsters[mid].monstring, _religion[m.aux1]);
 	m.monstring = strdup (Str3);
     } else if (mid == ZERO_NPC || mid == WEREHUMAN) {
 	// generic 0th level human, or a were-human
 	m.monstring = mantype();
-	strcpy (Str1, "dead ");
-	strcat (Str1, m.monstring);
+	snprintf (ArrayBlock(Str1), "dead %s", m.monstring);
 	m.corpsestr = strdup (Str1);
     } else if ((m.monchar & 0xff) == '!') {
 	// the nymph/satyr and incubus/succubus
@@ -3303,8 +2970,7 @@ void make_hiscore_npc (monster& npc, int npcid)
     if (st > -1 && object_uniqueness(st) == UNIQUE_MADE)
 	npc.pickup (Objects[st]);
     char buf[80];
-    strcpy (buf, "The body of ");
-    strcat (buf, npc.monstring);
+    snprintf (ArrayBlock(buf), "The body of %s", npc.monstring);
     npc.corpsestr = strdup (buf);
 }
 
@@ -4926,7 +4592,7 @@ void l_trifid (void)
 void l_vault (void)
 {
     print1 ("You come to a thick vault door with a complex time lock.");
-    if ((hour() == 23)) {
+    if (hour() == 23) {
 	print2 ("The door is open.");
 	Level->site(12,56).locchar = FLOOR;
     } else {
@@ -4972,7 +4638,7 @@ void l_brothel (void)
 	showmenu();
 	do
 	    response = menugetc();
-	while ((response != 'a') && (response != 'b') && (response != 'c') && (response != KEY_ESCAPE));
+	while (response != 'a' && response != 'b' && response != 'c' && response != KEY_ESCAPE);
 	xredraw();
 	if (response == 'a') {
 	    if (!nighttime())
@@ -4991,51 +4657,30 @@ void l_brothel (void)
 			print2 ("After an expensive dinner (takeout from Les Crapuleux)");
 			morewait();
 			if (Player.preference == 'n') {
-			    switch (random_range (4)) {
-				case 0:
-				    print1 ("you spend the evening playing German Whist with");
-				    break;
-				case 1:
-				    print1 ("you spend the evening discussing philosophy with");
-				    break;
-				case 2:
-				    print1 ("you spend the evening playing chess against");
-				    break;
-				case 3:
-				    print1 ("you spend the evening telling your adventures to");
-			    }
+			    static const char _nopref[] =
+				"you spend the evening playing German Whist with\0"
+				"you spend the evening discussing philosophy with\0"
+				"you spend the evening playing chess against\0"
+				"you spend the evening telling your adventures to";
+			    print1 (zstrn(_nopref, rand()%4, 4));
 			    print2 ("various employees of the House of the Eclipse.");
 			} else {
 			    print1 ("you spend an enjoyable and educational evening with");
-			    if (Player.preference == 'm' || (Player.preference == 'y' && random_range (2)))
-				switch (random_range (4)) {
-				    case 0:
-					print2 ("Skarn the Insatiable, a satyr.");
-					break;
-				    case 1:
-					print2 ("Dryden the Defanged, an incubus.");
-					break;
-				    case 2:
-					print2 ("Gorgar the Equipped, a centaur.");
-					break;
-				    case 3:
-					print2 ("Hieronymus, the mendicant priest of Eros.");
-					break;
-			    } else
-				switch (random_range (4)) {
-				    case 0:
-					print2 ("Noreen the Nymph (omaniac)");
-					break;
-				    case 1:
-					print2 ("Angelface, a recanted succubus.");
-					break;
-				    case 2:
-					print2 ("Corporal Sue of the City Guard (moonlighting).");
-					break;
-				    case 3:
-					print2 ("Sheena the Queena the Jungle, a wereleopard.");
-					break;
-				}
+			    if (Player.preference == 'm' || (Player.preference == 'y' && random_range (2))) {
+				static const char _mpref[] =
+				    "Skarn the Insatiable, a satyr.\0"
+				    "Dryden the Defanged, an incubus.\0"
+				    "Gorgar the Equipped, a centaur.\0"
+				    "Hieronymus, the mendicant priest of Eros.";
+				print2 (zstrn(_mpref, rand()%4, 4));
+			    } else {
+				static const char _fpref[] =
+				    "Noreen the Nymph (omaniac)\0"
+				    "Angelface, a recanted succubus.\0"
+				    "Corporal Sue of the City Guard (moonlighting).\0"
+				    "Sheena the Queena the Jungle, a wereleopard.";
+				print2 (zstrn(_fpref, rand()%4, 4));
+			    }
 			}
 			morewait();
 			if (hour() > 12)
@@ -5047,7 +4692,6 @@ void l_brothel (void)
 			Player.food = 40;
 			Player.status[DISEASED] = 0;
 			Player.status[POISONED] = 0;
-			Player.hp = Player.maxhp;
 			// reduce temporary stat gains to max stat levels
 			toggle_item_use (true);
 			Player.str = min (Player.str, Player.maxstr);
@@ -5058,9 +4702,10 @@ void l_brothel (void)
 			Player.pow = min (Player.pow, Player.maxpow);
 			toggle_item_use (false);
 			if (Player.preference == 'n')
-			    Player.iq++;	// whatever :-)
-			else
-			    Player.con++;
+			    ++Player.iq;	// whatever :-)
+			else if (Player.maxhp < ++Player.con)
+			    ++Player.maxhp;
+			Player.hp = Player.maxhp;
 			gain_experience (100);
 			timeprint();
 			dataprint();

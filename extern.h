@@ -419,7 +419,7 @@ int nighttime(void);
 int offscreen(int y);
 int ok_to_free(plv level);
 const char* ordinal(int number);
-int random_range(int k);
+int random_range (unsigned k);
 int screenmod(int y);
 int showhour(void);
 int showminute(void);
