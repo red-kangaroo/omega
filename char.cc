@@ -42,7 +42,7 @@ void initplayer (void)
     fill (Player.status, 0);
     fill (Player.rank, 0);
     fill (Player.guildxp, 0);
-    for (auto p : Player.possessions)
+    for (auto& p : Player.possessions)
 	p.id = NO_THING;
     Player.pack.clear();
     Player.patron = 0;

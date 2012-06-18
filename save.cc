@@ -455,52 +455,53 @@ streamsize monster::stream_size (void) const
     return (r);
 }
 
-// Save o unless it's null, then save a special flag byte instead
-// Use other values of flag byte to indicate what strings are saved
-void object::write (ostream& os) const
+enum { OBJECTCHANGEABLESIZE = offsetof(object_data,objchar)-offsetof(object_data,weight) };
+
+void object_data::read (istream& is) noexcept
 {
-    if (id >= ArraySize(Objects)) { os << id; return; }
-    object_data::write (os);
-    os << number << x << y;
-    if (strcmp (objstr, Objects[id].objstr))
+    uint8_t components;
+    is >> id >> components;
+    if (id >= ArraySize(Objects))
+	return;
+    *this = Objects[id];
+    if (components & 1)
+	is.read (&weight, OBJECTCHANGEABLESIZE);
+    if (components & 2) {
+	objstr = strdup (is.read_strz());
+	truename = strdup (is.read_strz());
+	cursestr = strdup (is.read_strz());
+	is.align(2);
+    }
+}
+
+void object_data::write (ostream& os) const noexcept
+{
+    uint8_t components = 0;
+    if (id < ArraySize(Objects)) {
+	if (!memcmp(&weight, &Objects[id].weight, OBJECTCHANGEABLESIZE))
+	    components |= 1;
+	if ((objstr && objstr != Objects[id].objstr) || (truename && truename != Objects[id].truename) || (cursestr && cursestr != Objects[id].cursestr))
+	    components |= 2;
+    }
+    os << id << components;
+    if (components & 1)
+	os.write (&weight, OBJECTCHANGEABLESIZE);
+    if (components & 2) {
 	os.write_strz (objstr);
-    else os << '\0';
-    if (strcmp (truename, Objects[id].truename))
 	os.write_strz (truename);
-    else os << '\0';
-    if (strcmp (cursestr, Objects[id].cursestr))
 	os.write_strz (cursestr);
-    else os << '\0';
-    os.skipalign(stream_align(*this));
+	os.skipalign(2);
+    }
 }
 
-// Restore an item, the first byte tells us if it's NULL, and what strings
-// have been saved as different from the typical
-void object::read (istream& is)
+streamsize object_data::stream_size (void) const noexcept
 {
-    is >> id;
-    if (id >= ArraySize(Objects)) return;
-    is.iseek (is.ipos() - stream_size_of(id));
-    object_data::read (is);
-    is >> number >> x >> y;
-    objstr = Objects[id].objstr;
-    truename = Objects[id].truename;
-    cursestr = Objects[id].cursestr;
-    unsigned nlen;	// The strdups leak memory, but hey, it isn't much
-    nlen = strlen(is.ipos()); if (nlen) objstr = strdup(is.ipos()); is.skip(nlen+1);
-    nlen = strlen(is.ipos()); if (nlen) truename = strdup(is.ipos()); is.skip(nlen+1);
-    nlen = strlen(is.ipos()); if (nlen) cursestr = strdup(is.ipos()); is.skip(nlen+1);
-    is.align(stream_align(*this));
-}
-
-streamsize object::stream_size (void) const
-{
-    streamsize r = 0;
-    if (id >= ArraySize(Objects)) return (stream_size_of(id));
-    r += object_data::stream_size();
-    r += stream_size_of(number) + stream_size_of(x) + stream_size_of(y);
-    ++r; if (objstr && strcmp (objstr, Objects[id].objstr)) r += strlen(objstr);
-    ++r; if (truename && strcmp (truename, Objects[id].truename)) r += strlen(truename);
-    ++r; if (cursestr && strcmp (cursestr, Objects[id].cursestr)) r += strlen(truename);
-    return (Align(r,stream_align(*this)));
+    streamsize sz = stream_size_of(id) + stream_size_of(level);
+    if (id < ArraySize(Objects)) {
+	if (!memcmp(&weight, &Objects[id].weight, OBJECTCHANGEABLESIZE))
+	    sz += OBJECTCHANGEABLESIZE;
+	if ((objstr && objstr != Objects[id].objstr) || (truename && truename != Objects[id].truename) || (cursestr && cursestr != Objects[id].cursestr))
+	    sz += Align(strlen(objstr)+1+strlen(truename)+1+strlen(cursestr)+1,2);
+    }
+    return (sz);
 }

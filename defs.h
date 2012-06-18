@@ -755,10 +755,11 @@ struct object_data {
     const char* truename;
     const char* cursestr;
 public:
-    inline void	read (istream& is)		{ is.read (this, stream_size()); }
-    inline void	write (ostream& os) const	{ os.write (this, stream_size()); }
-    inline streamsize stream_size (void) const	{ return (offsetof(object_data,objstr)); }
+    void	read (istream& is) noexcept;
+    void	write (ostream& os) const noexcept;
+    streamsize	stream_size (void) const noexcept;
 };
+STREAM_ALIGN (object_data, 2);
 
 struct object : public object_data {
 public:
@@ -771,12 +772,12 @@ public:
 		object (const object_data& o)	: number(1), x(0), y(0) { operator= (o); }
     object&	operator= (const object_data& o){ *implicit_cast<object_data*>(this) = o; return (*this); }
     bool	operator== (const object& v) const;
-    void	read (istream& is);
-    void	write (ostream& os) const;
-    streamsize	stream_size (void) const;
+    inline void	write (ostream& os) const	{ object_data::write (os); os << number << x << y; }
+    inline void	read (istream& is)		{ object_data::read (is); is >> number >> x >> y; }
+    inline streamsize stream_size (void) const	{ return (object_data::stream_size() + stream_size_of(number) + stream_size_of(x) + stream_size_of(y)); }
 };
 typedef object* pob;
-STREAM_ALIGN (object, 4);
+STREAM_ALIGN (object, 2);
 
 struct monster_data {
     uint8_t id;
