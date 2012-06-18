@@ -362,7 +362,9 @@ void m_vanish (struct monster *m)
 // monster still in play
 void m_teleport (struct monster *m)
 {
-    findspace (&m->x, &m->y);
+    int x, y;
+    findspace (&x, &y);
+    m->x = x; m->y = y;
     levelrefresh();
 }
 
@@ -977,9 +979,9 @@ static void monster_melee (struct monster *m, int hitloc, int bonus)
 	return;
     }
     // It's lawful to wait to be attacked
-    if (m->attacked == 0)
+    if (!m->attacked)
 	++Player.alignment;
-    ++m->attacked;
+    m->attacked = true;
     if (m->uniqueness == COMMON) {
 	strcpy (Str2, "The ");
 	strcat (Str2, m->monstring);
@@ -2058,9 +2060,9 @@ static void monster_strike (struct monster *m)
 	print1 ("The aegis of your deity protects you!");
     else {
 	// It's lawful to wait to be attacked
-	if (m->attacked == 0)
+	if (!m->attacked)
 	    Player.alignment++;
-	m->attacked++;
+	m->attacked = true;
 	monster_action (m, m->strikef);
     }
 }

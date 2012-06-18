@@ -802,34 +802,35 @@ struct monster_data {
     int16_t meleef;
     int16_t strikef;
     int16_t specialf;
-    uint32_t status;
-    uint32_t immunity;
+    uint16_t status;
+    uint16_t immunity;
     chtype monchar;
     const char* monstring;
     const char* corpsestr;
     const char* meleestr;
 public:
-    inline void	read (istream& is)		{ is.read (this, stream_size()); }
-    inline void	write (ostream& os) const	{ os.write (this, stream_size()); }
-    inline streamsize stream_size (void) const	{ return (offsetof(monster_data,monstring)); }
+    void	read (istream& is) noexcept;
+    void	write (ostream& os) const noexcept;
+    streamsize	stream_size (void) const noexcept;
 };
+STREAM_ALIGN (monster_data, 4);
 
 struct monster : public monster_data {
-    vector<object> possessions;
-    int attacked;
-    int aux1;
-    int aux2;
-    int click;
-    int x;
-    int y;
+    vector<object>	possessions;
+    uint16_t		aux1;
+    uint16_t		aux2;
+    bool		attacked;
+    uint8_t		click;
+    uint8_t		x;
+    uint8_t		y;
 public:
-    inline monster& operator= (const monster_data& v)	{ *implicit_cast<monster_data*>(this) = v; possessions.clear(); return (*this); }
-    void read (istream& is);
-    void write (ostream& os) const;
-    streamsize stream_size (void) const;
-    const char* name (void) const PURE;
-    const char* by_name (void) const PURE;
-    inline void pickup (const object& o)	{ possessions.push_back(o); }
+    inline monster&	operator= (const monster_data& v)	{ *implicit_cast<monster_data*>(this) = v; possessions.clear(); return (*this); }
+    void		read (istream& is);
+    void		write (ostream& os) const;
+    streamsize		stream_size (void) const noexcept;
+    const char*		name (void) const PURE;
+    const char*		by_name (void) const PURE;
+    inline void		pickup (const object& o)		{ possessions.push_back(o); }
 };
 STREAM_ALIGN (monster, 4);
 

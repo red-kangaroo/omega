@@ -411,49 +411,86 @@ static void restore_level (istream& is)
     is >> Level->mlist >> Level->things;
 }
 
+//----------------------------------------------------------------------
+
+enum { MONSTERCHANGEABLESIZE = offsetof(monster_data,monstring) };
+
+void monster_data::read (istream& is) noexcept
+{
+    uint8_t components;
+    is >> id >> components;
+    is.skip (2);
+    if (id >= ArraySize(Monsters))
+	id = DEATH;	// To make the error obvious
+    *this = Monsters[id];
+    if (components & 1)
+	is.read (this, MONSTERCHANGEABLESIZE);
+    if (components & 2) {
+	monstring = strdup (is.read_strz());
+	corpsestr = strdup (is.read_strz());
+	is.align(stream_align(*this));
+    }
+}
+
+void monster_data::write (ostream& os) const noexcept
+{
+    uint8_t components = 0;
+    if (id < ArraySize(Monsters)) {
+	if (!memcmp(this, &Monsters[id], MONSTERCHANGEABLESIZE))
+	    components |= 1;
+	if ((monstring && monstring != Monsters[id].monstring) || (corpsestr && corpsestr != Monsters[id].corpsestr))
+	    components |= 2;
+    }
+    os << id << components;
+    os.skip (2);
+    if (components & 1)
+	os.write (this, MONSTERCHANGEABLESIZE);
+    if (components & 2) {
+	os.write_strz (monstring);
+	os.write_strz (corpsestr);
+	os.skipalign(stream_align(*this));
+    }
+}
+
+streamsize monster_data::stream_size (void) const noexcept
+{
+    streamsize sz = 4;
+    if (id < ArraySize(Monsters)) {
+	if (!memcmp(this, &Monsters[id], MONSTERCHANGEABLESIZE))
+	    sz += MONSTERCHANGEABLESIZE;
+	if ((monstring && monstring != Monsters[id].monstring) || (corpsestr && corpsestr != Monsters[id].corpsestr))
+	    sz += Align(strlen(monstring)+1+strlen(corpsestr)+1,stream_align(*this));
+    }
+    return (sz);
+}
+
+//----------------------------------------------------------------------
+
 void monster::write (ostream& os) const
 {
     monster_data::write (os);
-    os << attacked << aux1 << aux2 << click << x << y;
-    if (strcmp (monstring, Monsters[id].monstring))
-	os.write_strz (monstring);
-    else
-	os << '\0';
-    if (strcmp (corpsestr, Monsters[id].corpsestr))
-	os.write_strz (corpsestr);
-    else
-	os << '\0';
-    os.skipalign (stream_align(possessions));
+    os << aux1 << aux2 << attacked << click << x << y;
     os << possessions;
+    os.skipalign (stream_align(*this));
 }
 
 void monster::read (istream& is)
 {
     monster_data::read (is);
-    if (id >= ArraySize(Monsters))
-	throw runtime_error ("invalid monster");
-    is >> attacked >> aux1 >> aux2 >> click >> x >> y;
-    monstring = Monsters[id].monstring;
-    corpsestr = Monsters[id].corpsestr;
-    meleestr = Monsters[id].meleestr;
-
-    unsigned nlen;	// These create memory leaks, but they are cheaper than fixing them
-    nlen = strlen(is.ipos()); if (nlen) monstring = strdup(is.ipos()); is.skip(nlen+1);
-    nlen = strlen(is.ipos()); if (nlen) corpsestr = strdup(is.ipos()); is.skip(nlen+1);
-
-    is.align (stream_align(possessions));
+    is >> aux1 >> aux2 >> attacked >> click >> x >> y;
     is >> possessions;
+    is.align (stream_align(*this));
 }
 
-streamsize monster::stream_size (void) const
+streamsize monster::stream_size (void) const noexcept
 {
     streamsize r = monster_data::stream_size();
-    if (id >= ArraySize(Monsters)) return (r);
-    ++r; if (monstring && strcmp (monstring, Monsters[id].monstring)) r += strlen(monstring);
-    ++r; if (corpsestr && strcmp (corpsestr, Monsters[id].corpsestr)) r += strlen(corpsestr);
+    r += stream_size_of(aux1)+stream_size_of(aux2)+stream_size_of(attacked)+stream_size_of(click)+stream_size_of(x)+stream_size_of(y);
     r += stream_size_of(possessions);
-    return (r);
+    return (Align(r,stream_align(*this)));
 }
+
+//----------------------------------------------------------------------
 
 enum { OBJECTCHANGEABLESIZE = offsetof(object_data,objchar)-offsetof(object_data,weight) };
 
@@ -470,7 +507,7 @@ void object_data::read (istream& is) noexcept
 	objstr = strdup (is.read_strz());
 	truename = strdup (is.read_strz());
 	cursestr = strdup (is.read_strz());
-	is.align(2);
+	is.align(stream_align(*this));
     }
 }
 
@@ -490,7 +527,7 @@ void object_data::write (ostream& os) const noexcept
 	os.write_strz (objstr);
 	os.write_strz (truename);
 	os.write_strz (cursestr);
-	os.skipalign(2);
+	os.skipalign(stream_align(*this));
     }
 }
 
@@ -501,7 +538,7 @@ streamsize object_data::stream_size (void) const noexcept
 	if (!memcmp(&weight, &Objects[id].weight, OBJECTCHANGEABLESIZE))
 	    sz += OBJECTCHANGEABLESIZE;
 	if ((objstr && objstr != Objects[id].objstr) || (truename && truename != Objects[id].truename) || (cursestr && cursestr != Objects[id].cursestr))
-	    sz += Align(strlen(objstr)+1+strlen(truename)+1+strlen(cursestr)+1,2);
+	    sz += Align(strlen(objstr)+1+strlen(truename)+1+strlen(cursestr)+1,stream_align(*this));
     }
     return (sz);
 }
