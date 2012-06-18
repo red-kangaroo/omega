@@ -1539,7 +1539,7 @@ void sleep_monster (int blessing)
     else if (blessing > 0) {
 	mprint ("A silence pervades the area.");
 	foreach (m, Level->mlist) {
-	    m_status_reset (*m, AWAKE);
+	    m_status_set (*m, ASLEEP);
 	    m->wakeup = 0;
 	}
     } else {
@@ -1552,7 +1552,7 @@ void sleep_monster (int blessing)
 		strcpy (Str1, target->monstring);
 	    if (!m_immunityp (target, SLEEP)) {
 		strcat (Str1, " seems to have fallen asleep.");
-		m_status_reset (target, AWAKE);
+		m_status_set (target, ASLEEP);
 		target->wakeup = 0;
 	    } else
 		strcat (Str1, " is bright eyed, and bushy tailed!");
@@ -1605,7 +1605,7 @@ void clairvoyance (int vision)
 void aggravate (void)
 {
     foreach (m, Level->mlist) {
-	m_status_set (*m, AWAKE);
+	m_status_reset (*m, ASLEEP);
 	m_status_set (*m, HOSTILE);
     }
 }

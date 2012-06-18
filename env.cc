@@ -189,7 +189,6 @@ void load_arena (void)
     m_status_set (m, HOSTILE);
     m.sense = 50;
     m.pickup (Objects[THING_DOOR_OPENER]);
-    m_status_set (m, AWAKE);
     m.hp += m.level * 10;
     m.hit += m.hit;
     m.dmg += m.dmg / 2;
@@ -644,7 +643,7 @@ void load_city (int populate)
     // make all city monsters asleep, and shorten their wakeup range to 2
     // to prevent players from being molested by vicious monsters on the streets
     foreach (m, Level->mlist) {
-	m_status_reset (*m, AWAKE);
+	m_status_set (*m, ASLEEP);
 	m->wakeup = 2;
     }
     initrand (E_RESTORE, 0);
@@ -699,7 +698,7 @@ static void make_justiciar (int i, int j)
     monster& m = make_site_monster (i, j, NPC);
     make_hiscore_npc (m, NPC_JUSTICIAR);
     m.click = (Tick + 1) % 60;
-    m_status_reset (m, AWAKE);
+    m_status_set (m, ASLEEP);
 }
 
 // loads the city level
@@ -720,7 +719,6 @@ void resurrect_guards (void)
 		m.dmg *= 2;
 		m.ac *= 2;
 		m_status_set (m, HOSTILE);
-		m_status_set (m, AWAKE);
 	    }
 	}
     }
@@ -784,7 +782,7 @@ static void mazesite (location& s, int i, int j, bool populate)
 static void make_minor_undead (int i, int j)
 {
     monster& m = make_site_monster (i, j, random_range(2) ? GHOST : HAUNT);
-    m_status_reset (m, AWAKE);
+    m_status_set (m, ASLEEP);
     m_status_reset (m, HOSTILE);
 }
 
@@ -792,7 +790,7 @@ static void make_minor_undead (int i, int j)
 static void make_major_undead (int i, int j)
 {
     monster& m = make_site_monster (i, j, random_range(2) ? LICHE : VAMP_LORD);
-    m_status_reset (m, AWAKE);
+    m_status_set (m, ASLEEP);
     m_status_reset (m, HOSTILE);
 }
 
@@ -2488,9 +2486,9 @@ static void make_house_npc (int i, int j)
     m.click = (Tick + 1) % 50;
     m_status_set (m, HOSTILE);
     if (nighttime())
-	m_status_reset (m, AWAKE);
+	m_status_reset (m, ASLEEP);
     else
-	m_status_set (m, AWAKE);
+	m_status_set (m, ASLEEP);
     if (m.startthing != NO_THING)
 	m.pickup (Objects[m.startthing]);
 }
@@ -2503,9 +2501,9 @@ static void make_mansion_npc (int i, int j)
     m.click = (Tick + 1) % 50;
     m_status_set (m, HOSTILE);
     if (nighttime())
-	m_status_reset (m, AWAKE);
+	m_status_set (m, ASLEEP);
     else
-	m_status_set (m, AWAKE);
+	m_status_reset (m, ASLEEP);
 }
 
 // loads the village level into Level
@@ -2863,8 +2861,8 @@ static void make_creature (monster& m, int mid)
     else if (mid == HISCORE_NPC)
 	make_hiscore_npc (m, random_range (NPC_MAX));
     else {
-	if (m.sleep < random_range (100))
-	    m_status_set (m, AWAKE);
+	if (m.sleep > random_range (100))
+	    m_status_set (m, ASLEEP);
 	if (m.startthing != NO_THING && object_uniqueness(m.startthing) <= UNIQUE_MADE)
 	    m.pickup (Objects[m.startthing]);
 	for (unsigned treasures = random_range (m.treasure); m.possessions.size() < treasures;) {
@@ -2978,7 +2976,7 @@ void make_hiscore_npc (monster& npc, int npcid)
 static void determine_npc_behavior (monster& npc, int level, int behavior)
 {
     npc.hp = (level + 1) * 20;
-    npc.status = AWAKE + MOBILE + WANDERING;
+    npc.status = MOBILE + WANDERING;
     int combatype = (behavior % 100) / 10;
     int competence = (behavior % 1000) / 100;
     int talktype = behavior / 1000;

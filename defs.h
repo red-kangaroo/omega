@@ -163,7 +163,7 @@ enum {
 
 // MONSTER STATUS/ABILITY BITS
 enum {
-    AWAKE	= (1<<0),
+    ASLEEP	= (1<<0),
     MOBILE 	= (1<<1),
     HOSTILE	= (1<<2),
     WANDERING	= (1<<4),

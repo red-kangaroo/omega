@@ -30,7 +30,7 @@ void l_trap_siren (void)
 	    summon (-1, DEMON_PRINCE);
 	}
 	foreach (m, Level->mlist) {
-	    m_status_set (*m, AWAKE);
+	    m_status_reset (*m, ASLEEP);
 	    m->sense *= 2;
 	    if (Current_Environment == E_CIRCLE || (m->id == GUARD && (Current_Environment == E_VILLAGE || Current_Environment == E_CITY)))
 		m_status_set (*m, HOSTILE);

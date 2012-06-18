@@ -124,13 +124,13 @@ void m_pulse (struct monster *m)
 	if (m->hp < Monsters[m->id].hp)
 	    m->hp++;
 
-    if (!m_statusp (m, AWAKE) && range <= m->wakeup) {
-	m_status_set (m, AWAKE);
+    if (m_statusp (m, ASLEEP) && range <= m->wakeup) {
+	m_status_reset (m, ASLEEP);
 	resetgamestatus (FAST_MOVE);
     }
 
     bool strike = false;
-    if (!m_statusp (m, AWAKE))
+    if (m_statusp (m, ASLEEP))
 	return;
     if (m_statusp (m, WANDERING)) {
 	if (m_statusp (m, MOBILE))
@@ -1758,7 +1758,7 @@ static void m_illusion (struct monster *m)
 
 static void m_huge_sounds (struct monster *m)
 {
-    if (m_statusp (m, AWAKE) && (!los_p (m->x, m->y, Player.x, Player.y)) && (random_range (10) == 1))
+    if (!m_statusp(m, ASLEEP) && !los_p (m->x, m->y, Player.x, Player.y) && !random_range(10))
 	mprint ("The dungeon shakes!");
 }
 
@@ -1810,7 +1810,7 @@ static void m_sp_merchant (struct monster *m)
     mprint ("The merchant screams: 'Help! Murder! Guards! Help!'");
     mprint ("You hear the sound of police whistles and running feet.");
     foreach (g, Level->mlist) {
-	m_status_set (*g, AWAKE);
+	m_status_reset (*g, ASLEEP);
 	m_status_set (*g, HOSTILE);
     }
     m->specialf = M_NO_OP;
@@ -1866,7 +1866,7 @@ static void m_sp_prime (struct monster *m)
 
 void m_damage (struct monster *m, int dmg, int dtype)
 {
-    m_status_set (m, AWAKE);
+    m_status_reset (m, ASLEEP);
     m_status_set (m, HOSTILE);
     if (m_immunityp (m, dtype)) {
 	if (los_p (Player.x, Player.y, m->x, m->y))
@@ -1987,7 +1987,7 @@ void m_death (struct monster *m)
 				mprint ("A new justiciar has been promoted!");
 				make_hiscore_npc (*guard, NPC_JUSTICIAR);
 				guard->click = (Tick + 1) % 60;
-				m_status_reset (*guard, AWAKE);
+				m_status_set (*guard, ASLEEP);
 				m_status_reset (*guard, HOSTILE);
 			    }
 			    alert_guards(); // will cause order to be destroyed if no guards or justiciar
@@ -2292,7 +2292,7 @@ void m_trap_sleepgas (struct monster *m)
 	lset (m->x, m->y, CHANGED);
     }
     if (!m_immunityp (m, SLEEP))
-	m_status_reset (m, AWAKE);
+	m_status_set (m, ASLEEP);
 }
 
 void m_trap_acid (struct monster *m)

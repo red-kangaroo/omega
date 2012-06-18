@@ -349,7 +349,7 @@ static void fight_monster (struct monster *m)
 
 	if (!m->attacked)
 	    Player.alignment -= 2;	// chaotic action
-	m_status_set (*m, AWAKE);
+	m_status_reset (*m, ASLEEP);
 	m_status_set (*m, HOSTILE);
 	m->attacked = true;
 	Player.hit += hitmod;
@@ -3228,7 +3228,7 @@ void alert_guards (void)
     foreach (m, Level->mlist) {
 	if ((m->id == GUARD || (m->id == HISCORE_NPC && m->aux2 == NPC_JUSTICIAR)) && m->hp > 0) {
 	    foundguard = true;
-	    m_status_set (*m, AWAKE);
+	    m_status_reset (*m, ASLEEP);
 	    m_status_set (*m, HOSTILE);
 	}
     }
