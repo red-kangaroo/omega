@@ -415,7 +415,7 @@ static void m_talk_druid (struct monster *m)
 		print1 ("The Archdruid conveys to you the wisdom of nature....");
 		print2 ("You feel like a sage.");
 		morewait();
-		for (int i = 0; i < NUMRANKS; i++)
+		for (int i = 0; i < NUMGUILDS; i++)
 		    if (Player.guildxp[i] > 0)
 			Player.guildxp[i] += 300;
 	    }

@@ -639,11 +639,11 @@ void gain_experience (int amount)
     int i, count = 0, share;
     Player.xp += (long) amount;
     gain_level();		// actually, check to see if should gain level
-    for (i = 0; i < NUMRANKS; i++)
+    for (i = 0; i < NUMGUILDS; i++)
 	if (Player.guildxp[i] > 0)
 	    count++;
     share = amount / (max (count, 1));
-    for (i = 0; i < NUMRANKS; i++)
+    for (i = 0; i < NUMGUILDS; i++)
 	if (Player.guildxp[i] > 0)
 	    Player.guildxp[i] += share;
 }
@@ -2441,7 +2441,7 @@ static void outdoors_random_event (void)
 		morewait();
 		Player.xp = 0;
 		Player.level = 0;
-		for (i = 0; i < NUMRANKS; i++)
+		for (i = 0; i < NUMGUILDS; i++)
 		    Player.rank[i] = 0;
 		forget_all_spells();
 		rename_player();

@@ -38,16 +38,12 @@ void initplayer (void)
     Player.food = 36;
     Behavior = -1;
     Player.options = 0;
-    for (int i = 0; i < NUMIMMUNITIES; i++)
-	Player.immunity[i] = 0;
-    for (int i = 0; i < NUMSTATI; i++)
-	Player.status[i] = 0;
-    for (int i = 0; i < NUMRANKS; i++) {
-	Player.rank[i] = 0;
-	Player.guildxp[i] = 0;
-    }
-    for (unsigned i = 0; i < Player.possessions.size(); i++)
-	Player.possessions[i].id = NO_THING;
+    fill (Player.immunity, 0);
+    fill (Player.status, 0);
+    fill (Player.rank, 0);
+    fill (Player.guildxp, 0);
+    for (auto p : Player.possessions)
+	p.id = NO_THING;
     Player.pack.clear();
     Player.patron = 0;
     Player.alignment = 0;

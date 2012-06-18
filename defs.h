@@ -129,7 +129,7 @@ enum ESpell {
 };
 
 // ranks in guilds, etc
-enum { LEGION, ARENA, COLLEGE, THIEVES, ORDER, CIRCLE, NOBILITY, PRIESTHOOD, ADEPT, NUMRANKS };
+enum { LEGION, ARENA, COLLEGE, THIEVES, ORDER, CIRCLE, NOBILITY, PRIESTHOOD, ADEPT, NUMGUILDS };
 enum { NOT_IN_LEGION,	LEGIONAIRE, CENTURION, FORCE_LEADER, COLONEL, COMMANDANT, FORMER_LEGIONAIRE = -1 };
 enum { NOT_IN_ARENA,	TRAINEE, BESTIARIUS, RETIARIUS, GLADIATOR, CHAMPION, FORMER_GLADIATOR = -1 };
 enum { NOT_IN_COLLEGE,	NOVICE, STUDENT, PRECEPTOR, MAGE, ARCHMAGE, FORMER_MAGE = -1 };
@@ -875,10 +875,10 @@ public:
 };
 
 struct player : public player_pod {
-    array<int8_t,NUMRANKS>		rank;
+    array<int8_t,NUMGUILDS>		rank;
     array<uint16_t,NUMIMMUNITIES>	immunity;
     array<uint16_t,NUMSTATI>		status;
-    array<uint16_t,NUMRANKS>		guildxp;
+    array<uint16_t,NUMGUILDS>		guildxp;
     string	name;
     string	meleestr;
     array<object,MAXITEMS> possessions;

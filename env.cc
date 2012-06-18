@@ -3350,7 +3350,7 @@ void l_club (void)
 	print2 ("Shop at the club store or listen for rumors [sl] ");
 	do
 	    response = (char) mcigetc();
-	while ((response != 's') && (response != 'l') && (response != KEY_ESCAPE));
+	while (response != 's' && response != 'l' && response != KEY_ESCAPE);
 	if (response == 'l') {
 	    if (club_hinthour == hour())
 		print2 ("You don't hear anything useful.");

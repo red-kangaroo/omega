@@ -547,10 +547,7 @@ void wish (int blessing)
 	Player.mana = calcmana() * 10;
     } else if (strcmp (wishstr, "Skill") == 0) {
 	print2 ("You feel more competent.");
-	if (gamestatusp (CHEATED))
-	    gain_experience (10000);
-	else
-	    gain_experience (min (10000U, Player.xp));
+	gain_experience (min (10000U, Player.xp));
     } else if (strcmp (wishstr, "Wealth") == 0) {
 	print2 ("You are submerged in shower of gold pieces!");
 	Player.cash += 10000;
@@ -559,10 +556,10 @@ void wish (int blessing)
 	Player.alignment = 0;
     } else if (strcmp (wishstr, "Chaos") == 0) {
 	print2 ("You feel chaotic.");
-	Player.alignment -= 25;
+	Player.alignment -= 100;
     } else if (strcmp (wishstr, "Law") == 0) {
 	print2 ("You feel lawful.");
-	Player.alignment += 25;
+	Player.alignment += 100;
     } else if (strcmp (wishstr, "Location") == 0)
 	strategic_teleport (1);
     else if (strcmp (wishstr, "Knowledge") == 0) {
@@ -574,7 +571,17 @@ void wish (int blessing)
 	    learn_spell(i);
     } else if (strcmp (wishstr, "Health") == 0) {
 	print2 ("You feel vigorous");
+	Player.food = 40;
+	toggle_item_use (true);
+	Player.str = max (Player.str, Player.maxstr);
+	Player.con = max (Player.con, Player.maxcon);
+	Player.agi = max (Player.agi, Player.maxagi);
+	Player.dex = max (Player.dex, Player.maxdex);
+	Player.iq = max (Player.iq, Player.maxiq);
+	Player.pow = max (Player.pow, Player.maxpow);
+	Player.maxhp = max (Player.maxhp, Player.maxcon);
 	Player.hp = max (Player.hp, Player.maxhp);
+	toggle_item_use (false);
 	Player.status[DISEASED] = 0;
 	Player.status[POISONED] = 0;
     } else if (strcmp (wishstr, "Destruction") == 0)
@@ -1212,6 +1219,7 @@ void recover_stat (int blessing)
 	Player.agi = max (Player.agi, Player.maxagi);
 	Player.iq = max (Player.iq, Player.maxiq);
 	Player.pow = max (Player.pow, Player.maxpow);
+	Player.maxhp = max (Player.maxhp, Player.maxcon);
     }
     calc_melee();
 }

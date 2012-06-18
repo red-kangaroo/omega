@@ -391,7 +391,7 @@ long calc_points (void)
     foreach (i, Player.pack)
 	points += i->level * (object_is_known(i) + 1);
 
-    for (unsigned i = 0; i < NUMRANKS; i++) {
+    for (unsigned i = 0; i < NUMGUILDS; i++) {
 	if (Player.rank[i] == 5)
 	    points += 500;
 	else
