@@ -248,7 +248,7 @@ static void init_world (void)
 	ObjectAttrs[i] = Objects[i].uniqueness;
     Level = City = new level;
     clear_level (Level);
-    load_city (true);
+    load_city();
     Player.x = Level->lastx;
     Player.y = Level->lasty;
     Level = City;

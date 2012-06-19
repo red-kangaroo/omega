@@ -7,10 +7,10 @@ static monster& make_prime(int i, int j);
 static monster& make_archmage(int i, int j);
 static void assign_city_function (location& s, int x, int y);
 static void make_justiciar(int i, int j);
-static void mazesite (location& s, int i, int j, bool populate);
+static void mazesite (char c, location& s, int i, int j);
 static void make_minor_undead(int i, int j);
 static void make_major_undead(int i, int j);
-static void random_temple_site(int i, int j, int deity, int populate);
+static void random_temple_site(int i, int j, int deity);
 static void make_high_priest(int i, int j, int deity);
 static void make_house_npc(int i, int j);
 static void make_mansion_npc(int i, int j);
@@ -201,7 +201,7 @@ void load_arena (void)
 }
 
 // loads the sorcereror's circle into Level
-void load_circle (int populate)
+void load_circle (void)
 {
     int safe = (Player.rank[CIRCLE] >= INITIATE);
     const char* ld = Level->init_from_data (E_CIRCLE, Level_Circle);
@@ -213,54 +213,42 @@ void load_circle (int populate)
 	    s.lstatus = 0;
 	    s.roomnumber = RS_CIRCLE;
 	    switch (*ld++) {
-		case 'P':
-		    if (populate) {
-			monster& m = make_prime (i, j);
-			m.specialf = M_SP_PRIME;
-			if (!safe)
-			    m_status_set (m, HOSTILE);
-		    }
-		    break;
-		case 'D':
-		    if (populate) {
-			monster& m = make_site_monster (i, j, DEMON_PRINCE);
-			if (safe)
-			    m_status_reset (m, HOSTILE);
-			m.specialf = M_SP_COURT;
-		    }
-		    break;
-		case 's':
-		    if (populate) {
-			monster& m = make_site_monster (i, j, SERV_CHAOS);
-			m.specialf = M_SP_COURT;
-			if (safe)
-			    m_status_reset (m, HOSTILE);
-		    }
-		    break;
-		case 'e':
-		    if (populate) {
-			monster& m = make_site_monster (i, j, ENCHANTOR);
-			m.specialf = M_SP_COURT;
-			if (safe)
-			    m_status_reset (m, HOSTILE);
-		    }
-		    break;
-		case 'n':
-		    if (populate) {
-			monster& m = make_site_monster (i, j, NECROMANCER);
-			m.specialf = M_SP_COURT;
-			if (safe)
-			    m_status_reset (m, HOSTILE);
-		    }
-		    break;
-		case 'T':
-		    if (populate) {
-			monster& m = make_site_monster (i, j, THAUMATURGIST);
-			m.specialf = M_SP_COURT;
-			if (safe)
-			    m_status_reset (m, HOSTILE);
-		    }
-		    break;
+		case 'P': {
+		    monster& m = make_prime (i, j);
+		    m.specialf = M_SP_PRIME;
+		    if (!safe)
+			m_status_set (m, HOSTILE);
+		    break; }
+		case 'D': {
+		    monster& m = make_site_monster (i, j, DEMON_PRINCE);
+		    if (safe)
+			m_status_reset (m, HOSTILE);
+		    m.specialf = M_SP_COURT;
+		    break; }
+		case 's': {
+		    monster& m = make_site_monster (i, j, SERV_CHAOS);
+		    m.specialf = M_SP_COURT;
+		    if (safe)
+			m_status_reset (m, HOSTILE);
+		    break; }
+		case 'e': {
+		    monster& m = make_site_monster (i, j, ENCHANTOR);
+		    m.specialf = M_SP_COURT;
+		    if (safe)
+			m_status_reset (m, HOSTILE);
+		    break; }
+		case 'n': {
+		    monster& m = make_site_monster (i, j, NECROMANCER);
+		    m.specialf = M_SP_COURT;
+		    if (safe)
+			m_status_reset (m, HOSTILE);
+		    break; }
+		case 'T': {
+		    monster& m = make_site_monster (i, j, THAUMATURGIST);
+		    m.specialf = M_SP_COURT;
+		    if (safe)
+			m_status_reset (m, HOSTILE);
+		    break; }
 		case '#':
 		    s.locchar = WALL;
 		    s.aux = 255;
@@ -296,7 +284,7 @@ static monster& make_prime (int i, int j)
 }
 
 // loads the court of the archmage into Level
-void load_court (int populate)
+void load_court (void)
 {
     const char* ld = Level->init_from_data (E_COURT, Level_Court);
     LastCountryLocX = *ld++;
@@ -309,47 +297,37 @@ void load_court (int populate)
 	    s.lstatus = 0;
 	    s.roomnumber = RS_COURT;
 	    switch (*ld++) {
-		case '5':
+		case '5': {
 		    s.locchar = CHAIR;
 		    s.p_locf = L_THRONE;
-		    if (populate) {
-			make_specific_treasure (i, j, SCEPTRE_OF_HIGH_MAGIC);
-			monster& m = make_archmage (i, j);
-			m_status_reset (m, HOSTILE);
-			m_status_reset (m, MOBILE);
-		    }
-		    break;
-		case 'e':
-		    if (populate) {
-			monster& m = make_site_monster (i, j, ENCHANTOR);
-			m_status_reset (m, HOSTILE);
-			m.specialf = M_SP_COURT;
-		    }
-		    break;
-		case 'n':
-		    if (populate) {
-			monster& m = make_site_monster (i, j, NECROMANCER);
-			m_status_reset (m, HOSTILE);
-			m.specialf = M_SP_COURT;
-		    }
-		    break;
-		case 'T':
-		    if (populate) {
-			monster& m = make_site_monster (i, j, THAUMATURGIST);
-			m_status_reset (m, HOSTILE);
-			m.specialf = M_SP_COURT;
-		    }
-		    break;
+		    make_specific_treasure (i, j, SCEPTRE_OF_HIGH_MAGIC);
+		    monster& m = make_archmage (i, j);
+		    m_status_reset (m, HOSTILE);
+		    m_status_reset (m, MOBILE);
+		    break; }
+		case 'e': {
+		    monster& m = make_site_monster (i, j, ENCHANTOR);
+		    m_status_reset (m, HOSTILE);
+		    m.specialf = M_SP_COURT;
+		    break; }
+		case 'n': {
+		    monster& m = make_site_monster (i, j, NECROMANCER);
+		    m_status_reset (m, HOSTILE);
+		    m.specialf = M_SP_COURT;
+		    break; }
+		case 'T': {
+		    monster& m = make_site_monster (i, j, THAUMATURGIST);
+		    m_status_reset (m, HOSTILE);
+		    m.specialf = M_SP_COURT;
+		    break; }
 		case '#':
 		    s.locchar = WALL;
 		    s.aux = 255;
 		    break;
-		case 'G':
-		    if (populate) {
-			monster& m = make_site_monster (i, j, GUARD);
-			m_status_reset (m, HOSTILE);
-		    }
-		    break;
+		case 'G': {
+		    monster& m = make_site_monster (i, j, GUARD);
+		    m_status_reset (m, HOSTILE);
+		    break; }
 		case '<':
 		    s.locchar = STAIRS_UP;
 		    s.p_locf = L_ESCALATOR;
@@ -420,11 +398,13 @@ void load_abyss (void)
 }
 
 // loads the city level
-void load_city (int populate)
+void load_city (void)
 {
     initrand (E_CITY, 0);
     Level->depth = 0;
     const char* ld = Level->init_from_data (E_CITY, Level_City);
+    static const char* _mazes[] = { Level_Maze1, Level_Maze2, Level_Maze3, Level_Maze4 };
+    const char* mazed = _mazes[rand()%ArraySize(_mazes)];
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
 	    location& s (Level->site(i,j));
@@ -487,7 +467,7 @@ void load_city (int populate)
 		    CitySiteList[L_CASTLE - CITYSITEBASE][2] = j;
 		    break;
 		case 'm':
-		    mazesite (s, i, j, populate);
+		    mazesite (*mazed++, s, i, j);
 		    break;
 		case 'P':
 		    s.locchar = OPEN_DOOR;
@@ -504,8 +484,7 @@ void load_city (int populate)
 		    CitySiteList[L_CHARITY - CITYSITEBASE][2] = j;
 		    break;
 		case 'j':
-		    if (populate)
-			make_justiciar (i, j);
+		    make_justiciar (i, j);
 		    break;
 		case 'J':
 		    s.locchar = CLOSED_DOOR;
@@ -544,38 +523,31 @@ void load_city (int populate)
 		    s.aux = NOCITYMOVE;
 		    lset (i, j, SECRET);
 		    break;
-		case 'G':
-		    if (populate) {
-			monster& m = make_site_monster (i, j, GUARD);
-			m.aux1 = i;
-			m.aux2 = j;
-		    }
-		    break;
+		case 'G': {
+		    monster& m = make_site_monster (i, j, GUARD);
+		    m.aux1 = i;
+		    m.aux2 = j;
+		    break; }
 		case 'u':
-		    if (populate)
-			make_minor_undead (i, j);
+		    make_minor_undead (i, j);
 		    break;
 		case 'U':
-		    if (populate)
-			make_major_undead (i, j);
+		    make_major_undead (i, j);
 		    break;
 		case 'V':
 		    s.p_locf = L_VAULT;
-		    if (populate)
-			make_site_treasure (i, j, 5);
+		    make_site_treasure (i, j, 5);
 		    s.aux = NOCITYMOVE;
 		    lset (i, j, SECRET);
 		    break;
 		case '%':
 		    s.p_locf = L_TRAP_SIREN;
-		    if (populate)
-			make_site_treasure (i, j, 5);
+		    make_site_treasure (i, j, 5);
 		    s.aux = NOCITYMOVE;
 		    lset (i, j, SECRET);
 		    break;
 		case '$':
-		    if (populate)
-			make_site_treasure (i, j, 5);
+		    make_site_treasure (i, j, 5);
 		    break;
 		case '2':
 		    s.locchar = ALTAR;
@@ -724,19 +696,9 @@ void resurrect_guards (void)
     }
 }
 
-static void mazesite (location& s, int i, int j, bool populate)
+static void mazesite (char c, location& s, int i, int j)
 {
-    static const char* _mazes[] = { Level_Maze1, Level_Maze2, Level_Maze3, Level_Maze4 };
-    static const char* ld = NULL;
-    static int k = 0;
-    if (!ld)
-	ld = _mazes[rand()%ArraySize(_mazes)];
-    char site = *ld++;
-    if (++k >= 286) {
-	k = 0;
-	ld = NULL;
-    }
-    switch (site) {
+    switch (c) {
 	case '(':
 	    s.locchar = HEDGE;
 	    s.p_locf = L_HEDGE;
@@ -765,12 +727,10 @@ static void mazesite (location& s, int i, int j, bool populate)
 		    s.p_locf = TRAP_BASE + random_range (NUMTRAPS);
 		    break;
 		case 1:
-		    if (populate)
-			make_site_monster (i, j, RANDOM);
+		    make_site_monster (i, j, RANDOM);
 		    break;
 		case 2:
-		    if (populate)
-			make_site_treasure (i, j, 5);
+		    make_site_treasure (i, j, 5);
 		    break;
 	    }
 	    break;
@@ -924,14 +884,12 @@ void load_country (void)
 }
 
 // loads the dragon's lair into Level
-void load_dlair (int empty, int populate)
+void load_dlair (int empty)
 {
     if (empty) {
 	mprint ("The Lair is now devoid of inhabitants and treasure.");
 	morewait();
     }
-    if (!populate)
-	empty = true;
     const char* ld = Level->init_from_data (E_DLAIR, Level_DragonLair);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
@@ -1005,15 +963,13 @@ void load_dlair (int empty, int populate)
 }
 
 // loads the star peak into Level
-void load_speak (int empty, int populate)
+void load_speak (int empty)
 {
     const bool safe = Player.alignment > 0;
     if (empty) {
 	mprint ("The peak is now devoid of inhabitants and treasure.");
 	morewait();
     }
-    if (!populate)
-	empty = true;
     const char* ld = Level->init_from_data (E_STARPEAK, Level_StarPeak);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
@@ -1090,14 +1046,12 @@ void load_speak (int empty, int populate)
 }
 
 // loads the magic isle into Level
-void load_misle (int empty, int populate)
+void load_misle (int empty)
 {
     if (empty) {
 	mprint ("The isle is now devoid of inhabitants and treasure.");
 	morewait();
     }
-    if (!populate)
-	empty = true;
     const char* ld = Level->init_from_data (E_MAGIC_ISLE, Level_MagicIsle);
     for (unsigned j = 0; j < Level->height; ++j, ++ld) {
 	for (unsigned i = 0; i < Level->width; ++i) {
@@ -1150,7 +1104,7 @@ void load_misle (int empty, int populate)
 }
 
 // loads a temple into Level
-void load_temple (int deity, int populate)
+void load_temple (int deity)
 {
     const uint8_t roomid = deity - ODIN + RS_ODIN;
     const char* ld = Level->init_from_data (E_TEMPLE, Level_Temple);
@@ -1166,7 +1120,7 @@ void load_temple (int deity, int populate)
 		    s.aux = deity;
 		    break;
 		case 'H':
-		    if (populate && (!Player.patron || Player.name != Priest[Player.patron] || Player.rank[PRIESTHOOD] != HIGHPRIEST))
+		    if (!Player.patron || Player.name != Priest[Player.patron] || Player.rank[PRIESTHOOD] != HIGHPRIEST)
 			make_high_priest (i, j, deity);
 		    break;
 		case 'S':
@@ -1178,12 +1132,10 @@ void load_temple (int deity, int populate)
 			s.p_locf = L_TEMPLE_WARNING;
 		    break;
 		case 'm':
-		    if (populate)
-			make_site_monster (i, j, MIL_PRIEST);
+		    make_site_monster (i, j, MIL_PRIEST);
 		    break;
 		case 'd':
-		    if (populate)
-			make_site_monster (i, j, DOBERMAN);
+		    make_site_monster (i, j, DOBERMAN);
 		    break;
 		case 'X':
 		    s.p_locf = L_TACTICAL_EXIT;
@@ -1198,7 +1150,7 @@ void load_temple (int deity, int populate)
 		    }
 		    break;
 		case 'x':
-		    random_temple_site (i, j, deity, populate);
+		    random_temple_site (i, j, deity);
 		    break;
 		case '?':
 		    if (deity == DESTINY) {
@@ -1221,31 +1173,26 @@ void load_temple (int deity, int populate)
 	    m_status_reset (*m, HOSTILE);
 }
 
-static void random_temple_site (int i, int j, int deity UNUSED, int populate)
+static void random_temple_site (int i, int j, int deity UNUSED)
 {
     switch (random_range (12)) {
 	case 0:
-	    if (populate)
-		make_site_monster (i, j, MEND_PRIEST);
+	    make_site_monster (i, j, MEND_PRIEST);
 	    break;
 	case 1:
 	    Level->site(i,j).locchar = WATER;
 	    Level->site(i,j).p_locf = L_MAGIC_POOL;
 	case 2:
-	    if (populate)
-		make_site_monster (i, j, INNER_DEMON);
+	    make_site_monster (i, j, INNER_DEMON);
 	    break;
 	case 3:
-	    if (populate)
-		make_site_monster (i, j, ANGEL);
+	    make_site_monster (i, j, ANGEL);
 	    break;
 	case 4:
-	    if (populate)
-		make_site_monster (i, j, HIGH_ANGEL);
+	    make_site_monster (i, j, HIGH_ANGEL);
 	    break;
 	case 5:
-	    if (populate)
-		make_site_monster (i, j, ARCHANGEL);
+	    make_site_monster (i, j, ARCHANGEL);
 	    break;
     }
 }
@@ -2363,7 +2310,7 @@ void l_order (void)
 }
 
 // loads the house level into Level
-void load_house (int kind, int populate)
+void load_house (int kind)
 {
     initrand (Current_Environment, Player.x + Player.y + hour() * 10);
     const char* ld = Level->init_from_data (kind, kind == E_HOUSE ? Level_House : (kind == E_MANSION ? Level_Mansion : Level_Hovel));
@@ -2378,12 +2325,12 @@ void load_house (int kind, int populate)
 	    switch (*ld++) {
 		case 'N':
 		    s.roomnumber = RS_BEDROOM;
-		    if (random_range (2) && populate)
+		    if (random_range(2))
 			make_house_npc (i, j);
 		    break;
 		case 'H':
 		    s.roomnumber = RS_BEDROOM;
-		    if (random_range (2) && populate)
+		    if (random_range(2))
 			make_mansion_npc (i, j);
 		    break;
 		case 'D':
@@ -2458,8 +2405,7 @@ void load_house (int kind, int populate)
 		case 'd':
 		    s.locchar = FLOOR;
 		    s.roomnumber = RS_CORRIDOR;
-		    if (populate)
-			make_site_monster (i, j, DOBERMAN);
+		    make_site_monster (i, j, DOBERMAN);
 		    break;
 		case 'a':
 		    s.locchar = FLOOR;
@@ -2469,8 +2415,7 @@ void load_house (int kind, int populate)
 		case 'A':
 		    s.locchar = FLOOR;
 		    s.roomnumber = RS_CORRIDOR;
-		    if (populate)
-			make_site_monster (i, j, AUTO_MINOR);
+		    make_site_monster (i, j, AUTO_MINOR);
 		    break;
 	    }
 	}
@@ -2507,7 +2452,7 @@ static void make_mansion_npc (int i, int j)
 }
 
 // loads the village level into Level
-void load_village (int villagenum, int populate)
+void load_village (int villagenum)
 {
     initrand (Current_Environment, villagenum);
     location d;
@@ -2525,29 +2470,25 @@ void load_village (int villagenum, int populate)
 	    s.p_locf = L_NO_OP;
 	    switch (*ld++) {
 		case 'f':
-		    if (populate)
-			make_food_bin (i, j);
+		    make_food_bin (i, j);
 		    break;
 		case 'g':
 		    s.p_locf = L_GRANARY;
 		    break;
 		case 'h':
-		    if (populate)
-			make_site_monster (i, j, HORSE);
+		    make_site_monster (i, j, HORSE);
 		    break;
 		case 'S':
 		    s.p_locf = L_STABLES;
 		    break;
 		case 'H':
-		    if (populate)
-			make_site_monster (i, j, MERCHANT);
+		    make_site_monster (i, j, MERCHANT);
 		    break;
 		case 'C':
 		    s.p_locf = L_COMMONS;
 		    break;
 		case 's':
-		    if (populate)
-			make_site_monster (i, j, SHEEP);
+		    make_site_monster (i, j, SHEEP);
 		    break;
 		case 'x':
 		    assign_village_function (s, i, j, false);
@@ -2555,13 +2496,11 @@ void load_village (int villagenum, int populate)
 		case 'X':
 		    s.p_locf = L_COUNTRYSIDE;
 		    break;
-		case 'G':
-		    if (populate) {
-			monster& m = make_site_monster (i, j, GUARD);
-			m.aux1 = i;
-			m.aux2 = j;
-		    }
-		    break;
+		case 'G': {
+		    monster& m = make_site_monster (i, j, GUARD);
+		    m.aux1 = i;
+		    m.aux2 = j;
+		    break; }
 		case '^':
 		    s.p_locf = L_TRAP_SIREN;
 		    break;

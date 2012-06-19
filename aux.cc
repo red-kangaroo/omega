@@ -1845,7 +1845,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_circle (true);
+	    load_circle();
 	    if (object_uniqueness(STAR_GEM) == UNIQUE_TAKEN) {
 		print1 ("A bemused voice says:");
 		print2 ("'Why are you here? You already have the Star Gem!'");
@@ -1889,7 +1889,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_court (true);
+	    load_court();
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -1903,7 +1903,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_house (E_MANSION, true);
+	    load_house (E_MANSION);
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -1917,7 +1917,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_house (E_HOUSE, true);
+	    load_house (E_HOUSE);
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -1931,7 +1931,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_house (E_HOVEL, true);
+	    load_house (E_HOVEL);
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -1945,7 +1945,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_dlair (gamestatusp (KILLED_DRAGONLORD), true);
+	    load_dlair (gamestatusp (KILLED_DRAGONLORD));
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -1959,7 +1959,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_speak (gamestatusp (KILLED_LAWBRINGER), true);
+	    load_speak (gamestatusp (KILLED_LAWBRINGER));
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -1973,7 +1973,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_misle (gamestatusp (KILLED_EATER), true);
+	    load_misle (gamestatusp (KILLED_EATER));
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -1987,7 +1987,7 @@ void change_environment (int new_environment)
 	    }
 	    Level = new level;
 	    clear_level (Level);
-	    load_temple (Country->site(Player.x,Player.y).aux, true);
+	    load_temple (Country->site(Player.x,Player.y).aux);
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
@@ -2008,7 +2008,7 @@ void change_environment (int new_environment)
 		}
 		Level = City = new level;
 		clear_level (Level);
-		load_city (true);
+		load_city();
 	    }
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
@@ -2025,7 +2025,7 @@ void change_environment (int new_environment)
 		Level = new level;
 		clear_level (Level);
 		Villagenum = Country->site(Player.x,Player.y).aux;
-		load_village (Villagenum, true);
+		load_village (Villagenum);
 	    } else
 		Level = TempLevel;
 	    if (emerging) {

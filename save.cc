@@ -347,10 +347,10 @@ static void restore_level (istream& is)
 	    break;
 	case E_CITY:
 	    City = Level;
-	    load_city (false);
+	    load_city();
 	    break;
 	case E_VILLAGE:
-	    load_village (Country->site(LastCountryLocX,LastCountryLocY).aux, false);
+	    load_village (Country->site(LastCountryLocX,LastCountryLocY).aux);
 	    break;
 	case E_CAVES:
 	case E_SEWERS:
@@ -362,25 +362,25 @@ static void restore_level (istream& is)
 	case E_HOVEL:
 	case E_MANSION:
 	case E_HOUSE:
-	    load_house (Level->environment, false);
+	    load_house (Level->environment);
 	    break;
 	case E_DLAIR:
-	    load_dlair (gamestatusp (KILLED_DRAGONLORD), false);
+	    load_dlair (gamestatusp (KILLED_DRAGONLORD));
 	    break;
 	case E_STARPEAK:
-	    load_speak (gamestatusp (KILLED_LAWBRINGER), false);
+	    load_speak (gamestatusp (KILLED_LAWBRINGER));
 	    break;
 	case E_MAGIC_ISLE:
-	    load_misle (gamestatusp (KILLED_EATER), false);
+	    load_misle (gamestatusp (KILLED_EATER));
 	    break;
 	case E_TEMPLE:
-	    load_temple (Country->site(LastCountryLocX,LastCountryLocY).aux, false);
+	    load_temple (Country->site(LastCountryLocX,LastCountryLocY).aux);
 	    break;
 	case E_CIRCLE:
-	    load_circle (false);
+	    load_circle();
 	    break;
 	case E_COURT:
-	    load_court (false);
+	    load_court();
 	    break;
 	default:
 	    print3 ("This dungeon not implemented!");
