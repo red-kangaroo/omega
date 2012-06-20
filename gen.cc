@@ -107,7 +107,7 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
 	thislevel->resize (64, 64);
 	clear_level (thislevel);
 	thislevel->next = Dungeon;
-	Dungeon = Level;
+	Dungeon = thislevel;
     }
     Level = thislevel;
     if (!Level->generated || rewrite_level) {

@@ -88,7 +88,7 @@ int restore_game (const char* savestr)
 	istream is (buf);
 	print1 ("Restoring...");
 	is >> Player;
-	restore_level (is);
+	restore_level (is);	// the countryside
 	restore_level (is);	// the city level
 	int i;
 	is >> i;
