@@ -654,9 +654,8 @@ void gain_experience (int amount)
 int goberserk (void)
 {
     int wentberserk = false, i;
-    char meleestr[80];
-    strcpy (meleestr, Player.meleestr);
-    strcpy (Player.meleestr, "lLlClH");
+    lstring meleestr (ArrayBlock("lLlClH"));
+    Player.meleestr.swap (raw_cast<string>(meleestr));
     for (i = 0; i < 8; i++) {
 	monster* m = Level->creature(Player.x + Dirs[0][i], Player.y + Dirs[1][i]);
 	if (m) {
@@ -665,7 +664,7 @@ int goberserk (void)
 	    morewait();
 	}
     }
-    strcpy (Player.meleestr, meleestr);
+    Player.meleestr.swap (raw_cast<string>(meleestr));
     return (wentberserk);
 }
 
