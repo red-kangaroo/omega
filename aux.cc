@@ -196,22 +196,20 @@ void player::calc_melee (void)
     defense = 2*statmod(agi) + level/2;
     hit = level + statmod(dex) + 1;
     dmg = statmod(str) + 3;
-    speed = 5 - min (4, (statmod (agi) / 2));
-    if (status[HASTED] > 0)
-	speed /= 2;
-    if (status[SLOWED] > 0)
-	speed *= 2;
-    speed += 4-4*itemweight/maxweight;
-
     if (status[ACCURATE])
 	hit += 20;
     if (status[HERO]) {
 	hit += dex;
 	dmg += str;
 	defense += agi;
-	speed /= 2;
     }
 
+    speed = 5 - min (4, (statmod (agi) / 2));
+    if (status[HASTED] || status[HERO])
+	speed /= 2;
+    if (status[SLOWED])
+	speed *= 2;
+    speed -= min (speed, 4-4*itemweight/maxweight);
     speed = max (1, min (25, speed));
 
     if (gamestatusp (MOUNTED)) {
