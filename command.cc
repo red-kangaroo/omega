@@ -111,7 +111,7 @@ void p_process (void)
 	    case 'O':	setoptions(); break;
 	    case 'Q':	quit(); break;
 	    case 'R':	rename_player(); break;
-	    case 'S':	save (optionp (COMPRESS), false); break;
+	    case 'S':	save(); break;
 	    case 'T':	tunnel();	Command_Duration = Player.speed*30/5; break;
 	    case 'V':	version(); break;
 	    case 'Z':	bash_item();	Command_Duration = Player.speed*10/5; break;
@@ -241,7 +241,7 @@ void p_country_process (void)
 	    case 'O':	setoptions(); break;
 	    case 'Q':	quit(); break;
 	    case 'R':	rename_player(); break;
-	    case 'S':	save (optionp (COMPRESS), false); break;
+	    case 'S':	save(); break;
 	    case 'V':	version(); break;
 	    case '>':	enter_site (Country->site(Player.x,Player.y).locchar); break;
 	    case '?':	help(); no_op = true; break;
@@ -989,52 +989,19 @@ void bash_item (void)
     }
 }
 
-// guess what this does
-// if force is true, exiting due to some problem - don't bomb out
-void save (int compress, int force)
+void save (void)
 {
-    int ok = true;
-
     clearmsg();
-    if (gamestatusp (ARENA_MODE)) {
-	if (force) {
-	    resetgamestatus (ARENA_MODE);
-	    change_environment (E_CITY);
-	} else {
-	    print3 ("Can't save the game in the arena!");
-	    setgamestatus (SKIP_MONSTERS);
-	    ok = false;
-	}
-    } else if (Current_Environment == E_ABYSS) {
-	if (force)
-	    change_environment (E_COUNTRYSIDE);
-	else {
-	    print3 ("Can't save the game in the Adept's Challenge!");
-	    setgamestatus (SKIP_MONSTERS);
-	    ok = false;
-	}
-    } else if (Current_Environment == E_TACTICAL_MAP) {
-	if (force)
-	    change_environment (E_COUNTRYSIDE);
-	else {
-	    print3 ("Can't save the game in the tactical map!");
-	    setgamestatus (SKIP_MONSTERS);
-	    ok = false;
-	}
-    }
-    if (!force && ok) {
+    if (gamestatusp (ARENA_MODE))
+	print3 ("Can't save the game in the arena!");
+    else if (Current_Environment == E_ABYSS)
+	print3 ("Can't save the game in the Adept's Challenge!");
+    else if (Current_Environment == E_TACTICAL_MAP)
+	print3 ("Can't save the game in the tactical map!");
+    else {
 	print1 ("Confirm Save? [yn] ");
-	ok = (ynq1() == 'y');
-    }
-    if ((force || ok) && save_game())
-	return;
-    if (force) {
-	morewait();
-	clearmsg();
-	print1 ("The game is quitting - you will lose your character.");
-	print2 ("Try to save again? ");
-	if (ynq2() == 'y')
-	    save (compress, force);
+	if (ynq1() == 'y' && save_game())
+	    return;
     }
     setgamestatus (SKIP_MONSTERS);	// if we get here, we failed to save
 }

@@ -137,17 +137,16 @@ void initrand (int environment, int level)
 
 int main (void)
 {
-    // always catch ^c and hang-up signals
-    signal (SIGINT, (__sighandler_t) quit);
-    signal (SIGHUP, signalsave);
-    signal (SIGQUIT, signalexit);
-    signal (SIGILL, signalexit);
-    signal (SIGTRAP, signalexit);
-    signal (SIGFPE, signalexit);
-    signal (SIGSEGV, signalexit);
-    signal (SIGABRT, signalexit);
-    signal (SIGBUS, signalexit);
-    signal (SIGSYS, signalexit);
+    // always catch ^c and other fatal signals
+    #define S(s) __sigmask(s)
+    constexpr sigset_t sigset_Quit =
+	S(SIGHUP)|S(SIGINT)|S(SIGPIPE)|S(SIGQUIT)|S(SIGTERM)|
+	S(SIGPWR)|S(SIGILL)|S(SIGABRT)|S(SIGBUS)|S(SIGFPE)|
+	S(SIGSYS)|S(SIGSEGV)|S(SIGALRM)|S(SIGXCPU);
+    #undef S
+    for (uint32_t i = NSIG; --i;)
+	if (sigismember(&sigset_Quit,i))
+	    signal (i, signalexit);
 
     // all kinds of initialization
     srandrand();
@@ -192,22 +191,13 @@ int main (void)
     }
 }
 
-static void signalexit (int sig UNUSED)
+static void signalexit (int sig)
 {
-    int reply;
-    clearmsg();
-    mprint ("Yikes!");
-    morewait();
-    mprint ("Sorry, caught a core-dump signal.");
-    mprint ("Want to try and save the game?");
-    reply = ynq();
-    if (reply == 'y')
-	save (false, true);	// don't compress, force save
-    else if (reply == EOF)
-	signalsave (0);
-    mprint ("Bye!");
+    if (sig == SIGINT)
+	return (quit());
     endgraf();
-    exit (0);
+    psignal (sig, "[S] Fatal error");
+    exit (-(char)sig);
 }
 
 // Start up game with new dungeons; start with player in city

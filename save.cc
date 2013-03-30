@@ -112,17 +112,6 @@ bool restore_game (void)
     return (true);
 }
 
-// saves game on SIGHUP
-// no longer tries to compress, which hangs
-void signalsave (int sig UNUSED)
-{
-    print1 ("Signal - Saving file 'omega.sav'.");
-    morewait();
-    save_game();
-    endgraf();
-    exit (0);
-}
-
 template <typename Stm>
 static inline void globals_serialize (Stm& stm)
 {
