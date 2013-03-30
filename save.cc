@@ -19,25 +19,21 @@ static void save_level(ostream& os, plv level);
 // Checks to see if save file can be opened for write.
 // The player, the city level, and the current dungeon level are saved.
 
-int save_game (const char* savestr)
+bool save_game (void)
 {
-    plv current, levelToSave;
+    char savestr [128];
+    snprintf (ArrayBlock(savestr), OMEGA_SAVED_GAME, getenv("HOME"));
+    mkpath (savestr);
 
-    if (access (savestr, R_OK) == 0) {
-	if (access (savestr, W_OK) == 0) {
-	    mprint (" Overwrite old file?");
-	    if (ynq() != 'y')
-		return (false);
-	} else {
-	    mprint (" File already exists.");
-	    return (false);
-	}
-    }
+    plv current, levelToSave;
     print1 ("Saving Game....");
     bool writeok = false;
     try {
 	memblock buf (UINT16_MAX);
 	ostream os (buf);
+
+	uint32_t ver = OMEGA_SAVE_FORMAT, gamever = OMEGA_VERSION;
+	os << ver << gamever;
 
 	os << Player;
 	save_level (os, Country);
@@ -64,18 +60,21 @@ int save_game (const char* savestr)
 	writeok = true;
     } catch (...) {
 	print1 ("Something didn't work... save aborted.");
+	morewait();
+	clearmsg();
     }
-    morewait();
-    clearmsg();
     return (writeok);
 }
 
 // read player data, city level, dungeon level,
 // check on validity of save file, etc.
 // return true if game restored, false otherwise
-int restore_game (const char* savestr)
+bool restore_game (void)
 {
-    if (access (savestr, F_OK | R_OK | W_OK) == -1) {	// access uses real uid
+    char savestr [128];
+    snprintf (ArrayBlock(savestr), OMEGA_SAVED_GAME, getenv("HOME"));
+
+    if (0 != access (savestr, R_OK)) {
 	print1 ("Unable to access save file: ");
 	nprint1 (savestr);
 	morewait();
@@ -87,6 +86,10 @@ int restore_game (const char* savestr)
 	buf.read_file (savestr);
 	istream is (buf);
 	print1 ("Restoring...");
+	uint32_t ver, gamever;
+	is >> ver >> gamever;
+	if (ver != OMEGA_SAVE_FORMAT)
+	    runtime_error::emit ("incorrect saved game file format");
 	is >> Player;
 	restore_level (is);	// the countryside
 	restore_level (is);	// the city level
@@ -118,11 +121,52 @@ int restore_game (const char* savestr)
 // no longer tries to compress, which hangs
 void signalsave (int sig UNUSED)
 {
-    save_game ("omega.sav");
     print1 ("Signal - Saving file 'omega.sav'.");
     morewait();
+    save_game();
     endgraf();
     exit (0);
+}
+
+template <typename Stm>
+static inline void globals_serialize (Stm& stm)
+{
+    stm & GameStatus & Time & Gymcredit & Balance & FixedPoints
+	& SpellKnown & Current_Environment & Last_Environment & Current_Dungeon & Villagenum
+	& Verbosity & Tick & Searchnum & Behavior & Phase
+	& Date & Spellsleft & SymbolUseHour & ViewHour & HelmHour
+	& Constriction & Blessing & LastDay & RitualHour & Lawstone
+	& Chaostone & Mindstone & Arena_Opponent & Imprisonment & StarGemUse
+	& HiMagicUse & HiMagic & LastCountryLocX & LastCountryLocY & LastTownLocX
+	& LastTownLocY & Pawndate & Command_Duration & Precipitation & Lunarity
+	& ZapHour & RitualRoom & twiddle & saved & onewithchaos
+	& club_hinthour & winnings & tavern_hinthour;
+}
+
+streamsize player::stream_size (void) const
+{
+    sizestream ss (player_pod::stream_size());
+    ss << rank;
+    ss.skipalign (stream_align(immunity));
+    ss << immunity << status << guildxp;
+    ss.skipalign (stream_align(name));
+    ss << name << meleestr;
+    ss.write (Password, sizeof(Password));
+    ss.write (CitySiteList, sizeof (CitySiteList));
+    ss << ios::align(alignof(GameStatus));
+    globals_serialize (ss);
+    ss.write (deepest, sizeof(deepest));
+    ss.write (level_seed, sizeof(level_seed));
+
+    // Save player item knowledge
+    ss.write (Spells, sizeof (Spells));
+    ss.write (ObjectAttrs, sizeof(ObjectAttrs));
+
+    // Save player possessions
+    ss.skipalign (stream_align (possessions));
+    ss << possessions << pack;
+    ss << Pawnitems << Condoitems;
+    return (ss.pos());
 }
 
 // also saves some globals like Level->depth...
@@ -136,54 +180,8 @@ void player::write (ostream& os) const
     os << name << meleestr;
     os.write (Password, sizeof(Password));
     os.write (CitySiteList, sizeof (CitySiteList));
-    os << ios::align(alignof(GameStatus)) << GameStatus;
-    os << Time;
-    os << Gymcredit;
-    os << Balance;
-    os << FixedPoints;
-    os << SpellKnown;
-    os << Current_Environment;
-    os << Last_Environment;
-    os << Current_Dungeon;
-    os << Villagenum;
-    os << Verbosity;
-    os << Tick;
-    os << Searchnum;
-    os << Behavior;
-    os << Phase;
-    os << Date;
-    os << Spellsleft;
-    os << SymbolUseHour;
-    os << ViewHour;
-    os << HelmHour;
-    os << Constriction;
-    os << Blessing;
-    os << LastDay;
-    os << RitualHour;
-    os << Lawstone;
-    os << Chaostone;
-    os << Mindstone;
-    os << Arena_Opponent;
-    os << Imprisonment;
-    os << StarGemUse;
-    os << HiMagicUse;
-    os << HiMagic;
-    os << LastCountryLocX;
-    os << LastCountryLocY;
-    os << LastTownLocX;
-    os << LastTownLocY;
-    os << Pawndate;
-    os << Command_Duration;
-    os << Precipitation;
-    os << Lunarity;
-    os << ZapHour;
-    os << RitualRoom;
-    os << twiddle;
-    os << saved;
-    os << onewithchaos;
-    os << club_hinthour;
-    os << winnings;
-    os << tavern_hinthour;
+    os << ios::align(alignof(GameStatus));
+    globals_serialize (os);
     os.write (deepest, sizeof(deepest));
     os.write (level_seed, sizeof(level_seed));
 
@@ -207,54 +205,8 @@ void player::read (istream& is)
     is >> name >> meleestr;
     is.read (Password, sizeof(Password));
     is.read (CitySiteList, sizeof(CitySiteList));
-    is >> ios::align(alignof(GameStatus)) >> GameStatus;
-    is >> Time;
-    is >> Gymcredit;
-    is >> Balance;
-    is >> FixedPoints;
-    is >> SpellKnown;
-    is >> Current_Environment;
-    is >> Last_Environment;
-    is >> Current_Dungeon;
-    is >> Villagenum;
-    is >> Verbosity;
-    is >> Tick;
-    is >> Searchnum;
-    is >> Behavior;
-    is >> Phase;
-    is >> Date;
-    is >> Spellsleft;
-    is >> SymbolUseHour;
-    is >> ViewHour;
-    is >> HelmHour;
-    is >> Constriction;
-    is >> Blessing;
-    is >> LastDay;
-    is >> RitualHour;
-    is >> Lawstone;
-    is >> Chaostone;
-    is >> Mindstone;
-    is >> Arena_Opponent;
-    is >> Imprisonment;
-    is >> StarGemUse;
-    is >> HiMagicUse;
-    is >> HiMagic;
-    is >> LastCountryLocX;
-    is >> LastCountryLocY;
-    is >> LastTownLocX;
-    is >> LastTownLocY;
-    is >> Pawndate;
-    is >> Command_Duration;
-    is >> Precipitation;
-    is >> Lunarity;
-    is >> ZapHour;
-    is >> RitualRoom;
-    is >> twiddle;
-    is >> saved;
-    is >> onewithchaos;
-    is >> club_hinthour;
-    is >> winnings;
-    is >> tavern_hinthour;
+    is >> ios::align(alignof(GameStatus));
+    globals_serialize (is);
     is.read (deepest, sizeof(deepest));
     is.read (level_seed, sizeof(level_seed));
     is.read (Spells, sizeof(Spells));

@@ -993,8 +993,7 @@ void bash_item (void)
 // if force is true, exiting due to some problem - don't bomb out
 void save (int compress, int force)
 {
-    char fname[100];
-    int pos, ok = true;
+    int ok = true;
 
     clearmsg();
     if (gamestatusp (ARENA_MODE)) {
@@ -1027,27 +1026,10 @@ void save (int compress, int force)
 	print1 ("Confirm Save? [yn] ");
 	ok = (ynq1() == 'y');
     }
-    if (force || ok) {
-	print1 ("Enter savefile name: ");
-	strcpy (fname, msgscanstring());
-	if (fname[0] == '\0') {
-	    print1 ("No save file entered - save aborted.");
-	    ok = false;
-	}
-	for (pos = 0; fname[pos] && isprint (fname[pos]) && !isspace (fname[pos]); pos++);
-	if (fname[pos]) {
-	    sprintf (Str1, "Illegal character '%c' in filename - Save aborted.", fname[pos]);
-	    print1 (Str1);
-	    ok = false;
-	}
-	if (ok) {
-	    if (save_game (fname)) {
-		print3 ("Bye!");
-		endgraf();
-		exit (0);
-	    } else
-		print1 ("Save Aborted.");
-	}
+    if ((force || ok) && save_game()) {
+	print3 ("Bye!");
+	endgraf();
+	exit (0);
     }
     if (force) {
 	morewait();
@@ -1441,9 +1423,7 @@ void quit (void)
     clearmsg();
     mprint ("Quit: Are you sure? [yn] ");
     if (ynq() == 'y') {
-	if (!Player.rank[ADEPT])
-	    display_quit();
-	else
+	if (Player.rank[ADEPT])
 	    display_bigwin();
 	endgraf();
 	exit (0);

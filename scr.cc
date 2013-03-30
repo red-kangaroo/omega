@@ -963,18 +963,14 @@ void display_death (const char* source)
 {
     clear();
     touchwin (stdscr);
-    printw ("\n\n\n\n");
-    printw ("Requiescat In Pace, ");
-    printw (Player.name);
-    printw (" (%ld points)", calc_points());
-    strcpy (Str4, "Killed by ");
-    strcat (Str4, source);
-    printw ("\n");
+    snprintf (ArrayBlock(Str4),
+	"\n\n\n\nRequiescat In Pace, %s (%ld points)\n"
+	"Killed by %s."
+	"\n\n\n\n\nHit any key to quit."
+	, Player.name.c_str(), calc_points(), source);
     printw (Str4);
-    printw (".");
-    printw ("\n\n\n\n\nHit 'c' to continue.");
     refresh();
-    while (wgetch (stdscr) != 'c');
+    wgetch(stdscr);
     clear();
     touchwin (stdscr);
     refresh();
@@ -993,25 +989,9 @@ void display_win (void)
 	strcpy (Str4, "retired a winner");
 	printw (" triumphed in omega with %ld points!", calc_points());
     }
-    printw ("\n\n\n\n\nHit 'c' to continue.");
+    printw ("\n\n\n\n\nHit any key to quit.");
     refresh();
-    while (wgetch (stdscr) != 'c');
-    clear();
-    touchwin (stdscr);
-    refresh();
-}
-
-void display_quit (void)
-{
-    clear();
-    touchwin (stdscr);
-    printw ("\n\n\n\n");
-    printw (Player.name);
-    strcpy (Str4, "A quitter.");
-    printw (" wimped out with %ld points!", calc_points());
-    printw ("\n\n\n\n\nHit 'c' to continue.");
-    refresh();
-    while (wgetch (stdscr) != 'c');
+    wgetch (stdscr);
     clear();
     touchwin (stdscr);
     refresh();
@@ -1025,9 +1005,9 @@ void display_bigwin (void)
     printw (Player.name);
     strcpy (Str4, "retired, an Adept of Omega.");
     printw (" retired, an Adept of Omega with %ld points!", FixedPoints);
-    printw ("\n\n\n\n\nHit 'c' to continue.");
+    printw ("\n\n\n\n\nHit any key to quit.");
     refresh();
-    while (wgetch (stdscr) != 'c');
+    wgetch (stdscr);
     clear();
     touchwin (stdscr);
     refresh();

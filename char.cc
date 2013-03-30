@@ -4,12 +4,13 @@
 
 //----------------------------------------------------------------------
 
-static FILE* omegarc_check(void);
 static void initstats(void);
 static void save_omegarc(void);
+static void load_omegarc (const char* filename);
 static int competence_check(int attack);
 static void user_character_stats(void);
 static void omegan_character_stats(void);
+static bool personal_question_yn (const char* q);
 
 //----------------------------------------------------------------------
 
@@ -20,7 +21,7 @@ player::player (void)
 , immunity()
 , status()
 , guildxp()
-, name("player")
+, name("Player")
 , meleestr(64)
 , possessions()
 , pack()
@@ -29,10 +30,6 @@ player::player (void)
 
 void initplayer (void)
 {
-    const char* lname = getlogin();
-    if (lname && *lname)
-	Player.name = lname;
-    Player.name[0] = toupper (Player.name[0]);
     Player.itemweight = 0;
     Player.food = 36;
     Behavior = -1;
@@ -47,23 +44,18 @@ void initplayer (void)
     Player.patron = 0;
     Player.alignment = 0;
     Player.cash = 250;
-    FILE* fd;
+
     bool oldchar = false;
-    if ((fd = omegarc_check()) != NULL) {
-	int i;
-	fread ((char*) &i, sizeof (int), 1, fd);
-	if (i != OMEGA_VERSION) {
-	    print1 ("Out of date .omegarc! Make another!");
-	    morewait();
-	} else {
+    snprintf (ArrayBlock(Str1), OMEGA_PLAYER_FILE, getenv("HOME"));
+    if (0 == access (Str1, R_OK) && personal_question_yn ("Use saved character? [yn] ")) {
+	clearmsg();
+	try {
+	    load_omegarc (Str1);
 	    oldchar = true;
-	    fread ((char*) &Player, sizeof (Player), 1, fd);
-	    fread ((char*) &Searchnum, sizeof (int), 1, fd);
-	    fread ((char*) &Verbosity, sizeof (char), 1, fd);
-	    Player.name = lname;
-	    Player.name[0] = toupper (Player.name[0]);
+	} catch (exception& e) {
+	    print1 (e.what());
+	    morewait();
 	}
-	fclose (fd);
     }
     if (!oldchar) {
 	optionset (RUNSTOP);
@@ -79,21 +71,6 @@ void initplayer (void)
     ScreenOffset = -1000;	// to force a redraw
 }
 
-static FILE* omegarc_check (void)
-{
-    FILE *fd;
-    sprintf (Str1, "%s/.omegarc", getenv ("HOME"));
-    if ((fd = fopen (Str1, "r")) != NULL) {
-	print2 ("Use .omegarc in home directory? [yn] ");
-	if (ynq2() != 'y') {
-	    fclose (fd);
-	    fd = NULL;
-	}
-	clearmsg();
-    }
-    return (fd);
-}
-
 static void initstats (void)
 {
     do {
@@ -104,8 +81,16 @@ static void initstats (void)
 	else if (response == 'p') {
 	    user_character_stats();
 	    print1 ("Do you want to save this set-up to .omegarc in your home directory? [yn] ");
-	    if (ynq1() == 'y')
-		save_omegarc();
+	    if (ynq1() == 'y') {
+		print1 ("First, set options.");
+		setoptions();
+		try {
+		    save_omegarc();
+		} catch (exception& e) {
+		    print1 (e.what());
+		    morewait();
+		}
+	    }
 	    displayfile (Data_Intro);
 	} else
 	    continue;
@@ -113,23 +98,58 @@ static void initstats (void)
     xredraw();
 }
 
+template <typename Stm>
+static inline void omegarc_serialize_player_static (Stm& stm)
+{
+    stm & Player.iq & Player.maxiq
+	& Player.pow & Player.maxpow
+	& Player.dex & Player.maxdex
+	& Player.agi & Player.maxagi
+	& Player.str & Player.maxstr
+	& Player.con & Player.maxcon
+	& Player.cash & Player.options
+	& Player.preference;
+}
+
+template <typename Stm>
+static inline void omegarc_write (Stm& stm)
+{
+    const uint32_t fmt = OMEGA_PLAYER_FORMAT;
+    const uint32_t savefmt = OMEGA_SAVE_FORMAT;
+    stm << fmt << savefmt << Searchnum << Verbosity << Player.name;
+    omegarc_serialize_player_static (stm);
+}
+
 static void save_omegarc (void)
 {
-    FILE *fd;
-    sprintf (Str1, "%s/.omegarc", getenv ("HOME"));
-    if (!(fd = fopen (Str1, "w")))
-	print1 ("Sorry, couldn't save .omegarc for some reason.");
-    else {
-	int i = OMEGA_VERSION;
-	fwrite ((const char* ) &i, sizeof (int), 1, fd);
-	print1 ("First, set options.");
-	setoptions();
-	fwrite ((const char* ) &Player, sizeof (Player), 1, fd);
-	fwrite ((const char* ) &Searchnum, sizeof (int), 1, fd);
-	fwrite ((const char* ) &Verbosity, sizeof (char), 1, fd);
-	fclose (fd);
-    }
+    snprintf (ArrayBlock(Str1), OMEGA_PLAYER_FILE, getenv("HOME"));
+    mkpath (Str1);
+    sizestream ss;
+    omegarc_write (ss);
+    memblock buf (ss.pos());
+    ostream os (buf);
+    omegarc_write (os);
+    buf.write_file (Str1);
 }
+
+static void load_omegarc (const char* filename)
+{
+    memblock buf;
+    buf.read_file (filename);
+    istream is (buf);
+
+    uint32_t fmt, savefmt;
+    is.verify_remaining ("load_omegarc", stream_size_of(fmt)+stream_size_of(savefmt)+stream_size_of(Searchnum)+stream_size_of(Verbosity));
+    is >> fmt >> savefmt >> Searchnum >> Verbosity;
+    if (fmt != OMEGA_PLAYER_FORMAT)
+	runtime_error::emit ("omegarc format is not readable");
+    is >> Player.name;
+    sizestream ss;
+    omegarc_serialize_player_static (ss);
+    is.verify_remaining ("load_omegarc", ss.pos());
+    omegarc_serialize_player_static (is);
+}
+
 
 //  npcbehavior digits 1234
 //
@@ -454,6 +474,10 @@ static void user_character_stats (void)
 	morewait();
     }
     Player.pow = Player.maxpow = 3 + powpts / 2;
+    clearmsg();
+    print1 ("Please enter your character's name: ");
+    Player.name = msgscanstring();
+    Player.name[0] = toupper (Player.name[0]);
     print1 ("Are you sexually interested in males or females? [mf] ");
     do
 	Player.preference = (char) mcigetc();

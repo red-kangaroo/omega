@@ -290,9 +290,9 @@ void time_clock(int reset);
 // priest.c
 void l_altar(void);
 // save.c
-int restore_game(const char* savestr);
-int save_game(const char* savestr);
-void signalsave(int sig);
+bool restore_game (void);
+bool save_game (void);
+void signalsave (int sig);
 // scr.c
 void bufferprint(void);
 void checkclear(void);
@@ -419,6 +419,7 @@ int showhour(void);
 int showminute(void);
 const char* slotstr(int num);
 bool strmem(int c, const char* s);
+int mkpath (const char* path);
 int unblocked(int x, int y);
 int view_los_p(int x1, int y1, int x2, int y2);
 int view_unblocked(int x, int y);

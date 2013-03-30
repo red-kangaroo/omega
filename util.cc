@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
 
@@ -490,6 +491,20 @@ bool strmem (int c, const char* s)
 	if (s[i] == c)
 	    return (true);
     return (false);
+}
+
+int mkpath (const char* path)
+{
+    int rv = 0;
+    char pbuf [PATH_MAX];
+    for (char* pbe = pbuf; *path; ++path) {
+	if (*path == '/' && pbe > pbuf) {
+	    *pbe = '\0';
+	    rv = mkdir (pbuf, 0755);
+	}
+	*pbe++ = *path;
+    }
+    return (rv);
 }
 
 void calc_weight (void)

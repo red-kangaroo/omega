@@ -7,7 +7,6 @@
 
 //----------------------------------------------------------------------
 
-static int game_restore(int argc, const char* argv[]);
 static void init_world(void);
 
 //----------------------------------------------------------------------
@@ -136,30 +135,9 @@ void initrand (int environment, int level)
 	srand (level_seed[environment] + level);
 }
 
-static int game_restore (int argc, const char* argv[])
+int main (void)
 {
-    char savestr[80];
-    int ok;
-    if (argc == 2) {
-	strcpy (savestr, argv[1]);
-	ok = restore_game (savestr);
-	if (!ok) {
-	    endgraf();
-	    printf ("Try again with the right save file, luser!\n");
-	    exit (0);
-	}
-	return (true);
-    } else
-	return (false);
-}
-
-int main (int argc, const char* argv[])
-{
-    int continuing;
-    int count;
-
     // always catch ^c and hang-up signals
-
     signal (SIGINT, (__sighandler_t) quit);
     signal (SIGHUP, signalsave);
     signal (SIGQUIT, signalexit);
@@ -175,17 +153,16 @@ int main (int argc, const char* argv[])
     srandrand();
     initgraf();
 
-    for (count = 0; count < STRING_BUFFER_SIZE; count++)
+    for (unsigned count = 0; count < STRING_BUFFER_SIZE; count++)
 	strcpy (Stringbuffer[count], "<nothing>");
 
-    omega_title();
+    // Try to restore game, if any
+    bool continuing = restore_game();
 
-    // game restore attempts to restore game if there is an argument
-    continuing = game_restore (argc, argv);
-
-    // monsters initialized in game_restore if game is being restored
-    // items initialized in game_restore if game is being restored
+    // monsters initialized in restore_game if game is being restored
+    // items initialized in restore_game if game is being restored
     if (!continuing) {
+	omega_title();
 	Date = random_range (360);
 	Phase = random_range (24);
 	Password[0] = 0;

@@ -49,7 +49,6 @@ extern int Mindstone;				// magic stone counter
 extern int Searchnum;				// number of times to search on 's'
 extern int Verbosity;				// verbosity level
 extern int Behavior;				// NPC behavior, if entered
-extern char Seed;				// random seed
 extern long Time;				// turn number
 extern int Tick;				// current second in minute; action coordinator
 extern char Stringbuffer[STRING_BUFFER_SIZE][80];	// the last printed strings

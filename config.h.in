@@ -12,6 +12,13 @@
 
 // Location of the game data files
 #define OMEGALIB		"./lib/"
+#define OMEGA_CONFDIR		"%s/.config/omega/"
+#define OMEGA_PLAYER_FILE	OMEGA_CONFDIR "player.dat"
+#define OMEGA_SAVED_GAME	OMEGA_CONFDIR "game.sav"
+
+// Saved data versions
+#define OMEGA_PLAYER_FORMAT	0
+#define OMEGA_SAVE_FORMAT	0
 
 // Define to 1 if using ucc
 #define HAVE_STL_H 1
