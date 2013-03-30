@@ -4,8 +4,8 @@
 
 static int itemlist(int itemindex, int num);
 static int selectmonster(void);
-static void ball(int fx, int fy, int tx, int ty, int dmg, int dtype);
-static void bolt(int fx, int fy, int tx, int ty, int hit, int dmg, int dtype);
+static void ball(int fx, int fy, int tx, int ty, int dmg, EDamageType dtype);
+static void bolt(int fx, int fy, int tx, int ty, int hit, int dmg, EDamageType dtype);
 
 //----------------------------------------------------------------------
 
@@ -220,7 +220,7 @@ void nbolt (int fx, int fy, int tx, int ty, int hit, int dmg)
 }
 
 // from f to t
-static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
+static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, EDamageType dtype)
 {
     int xx, yy;
     struct monster *target;
@@ -236,7 +236,6 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 	    boltchar = ('^' | CLR_LIGHT_BLUE_BLACK);
 	    break;
 	default:
-	    assert (false);	// this should never happen, right? WDT
 	case NORMAL_DAMAGE:
 	    boltchar = ('!' | CLR_BROWN_BLACK);
 	    break;
@@ -261,6 +260,7 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 		    mprint ("You were zapped by lightning!");
 		    p_damage (random_range (dmg), dtype, "a bolt of lightning");
 		    break;
+		default:
 		case NORMAL_DAMAGE:
 		    mprint ("You were hit by a missile!");
 		    p_damage (random_range (dmg), dtype, "a missile");
@@ -287,6 +287,7 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 		case ELECTRICITY:
 		    strcat (Str1, " was zapped by lightning!");
 		    break;
+		default:
 		case NORMAL_DAMAGE:
 		    strcat (Str1, " was hit by a missile!");
 		    break;
@@ -310,6 +311,7 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, int dtype)
 		case ELECTRICITY:
 		    strcat (Str1, " was missed by lightning!");
 		    break;
+		default:
 		case NORMAL_DAMAGE:
 		    strcat (Str1, " was missed by a missile!");
 		    break;
@@ -361,7 +363,7 @@ void fball (int fx, int fy, int tx, int ty, int dmg)
 }
 
 // from f to t
-static void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
+static void ball (int fx, int fy, int tx, int ty, int dmg, EDamageType dtype)
 {
     int xx, yy, ex, ey, i;
     struct monster *target;
@@ -371,6 +373,7 @@ static void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
     yy = fy;
 
     switch (dtype) {
+	default:
 	case FLAME:
 	    expchar = ('*' | CLR_LIGHT_RED_BLACK);
 	    break;
@@ -390,6 +393,7 @@ static void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
 
 	if ((ex == Player.x) && (ey == Player.y)) {
 	    switch (dtype) {
+		default:
 		case FLAME:
 		    mprint ("You were blasted by a fireball!");
 		    p_damage (random_range (dmg), FLAME, "a fireball");
@@ -416,6 +420,7 @@ static void ball (int fx, int fy, int tx, int ty, int dmg, int dtype)
 		} else
 		    strcpy (Str1, target->monstring);
 		switch (dtype) {
+		    default:
 		    case FLAME:
 			strcat (Str1, " was zorched by a fireball!");
 			break;
@@ -544,7 +549,7 @@ void wish (int blessing)
     }
     if (strcmp (wishstr, "Power") == 0) {
 	print2 ("You feel a sudden surge of energy");
-	Player.mana = calcmana() * 10;
+	Player.mana = Player.calcmana() * 10;
     } else if (strcmp (wishstr, "Skill") == 0) {
 	print2 ("You feel more competent.");
 	gain_experience (min (10000U, Player.xp));
@@ -840,29 +845,29 @@ void knowledge (int blessing)
 	morewait();
 	menuclear();
 	menuprint ("Immunities:\n");
-	if (p_immune (NORMAL_DAMAGE))
+	if (Player.immune_to (NORMAL_DAMAGE))
 	    menuprint ("Normal Damage\n");
-	if (p_immune (FLAME))
+	if (Player.immune_to (FLAME))
 	    menuprint ("Flame\n");
-	if (p_immune (ELECTRICITY))
+	if (Player.immune_to (ELECTRICITY))
 	    menuprint ("Electricity\n");
-	if (p_immune (COLD))
+	if (Player.immune_to (COLD))
 	    menuprint ("Cold\n");
-	if (p_immune (POISON))
+	if (Player.immune_to (POISON))
 	    menuprint ("Poison\n");
-	if (p_immune (ACID))
+	if (Player.immune_to (ACID))
 	    menuprint ("Acid\n");
-	if (p_immune (FEAR))
+	if (Player.immune_to (FEAR))
 	    menuprint ("Fear\n");
-	if (p_immune (SLEEP))
+	if (Player.immune_to (SLEEP))
 	    menuprint ("Sleep\n");
-	if (p_immune (NEGENERGY))
+	if (Player.immune_to (NEGENERGY))
 	    menuprint ("Negative Energies\n");
-	if (p_immune (THEFT))
+	if (Player.immune_to (THEFT))
 	    menuprint ("Theft\n");
-	if (p_immune (GAZE))
+	if (Player.immune_to (GAZE))
 	    menuprint ("Gaze\n");
-	if (p_immune (INFECTION))
+	if (Player.immune_to (INFECTION))
 	    menuprint ("Infection\n");
 	showmenu();
 	morewait();
@@ -1566,7 +1571,7 @@ void sleep_player (int amount)
 {
     if (Player.status[SLEPT] == 0) {	// prevent player from sleeping forever
 	mprint ("You feel sleepy...");
-	if (!p_immune (SLEEP)) {
+	if (!Player.immune_to (SLEEP)) {
 	    Player.status[SLEPT] += random_range (amount * 2) + 2;
 	} else
 	    mprint ("but you shrug off the momentary lassitude.");
@@ -1741,7 +1746,7 @@ void disintegrate (int x, int y)
 	} else if ((Level->site(x,y).locchar == WALL) || (Level->site(x,y).locchar == OPEN_DOOR) || (Level->site(x,y).locchar == CLOSED_DOOR) || (Level->site(x,y).locchar == PORTCULLIS) || (Level->site(x,y).locchar == STATUE)) {
 	    mprint ("The site is reduced to rubble!");
 	    if (Level->site(x,y).locchar == WALL)
-		tunnelcheck();
+		Level->tunnelcheck();
 	    Level->site(x,y).p_locf = L_RUBBLE;
 	    Level->site(x,y).locchar = RUBBLE;
 	    lreset (x, y, SECRET);
@@ -1787,7 +1792,7 @@ void acid_cloud (void)
 	mprint ("You are burned by acid.");
 	p_damage (3, ACID, "an acid cloud");
 	damage_item (&Player.possessions[O_ARMOR]);
-    } else if (p_immune (ACID)) {
+    } else if (Player.immune_to (ACID)) {
 	mprint ("You resist the effects!");
 	return;
     } else {
@@ -1828,7 +1833,7 @@ void p_teleport (int type)
 void p_poison (int toxicity)
 {
     mprint ("You feel sick.");
-    if (!p_immune (POISON))
+    if (!Player.immune_to (POISON))
 	Player.status[POISONED] += toxicity;
     else
 	mprint ("The sickness fades!");
@@ -1860,8 +1865,6 @@ void apport (int blessing)
 
 void strategic_teleport (int blessing)
 {
-    int new_env;
-
     // WDT HACK: Game balance issue: the star gem is supposed to be the only
     // way out of the astral plane (including the Circle of Sorcerors).  However,
     // Hy Magic offers the Location wish, and some artifacts grant this
@@ -1975,8 +1978,7 @@ void strategic_teleport (int blessing)
 	    default:
 		if (gamestatusp (CHEATED)) {
 		    mprint ("Enter environment number: ");
-		    new_env = (int) parsenum();
-		    change_environment (new_env);
+		    change_environment ((EEnvironment) parsenum());
 		}
 	}
 	xredraw();
@@ -2388,7 +2390,7 @@ void drain_life (int amount)
 {
     amount = absv (amount);
     mprint ("You feel cold!");
-    if (p_immune (NEGENERGY))
+    if (Player.immune_to (NEGENERGY))
 	mprint ("... but the feeling quickly fades.");
     else {
 	if (random_range (2)) {

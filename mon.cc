@@ -9,7 +9,7 @@ static void m_fireball(struct monster *m);
 static void m_firebolt(struct monster *m);
 static void m_flutter_move(struct monster *m);
 static void m_follow_move(struct monster *m);
-static void m_hit(struct monster *m, int dtype);
+static void m_hit(struct monster *m, EDamageType dtype);
 static void m_huge_sounds(struct monster *m);
 static void m_illusion(struct monster *m);
 static void m_lball(struct monster *m);
@@ -433,7 +433,7 @@ static void m_talk_druid (struct monster *m)
 	    } else if (Phase / 2 == 3 || Phase / 2 == 9) {	// half moon
 		mprint ("You take part in today's holy celebration of balance...");
 		Player.alignment = 0;
-		Player.mana = calcmana();
+		Player.mana = Player.calcmana();
 		if (Player.patron == DRUID)
 		    gain_experience (200);
 		for (int i = 0; i < 6; ++i) {
@@ -444,7 +444,7 @@ static void m_talk_druid (struct monster *m)
 		mprint ("The ArchDruid conducts a sacred rite of balance...");
 		if (Player.patron == DRUID) {
 		    Player.alignment = 0;
-		    Player.mana = calcmana();
+		    Player.mana = Player.calcmana();
 		} else
 		    Player.alignment -= Player.alignment * max (0, 10 - Player.level) / 10;
 		// the higher level the character is, the more set in his/her ways
@@ -589,7 +589,7 @@ static void m_talk_im (struct monster *m)
     }
     clearmsg();
     object* o = &m->possessions[0];
-    unsigned cost = max (10, 4 * true_item_value(o));
+    unsigned cost = max (10u, 4 * true_item_value(o));
     mprintf ("I have a fine %s for only %uAu. Want it? [yn] ", itemid(o), cost);
     if (ynq() != 'y')
 	mprint ("Well then, I must be off. Good day.");
@@ -703,7 +703,7 @@ static void m_talk_gf (struct monster *m)
     }
     mprint ("In a flash of sweet-smelling light, the fairy vanishes....");
     Player.hp = max (Player.hp, Player.maxhp);
-    Player.mana = max (Player.mana, calcmana());
+    Player.mana = max (Player.mana, Player.calcmana());
     mprint ("You feel mellow.");
     m_vanish (m);
 }
@@ -929,7 +929,7 @@ static void m_talk_prime (struct monster *m)
 	    print1 ("The blue sparks strike you! You feel enhanced!");
 	    print2 ("You feel more experienced....");
 	    Player.pow += Player.rank[CIRCLE];
-	    Player.mana += calcmana();
+	    Player.mana += Player.calcmana();
 	    gain_experience (1000);
 	    m_vanish (m);
 	}
@@ -946,7 +946,7 @@ void m_dropstuff (struct monster *m)
     m->possessions.clear();
 }
 
-static void m_hit (struct monster *m, int dtype)
+static void m_hit (struct monster *m, EDamageType dtype)
 {
     if (Player.status[DISPLACED] > 0 && random_range(2))
 	mprint ("The attack was displaced!");
@@ -974,7 +974,7 @@ static void tacmonster (struct monster *m)
 
 static void monster_melee (struct monster *m, int hitloc, int bonus)
 {
-    if (player_on_sanctuary()) {
+    if (Player.on_sanctuary()) {
 	print1 ("The aegis of your deity protects you!");
 	return;
     }
@@ -1241,7 +1241,7 @@ static void m_blind_strike (struct monster *m)
 {
     if (Player.status[BLINDED] == 0 && los_p(m->x, m->y, Player.x, Player.y) && distance (m->x, m->y, Player.x, Player.y) < 5) {
 	mprintf ("%s gazes at you menacingly", m->name());
-	if (!p_immune (GAZE)) {
+	if (!Player.immune_to (GAZE)) {
 	    mprint ("You've been blinded!");
 	    Player.status[BLINDED] = random_range (4) + 1;
 	    levelrefresh();
@@ -1307,7 +1307,7 @@ static void m_sp_demon (struct monster *m)
 	if ((m->id != INCUBUS) &&	// succubi don't give fear
 	    los_p (m->x, m->y, Player.x, Player.y) && (random_range (30) > Player.level + 10) && (Player.status[AFRAID] == 0)) {
 	    mprint ("You are stricken with fear!");
-	    if (!p_immune (FEAR))
+	    if (!Player.immune_to (FEAR))
 		Player.status[AFRAID] += m->level;
 	    else
 		mprint ("You master your reptile brain and stand fast.");
@@ -1345,7 +1345,7 @@ static void m_sp_ghost (struct monster *m)
 	mprint ("The ghost moans horribly....");
 	p_damage (1, FEAR, "a ghost-inspired heart attack");
 	mprint ("You've been terrorized!");
-	if (!p_immune (FEAR))
+	if (!Player.immune_to (FEAR))
 	    Player.status[AFRAID] += m->level;
 	else
 	    mprint ("You master your reptile brain and stand fast.");
@@ -1717,7 +1717,7 @@ static void m_sp_mb (struct monster *m)
 	} else {
 	    mprint ("You feel toasty warm inside!");
 	    Player.pow++;
-	    Player.mana = max (Player.mana, calcmana());
+	    Player.mana = max (Player.mana, Player.calcmana());
 	    Player.hp = max (Player.hp, ++Player.maxhp);
 	}
 	m->hp = 0;
@@ -1767,7 +1767,7 @@ static void m_thief_f (struct monster *m)
     int i = random_item();
     if (random_range(3) || distance (Player.x, Player.y, m->x, m->y) > 1)
 	return;
-    if (p_immune (THEFT) || Player.level > m->level*2 + random_range(20)) {
+    if (Player.immune_to (THEFT) || Player.level > m->level*2 + random_range(20)) {
 	mprint ("You feel secure.");
 	return;
     }
@@ -2056,7 +2056,7 @@ static void monster_move (struct monster *m)
 
 static void monster_strike (struct monster *m)
 {
-    if (player_on_sanctuary())
+    if (Player.on_sanctuary())
 	print1 ("The aegis of your deity protects you!");
     else {
 	// It's lawful to wait to be attacked
@@ -2070,7 +2070,7 @@ static void monster_strike (struct monster *m)
 static void monster_special (struct monster *m)
 {
     // since many special functions are really attacks, cancel them all if on sanctuary
-    if (!player_on_sanctuary())
+    if (!Player.on_sanctuary())
 	monster_action (m, m->specialf);
 }
 

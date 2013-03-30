@@ -20,10 +20,10 @@ extern int Current_Dungeon;			// What is Dungeon now (an E_ constant)
 extern int Villagenum;				// Current Village number
 extern int ScreenOffset;			// Offset of displayed screen to level
 extern int MaxDungeonLevels;			// Deepest level allowed in dungeon
-extern int Current_Environment;			// Which environment are we in (an E_ constant)
-extern int Last_Environment;			// Which environment were we in last (an E_ constant)
+extern EEnvironment Current_Environment;	// Which environment are we in (an E_ constant)
+extern EEnvironment Last_Environment;		// Which environment were we in last (an E_ constant)
 extern const int8_t Dirs[2][9];			// 9 xy directions
-extern char Cmd;				// last player command
+extern chtype Cmd;				// last player command
 extern int Command_Duration;			// how long does current command take
 extern int Arena_Opponent;			// case label of opponent in l_arena()
 extern int Arena_Victory;			// did player win in arena?

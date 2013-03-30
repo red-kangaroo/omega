@@ -194,7 +194,7 @@ enum {
 // player immunity indices
 // also monster immunity bits (2^n)
 // also damage types
-enum {
+enum EDamageType {
     EVERYTHING=-1,
     UNSTOPPABLE, NORMAL_DAMAGE, FLAME, COLD, ELECTRICITY,
     POISON, ACID, FEAR, SLEEP, NEGENERGY,
@@ -229,7 +229,7 @@ enum ERoomName {
     RS_ROOMLAST, NUMROOMNAMES = RS_ROOMBASE-RS_ROOMLAST
 };
 
-enum {
+enum EObjColor : attr_t {
     CLR_BLACK_BROWN		= COLOR_PAIR(5),
     CLR_BLACK_RED		= COLOR_PAIR(3),
     CLR_BLACK_WHITE		= COLOR_PAIR(4),
@@ -272,7 +272,7 @@ enum {
 };
 
 // objects, locations, and terrain; characters to draw
-enum {
+enum EObjchar : chtype {
     NULL_ITEM,
     SPACE		= (' ' | CLR_WHITE_BLACK),
     WALL		= ('#' | CLR_GREY_BLACK),
@@ -830,6 +830,7 @@ public:
     streamsize		stream_size (void) const noexcept;
     const char*		name (void) const PURE;
     const char*		by_name (void) const PURE;
+    inline const char*	definite_article (void) const PURE	{ return (uniqueness == COMMON ? "the " : ""); }
     inline void		pickup (const object& o)		{ possessions.push_back(o); }
 };
 STREAM_ALIGN (monster, 4);
@@ -881,21 +882,25 @@ struct player : public player_pod {
     array<uint16_t,NUMIMMUNITIES>	immunity;
     array<uint16_t,NUMSTATI>		status;
     array<uint16_t,NUMGUILDS>		guildxp;
-    string	name;
-    string	meleestr;
-    array<object,MAXITEMS> possessions;
-    vector<object> pack;
+    string				name;
+    string				meleestr;
+    array<object,MAXITEMS>		possessions;
+    vector<object>			pack;
 public:
-		player (void);
-    void	add_possession (unsigned slot, const object& o);
-    void	swap_possessions (unsigned slot);
-    void	remove_possession (unsigned slot, unsigned number = -1);
-    void	remove_possession (object* o, unsigned number = -1);
-    void	remove_all_possessions (void);
-    inline bool	has_possession (unsigned slot) const	{ return (possessions[slot].id != NO_THING); }
-    void	read (istream& is);
-    void	write (ostream& os) const;
-    streamsize	stream_size (void) const;
+			player (void);
+    void		add_possession (unsigned slot, const object& o);
+    void		swap_possessions (unsigned slot);
+    void		remove_possession (unsigned slot, unsigned number = -1);
+    void		remove_possession (object* o, unsigned number = -1);
+    void		remove_all_possessions (void);
+    inline bool		has_possession (unsigned slot) const	{ return (possessions[slot].id != NO_THING); }
+    inline bool		immune_to (EDamageType dtype) const	{ return (immunity[dtype] > 0); }
+    inline uint16_t	calcmana (void) const			{ return (pow*(level+1)); }
+    bool		on_sanctuary (void) const;
+    void		calc_melee (void);
+    void		read (istream& is);
+    void		write (ostream& os) const;
+    streamsize		stream_size (void) const;
 };
 
 // dungeon locations
@@ -916,7 +921,7 @@ public:
     vector<monster>	mlist;		// List of monsters on level
     vector<object>	things;		// List of objects on level
     level*		next;		// pointer to next level in dungeon
-    int			environment;	// where kind of level is this?
+    EEnvironment	environment;	// where kind of level is this?
     int			last_visited;	// time player was last on this level
     uint8_t		width;
     uint8_t		height;
@@ -930,12 +935,13 @@ public:
 		level (void);
     void	clear (void);
     void	resize (unsigned x, unsigned y)		{ width = x; height = y; }
-    const char*	init_from_data (int e, const char* d)	{ environment = e; resize (d[0], d[1]); lastx = d[2]; lasty = d[3]; return (d+4); }
+    const char*	init_from_data (EEnvironment e, const char* d)	{ environment = e; resize (d[0], d[1]); lastx = d[2]; lasty = d[3]; return (d+4); }
     monster*	creature (int x, int y);
     object*	thing (int x, int y);
     void	make_thing (int x, int y, unsigned tid, unsigned n = RANDOM);
     void	remove_things (int x, int y);
     void	add_thing (int x, int y, const object& o, unsigned n = RANDOM);
+    void	tunnelcheck (void);
     inline location& site (int x, int y)		{ return (_site[y*MAXWIDTH+x]); }
     inline const location& site (int x, int y) const	{ return (const_cast<level*>(this)->site(x,y)); }
 };

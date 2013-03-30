@@ -46,13 +46,13 @@ int Villagenum = 0;		// Current Village number
 int ScreenOffset = 0;		// Offset of displayed screen to level
 int MaxDungeonLevels = 0;	// Deepest level allowed in dungeon
 int Current_Dungeon = -1;	// What is Dungeon now
-int Current_Environment = E_CITY;	// Which environment are we in
-int Last_Environment = E_COUNTRYSIDE;	// Which environment were we in
+EEnvironment Current_Environment = E_CITY;	// Which environment are we in
+EEnvironment Last_Environment = E_COUNTRYSIDE;	// Which environment were we in
 const int8_t Dirs[2][9] = {	// 9 xy directions
     { 1, 1, -1, -1, 1, -1, 0, 0, 0 },
     { 1, -1, 1, -1, 0, 0, 1, -1, 0 }
 };
-char Cmd = 's';			// last player command
+chtype Cmd = 's';		// last player command
 int Command_Duration = 0;	// how long does current command take
 int Arena_Opponent = 0;		// case label of opponent in l_arena()
 int Arena_Victory = 0;		// did player win in arena?

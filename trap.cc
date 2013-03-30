@@ -226,7 +226,7 @@ void l_trap_acid (void)
 	    showflags();
 	}
 	p_damage (random_range (difficulty() * 5), ACID, "an acid trap");
-	if (!p_immune (ACID)) {
+	if (!Player.immune_to (ACID)) {
 	    mprint ("The acid seeps over your possessions...");
 	    morewait();
 	    itemdamage = random_range (5);
@@ -270,7 +270,7 @@ void l_trap_manadrain (void)
 	    Level->site(Player.x,Player.y).locchar = FLOOR;
 	    Level->site(Player.x,Player.y).p_locf = L_NO_OP;
 	    lset (Player.x, Player.y, CHANGED);
-	    Player.mana = calcmana();
+	    Player.mana = Player.calcmana();
 	} else
 	    mprint ("You feel strangely unaffected by the manadrain trap.");
     } else {

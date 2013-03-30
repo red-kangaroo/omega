@@ -623,7 +623,7 @@ static void i_azoth (pob o)
 	} else {
 	    heal (10);
 	    cleanse (1);
-	    Player.mana = calcmana() * 3;
+	    Player.mana = Player.calcmana() * 3;
 	    toggle_item_use (true);
 	    Player.str = (Player.maxstr++) * 3;
 	    toggle_item_use (false);
@@ -740,7 +740,7 @@ static void i_stim (pob o)
 static void i_pow (pob o UNUSED)
 {
     mprint ("You feel a surge of mystic power!");
-    Player.mana = 2 * calcmana();
+    Player.mana = 2 * Player.calcmana();
 }
 
 static void i_poison_food (pob o UNUSED)
@@ -877,7 +877,7 @@ static void i_fear_resist (pob o)
 	    mprint ("You feel stauncher now.");
 	    Player.status[AFRAID] = 0;
 	}
-    } else if (!p_immune (FEAR)) {
+    } else if (!Player.immune_to (FEAR)) {
 	mprint ("You panic!");
 	Player.status[AFRAID] += random_range (100);
     }
@@ -1840,7 +1840,7 @@ static void i_juggernaut (pob o)
 	gain_experience (1000);
 	Player.remove_possession (o, 1);
 	Level->tunnelled += tunneled - 1;
-	tunnelcheck();
+	Level->tunnelcheck();
     }
 }
 
@@ -1871,7 +1871,7 @@ static void i_symbol (pob o)
 	SymbolUseHour = hour();
 	cleanse (1);
 	heal (10);
-	Player.mana = max (Player.mana, calcmana());
+	Player.mana = max (Player.mana, Player.calcmana());
     }
 }
 

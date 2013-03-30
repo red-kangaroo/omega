@@ -1,61 +1,54 @@
 #pragma once
 
 // aux.c
-void tunnelcheck(void);
 void showroom(int i);
-int player_on_sanctuary(void);
-int p_moveable(int x, int y);
-int p_country_moveable(int x, int y);
+bool p_moveable(int x, int y);
+bool p_country_moveable(int x, int y);
 void searchat(int x, int y);
-void calc_melee(void);
 int damage_item(pob o);
-void p_damage(int dmg, int dtype, const char* fromstring);
+void calc_melee (void);
+void p_damage(int dmg, EDamageType dtype, const char* fromstring);
 void p_death(const char* fromstring);
 void setspot(int* x, int* y);
 int getdir(void);
 const char* mstatus_string(struct monster *m);
 void describe_player(void);
 void gain_experience(int amount);
-int goberserk(void);
-const char* trapid(int trapno);
+bool goberserk(void);
 void foodcheck(void);
 void roomcheck(void);
 void surrender(struct monster *m);
 void threaten(struct monster *m);
-const char* levelname(int level);
 int statmod(int stat);
 void p_hit(struct monster *m, int dmg, int dtype);
 void p_win(void);
-int p_immune(int dtype);
 void minute_status_check(void);
 void moon_check(void);
 void torch_check(void);
 void tenminute_status_check(void);
-long item_value(const object* item);
-inline long item_value (const object& o) { return (item_value(&o)); }
-long true_item_value(const object* item);
-inline long true_item_value (const object& o) { return (true_item_value(&o)); }
+unsigned item_value(const object* item);
+inline unsigned item_value (const object& o) { return (item_value(&o)); }
+unsigned true_item_value(const object* item);
+inline unsigned true_item_value (const object& o) { return (true_item_value(&o)); }
 void p_drown(void);
 void weapon_use(int dmgmod, pob weapon, struct monster *m);
-const char* actionlocstr(int dir);
+const char* actionlocstr(char dir);
 void toggle_item_use(int on);
-void enter_site(int site);
-void change_environment(int new_environment);
+void change_environment (EEnvironment new_environment);
 void tenminute_check(void);
 void hourly_check(void);
 char getlocation(void);
-int magic_resist(int hostile_magic);
-void terrain_check(int takestime);
+bool magic_resist (unsigned hostile_magic);
+void terrain_check(bool takestime);
 void countrysearch(void);
 const char* countryid(int terrain);
 int parsecitysite(void);
-int hostilemonstersnear(void);
+bool hostilemonstersnear(void);
 int stonecheck(int alignment);
 void alert_guards(void);
-int maneuvers(void);
+unsigned maneuvers(void);
 // char.c
 void initplayer(void);
-long calcmana(void);
 int fixnpc(int status);
 // command.c
 void p_process(void);
@@ -179,7 +172,7 @@ void load_city(void);
 void load_country(void);
 void load_court(void);
 void load_dlair(int empty);
-void load_house(int kind);
+void load_house (EEnvironment kind);
 void load_misle(int empty);
 void load_speak(int empty);
 void load_temple(int deity);
@@ -336,14 +329,14 @@ void initgraf(void);
 void levelrefresh(void);
 char lgetc(void);
 void locprint(const char* s);
-int mcigetc(void);
+char mcigetc(void);
 void menuaddch(int c);
 void menuclear(void);
 char menugetc(void);
 void menulongprint(long n);
 void menunumprint(int n);
 void menuprint(const char* s);
-char mgetc(void);
+chtype mgetc(void);
 void mlongprint(long n);
 void mnumprint(int n);
 void morewait(void);
@@ -419,7 +412,8 @@ int nighttime(void);
 int offscreen(int y);
 int ok_to_free(plv level);
 const char* ordinal(int number);
-int random_range (unsigned k);
+unsigned urandom_range (unsigned k);
+static inline int random_range (unsigned k) { return (urandom_range(k)); }
 int screenmod(int y);
 int showhour(void);
 int showminute(void);

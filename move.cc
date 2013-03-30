@@ -91,7 +91,7 @@ void l_chaos (void)
 	    onewithchaos = 1;
 	    print2 ("You achieve oneness of Chaos....");
 	}
-	Player.mana = max (Player.mana, calcmana());
+	Player.mana = max (Player.mana, Player.calcmana());
 	Player.hp = max (Player.hp, Player.maxhp);
     } else if (Player.rank[PRIESTHOOD] && !saved) {
 	print2 ("A mysterious force protects you from the Chaos!");
@@ -341,7 +341,7 @@ static void l_magic_pool (void)
 	print1 ("Wow! A pool of azoth!");
 	heal (10);
 	cleanse (1);
-	Player.mana = calcmana() * 3;
+	Player.mana = Player.calcmana() * 3;
 	Player.str = (Player.maxstr++) * 3;
     }
     print2 ("The pool seems to have dried up.");

@@ -13,7 +13,7 @@ int inbounds (int x, int y)
     return (x >= 0 && y >= 0 && x < (int)Level->width && y < (int)Level->height);
 }
 
-int random_range (unsigned k)
+unsigned urandom_range (unsigned k)
 {
     return (k ? rand() % k : 0);
 }

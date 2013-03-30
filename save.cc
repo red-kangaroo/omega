@@ -330,7 +330,6 @@ static void restore_level (istream& is)
     unsigned run;
     uint16_t i, j;
     uint32_t mask = 0;
-    int temp_env;
 
     Level = new level;
     clear_level (Level);
@@ -338,7 +337,7 @@ static void restore_level (istream& is)
 	>> Level->width >> Level->height >> Level->lastx >> Level->lasty
 	>> Level->depth >> Level->generated >> Level->numrooms >> Level->tunnelled;
     Level->generated = true;
-    temp_env = Current_Environment;
+    EEnvironment temp_env = Current_Environment;
     Current_Environment = Level->environment;
     switch (Level->environment) {
 	case E_COUNTRYSIDE:

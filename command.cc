@@ -39,6 +39,8 @@ static void frobgamestatus(void);
 static void give_money (struct monster *m);
 static void drop_money (void);
 static object detach_money (void);
+static const char* trapid (unsigned trapno);
+static void enter_site (chtype site);
 
 //----------------------------------------------------------------------
 
@@ -67,227 +69,81 @@ void p_process (void)
 	}
 	Command_Duration = 0;
 	switch (Cmd) {
+	    case KEY_CTRL|'f':	abortshadowform(); break;
+	    case KEY_CTRL|'g':	wizard(); break;
+	    case KEY_CTRL|'i':	display_pack(); morewait(); xredraw(); break;
+	    case KEY_CTRL|'k':	if (gamestatusp (CHEATED)) frobgamestatus();	// fallthrough
+	    case KEY_CTRL|'l':	xredraw();
 	    case ' ':
-	    case 13:
-		setgamestatus (SKIP_MONSTERS);
-		break;		// no op on space or return
-	    case 6:
-		abortshadowform();
-		break;		// ^f
-	    case 7:
-		wizard();
-		break;		// ^g
-	    case 9:
-		display_pack();
-		morewait();
-		xredraw();
-		break;		// ^i
-	    case 11:
-		if (gamestatusp (CHEATED))
-		    frobgamestatus();
-	    case 12:
-		xredraw();
-		setgamestatus (SKIP_MONSTERS);
-		break;		// ^l
-	    case 16:
-		bufferprint();
-		setgamestatus (SKIP_MONSTERS);
-		break;		// ^p
-	    case 18:
-		xredraw();
-		setgamestatus (SKIP_MONSTERS);
-		break;		// ^r
-	    case 23:
-		if (gamestatusp (CHEATED))
-		    drawscreen();
-		break;		// ^w
-	    case 24:		// ^x
+	    case KEY_ENTER:	setgamestatus (SKIP_MONSTERS); break;
+	    case KEY_CTRL|'p':	bufferprint(); setgamestatus (SKIP_MONSTERS); break;
+	    case KEY_CTRL|'r':	xredraw(); setgamestatus (SKIP_MONSTERS); break;
+	    case KEY_CTRL|'w':	if (gamestatusp (CHEATED)) drawscreen(); break;
+	    case KEY_CTRL|'x':
 		if (gamestatusp (CHEATED) || Player.rank[ADEPT])
 		    wish (1);
 		Command_Duration = 5;
 		break;
-	    case 'a':
-		zapwand();
-		Command_Duration = Player.speed * 8 / 5;
-		break;
-	    case 'c':
-		closedoor();
-		Command_Duration = Player.speed * 2 / 5;
-		break;
-	    case 'd':
-		drop();
-		Command_Duration = Player.speed * 5 / 5;
-		break;
-	    case 'e':
-		eat();
-		Command_Duration = 30;
-		break;
-	    case 'f':
-		fire();
-		Command_Duration = Player.speed * 5 / 5;
-		break;
-	    case 'g':
-		pickup();
-		Command_Duration = Player.speed * 10 / 5;
-		break;
-	    case 'i':
-		do_inventory_control();
-		break;
-	    case 'm':
-		magic();
-		Command_Duration = 12;
-		break;
-	    case 'o':
-		opendoor();
-		Command_Duration = Player.speed * 5 / 5;
-		break;
-	    case 'p':
-		pickpocket();
-		Command_Duration = Player.speed * 20 / 5;
-		break;
-	    case 'q':
-		quaff();
-		Command_Duration = 10;
-		break;
-	    case 'r':
-		peruse();
-		Command_Duration = 20;
-		break;
-	    case 's':
-		search (&searchval);
-		Command_Duration = 20;
-		break;
-	    case 't':
-		talk();
-		Command_Duration = 10;
-		break;
-	    case 'v':
-		vault();
-		Command_Duration = Player.speed * 10 / 5;
-		break;
-	    case 'x':
-		examine();
-		Command_Duration = 1;
-		break;
-	    case 'z':
-		bash_location();
-		Command_Duration = Player.speed * 10 / 5;
-		break;
-	    case 'A':
-		activate();
-		Command_Duration = 10;
-		break;
-	    case 'D':
-		disarm();
-		Command_Duration = 30;
-		break;
-	    case 'E':
-		dismount_steed();
-		Command_Duration = Player.speed * 10 / 5;
-		break;
-	    case 'F':
-		tacoptions();
-		break;
-	    case 'G':
-		give();
-		Command_Duration = 10;
-		break;
-	    case 'I':
-		do_inventory_control();
-		break;
-	    case 'M':
-		city_move();
-		Command_Duration = 10;
-		break;
-	    case 'O':
-		setoptions();
-		break;
-	    case 'Q':
-		quit();
-		break;
-	    case 'R':
-		rename_player();
-		break;
-	    case 'S':
-		save (optionp (COMPRESS), false);
-		break;
-	    case 'T':
-		tunnel();
-		Command_Duration = Player.speed * 30 / 5;
-		break;
-	    case 'V':
-		version();
-		break;
-	    case 'Z':
-		bash_item();
-		Command_Duration = Player.speed * 10 / 5;
-		break;
-	    case '.':
-		rest();
-		Command_Duration = 10;
-		break;
-	    case ',':
-		Command_Duration = 10;
-		nap();
-		break;
-	    case '>':
-		downstairs();
-		break;
-	    case '<':
-		upstairs();
-		break;
+	    case 'a':	zapwand();	Command_Duration = Player.speed*8/5; break;
+	    case 'c':	closedoor();	Command_Duration = Player.speed*2/5; break;
+	    case 'd':	drop();		Command_Duration = Player.speed*5/5; break;
+	    case 'e':	eat();		Command_Duration = 30; break;
+	    case 'f':	fire();		Command_Duration = Player.speed*5/5; break;
+	    case 'g':	pickup();	Command_Duration = Player.speed*10/5; break;
+	    case 'i':	do_inventory_control(); break;
+	    case 'm':	magic();	Command_Duration = 12; break;
+	    case 'o':	opendoor();	Command_Duration = Player.speed*5/5; break;
+	    case 'p':	pickpocket();	Command_Duration = Player.speed*20/5; break;
+	    case 'q':	quaff();	Command_Duration = 10; break;
+	    case 'r':	peruse();	Command_Duration = 20; break;
+	    case 's':	search (&searchval); Command_Duration = 20; break;
+	    case 't':	talk();		Command_Duration = 10; break;
+	    case 'v':	vault();	Command_Duration = Player.speed*10/5; break;
+	    case 'x':	examine();	Command_Duration = 1; break;
+	    case 'z':	bash_location(); Command_Duration = Player.speed*10/5; break;
+	    case 'A':	activate();	Command_Duration = 10; break;
+	    case 'D':	disarm();	Command_Duration = 30; break;
+	    case 'E':	dismount_steed(); Command_Duration = Player.speed*10/5; break;
+	    case 'F':	tacoptions(); break;
+	    case 'G':	give();		Command_Duration = 10; break;
+	    case 'I':	do_inventory_control(); break;
+	    case 'M':	city_move();	Command_Duration = 10; break;
+	    case 'O':	setoptions(); break;
+	    case 'Q':	quit(); break;
+	    case 'R':	rename_player(); break;
+	    case 'S':	save (optionp (COMPRESS), false); break;
+	    case 'T':	tunnel();	Command_Duration = Player.speed*30/5; break;
+	    case 'V':	version(); break;
+	    case 'Z':	bash_item();	Command_Duration = Player.speed*10/5; break;
+	    case '.':	rest();		Command_Duration = 10; break;
+	    case ',':	nap();		Command_Duration = 10; break;
+	    case '>':	downstairs(); break;
+	    case '<':	upstairs(); break;
 	    case '@':
 		p_movefunction (Level->site(Player.x,Player.y).p_locf);
 		Command_Duration = 5;
 		break;
-	    case '?':
-		help();
-		setgamestatus (SKIP_MONSTERS);
-		break;
+	    case '?':	help(); setgamestatus (SKIP_MONSTERS); break;
 	    case '4':
-	    case 'h':
-		moveplayer (-1, 0);
-		Command_Duration = Player.speed * 5 / 5;
-		break;
+	    case 'h':	moveplayer(-1,0);	Command_Duration = Player.speed*5/5; break;
 	    case '2':
-	    case 'j':
-		moveplayer (0, 1);
-		Command_Duration = Player.speed * 5 / 5;
-		break;
+	    case 'j':	moveplayer(0,1);	Command_Duration = Player.speed*5/5; break;
 	    case '8':
-	    case 'k':
-		moveplayer (0, -1);
-		Command_Duration = Player.speed * 5 / 5;
-		break;
+	    case 'k':	moveplayer(0,-1);	Command_Duration = Player.speed*5/5; break;
 	    case '6':
-	    case 'l':
-		moveplayer (1, 0);
-		Command_Duration = Player.speed * 5 / 5;
-		break;
+	    case 'l':	moveplayer(1,0);	Command_Duration = Player.speed*5/5; break;
 	    case '1':
-	    case 'b':
-		moveplayer (-1, 1);
-		Command_Duration = Player.speed * 5 / 5;
-		break;
+	    case 'b':	moveplayer(-1,1);	Command_Duration = Player.speed*5/5; break;
 	    case '3':
-	    case 'n':
-		moveplayer (1, 1);
-		Command_Duration = Player.speed * 5 / 5;
-		break;
+	    case 'n':	moveplayer(1,1);	Command_Duration = Player.speed*5/5; break;
 	    case '7':
-	    case 'y':
-		moveplayer (-1, -1);
-		Command_Duration = Player.speed * 5 / 5;
-		break;
+	    case 'y':	moveplayer(-1,-1);	Command_Duration = Player.speed*5/5; break;
 	    case '9':
-	    case 'u':
-		moveplayer (1, -1);
-		Command_Duration = Player.speed * 5 / 5;
-		break;
+	    case 'u':	moveplayer(1,-1);	Command_Duration = Player.speed*5/5; break;
 	    case '5':
 		setgamestatus (SKIP_MONSTERS);	// don't do anything; a dummy turn
 		Cmd = mgetc();
-		while ((Cmd != KEY_ESCAPE) && ((Cmd < '1') || (Cmd > '9') || (Cmd == '5'))) {
+		while (Cmd != KEY_ESCAPE && (Cmd < '1' || Cmd > '9' || Cmd == '5')) {
 		    print3 ("Run in keypad direction [ESCAPE to abort]: ");
 		    Cmd = mgetc();
 		}
@@ -356,123 +212,56 @@ void p_process (void)
 // deal with a new player command in countryside mode
 void p_country_process (void)
 {
-    int no_op;
-
     drawvision (Player.x, Player.y);
+    bool no_op;
     do {
 	no_op = false;
 	Cmd = mgetc();
 	clear_if_necessary();
 	switch (Cmd) {
 	    case ' ':
-	    case 13:
-		no_op = true;
-		break;
-	    case 7:
-		wizard();
-		break;		// ^g
-	    case 12:
-		xredraw();
-		no_op = true;
-		break;		// ^l
-	    case 16:
-		bufferprint();
-		no_op = true;
-		break;		// ^p
-	    case 18:
-		xredraw();
-		no_op = true;
-		break;		// ^r
-	    case 23:
-		if (gamestatusp (CHEATED))
-		    drawscreen();
-		break;		// ^w
-	    case 24:
+	    case KEY_ENTER:	no_op = true; break;
+	    case KEY_CTRL|'g':	wizard(); break;
+	    case KEY_CTRL|'l':	xredraw(); no_op = true; break;
+	    case KEY_CTRL|'p':	bufferprint(); no_op = true; break;
+	    case KEY_CTRL|'r':	xredraw(); no_op = true; break;
+	    case KEY_CTRL|'w':	if (gamestatusp (CHEATED)) drawscreen(); break;
+	    case KEY_CTRL|'x':
 		if (gamestatusp (CHEATED) || Player.rank[ADEPT])
 		    wish (1);
-		break;		// ^x
-	    case 'd':
-		drop();
 		break;
-	    case 'e':
-		eat();
-		break;
-	    case 'i':
-		do_inventory_control();
-		break;
-	    case 's':
-		countrysearch();
-		break;
-	    case 'x':
-		examine();
-		break;
-	    case 'E':
-		dismount_steed();
-		break;
-	    case 'H':
-		hunt (Country->site(Player.x,Player.y).showchar());
-		break;
-	    case 'I':
-		do_inventory_control();
-		break;
-	    case 'O':
-		setoptions();
-		break;
-	    case 'Q':
-		quit();
-		break;
-	    case 'R':
-		rename_player();
-		break;
-	    case 'S':
-		save (optionp (COMPRESS), false);
-		break;
-	    case 'V':
-		version();
-		break;
-	    case '>':
-		enter_site (Country->site(Player.x,Player.y).locchar);
-		break;
-	    case '?':
-		help();
-		no_op = true;
-		break;
+	    case 'd':	drop(); break;
+	    case 'e':	eat(); break;
+	    case 'i':	do_inventory_control(); break;
+	    case 's':	countrysearch(); break;
+	    case 'x':	examine(); break;
+	    case 'E':	dismount_steed(); break;
+	    case 'H':	hunt (Country->site(Player.x,Player.y).showchar()); break;
+	    case 'I':	do_inventory_control(); break;
+	    case 'O':	setoptions(); break;
+	    case 'Q':	quit(); break;
+	    case 'R':	rename_player(); break;
+	    case 'S':	save (optionp (COMPRESS), false); break;
+	    case 'V':	version(); break;
+	    case '>':	enter_site (Country->site(Player.x,Player.y).locchar); break;
+	    case '?':	help(); no_op = true; break;
 	    case '4':
-	    case 'h':
-		movepincountry (-1, 0);
-		break;
+	    case 'h':	movepincountry (-1, 0); break;
 	    case '2':
-	    case 'j':
-		movepincountry (0, 1);
-		break;
+	    case 'j':	movepincountry (0, 1); break;
 	    case '8':
-	    case 'k':
-		movepincountry (0, -1);
-		break;
+	    case 'k':	movepincountry (0, -1); break;
 	    case '6':
-	    case 'l':
-		movepincountry (1, 0);
-		break;
+	    case 'l':	movepincountry (1, 0); break;
 	    case '1':
-	    case 'b':
-		movepincountry (-1, 1);
-		break;
+	    case 'b':	movepincountry (-1, 1); break;
 	    case '3':
-	    case 'n':
-		movepincountry (1, 1);
-		break;
+	    case 'n':	movepincountry (1, 1); break;
 	    case '7':
-	    case 'y':
-		movepincountry (-1, -1);
-		break;
+	    case 'y':	movepincountry (-1, -1); break;
 	    case '9':
-	    case 'u':
-		movepincountry (1, -1);
-		break;
-	    default:
-		commanderror();
-		no_op = true;
-		break;
+	    case 'u':	movepincountry (1, -1); break;
+	    default:	commanderror(); no_op = true; break;
 	}
     } while (no_op);
     screencheck (Player.y);
@@ -501,7 +290,6 @@ static void rest (void)
 // read a scroll, book, tome, etc.
 static void peruse (void)
 {
-    int iidx;
     clearmsg();
     if (Player.status[BLINDED] > 0)
 	print3 ("You're blind -- you can't read!!!");
@@ -509,7 +297,7 @@ static void peruse (void)
 	print3 ("You are too afraid to stop to read a scroll!");
     else {
 	print1 ("Read -- ");
-	iidx = getitem (SCROLL);
+	int iidx = getitem (SCROLL);
 	if (iidx == ABORT)
 	    setgamestatus (SKIP_MONSTERS);
 	else {
@@ -529,10 +317,9 @@ static void peruse (void)
 
 static void quaff (void)
 {
-    int iidx;
     clearmsg();
     print1 ("Quaff --");
-    iidx = getitem (POTION);
+    int iidx = getitem (POTION);
     if (iidx == ABORT)
 	setgamestatus (SKIP_MONSTERS);
     else {
@@ -551,29 +338,31 @@ static void quaff (void)
 
 static void activate (void)
 {
-    clearmsg();
-
-    print1 ("Activate -- item [i] or artifact [a] or quit [ESCAPE]?");
-    char response;
-    do
-	response = (char) mcigetc();
-    while ((response != 'i') && (response != 'a') && (response != KEY_ESCAPE));
-    if (response != KEY_ESCAPE) {
+    do {
+	clearmsg();
+	print1 ("Activate -- item [i] or artifact [a] or quit [ESCAPE]?");
+	char response = mcigetc();
 	int iidx = ABORT;
 	if (response == 'i')
 	    iidx = getitem (THING);
 	else if (response == 'a')
 	    iidx = getitem (ARTIFACT);
-	if (iidx != ABORT) {
+	else if (response == KEY_ESCAPE) {
+	    setgamestatus (SKIP_MONSTERS);
+	    break;
+	} else
+	    continue;
+	if (iidx == ABORT) {
+	    setgamestatus (SKIP_MONSTERS);
+	    continue;
+	} else {
 	    clearmsg();
 	    print1 ("You activate it.... ");
 	    item_use (Player.possessions[iidx]);
 	    morewait();
 	    Player.remove_possession (iidx, 1);
-	} else
-	    setgamestatus (SKIP_MONSTERS);
-    } else
-	setgamestatus (SKIP_MONSTERS);
+	}
+    } while (false);
 }
 
 static void eat (void)
@@ -605,7 +394,6 @@ static void eat (void)
 // search all adjacent spots for secrecy
 static void search (int *searchval)
 {
-    int i;
     if (Player.status[AFRAID] > 0)
 	print3 ("You are too terror-stricken to stop to search for anything.");
     else {
@@ -613,7 +401,7 @@ static void search (int *searchval)
 	    setgamestatus (FAST_MOVE);
 	    *searchval = Searchnum;
 	}
-	for (i = 0; i < 9; i++)
+	for (unsigned i = 0; i < ArraySize(Dirs[0]); i++)
 	    searchat (Player.x + Dirs[0][i], Player.y + Dirs[1][i]);
 	drawvision (Player.x, Player.y);
     }
@@ -1355,7 +1143,7 @@ static void moveplayer (int dx, int dy)
 // handle a h,j,k,l, etc.
 static void movepincountry (int dx, int dy)
 {
-    int takestime = true;
+    bool takestime = true;
     if ((Player.maxweight < Player.itemweight) && random_range (2) && (!Player.status[LEVITATING])) {
 	if (gamestatusp (MOUNTED)) {
 	    print1 ("Your horse refuses to carry you and your pack another step!");
@@ -1750,7 +1538,7 @@ static void vault (void)
 // Sets sequence of combat maneuvers.
 static void tacoptions (void)
 {
-    int actionsleft, done, place;
+    unsigned actionsleft, done, place;
     char defatt;
     const char *attstr;
     const char *defstr;	// for the default setting
@@ -2029,7 +1817,7 @@ static void tunnel (void)
 	    if (!Player.has_possession(O_WEAPON_HAND)) {
 		if ((aux > 0) && ((Player.str / 3) + random_range (100) > aux)) {
 		    mprint ("You carve a tunnel through the stone!");
-		    tunnelcheck();
+		    Level->tunnelcheck();
 		    Level->site(ox,oy).locchar = RUBBLE;
 		    Level->site(ox,oy).p_locf = L_RUBBLE;
 		    lset (ox, oy, CHANGED);
@@ -2038,7 +1826,7 @@ static void tunnel (void)
 	    } else if (Player.possessions[O_WEAPON_HAND].type == THRUSTING) {
 		if (aux > 0 && Player.possessions[O_WEAPON_HAND].dmg * 2 + random_range (100) > aux) {
 		    mprint ("You carve a tunnel through the stone!");
-		    tunnelcheck();
+		    Level->tunnelcheck();
 		    Level->site(ox,oy).locchar = RUBBLE;
 		    Level->site(ox,oy).p_locf = L_RUBBLE;
 		    lset (ox, oy, CHANGED);
@@ -2046,7 +1834,7 @@ static void tunnel (void)
 		    mprint ("No luck.");
 	    } else if (aux > 0 && Player.possessions[O_WEAPON_HAND].dmg + random_range (100) > aux) {
 		mprint ("You carve a tunnel through the stone!");
-		tunnelcheck();
+		Level->tunnelcheck();
 		Level->site(ox,oy).locchar = RUBBLE;
 		Level->site(ox,oy).p_locf = L_RUBBLE;
 		lset (ox, oy, CHANGED);
@@ -2223,4 +2011,37 @@ static void frobgamestatus (void)
 	    mprint ("Done....");
 	}
     }
+}
+
+// identifies a trap for examine() by its aux value
+static const char* trapid (unsigned trapno)
+{
+    static const char c_TrapNames[] =
+	"A dart trap\0"
+	"A pit\0"
+	"A trap door\0"
+	"A snare\0"
+	"A blade trap\0"
+	"A fire trap\0"
+	"A teleport trap\0"
+	"A disintegration trap\0"
+	"A snare\0"
+	"An acid shower trap\0"
+	"A manadrain trap\0"
+	"A concealed entrance to the abyss\0"
+	"A siren trap\0"
+	"A completely inoperative trap";
+    return (zstrn (c_TrapNames, trapno-L_TRAP_DART, L_TRAP_SIREN-L_TRAP_DART+1));
+}
+
+static void enter_site (chtype site)
+{
+    static const EObjchar c_Sitechar[] =
+	{ CITY, VILLAGE, CAVES, CASTLE, VOLCANO, TEMPLE, DRAGONLAIR, STARPEAK, MAGIC_ISLE };
+    static const uint8_t c_DestEnv [ArraySize(c_Sitechar)] =
+	{ E_CITY, E_VILLAGE, E_CAVES, E_CASTLE, E_VOLCANO, E_TEMPLE, E_DLAIR, E_STARPEAK, E_MAGIC_ISLE };
+    for (unsigned i = 0; i < ArraySize(c_Sitechar); ++i)
+	if (c_Sitechar[i] == site)
+	    return (change_environment ((EEnvironment) c_DestEnv[i]));
+    print3 ("There's nothing to enter here!");
 }

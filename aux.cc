@@ -2,18 +2,19 @@
 
 //----------------------------------------------------------------------
 
-static void player_miss(struct monster *m, int dtype);
-static void p_fumble(int dtype);
+static void player_miss (struct monster *m, EDamageType dtype);
+static void p_fumble (EDamageType dtype);
 static void drop_weapon(void);
 static void break_weapon(void);
 static void movecursor(int *x, int *y, int dx, int dy);
 static void gain_level(void);
-static long expval(int plevel);
+static const char* levelname (unsigned level) PURE;
+static unsigned expval (unsigned plevel);
 static void tacplayer(struct monster *m);
 static int player_hit(int hitmod, int hitloc, struct monster *m);
 static void indoors_random_event(void);
 static void outdoors_random_event(void);
-static void showknownsites(int first, int last);
+static void showknownsites(unsigned first, unsigned last);
 static void destroy_order(void);
 static void default_maneuvers(void);
 static void fight_monster (monster *m);
@@ -21,18 +22,18 @@ static void fight_monster (monster *m);
 //----------------------------------------------------------------------
 
 // check to see if too much tunneling has been done in this level
-void tunnelcheck (void)
+void level::tunnelcheck (void)
 {
-    if ((Level->depth == 0 && Current_Environment != E_DLAIR) || Current_Environment == E_ASTRAL)
+    if ((!depth && Current_Environment != E_DLAIR) || Current_Environment == E_ASTRAL)
 	return;
-    ++Level->tunnelled;
-    if (Level->tunnelled > Level->height / 4)
+    ++tunnelled;
+    if (tunnelled > height / 4)
 	mprint ("Dust and stone fragments fall on you from overhead.");
-    if (Level->tunnelled > Level->height / 2)
+    if (tunnelled > height / 2)
 	mprint ("You hear groaning and creaking noises.");
-    if (Level->tunnelled > 3 * Level->height / 4)
+    if (tunnelled > 3 * height / 4)
 	mprint ("The floor trembles and you hear a loud grinding screech.");
-    if (Level->tunnelled > Level->height) {
+    if (tunnelled > height) {
 	mprint ("With a scream of tortured stone, the entire dungeon caves in!!!");
 	gain_experience (5000);
 	if (Player.status[SHADOWFORM]) {
@@ -51,116 +52,57 @@ void tunnelcheck (void)
 // displays a room's name
 void showroom (int i)
 {
-    strcpy (Str1, "");
-    strcpy (Str2, "");
-    switch (Current_Environment) {
-	case E_MANSION:
-	    strcpy (Str2, "A luxurious mansion: ");
-	    break;
-	case E_HOUSE:
-	    strcpy (Str2, "A house: ");
-	    break;
-	case E_HOVEL:
-	    strcpy (Str2, "A hovel: ");
-	    break;
-	case E_CITY:
-	    strcpy (Str2, "The City of Rampart");
-	    break;
-	case E_VILLAGE:
-	    switch (Villagenum) {
-		case 1:
-		    strcpy (Str2, "The Village of Star View");
-		    break;
-		case 2:
-		    strcpy (Str2, "The Village of Woodmere");
-		    break;
-		case 3:
-		    strcpy (Str2, "The Village of Stormwatch");
-		    break;
-		case 4:
-		    strcpy (Str2, "The Village of Thaumaris");
-		    break;
-		case 5:
-		    strcpy (Str2, "The Village of Skorch");
-		    break;
-		case 6:
-		    strcpy (Str2, "The Village of Whorfen");
-		    break;
-	    }
-	    break;
-	case E_CAVES:
-	    strcpy (Str2, "The Goblin Caves: ");
-	    break;
-	case E_CASTLE:
-	    strcpy (Str2, "The Archmage's Castle: ");
-	    break;
-	case E_ASTRAL:
-	    strcpy (Str2, "The Astral Plane: ");
-	    break;
-	case E_VOLCANO:
-	    strcpy (Str2, "The Volcano: ");
-	    break;
-	case E_SEWERS:
-	    strcpy (Str2, "The Sewers: ");
-	    break;
-	case E_TACTICAL_MAP:
-	    strcpy (Str2, "The Tactical Map ");
-	    break;
-	default:
-	    strcpy (Str2, "");
-	    break;
+    char namebuf [128];
+    namebuf[0] = 0;
+    if (Current_Environment-E_CITY <= E_HOUSE-E_CITY) {
+	static const char enames[] = // E_CITY-E_HOUSE
+	    "The City of Rampart\0"
+	    "The Village of \0"
+	    "The Tactical Map \0"
+	    "The Sewers: \0"
+	    "The Archmage's Castle: \0"
+	    "The Goblin Caves: \0"
+	    "The Volcano: \0"
+	    "The Astral Plane: \0"
+	    "The Rampart Arena\0"
+	    "A hovel: \0"
+	    "A luxurious mansion: \0"
+	    "A house: ";
+	strcpy (namebuf, zstrn (enames, Current_Environment-E_CITY, E_HOUSE-E_CITY));
+    }
+    if (Current_Environment == E_VILLAGE) {
+	static const char villageNames[] =
+	    "Star View\0" "Woodmere\0" "Stormwatch\0"
+	    "Thaumaris\0" "Skorch\0" "Whorfen";
+	strcat (namebuf, zstrn(villageNames,Villagenum,6));
     }
     if (Current_Environment == Current_Dungeon) {
-	strcpy (Str1, "Level ");
-	if (Level->depth < 10) {
-	    Str1[6] = Level->depth + '0';
-	    Str1[7] = 0;
-	} else {
-	    Str1[6] = (Level->depth / 10) + '0';
-	    Str1[7] = (Level->depth % 10) + '0';
-	    Str1[8] = 0;
-	}
-	strcat (Str1, " (");
-	strcat (Str1, roomname (i));
-	strcat (Str1, ")");
-    } else if (strlen (Str2) == 0 || Current_Environment == E_MANSION || Current_Environment == E_HOUSE || Current_Environment == E_HOVEL)
-	strcpy (Str1, roomname (i));
-    strcat (Str2, Str1);
-    locprint (Str2);
+	char lnamebuf[64];
+	snprintf (ArrayBlock(lnamebuf), "Level %hhd (%s)", Level->depth, roomname(i));
+	strcat (namebuf, lnamebuf);
+    } else if (!namebuf[0] || Current_Environment == E_HOVEL || Current_Environment == E_MANSION || Current_Environment == E_HOUSE)
+	strcat (namebuf, roomname (i));
+    locprint (namebuf);
 }
 
-int player_on_sanctuary (void)
+bool player::on_sanctuary (void) const
 {
-    if ((Player.x == Player.sx) && (Player.y == Player.sy))
-	return (true);
-    else {
-	if (Player.patron) {
-	    if ((Level->site(Player.x,Player.y).locchar == ALTAR) && (Level->site(Player.x,Player.y).aux == Player.patron))
-		return (true);
-	    else
-		return (false);
-	} else
-	    return (false);
-    }
+    return ((x == sx && y == sy)
+	    || (Level->site(x,y).locchar == ALTAR
+		&& Level->site(x,y).aux == patron));
 }
 
 // check a move attempt, maybe attack something, return true if ok to move.
 // x y is the proposed place to move to
-int p_moveable (int x, int y)
+bool p_moveable (int x, int y)
 {
     setgamestatus (SKIP_MONSTERS);
+    const auto& l = Level->site(x,y);
     if (!inbounds (x, y))
 	return (false);
     else if (Player.status[SHADOWFORM]) {
-	switch (Level->site(x,y).p_locf) {
-	    case L_CHAOS:
-	    case L_ABYSS:
-	    case L_VOID:
-		return confirmation();
-	    default:
-		resetgamestatus (SKIP_MONSTERS);
-		return (true);
-	}
+	if (l.p_locf == L_CHAOS || l.p_locf == L_ABYSS || l.p_locf == L_VOID)
+	    return confirmation();
     } else if (loc_statusp (x, y, SECRET)) {
 	if (!gamestatusp (FAST_MOVE))
 	    print3 ("Ouch!");
@@ -169,44 +111,40 @@ int p_moveable (int x, int y)
 	if (!gamestatusp (FAST_MOVE)) {
 	    fight_monster (Level->creature(x,y));
 	    resetgamestatus (SKIP_MONSTERS);
-	    return (false);
-	} else
-	    return (false);
-    } else if ((Level->site(x,y).locchar == WALL) || (Level->site(x,y).locchar == STATUE) || (Level->site(x,y).locchar == PORTCULLIS) || (Level->site(x,y).locchar == CLOSED_DOOR)
+	}
+	return (false);
+    } else if (l.locchar == WALL || l.locchar == STATUE || l.locchar == PORTCULLIS || l.locchar == CLOSED_DOOR
 	       || (gamestatusp (FAST_MOVE)
-		   && ((Level->site(x,y).locchar == HEDGE) || (Level->site(x,y).locchar == LAVA) || (Level->site(x,y).locchar == ABYSS) || (Level->site(x,y).locchar == VOID_CHAR) || (Level->site(x,y).locchar == FIRE)
-		       || (Level->site(x,y).locchar == WHIRLWIND) || (Level->site(x,y).locchar == WATER) || (Level->site(x,y).locchar == LIFT) || (Level->site(x,y).locchar == TRAP)))) {
+		   && (l.locchar == HEDGE || l.locchar == LAVA || l.locchar == ABYSS
+		       || l.locchar == VOID_CHAR || l.locchar == FIRE || l.locchar == WHIRLWIND
+		       || l.locchar == WATER || l.locchar == LIFT || l.locchar == TRAP))) {
 	if (!gamestatusp (FAST_MOVE))
 	    print3 ("Ouch!");
 	return (false);
     } else if (optionp (CONFIRM)) {
-	if ((Level->site(x,y).locchar == HEDGE) || (Level->site(x,y).locchar == LAVA) || (Level->site(x,y).locchar == FIRE) || (Level->site(x,y).locchar == WHIRLWIND) || (Level->site(x,y).locchar == ABYSS) || (Level->site(x,y).locchar == VOID_CHAR)
-	    || (Level->site(x,y).locchar == WATER) || (Level->site(x,y).locchar == RUBBLE) || (Level->site(x,y).locchar == LIFT) || (Level->site(x,y).locchar == TRAP)) {
+	if (l.locchar == HEDGE || l.locchar == LAVA || l.locchar == FIRE || l.locchar == WHIRLWIND
+	    || l.locchar == ABYSS || l.locchar == VOID_CHAR || l.locchar == WATER
+	    || l.locchar == RUBBLE || l.locchar == LIFT || l.locchar == TRAP) {
 	    // horses WILL go into water...
 	    if (gamestatusp (MOUNTED)) {
-		if (Level->site(x,y).locchar != WATER || Level->site(x,y).p_locf != L_WATER) {
+		if (l.locchar != WATER || l.p_locf != L_WATER) {
 		    print1 ("You can't convince your steed to continue.");
 		    setgamestatus (SKIP_MONSTERS);
 		    return (false);
-		} else
-		    return (true);
-	    } else if (confirmation())
-		resetgamestatus (SKIP_MONSTERS);
-	    else
+		}
+		return (true);
+	    } else if (!confirmation()) {
 		setgamestatus (SKIP_MONSTERS);
-	    return (!gamestatusp (SKIP_MONSTERS));
-	} else {
-	    resetgamestatus (SKIP_MONSTERS);
-	    return (true);
+		return (false);
+	    }
 	}
-    } else {
-	resetgamestatus (SKIP_MONSTERS);
-	return (true);
     }
+    resetgamestatus (SKIP_MONSTERS);
+    return (true);
 }
 
 // check a move attempt in the countryside
-int p_country_moveable (int x, int y)
+bool p_country_moveable (int x, int y)
 {
     if (!inbounds (x, y))
 	return (false);
@@ -220,14 +158,14 @@ int p_country_moveable (int x, int y)
 // search once particular spot
 void searchat (int x, int y)
 {
-    int i;
-    if (inbounds (x, y) && (random_range (3) || Player.status[ALERT])) {
+    if (inbounds (x, y) && (random_range(3) || Player.status[ALERT])) {
+	auto& l = Level->site(x,y);
 	if (loc_statusp (x, y, SECRET)) {
 	    lreset (x, y, SECRET);
 	    lset (x, y, CHANGED);
-	    if ((Level->site(x,y).locchar == OPEN_DOOR) || (Level->site(x,y).locchar == CLOSED_DOOR)) {
+	    if ((l.locchar == OPEN_DOOR) || (l.locchar == CLOSED_DOOR)) {
 		mprint ("You find a secret door!");
-		for (i = 0; i <= 8; i++) {
+		for (unsigned i = 0; i <= 8; i++) {
 		    lset (x + Dirs[0][i], y + Dirs[1][i], STOPS);
 		    lset (x + Dirs[0][i], y + Dirs[1][i], CHANGED);
 		}
@@ -235,8 +173,8 @@ void searchat (int x, int y)
 		mprint ("You find a secret passage!");
 	    drawvision (Player.x, Player.y);
 	}
-	if ((Level->site(x,y).p_locf >= TRAP_BASE) && (Level->site(x,y).locchar != TRAP) && (Level->site(x,y).p_locf <= TRAP_BASE + NUMTRAPS)) {
-	    Level->site(x,y).locchar = TRAP;
+	if (l.p_locf >= TRAP_BASE && l.locchar != TRAP && l.p_locf <= TRAP_BASE + NUMTRAPS) {
+	    l.locchar = TRAP;
 	    lset (x, y, CHANGED);
 	    mprint ("You find a trap!");
 	    drawvision (Player.x, Player.y);
@@ -245,77 +183,63 @@ void searchat (int x, int y)
     }
 }
 
+void calc_melee (void) { Player.calc_melee(); }
+
 // This is to be called whenever anything might change player performance in
 // melee, such as changing weapon, statistics, etc.
-void calc_melee (void)
+void player::calc_melee (void)
 {
     calc_weight();
 
-    Player.maxweight = (Player.str * Player.agi * 10);
-    Player.absorption = Player.status[PROTECTION];
-    Player.defense = 2 * statmod (Player.agi) + (Player.level / 2);
-    Player.hit = Player.level + statmod (Player.dex) + 1;
-    Player.dmg = statmod (Player.str) + 3;
-    Player.speed = 5 - min (4, (statmod (Player.agi) / 2));
-    if (Player.status[HASTED] > 0)
-	Player.speed = Player.speed / 2;
-    if (Player.status[SLOWED] > 0)
-	Player.speed = Player.speed * 2;
-    if (Player.itemweight > 0)
-	switch (Player.maxweight / Player.itemweight) {
-	    case 0:
-		Player.speed += 6;
-		break;
-	    case 1:
-		Player.speed += 3;
-		break;
-	    case 2:
-		Player.speed += 2;
-		break;
-	    case 3:
-		Player.speed += 1;
-		break;
-	}
+    absorption = status[PROTECTION];
+    maxweight = str*agi*10;
+    defense = 2*statmod(agi) + level/2;
+    hit = level + statmod(dex) + 1;
+    dmg = statmod(str) + 3;
+    speed = 5 - min (4, (statmod (agi) / 2));
+    if (status[HASTED] > 0)
+	speed /= 2;
+    if (status[SLOWED] > 0)
+	speed *= 2;
+    speed += 4-4*itemweight/maxweight;
 
-    if (Player.status[ACCURATE])
-	Player.hit += 20;
-    if (Player.status[HERO])
-	Player.hit += Player.dex;
-    if (Player.status[HERO])
-	Player.dmg += Player.str;
-    if (Player.status[HERO])
-	Player.defense += Player.agi;
-    if (Player.status[HERO])
-	Player.speed = Player.speed / 2;
+    if (status[ACCURATE])
+	hit += 20;
+    if (status[HERO]) {
+	hit += dex;
+	dmg += str;
+	defense += agi;
+	speed /= 2;
+    }
 
-    Player.speed = max (1, min (25, Player.speed));
+    speed = max (1, min (25, speed));
 
     if (gamestatusp (MOUNTED)) {
-	Player.speed = 3;
-	Player.hit += 10;
-	Player.dmg += 10;
+	speed = 3;
+	hit += 10;
+	dmg += 10;
     }
 
     // weapon
     // have to check for used since it could be a 2h weapon just carried in one hand
-    if (Player.has_possession(O_WEAPON_HAND))
-	if (Player.possessions[O_WEAPON_HAND].used && (Player.possessions[O_WEAPON_HAND].objchar == WEAPON || Player.possessions[O_WEAPON_HAND].objchar == MISSILEWEAPON)) {
-	    Player.hit += Player.possessions[O_WEAPON_HAND].hit + Player.possessions[O_WEAPON_HAND].plus;
-	    Player.dmg += Player.possessions[O_WEAPON_HAND].dmg + Player.possessions[O_WEAPON_HAND].plus;
+    if (has_possession(O_WEAPON_HAND)) {
+	if (possessions[O_WEAPON_HAND].used && (possessions[O_WEAPON_HAND].objchar == WEAPON || possessions[O_WEAPON_HAND].objchar == MISSILEWEAPON)) {
+	    hit += possessions[O_WEAPON_HAND].hit + possessions[O_WEAPON_HAND].plus;
+	    dmg += possessions[O_WEAPON_HAND].dmg + possessions[O_WEAPON_HAND].plus;
 	}
+    }
 
     // shield or defensive weapon
-    if (Player.has_possession(O_SHIELD)) {
-	Player.defense += Player.possessions[O_SHIELD].aux + Player.possessions[O_SHIELD].plus;
-    }
+    if (has_possession(O_SHIELD))
+	defense += possessions[O_SHIELD].aux + possessions[O_SHIELD].plus;
 
     // armor
-    if (Player.has_possession(O_ARMOR)) {
-	Player.absorption += Player.possessions[O_ARMOR].dmg;
-	Player.defense += Player.possessions[O_ARMOR].plus - Player.possessions[O_ARMOR].aux;
+    if (has_possession(O_ARMOR)) {
+	absorption += possessions[O_ARMOR].dmg;
+	defense += possessions[O_ARMOR].plus - possessions[O_ARMOR].aux;
     }
 
-    if (strlen (Player.meleestr) > 2U * maneuvers())
+    if (strlen(meleestr) > maneuvers()*2)
 	default_maneuvers();
     comwinprint();
     showflags();
@@ -331,7 +255,7 @@ static void fight_monster (struct monster *m)
     if (Player.status[AFRAID]) {
 	print3 ("You are much too afraid to fight!");
 	reallyfight = false;
-    } else if (player_on_sanctuary()) {
+    } else if (Player.on_sanctuary()) {
 	print3 ("You restrain yourself from desecrating this holy place.");
 	reallyfight = false;
     } else if (Player.status[SHADOWFORM]) {
@@ -396,9 +320,7 @@ int damage_item (pob o)
     } else {
 	if (o->fragility < random_range (30)) {
 	    if (o->objchar == STICK) {
-		strcpy (Str1, "Your ");
-		strcat (Str1, (o->blessing >= 0 ? o->truename : o->cursestr));
-		strcat (Str1, " explodes!");
+		snprintf (ArrayBlock(Str1), "Your %s explodes!", (o->blessing >= 0 ? o->truename : o->cursestr));
 		print1 (Str1);
 		morewait();
 		if (o->charge < 1)
@@ -412,20 +334,15 @@ int damage_item (pob o)
 		}
 		return 1;
 	    } else if ((o->blessing > 0) && (o->level > random_range (10))) {
-		strcpy (Str1, "Your ");
-		strcat (Str1, itemid (o));
-		strcat (Str1, " glows strongly.");
+		snprintf (ArrayBlock(Str1), "Your %s glows strongly", itemid(o));
 		print1 (Str1);
 		return 0;
 	    } else if ((o->blessing < -1) && (o->level > random_range (10))) {
-		strcpy (Str1, "You hear an evil giggle from your ");
-		strcat (Str1, itemid (o));
+		snprintf (ArrayBlock(Str1), "You hear an evil giggle from your %s", itemid(o));
 		print1 (Str1);
 		return 0;
 	    } else if (o->plus > 0) {
-		strcpy (Str1, "Your ");
-		strcat (Str1, itemid (o));
-		strcat (Str1, " glows and then fades.");
+		snprintf (ArrayBlock(Str1), "Your %s glows and then fades", itemid(o));
 		print1 (Str1);
 		o->plus--;
 		return 0;
@@ -434,9 +351,7 @@ int damage_item (pob o)
 		    print1 ("You hear a faint despairing cry!");
 		else if (o->blessing < 0)
 		    print1 ("You hear an agonized scream!");
-		strcpy (Str1, "Your ");
-		strcat (Str1, itemid (o));
-		strcat (Str1, " shatters in a thousand lost fragments!");
+		snprintf (ArrayBlock(Str1), "Your %s shatters in a thousand lost fragments!", itemid(o));
 		print2 (Str1);
 		morewait();
 		Player.remove_possession (o, 1);
@@ -448,21 +363,20 @@ int damage_item (pob o)
 }
 
 // do dmg points of damage of type dtype, from source fromstring
-void p_damage (int dmg, int dtype, const char* fromstring)
+void p_damage (int dmg, EDamageType dtype, const char* fromstring)
 {
-    if (!p_immune (dtype)) {
+    if (Player.immune_to (dtype))
+	mprint ("You resist the effects!");
+    else {
 	if (gamestatusp (FAST_MOVE)) {
 	    drawvision (Player.x, Player.y);
 	    resetgamestatus (FAST_MOVE);
 	}
 	if (dtype == NORMAL_DAMAGE)
-	    Player.hp -= max (1, (dmg - Player.absorption));
-	else
-	    Player.hp -= dmg;
-	if (Player.hp < 1)
+	    dmg = max (1, (dmg - Player.absorption));
+	if ((Player.hp -= dmg) < 1)
 	    p_death (fromstring);
-    } else
-	mprint ("You resist the effects!");
+    }
     dataprint();
 }
 
@@ -477,57 +391,50 @@ void p_death (const char* fromstring)
     exit (0);
 }
 
+// hooray
+void p_win (void)
+{
+    morewait();
+    clearmsg();
+    print1 ("You won!");
+    morewait();
+    display_win();
+    endgraf();
+    exit (0);
+}
+
 // move the cursor around, like for firing a wand, sets x and y to target
 void setspot (int *x, int *y)
 {
-    char c = ' ';
     mprint ("Targeting.... ? for help");
     curs_set (1);
     omshowcursor (*x, *y);
-    while ((c != '.') && (c != KEY_ESCAPE)) {
-	c = lgetc();
-	switch (c) {
-	    case 'h':
-	    case '4':
-		movecursor (x, y, -1, 0);
-		break;
-	    case 'j':
-	    case '2':
-		movecursor (x, y, 0, 1);
-		break;
-	    case 'k':
-	    case '8':
-		movecursor (x, y, 0, -1);
-		break;
-	    case 'l':
-	    case '6':
-		movecursor (x, y, 1, 0);
-		break;
-	    case 'b':
-	    case '1':
-		movecursor (x, y, -1, 1);
-		break;
-	    case 'n':
-	    case '3':
-		movecursor (x, y, 1, 1);
-		break;
-	    case 'y':
-	    case '7':
-		movecursor (x, y, -1, -1);
-		break;
-	    case 'u':
-	    case '9':
-		movecursor (x, y, 1, -1);
-		break;
-	    case '?':
-		clearmsg();
-		mprint ("Use vi keys or numeric keypad to move cursor to target.");
-		mprint ("Hit the '.' key when done, or ESCAPE to abort.");
-		break;
+    for (;;) {
+	char c = lgetc();
+	if (c == '.')
+	    break;
+	else if (c == KEY_ESCAPE) {
+	    *x = *y = ABORT;
+	    break;
+	} else if (c == '?') {
+	    clearmsg();
+	    mprint ("Use vi keys or numeric keypad to move cursor to target.");
+	    mprint ("Hit the '.' key when done, or ESCAPE to abort.");
 	}
+	static const struct { char k1,k2; int8_t dx,dy; } c_targkeymap[] = {
+	    { 'h','4', -1, 0 },
+	    { 'j','2',  0, 1 },
+	    { 'k','8',  0,-1 },
+	    { 'l','6',  1, 0 },
+	    { 'b','1', -1, 1 },
+	    { 'n','3',  1, 1 },
+	    { 'y','7', -1,-1 },
+	    { 'u','9',  1,-1 }
+	};
+	for (unsigned i = 0; i < ArraySize(c_targkeymap); ++i)
+	    if (c_targkeymap[i].k1 == c || c_targkeymap[i].k2 == c)
+		movecursor (x, y, c_targkeymap[i].dx, c_targkeymap[i].dy);
     }
-    if (c == KEY_ESCAPE)
-	*x = *y = ABORT;
     curs_set (0);
     screencheck (Player.y);
 }
@@ -537,76 +444,42 @@ int getdir (void)
 {
     while (1) {
 	mprint ("Select direction [hjklyubn, ESCAPE to quit]: ");
-	switch (mgetc()) {
-	    case '4':
-	    case 'h':
-	    case 'H':
-		return (5);
-	    case '2':
-	    case 'j':
-	    case 'J':
-		return (6);
-	    case '8':
-	    case 'k':
-	    case 'K':
-		return (7);
-	    case '6':
-	    case 'l':
-	    case 'L':
-		return (4);
-	    case '7':
-	    case 'y':
-	    case 'Y':
-		return (3);
-	    case '9':
-	    case 'u':
-	    case 'U':
-		return (1);
-	    case '1':
-	    case 'b':
-	    case 'B':
-		return (2);
-	    case '3':
-	    case 'n':
-	    case 'N':
-		return (0);
-	    case KEY_ESCAPE:
-		return (ABORT);
-	    default:
-		print3 ("That's not a direction! ");
-	}
+	char c = mgetc();
+	if (c == KEY_ESCAPE)
+	    return (ABORT);
+	static const char c_dirkey[] = "3nN9uU1bB7yY6lL4hH2jJ8kK";
+	const char* ikey = strchr (c_dirkey, c);
+	if (ikey)
+	    return ((unsigned)distance(c_dirkey,ikey)/3);
+	print3 ("That's not a direction! ");
     }
 }
 
 // functions describes monster m's state for examine function
 const char* mstatus_string (struct monster *m)
 {
-    if (m_statusp (m, M_INVISIBLE) && !Player.status[TRUESIGHT])
-	strcpy (Str2, "Some invisible creature");
-    else if (m->uniqueness == COMMON) {
-	if (m->hp < Monsters[m->id].hp / 3)
-	    strcpy (Str2, "a grievously injured ");
-	else if (m->hp < Monsters[m->id].hp / 2)
-	    strcpy (Str2, "a severely injured ");
-	else if (m->hp < Monsters[m->id].hp)
-	    strcpy (Str2, "an injured ");
-	else
-	    strcpy (Str2, getarticle (m->monstring));
-	if (m->level > Monsters[m->id].level) {
-	    strcat (Str2, " (level ");
-	    strcat (Str2, wordnum (m->level + 1 - Monsters[m->id].level));
-	    strcat (Str2, ") ");
-	}
-	strcat (Str2, m->monstring);
-    } else {
-	strcpy (Str2, m->monstring);
-	if (m->hp < Monsters[m->id].hp / 3)
-	    strcat (Str2, " who is grievously injured ");
-	else if (m->hp < Monsters[m->id].hp / 2)
-	    strcat (Str2, " who is severely injured ");
-	else if (m->hp < Monsters[m->id].hp)
-	    strcat (Str2, " who is injured ");
+    const auto& mstd = Monsters[m->id];
+    const char* healthstr = m->monstring;
+    if (m->hp < mstd.hp / 3)
+	healthstr = "grievously injured ";
+    else if (m->hp < mstd.hp / 2)
+	healthstr = "severely injured ";
+    else if (m->hp < mstd.hp)
+	healthstr = "injured ";
+    const char* articlestr = getarticle (healthstr);
+    const char* fmtstr = "%3$s who is %2$s";
+    if (healthstr == m->monstring) {
+	healthstr = "";
+	fmtstr = "%3$s";
     }
+    if (m_statusp (m, M_INVISIBLE) && !Player.status[TRUESIGHT])
+	fmtstr = "Some invisible creature";
+    else if (m->uniqueness == COMMON)
+	fmtstr = (m->level > mstd.level ? "%s%s%s (level %s)" : "%s%s%s");
+    else
+	articlestr = "";
+    const char* levelstr = wordnum (m->level + 1 - mstd.level);
+    snprintf (ArrayBlock(Str2), fmtstr, articlestr, healthstr, m->monstring, levelstr);
     return (Str2);
 }
 
@@ -636,27 +509,26 @@ void describe_player (void)
 // share out experience among guild memberships
 void gain_experience (int amount)
 {
-    int i, count = 0, share;
-    Player.xp += (long) amount;
+    Player.xp += amount;
     gain_level();		// actually, check to see if should gain level
-    for (i = 0; i < NUMGUILDS; i++)
+    unsigned count = 0;
+    for (unsigned i = 0; i < NUMGUILDS; i++)
 	if (Player.guildxp[i] > 0)
-	    count++;
-    share = amount / (max (count, 1));
-    for (i = 0; i < NUMGUILDS; i++)
+	    ++count;
+    unsigned share = amount / (max (count, 1u));
+    for (unsigned i = 0; i < NUMGUILDS; i++)
 	if (Player.guildxp[i] > 0)
 	    Player.guildxp[i] += share;
 }
 
-// try to hit a monster in an adjacent space. If there are none
-// return false. Note if you're berserk you get to attack ALL
-// adjacent monsters!
-int goberserk (void)
+// try to hit a monster in an adjacent space. If there are none return false.
+// Note if you're berserk you get to attack ALL adjacent monsters!
+bool goberserk (void)
 {
-    int wentberserk = false, i;
+    bool wentberserk = false;
     lstring meleestr (ArrayBlock("lLlClH"));
     Player.meleestr.swap (raw_cast<string>(meleestr));
-    for (i = 0; i < 8; i++) {
+    for (unsigned i = 0; i < 8; i++) {
 	monster* m = Level->creature(Player.x + Dirs[0][i], Player.y + Dirs[1][i]);
 	if (m) {
 	    wentberserk = true;
@@ -668,66 +540,29 @@ int goberserk (void)
     return (wentberserk);
 }
 
-// identifies a trap for examine() by its aux value
-const char* trapid (int trapno)
-{
-    switch (trapno) {
-	case L_TRAP_SIREN:
-	    return ("A siren trap");
-	case L_TRAP_DART:
-	    return ("A dart trap");
-	case L_TRAP_PIT:
-	    return ("A pit");
-	case L_TRAP_SNARE:
-	    return ("A snare");
-	case L_TRAP_BLADE:
-	    return ("A blade trap");
-	case L_TRAP_FIRE:
-	    return ("A fire trap");
-	case L_TRAP_TELEPORT:
-	    return ("A teleport trap");
-	case L_TRAP_DISINTEGRATE:
-	    return ("A disintegration trap");
-	case L_TRAP_DOOR:
-	    return ("A trap door");
-	case L_TRAP_MANADRAIN:
-	    return ("A manadrain trap");
-	case L_TRAP_ACID:
-	    return ("An acid shower trap");
-	case L_TRAP_SLEEP_GAS:
-	    return ("A sleep gas trap");
-	case L_TRAP_ABYSS:
-	    return ("A concealed entrance to the abyss");
-	default:
-	    return ("A completely inoperative trap.");
-    }
-}
-
 // checks current food status of player, every hour, and when food is eaten
 void foodcheck (void)
 {
     if (Player.food > 48) {
-	print3 ("You vomit up your huge meal.");
 	Player.food = 12;
+	print3 ("You vomit up your huge meal.");
     } else if (Player.food == 30)
 	print3 ("Time for a smackerel of something.");
     else if (Player.food == 20)
 	print3 ("You feel hungry.");
     else if (Player.food == 12)
 	print3 ("You are ravenously hungry.");
-    else if (Player.food == 3) {
-	print3 ("You feel weak.");
+    else if (Player.food < 4) {
 	if (gamestatusp (FAST_MOVE)) {
 	    drawvision (Player.x, Player.y);
 	    resetgamestatus (FAST_MOVE);
 	}
-    } else if (Player.food < 0) {
-	if (gamestatusp (FAST_MOVE)) {
-	    drawvision (Player.x, Player.y);
-	    resetgamestatus (FAST_MOVE);
+	if (Player.food >= 0)
+	    print3 ("You feel weak.");
+	else {
+	    p_damage (-5 * Player.food, UNSTOPPABLE, "starvation");
+	    print3 ("You're starving!");
 	}
-	print3 ("You're starving!");
-	p_damage (-5 * Player.food, UNSTOPPABLE, "starvation");
     }
     showflags();
 }
@@ -735,87 +570,72 @@ void foodcheck (void)
 // see whether room should be illuminated
 void roomcheck (void)
 {
-    static int oldroomno = -1;
-    static plv oldlevel = NULL;
     int roomno = Level->site(Player.x,Player.y).roomnumber;
-
-    if ((roomno == RS_CAVERN) || (roomno == RS_SEWER_DUCT) || (roomno == RS_KITCHEN) || (roomno == RS_BATHROOM) || (roomno == RS_BEDROOM) || (roomno == RS_DININGROOM) || (roomno == RS_CLOSET) || (roomno > RS_ROOMBASE)) {
-	if ((!loc_statusp (Player.x, Player.y, LIT)) && (!Player.status[BLINDED]) && (Player.status[ILLUMINATION] || (difficulty() < 6))) {
-	    showroom (Level->site(Player.x,Player.y).roomnumber);
+    if (roomno == RS_CAVERN || roomno == RS_SEWER_DUCT || roomno == RS_KITCHEN
+	    || roomno == RS_BATHROOM || roomno == RS_BEDROOM || roomno == RS_DININGROOM
+	    || roomno == RS_CLOSET || roomno > RS_ROOMBASE) {
+	if (!loc_statusp (Player.x, Player.y, LIT) && !Player.status[BLINDED] && (Player.status[ILLUMINATION] || difficulty() < 6)) {
 	    spreadroomlight (Player.x, Player.y, roomno);
 	    levelrefresh();
 	}
     }
-    if ((oldroomno != roomno) || (oldlevel != Level)) {
-	showroom (roomno);
-	oldroomno = roomno;
-	oldlevel = Level;
-    }
+    showroom (roomno);
 }
 
 // ask for mercy
 void surrender (struct monster *m)
 {
-    int i;
-    long bestitem, bestvalue;
-
-    switch (random_range (4)) {
-	case 0:
-	    print1 ("You grovel at the monster's feet...");
-	    break;
-	case 1:
-	    print1 ("You cry 'uncle'!");
-	    break;
-	case 2:
-	    print1 ("You beg for mercy.");
-	    break;
-	case 3:
-	    print1 ("You yield to the monster.");
-	    break;
-    }
+    static const char c_SurrenderPlea[] =
+	"You grovel at the monster's feet...\0"
+	"You cry 'uncle'!\0"
+	"You beg for mercy.\0"
+	"You yield to the monster.";
+    print1 (zstrn (c_SurrenderPlea, random_range(4), 4));
     if (m->id == GUARD) {
 	if (m_statusp (m, HOSTILE))
 	    monster_talk (m);
 	else {
 	    print2 ("The guard (bored): Have you broken a law? [yn] ");
-	    if (ynq2() == 'y') {
+	    if (ynq2() == 'n')
+		print2 ("Then don't bother me. Scat!");
+	    else {
 		print2 ("The guard grabs you, and drags you to court.");
 		morewait();
 		send_to_jail();
-	    } else
-		print2 ("Then don't bother me. Scat!");
+	    }
 	}
-    } else if ((m->talkf == M_NO_OP) || (m->talkf == M_TALK_STUPID))
+    } else if (m->talkf == M_NO_OP || m->talkf == M_TALK_STUPID)
 	print3 ("Your plea is ignored.");
     else {
 	morewait();
 	print1 ("Your surrender is accepted.");
-	if (Player.cash > 0)
+	if (Player.cash > 0) {
+	    Player.cash = 0;
 	    nprint1 (" All your gold is taken....");
-	Player.cash = 0;
-	bestvalue = 0;
-	bestitem = ABORT;
-	for (i = 1; i < MAXITEMS; i++) {
+	}
+	int bestitem = ABORT;
+	unsigned bestvalue = 0;
+	for (unsigned i = 1; i < MAXITEMS; ++i) {
 	    if (Player.has_possession(i)) {
-		if (bestvalue < true_item_value (Player.possessions[i])) {
+		unsigned ival = true_item_value (Player.possessions[i]);
+		if (bestvalue < ival) {
+		    bestvalue = ival;
 		    bestitem = i;
-		    bestvalue = true_item_value (Player.possessions[i]);
 		}
 	    }
 	}
 	if (bestitem != ABORT) {
 	    print2 ("You also give away your best item... ");
 	    nprint2 (itemid (Player.possessions[bestitem]));
-	    nprint2 (".");
 	    morewait();
 	    givemonster (*m, Player.possessions[bestitem]);
 	    morewait();	// msgs come from givemonster
 	    Player.remove_possession (bestitem);
 	}
 	print2 ("You feel less experienced... ");
-	Player.xp = max (0U, Player.xp - m->xpv);
+	Player.xp = max (0, (int)Player.xp - m->xpv);
 	nprint2 ("The monster seems more experienced!");
-	m->level = (min (10, m->level + 1));
+	m->level = min (10, m->level + 1);
 	m->hp += m->level * 20;
 	m->hit += m->level;
 	m->dmg += m->level;
@@ -823,13 +643,11 @@ void surrender (struct monster *m)
 	m->xpv += m->level * 10;
 	morewait();
 	clearmsg();
-	if ((m->talkf == M_TALK_EVIL) && random_range (10)) {
+	if (m->talkf == M_TALK_EVIL && random_range(10)) {
 	    print1 ("It continues to attack you, laughing evilly!");
 	    m_status_set (m, HOSTILE);
 	    m_status_reset (m, GREEDY);
-	} else if (m->id == HORNET || m->id == GUARD)
-	    print1 ("It continues to attack you. ");
-	else {
+	} else {
 	    print1 ("The monster leaves, chuckling to itself....");
 	    m_teleport (m);
 	}
@@ -840,143 +658,90 @@ void surrender (struct monster *m)
 // threaten a monster
 void threaten (struct monster *m)
 {
-    char response;
-    switch (random_range (4)) {
-	case 0:
-	    mprint ("You demand that your opponent surrender!");
-	    break;
-	case 1:
-	    mprint ("You threaten to do bodily harm to it.");
-	    break;
-	case 2:
-	    mprint ("You attempt to bluster it into submission.");
-	    break;
-	case 3:
-	    mprint ("You try to cow it with your awesome presence.");
-	    break;
-    }
+    static const char c_Threat[] =
+	"You demand that your opponent surrender!\0"
+	"You threaten to do bodily harm to it\0"
+	"You attempt to bluster it into submission\0"
+	"You try to cow it with your awesome presence";
+    mprint (zstrn (c_Threat, random_range(4), 4));
     morewait();
     if (!m_statusp (m, HOSTILE)) {
 	print3 ("You only annoy it with your futile demand.");
 	m_status_set (m, HOSTILE);
-    } else if (((m->level * 2 > Player.level) && (m->hp > Player.dmg)) || (m->uniqueness != COMMON))
+    } else if ((2*m->level > Player.level && m->hp > Player.dmg) || m->uniqueness != COMMON)
 	print1 ("It sneers contemptuously at you.");
-    else if ((m->talkf != M_TALK_GREEDY) && (m->talkf != M_TALK_HUNGRY) && (m->talkf != M_TALK_EVIL) && (m->talkf != M_TALK_MAN) && (m->talkf != M_TALK_BEG) && (m->talkf != M_TALK_THIEF) && (m->talkf != M_TALK_MERCHANT) && (m->talkf != M_TALK_IM))
+    else if (m->talkf != M_TALK_GREEDY && m->talkf != M_TALK_HUNGRY && m->talkf != M_TALK_EVIL
+		&& m->talkf != M_TALK_MAN && m->talkf != M_TALK_BEG && m->talkf != M_TALK_THIEF
+		&& m->talkf != M_TALK_MERCHANT && m->talkf != M_TALK_IM)
 	print1 ("Your demand is ignored");
     else {
 	print1 ("It yields to your mercy.");
 	Player.alignment += 3;
 	print2 ("Kill it, rob it, or free it? [krf] ");
-	do
+	for (char response;;) {
 	    response = (char) mcigetc();
-	while ((response != 'k') && (response != 'r') && (response != 'f'));
-	if (response == 'k') {
-	    m_death (m);
-	    print2 ("You treacherous rogue!");
-	    Player.alignment -= 13;
-	} else if (response == 'r') {
-	    Player.alignment -= 2;
-	    print2 ("It drops its treasure and flees.");
-	    m_dropstuff (m);
-	    Level->mlist.erase (m);
-	    putspot (m->x, m->y, getspot (m->x, m->y, false));
-	} else {
-	    Player.alignment += 2;
-	    print2 ("'If you love something set it free ... '");
-	    if (random_range (100) == 13) {
-		morewait();
-		print2 ("'...If it doesn't come back, hunt it down and kill it.'");
+	    if (response == 'k') {
+		m_death (m);
+		print2 ("You treacherous rogue!");
+		Player.alignment -= 13;
+		break;
+	    } else if (response == 'r') {
+		Player.alignment -= 2;
+		print2 ("It drops its treasure and flees.");
+		m_dropstuff (m);
+		Level->mlist.erase (m);
+		putspot (m->x, m->y, getspot (m->x, m->y, false));
+		break;
+	    } else if (response == 'f') {
+		Player.alignment += 2;
+		print2 ("'If you love something set it free ... '");
+		if (!random_range(100)) {
+		    morewait();
+		    print2 ("'...If it doesn't come back, hunt it down and kill it.'");
+		}
+		print3 ("It departs with a renewed sense of its own mortality.");
+		Level->mlist.erase (m);
+		putspot (m->x, m->y, getspot (m->x, m->y, false));
+		break;
 	    }
-	    print3 ("It departs with a renewed sense of its own mortality.");
-	    Level->mlist.erase (m);
-	    putspot (m->x, m->y, getspot (m->x, m->y, false));
 	}
     }
 }
 
 // name of the player's experience level
-const char* levelname (int level)
+static const char* levelname (unsigned level)
 {
-    switch (level) {
-	case 0:
-	    strcpy (Str3, "neophyte");
-	    break;
-	case 1:
-	    strcpy (Str3, "beginner");
-	    break;
-	case 2:
-	    strcpy (Str3, "tourist");
-	    break;
-	case 3:
-	    strcpy (Str3, "traveller");
-	    break;
-	case 4:
-	    strcpy (Str3, "wayfarer");
-	    break;
-	case 5:
-	    strcpy (Str3, "peregrinator");
-	    break;
-	case 6:
-	    strcpy (Str3, "wanderer");
-	    break;
-	case 7:
-	    strcpy (Str3, "hunter");
-	    break;
-	case 8:
-	    strcpy (Str3, "scout");
-	    break;
-	case 9:
-	    strcpy (Str3, "trailblazer");
-	    break;
-	case 10:
-	    strcpy (Str3, "discoverer");
-	    break;
-	case 11:
-	    strcpy (Str3, "explorer");
-	    break;
-	case 12:
-	    strcpy (Str3, "senior explorer");
-	    break;
-	case 13:
-	    strcpy (Str3, "ranger");
-	    break;
-	case 14:
-	    strcpy (Str3, "ranger captain");
-	    break;
-	case 15:
-	    strcpy (Str3, "ranger knight");
-	    break;
-	case 16:
-	    strcpy (Str3, "adventurer");
-	    break;
-	case 17:
-	    strcpy (Str3, "experienced adventurer");
-	    break;
-	case 18:
-	    strcpy (Str3, "skilled adventurer");
-	    break;
-	case 19:
-	    strcpy (Str3, "master adventurer");
-	    break;
-	case 20:
-	    strcpy (Str3, "hero");
-	    break;
-	case 21:
-	    strcpy (Str3, "superhero");
-	    break;
-	case 22:
-	    strcpy (Str3, "demigod");
-	    break;
-	default:
-	    if (level < 100) {
-		strcpy (Str3, "Order ");
-		Str3[6] = ((level / 10) - 2) + '0';
-		Str3[7] = 0;
-		strcat (Str3, " Master of Omega");
-	    } else
-		strcpy (Str3, "Ultimate Master of Omega");
-	    break;
+    if (level < 23) {
+	static const char c_Levels[] =
+	    "neophyte\0"
+	    "beginner\0"
+	    "tourist\0"
+	    "traveller\0"
+	    "wayfarer\0"
+	    "peregrinator\0"
+	    "wanderer\0"
+	    "hunter\0"
+	    "scout\0"
+	    "trailblazer\0"
+	    "discoverer\0"
+	    "explorer\0"
+	    "senior explorer\0"
+	    "ranger\0"
+	    "ranger captain\0"
+	    "ranger knight\0"
+	    "adventurer\0"
+	    "experienced adventurer\0"
+	    "skilled adventurer\0"
+	    "master adventurer\0"
+	    "hero\0"
+	    "superhero\0"
+	    "demigod";
+	return (zstrn (c_Levels, level, 23));
     }
+    if (level < 100)
+	snprintf (ArrayBlock(Str3), "Order %u Master of Omega", level/10-2);
+    else
+	snprintf (ArrayBlock(Str3), "Ultimate Master of Omega");
     return (Str3);
 }
 
@@ -990,102 +755,72 @@ int statmod (int stat)
 // effects of hitting
 void p_hit (struct monster *m, int dmg, int dtype)
 {
-    int dmult;
-
+    unsigned dmult = 1;
+    const char* hitdesc;
     // chance for critical hit..., 3/10
     switch (random_range (10)) {
 	case 0:
-	    if (random_range (100) < Player.level) {
-		strcpy (Str3, "You annihilate ");
+	    if (random_range(100) < Player.level) {
 		dmult = 1000;
+		hitdesc = "annihilate";
 	    } else {
-		strcpy (Str3, "You blast ");
 		dmult = 5;
+		hitdesc = "blast";
 	    }
 	    break;
 	case 1:
 	case 2:
-	    strcpy (Str3, "You smash ");
 	    dmult = 2;
+	    hitdesc = "smash";
 	    break;
-
 	default:
-	    dmult = 1;
-	    if (random_range (10))
-		strcpy (Str3, "You hit ");
-	    else
-		switch (random_range (4)) {
-		    case 0:
-			strcpy (Str3, "You damage ");
-			break;
-		    case 1:
-			strcpy (Str3, "You inflict bodily harm on ");
-			break;
-		    case 2:
-			strcpy (Str3, "You injure ");
-			break;
-		    case 3:
-			strcpy (Str3, "You molest ");
-			break;
-		}
+	    static const char c_DamageDesc[] =
+		"damage\0"
+		"inflict bodily harm on\0"
+		"injure\0"
+		"molest\0"
+		"hit";
+	    hitdesc = zstrn (c_DamageDesc, random_range(14), 5);
 	    break;
     }
     if (Lunarity == 1)
-	dmult = dmult * 2;
+	dmult *= 2;
     else if (Lunarity == -1)
-	dmult = dmult / 2;
-    if (m->uniqueness == COMMON)
-	strcat (Str3, "the ");
-    strcat (Str3, m->monstring);
-    strcat (Str3, ". ");
+	dmult /= 2;
+    snprintf (ArrayBlock(Str3), "You %s %s%s.", hitdesc, m->definite_article(), m->monstring);
     if (Verbosity != TERSE)
 	mprint (Str3);
     else
 	mprint ("You hit it.");
     m_damage (m, dmult * random_range (dmg), dtype);
-    if ((Verbosity != TERSE) && (random_range (10) == 3) && (m->hp > 0))
+    if (Verbosity != TERSE && !random_range(10) && m->hp > 0)
 	mprint ("It laughs at the injury and fights on!");
 }
 
 // and effects of missing
-static void player_miss (struct monster *m, int dtype)
+static void player_miss (struct monster *m, EDamageType dtype)
 {
-    if (random_range (30) == 1)	// fumble 1 in 30
+    if (!random_range(30))	// fumble 1 in 30
 	p_fumble (dtype);
+    else if (Verbosity == TERSE)
+	mprint ("You missed it.");
     else {
-	if (Verbosity != TERSE) {
-	    if (random_range (10))
-		strcpy (Str3, "You miss ");
-	    else
-		switch (random_range (4)) {
-		    case 0:
-			strcpy (Str3, "You flail lamely at ");
-			break;
-		    case 1:
-			strcpy (Str3, "You only amuse ");
-			break;
-		    case 2:
-			strcpy (Str3, "You fail to even come close to ");
-			break;
-		    case 3:
-			strcpy (Str3, "You totally avoid contact with ");
-			break;
-		}
-	    if (m->uniqueness == COMMON)
-		strcat (Str3, "the ");
-	    strcat (Str3, m->monstring);
-	    strcat (Str3, ". ");
-	    mprint (Str3);
-	} else
-	    mprint ("You missed it.");
+	static const char c_MissDesc[] =
+	    "flail lamely at\0"
+	    "only amuse\0"
+	    "fail to even come close to\0"
+	    "totally avoid contact with\0"
+	    "miss";
+	snprintf (ArrayBlock(Str3), "You %s %s%s.", zstrn(c_MissDesc,random_range(14),5), m->definite_article(), m->monstring);
+	mprint (Str3);
     }
 }
 
 // oh nooooo, a fumble....
-static void p_fumble (int dtype)
+static void p_fumble (EDamageType dtype)
 {
     mprint ("Ooops! You fumbled....");
-    switch (random_range (10)) {
+    switch (random_range(10)) {
 	case 0:
 	case 1:
 	case 2:
@@ -1109,40 +844,27 @@ static void p_fumble (int dtype)
 // try to drop a weapon (from fumbling)
 static void drop_weapon (void)
 {
-    if (Player.has_possession(O_WEAPON_HAND)) {
+    if (!Player.has_possession(O_WEAPON_HAND))
+	mprint ("You feel fortunate.");
+    else {
 	strcpy (Str1, "You dropped your ");
 	strcat (Str1, Player.possessions[O_WEAPON_HAND].objstr);
 	mprint (Str1);
 	morewait();
 	p_drop_at (Player.x, Player.y, Player.possessions[O_WEAPON_HAND], 1);
 	Player.remove_possession (O_WEAPON_HAND, 1);
-    } else
-	mprint ("You feel fortunate.");
+    }
 }
 
 // try to break a weapon (from fumbling)
 static void break_weapon (void)
 {
     if (Player.has_possession(O_WEAPON_HAND)) {
-	strcpy (Str1, "Your ");
-	strcat (Str1, itemid (Player.possessions[O_WEAPON_HAND]));
-	strcat (Str1, " vibrates in your hand....");
+	snprintf (ArrayBlock(Str1), "Your %s vibrates in your hand....", itemid (Player.possessions[O_WEAPON_HAND]));
 	mprint (Str1);
 	damage_item (&Player.possessions[O_WEAPON_HAND]);
 	morewait();
     }
-}
-
-// hooray
-void p_win (void)
-{
-    morewait();
-    clearmsg();
-    print1 ("You won!");
-    morewait();
-    display_win();
-    endgraf();
-    exit (0);
 }
 
 // handle a h,j,k,l, etc., to change x and y by dx and dy
@@ -1157,105 +879,59 @@ static void movecursor (int *x, int *y, int dx, int dy)
     omshowcursor (*x, *y);
 }
 
-// is Player immune to damage type dtype
-int p_immune (int dtype)
-{
-    return (Player.immunity[dtype] > 0);
-}
-
 // deal with each possible stati -- values are per move
 // this function is executed every move
 // A value over 1000 indicates a permanent effect
 void minute_status_check (void)
 {
-    int i;
-
-    if (Player.status[HASTED] > 0) {
-	if (Player.status[HASTED] < 1000) {
-	    Player.status[HASTED]--;
-	    if (Player.status[HASTED] == 0) {
-		mprint ("The world speeds up.");
-		calc_melee();
-	    }
-	}
+    if (Player.status[HASTED] > 0 && Player.status[HASTED] < 1000 && !--Player.status[HASTED]) {
+	mprint ("The world speeds up.");
+	calc_melee();
     }
-
     if (Player.status[POISONED] > 0) {
-	Player.status[POISONED]--;
 	p_damage (3, POISON, "poison");
-	if (Player.status[POISONED] == 0) {
+	if (!--Player.status[POISONED]) {
 	    showflags();
 	    mprint ("You feel better now.");
 	}
     }
-
     if (Player.immunity[UNSTOPPABLE] > 0) {
-	for (i = 0; i < NUMIMMUNITIES; i++)
-	    Player.immunity[i]--;
+	for (unsigned i = 0; i < NUMIMMUNITIES; i++)
+	    --Player.immunity[i];
 	if (Player.immunity[UNSTOPPABLE] == 1)
 	    mprint ("You feel vincible again.");
     }
-
-    if (Player.status[IMMOBILE] > 0) {
-	Player.status[IMMOBILE]--;
-	if (Player.status[IMMOBILE] == 0)
-	    mprint ("You can move again.");
-    }
-
-    if (Player.status[SLEPT] > 0) {
-	Player.status[SLEPT]--;
-	if (Player.status[SLEPT] == 0) {
-	    mprint ("You woke up.");
-	}
-    }
-
+    if (Player.status[IMMOBILE] > 0 && !--Player.status[IMMOBILE])
+	mprint ("You can move again.");
+    if (Player.status[SLEPT] > 0 && !--Player.status[SLEPT])
+	mprint ("You woke up.");
     if (Player.status[REGENERATING] > 0) {
-	if ((Player.hp < Player.maxhp) && (Player.mana > 0)) {
-	    Player.hp++;
-	    Player.mana--;
+	if (Player.hp < Player.maxhp && Player.mana > 0) {
+	    ++Player.hp;
+	    --Player.mana;
 	    dataprint();
 	}
-	if (Player.status[REGENERATING] < 1000) {
-	    Player.status[REGENERATING]--;
-	    if (Player.status[REGENERATING] == 0) {
-		mprint ("You feel less homeostatic.");
-	    }
-	}
+	if (Player.status[REGENERATING] < 1000 && !--Player.status[REGENERATING])
+	    mprint ("You feel less homeostatic.");
     }
-
-    if (Player.status[SLOWED] > 0) {
-	if (Player.status[SLOWED] < 1000) {
-	    Player.status[SLOWED]--;
-	    if (Player.status[SLOWED] == 0) {
-		mprint ("You feel quicker now.");
-		calc_melee();
-	    }
-	}
+    if (Player.status[SLOWED] > 0 && Player.status[SLOWED] < 1000 && !--Player.status[SLOWED]) {
+	mprint ("You feel quicker now.");
+	calc_melee();
     }
-
     if (Player.status[RETURNING] > 0) {
-	Player.status[RETURNING]--;
-	if (Player.status[RETURNING] == 10)
-	    mprint ("Your return spell slowly hums towards activation...");
-	else if (Player.status[RETURNING] == 8)
-	    mprint ("There is an electric tension in the air!");
-	else if (Player.status[RETURNING] == 5)
-	    mprint ("A vortex of mana begins to form around you!");
+	if (!--Player.status[RETURNING])
+	    level_return();
 	else if (Player.status[RETURNING] == 1)
 	    mprint ("Your surroundings start to warp and fade!");
-	if (Player.status[RETURNING] == 0)
-	    level_return();
+	else if (Player.status[RETURNING] == 5)
+	    mprint ("A vortex of mana begins to form around you!");
+	else if (Player.status[RETURNING] == 8)
+	    mprint ("There is an electric tension in the air!");
+	else if (Player.status[RETURNING] == 10)
+	    mprint ("Your return spell slowly hums towards activation...");
     }
-
-    if (Player.status[AFRAID] > 0) {
-	if (Player.status[AFRAID] < 1000) {
-	    Player.status[AFRAID]--;
-	    if (Player.status[AFRAID] == 0) {
-		mprint ("You feel bolder now.");
-	    }
-	}
-    }
-
+    if (Player.status[AFRAID] > 0 && Player.status[AFRAID] < 1000 && !--Player.status[AFRAID])
+	mprint ("You feel bolder now.");
 }
 
 // effect of gamma ray radiation...
@@ -1265,25 +941,26 @@ void moon_check (void)
     Phase = (Phase + 1) % 24;
     phaseprint();
     Lunarity = 0;
-    if (((Player.patron == DRUID) && ((Phase / 2 == 3) || (Phase / 2 == 9))) || ((Player.alignment > 10) && (Phase / 2 == 6)) || ((Player.alignment < -10) && (Phase / 2 == 0))) {
+    if ((Player.patron == DRUID && (Phase / 2 == 3 || Phase / 2 == 9))
+	    || (Player.alignment > 10 && Phase / 2 == 6)
+	    || (Player.alignment < -10 && Phase / 2 == 0)) {
 	mprint ("As the moon rises you feel unusually vital!");
 	Lunarity = 1;
-    } else if (((Player.patron == DRUID) && ((Phase / 2 == 0) || (Phase / 2 == 6))) || ((Player.alignment > 10) && (Phase / 2 == 0)) || ((Player.alignment < -10) && (Phase / 2 == 6))) {
+    } else if ((Player.patron == DRUID && (Phase / 2 == 0 || Phase / 2 == 6))
+	    || (Player.alignment > 10 && Phase / 2 == 0)
+	    || (Player.alignment < -10 && Phase / 2 == 6)) {
 	mprint ("The rise of the moon tokens a strange enervation!");
 	Lunarity = -1;
     }
-
 }
 
 // check 1/hour for torch to burn out if used
 void torch_check (void)
 {
-    for (int i = O_READY_HAND; i <= O_WEAPON_HAND; i++) {
-	if (Player.possessions[i].id == THING_TORCH && Player.possessions[i].aux > 0) {
-	    if (--Player.possessions[i].aux == 0) {
-		mprint ("Your torch goes out!!!");
-		Player.remove_possession (i, 1);
-	    }
+    for (unsigned i = O_READY_HAND; i <= O_WEAPON_HAND; ++i) {
+	if (Player.possessions[i].id == THING_TORCH && Player.possessions[i].aux > 0 && !--Player.possessions[i].aux) {
+	    mprint ("Your torch goes out!!!");
+	    Player.remove_possession (i, 1);
 	}
     }
 }
@@ -1292,106 +969,50 @@ void torch_check (void)
 // values over 1000 indicate a permanent effect
 void tenminute_status_check (void)
 {
-    if ((Player.status[SHADOWFORM] > 0) && (Player.status[SHADOWFORM] < 1000)) {
-	Player.status[SHADOWFORM]--;
-	if (Player.status[SHADOWFORM] == 0) {
-	    Player.immunity[NORMAL_DAMAGE]--;
-	    Player.immunity[ACID]--;
-	    Player.immunity[THEFT]--;
-	    Player.immunity[INFECTION]--;
-	    mprint ("You feel less shadowy now.");
-	}
+    if (Player.status[SHADOWFORM] > 0 && Player.status[SHADOWFORM] < 1000 && !--Player.status[SHADOWFORM]) {
+	--Player.immunity[NORMAL_DAMAGE];
+	--Player.immunity[ACID];
+	--Player.immunity[THEFT];
+	--Player.immunity[INFECTION];
+	mprint ("You feel less shadowy now.");
     }
-
-    if ((Player.status[ILLUMINATION] > 0) && (Player.status[ILLUMINATION] < 1000)) {
-	Player.status[ILLUMINATION]--;
-	if (Player.status[ILLUMINATION] == 0) {
-	    mprint ("Your light goes out!");
-	}
-    }
-
-    if ((Player.status[VULNERABLE] > 0) && (Player.status[VULNERABLE] < 1000)) {
-	Player.status[VULNERABLE]--;
-	if (Player.status[VULNERABLE] == 0)
-	    mprint ("You feel less endangered.");
-    }
-
-    if ((Player.status[DEFLECTION] > 0) && (Player.status[DEFLECTION] < 1000)) {
-	Player.status[DEFLECTION]--;
-	if (Player.status[DEFLECTION] == 0)
-	    mprint ("You feel less well defended.");
-    }
-
-    if ((Player.status[ACCURATE] > 0) && (Player.status[ACCURACY] < 1000)) {
-	Player.status[ACCURATE]--;
-	if (Player.status[ACCURATE] == 0) {
-	    calc_melee();
-	    mprint ("The bulls' eyes go away.");
-	}
-    }
-    if ((Player.status[HERO] > 0) && (Player.status[HERO] < 1000)) {
-	Player.status[HERO]--;
-	if (Player.status[HERO] == 0) {
-	    calc_melee();
-	    mprint ("You feel less than super.");
-	}
-    }
-
-    if ((Player.status[LEVITATING] > 0) && (Player.status[LEVITATING] < 1000)) {
-	Player.status[LEVITATING]--;
-	if (Player.status[LEVITATING] == 0)
-	    mprint ("You're no longer walking on air.");
-    }
-
-    if (Player.status[DISEASED] > 0) {
-	Player.status[DISEASED]--;
-	if (Player.status[DISEASED] == 0) {
-	    showflags();
-	    mprint ("You feel better now.");
-	}
-    }
-
-    if ((Player.status[INVISIBLE] > 0) && (Player.status[INVISIBLE] < 1000)) {
-	Player.status[INVISIBLE]--;
-	if (Player.status[INVISIBLE] == 0)
-	    mprint ("You feel more opaque now.");
-    }
-
-    if ((Player.status[BLINDED] > 0) && (Player.status[BLINDED] < 1000)) {
-	Player.status[BLINDED]--;
-	if (Player.status[BLINDED] == 0)
-	    mprint ("You can see again.");
-    }
-
-    if ((Player.status[TRUESIGHT] > 0) && (Player.status[TRUESIGHT] < 1000)) {
-	Player.status[TRUESIGHT]--;
-	if (Player.status[TRUESIGHT] == 0)
-	    mprint ("You feel less keen now.");
-    }
-
-    if ((Player.status[BERSERK] > 0) && (Player.status[BERSERK] < 1000)) {
-	Player.status[BERSERK]--;
-	if (Player.status[BERSERK] == 0)
-	    mprint ("You stop foaming at the mouth.");
-    }
-
-    if ((Player.status[ALERT] > 0) && (Player.status[ALERT] < 1000)) {
-	Player.status[ALERT]--;
-	if (Player.status[ALERT] == 0)
-	    mprint ("You feel less alert now.");
-    }
-
-    if ((Player.status[BREATHING] > 0) && (Player.status[BREATHING] < 1000)) {
-	Player.status[BREATHING]--;
-	if (Player.status[BREATHING] == 0)
-	    mprint ("You feel somewhat congested.");
-    }
-
-    if ((Player.status[DISPLACED] > 0) && (Player.status[DISPLACED] < 1000)) {
-	Player.status[DISPLACED]--;
-	if (Player.status[DISPLACED] == 0)
-	    mprint ("You feel a sense of position.");
-    }
+    static const uint8_t stati[] = {
+	ILLUMINATION,
+	VULNERABLE,
+	DEFLECTION,
+	LEVITATING,
+	INVISIBLE,
+	BLINDED,
+	TRUESIGHT,
+	BERSERK,
+	ALERT,
+	BREATHING,
+	DISPLACED,
+	ACCURATE,
+	HERO,
+	DISEASED
+    };
+    static const char statStopMsg[] =	// Parallel to stati
+	"Your light goes out!\0"
+	"You feel less endangered.\0"
+	"You feel less well defended.\0"
+	"You're no longer walking on air.\0"
+	"You feel more opaque now.\0"
+	"You can see again.\0"
+	"You feel less keen now.\0"
+	"You stop foaming at the mouth.\0"
+	"You feel less alert now.\0"
+	"You feel somewhat congested.\0"
+	"You feel a sense of position.\0"
+	"The bulls' eyes go away.\0"
+	"You feel less than super.\0"
+	"You feel better now.";
+    const char* stopmsg = statStopMsg;
+    for (unsigned i = 0; i < ArraySize(stati); ++i, stopmsg=strnext(stopmsg))
+	if (Player.status[stati[i]] > 0 && Player.status[stati[i]] < 1000 && !--Player.status[stati[i]])
+	    mprint (stopmsg);
+    calc_melee();
+    showflags();
     timeprint();
     dataprint();
 }
@@ -1399,31 +1020,22 @@ void tenminute_status_check (void)
 // Increase in level at appropriate experience gain
 static void gain_level (void)
 {
-    int gained = false;
-    int hp_gain;
-
     if (gamestatusp (SUPPRESS_PRINTING))
 	return;
-    while (expval (Player.level + 1) <= Player.xp) {
+    bool gained = false;
+    while (expval (Player.level+1) <= Player.xp) {
 	if (!gained)
 	    morewait();
 	gained = true;
-	Player.level++;
+	++Player.level;
 	print1 ("You have attained a new experience level!");
 	print2 ("You are now ");
 	nprint2 (getarticle (levelname (Player.level)));
 	nprint2 (levelname (Player.level));
-	hp_gain = random_range (Player.con) + 1;	// start fix 12/30/98
-	if (Player.hp < Player.maxhp)
-	    Player.hp += hp_gain * Player.hp / Player.maxhp;
-	else if (Player.hp < Player.maxhp + hp_gain)
-	    Player.hp = Player.maxhp + hp_gain;
-	// else leave current hp alone
-	Player.maxhp += hp_gain;
-	Player.maxmana = calcmana();
-	// If the character was given a bonus, let him keep it.  Otherwise
-	// recharge him.
-	Player.mana = max (Player.mana, Player.maxmana);	// end fix 12/30/98
+	Player.maxhp += random_range (Player.con)+1;
+	Player.hp = max (Player.hp, Player.maxhp);
+	Player.maxmana = Player.calcmana();
+	Player.mana = max (Player.mana, Player.maxmana);
 	morewait();
     }
     if (gained)
@@ -1432,65 +1044,39 @@ static void gain_level (void)
 }
 
 // experience requirements
-static long expval (int plevel)
+static unsigned expval (unsigned l)
 {
-    switch (plevel) {
-	case 0:
-	    return (0L);
-	case 1:
-	    return (20L);
-	case 2:
-	    return (50L);
-	case 3:
-	    return (200L);
-	case 4:
-	    return (500L);
-	case 5:
-	    return (1000L);
-	case 6:
-	    return (2000L);
-	case 7:
-	    return (3000L);
-	case 8:
-	    return (5000L);
-	case 9:
-	    return (7000L);
-	case 10:
-	    return (10000L);
-	default:
-	    return ((plevel - 9) * 10000L);
-    }
+    static const unsigned c_LevelXP[] = { 0, 20, 50, 200, 500, 1000, 2000, 3000, 5000, 7000, 10000 };
+    constexpr unsigned multbase = ArraySize(c_LevelXP)-2;	// So level 11 is 10000*2, etc
+    return (l < ArraySize(c_LevelXP) ? c_LevelXP[l] : 10000*(l-multbase));
 }
 
 // If an item is unidentified, it isn't worth much to those who would buy it
-long item_value (const object* item)
+unsigned item_value (const object* item)
 {
-    if (!object_is_known(item)) {
-	if (item->objchar == THING)
-	    return (1);
-	else
-	    return (true_item_value (item) / 10);
-    } else
-	return (true_item_value (item));
+    unsigned value = true_item_value (item);
+    if (!object_is_known(item))
+	value /= 10;
+    if (item->objchar == THING)
+	value = 1;
+    return (value);
 }
 
 // figures value based on item base-value, charge, plus, and blessing
-long true_item_value (const object* item)
+unsigned true_item_value (const object* item)
 {
-    long value = item->basevalue;
-    if (item->objchar == THING)
-	return (item->basevalue);
-    else {
+    unsigned value = item->basevalue;
+    if (item->objchar != THING) {
 	if (item->objchar == STICK)
-	    value += value * item->charge / 20;
+	    value += value * item->charge / 16;
 	if (item->plus > -1)
 	    value += value * item->plus / 4;
 	else
 	    value /= -item->plus;
 	if (item->blessing > 0)
 	    value *= 2;
-	return ((long) value);
     }
+    return (value);
 }
 
 // kill off player if he isn't got the "breathing" status
@@ -1500,14 +1086,15 @@ void p_drown (void)
 	mprint ("Your breathing is unaffected!");
 	return;
     }
-    for (int attempts = 3; Player.has_possession(O_ARMOR) || Player.itemweight > Player.maxweight / 2; --attempts) {
+    for (unsigned attempts = 3; Player.has_possession(O_ARMOR) || Player.itemweight > Player.maxweight / 2; --attempts) {
 	menuclear();
-	switch (attempts) {
-	    case 3: print3 ("You try to hold your breath..."); break;
-	    case 2: print3 ("You try to hold your breath... You choke..."); break;
-	    case 1: print3 ("You try to hold your breath... You choke... Your lungs fill..."); break;
-	    case 0: p_death ("drowning");
-	}
+	if (!attempts)
+	    p_death ("drowning");
+	print3 ("You try to hold your breath...");
+	if (attempts <= 2)
+	    nprint3 (" You choke...");
+	if (attempts <= 1)
+	    nprint3 (" Your lungs fill...");
 	morewait();
 	menuprint ("a: Drop an item.\n");
 	menuprint ("b: Bash an item.\n");
@@ -1543,127 +1130,79 @@ void p_drown (void)
 // the effect of some weapon on monster m, with dmgmod a bonus to damage
 void weapon_use (int dmgmod, pob weapon, struct monster *m)
 {
-    int aux = (weapon == NULL ? -2 : weapon->aux);	// bare hands
-    switch (aux) {
-	case -2:
-	    weapon_bare_hands (dmgmod, m);
-	    break;
+    if (!weapon)
+	return (weapon_bare_hands (dmgmod, m));
+    switch (weapon->aux) {
 	default:
-	case I_NO_OP:
-	    weapon_normal_hit (dmgmod, weapon, m);
-	    break;
-	case I_ACIDWHIP:
-	    weapon_acidwhip (dmgmod, weapon, m);
-	    break;
-	case I_TANGLE:
-	    weapon_tangle (dmgmod, weapon, m);
-	    break;
-	case I_ARROW:
-	    weapon_arrow (dmgmod, weapon, m);
-	    break;
-	case I_BOLT:
-	    weapon_bolt (dmgmod, weapon, m);
-	    break;
-	case I_DEMONBLADE:
-	    weapon_demonblade (dmgmod, weapon, m);
-	    break;
-	case I_LIGHTSABRE:
-	    weapon_lightsabre (dmgmod, weapon, m);
-	    break;
-	case I_MACE_DISRUPT:
-	    weapon_mace_disrupt (dmgmod, weapon, m);
-	    break;
-	case I_VORPAL:
-	    weapon_vorpal (dmgmod, weapon, m);
-	    break;
-	case I_DESECRATE:
-	    weapon_desecrate (dmgmod, weapon, m);
-	    break;
-	case I_FIRESTAR:
-	    weapon_firestar (dmgmod, weapon, m);
-	    break;
-	case I_DEFEND:
-	    weapon_defend (dmgmod, weapon, m);
-	    break;
-	case I_VICTRIX:
-	    weapon_victrix (dmgmod, weapon, m);
-	    break;
-	case I_SCYTHE:
-	    weapon_scythe (dmgmod, weapon, m);
-	    break;
+	case I_NO_OP:		weapon_normal_hit (dmgmod, weapon, m); break;
+	case I_ACIDWHIP:	weapon_acidwhip (dmgmod, weapon, m); break;
+	case I_TANGLE:		weapon_tangle (dmgmod, weapon, m); break;
+	case I_ARROW:		weapon_arrow (dmgmod, weapon, m); break;
+	case I_BOLT:		weapon_bolt (dmgmod, weapon, m); break;
+	case I_DEMONBLADE:	weapon_demonblade (dmgmod, weapon, m); break;
+	case I_LIGHTSABRE:	weapon_lightsabre (dmgmod, weapon, m); break;
+	case I_MACE_DISRUPT:	weapon_mace_disrupt (dmgmod, weapon, m); break;
+	case I_VORPAL:		weapon_vorpal (dmgmod, weapon, m); break;
+	case I_DESECRATE:	weapon_desecrate (dmgmod, weapon, m); break;
+	case I_FIRESTAR:	weapon_firestar (dmgmod, weapon, m); break;
+	case I_DEFEND:		weapon_defend (dmgmod, weapon, m); break;
+	case I_VICTRIX:		weapon_victrix (dmgmod, weapon, m); break;
+	case I_SCYTHE:		weapon_scythe (dmgmod, weapon, m); break;
     }
 }
 
 // for printing actions in printactions above
-const char* actionlocstr (int dir)
+const char* actionlocstr (char dir)
 {
-    switch (dir) {
-	case 'L':
-	    strcpy (Str3, "low.");
-	    break;
-	case 'C':
-	    strcpy (Str3, "center.");
-	    break;
-	case 'H':
-	    strcpy (Str3, "high.");
-	    break;
-	default:
-	    strcpy (Str3, "wildly.");
-	    break;
-    }
-    return (Str3);
+	 if (dir=='L')	return ("low.");
+    else if (dir=='C')	return ("center.");
+    else if (dir=='H')	return ("high.");
+    else		return ("wildly.");
 }
 
 // execute player combat actions versus monster m
-static void tacplayer (struct monster *m)
+static void tacplayer (struct monster* m)
 {
-    for (unsigned i = 0; i < strlen (Player.meleestr); i += 2) {
-	if (m->hp > 0) {
-	    switch (Player.meleestr[i]) {
-		case 't':
-		case 'T':
-		    if (!Player.has_possession(O_WEAPON_HAND))
-			strcpy (Str1, "You punch ");
-		    else
-			strcpy (Str1, "You thrust ");
-		    strcat (Str1, actionlocstr (Player.meleestr[i + 1]));
-		    if (Verbosity == VERBOSE)
-			mprint (Str1);
-		    if (player_hit (2 * statmod (Player.dex), Player.meleestr[i + 1], m))
-			weapon_use (0, &Player.possessions[O_WEAPON_HAND], m);
-		    else
-			player_miss (m, NORMAL_DAMAGE);
-		    break;
-		case 'c':
-		case 'C':
-		    if (!Player.has_possession(O_WEAPON_HAND))
-			strcpy (Str1, "You punch ");
-		    else if (Player.possessions[O_WEAPON_HAND].type == CUTTING)
-			strcpy (Str1, "You cut ");
-		    else if (Player.possessions[O_WEAPON_HAND].type == STRIKING)
-			strcpy (Str1, "You strike ");
-		    else
-			strcpy (Str1, "You attack ");
-		    strcat (Str1, actionlocstr (Player.meleestr[i + 1]));
-		    if (Verbosity == VERBOSE)
-			mprint (Str1);
-		    if (player_hit (0, Player.meleestr[i + 1], m))
-			weapon_use (2 * statmod (Player.str), &Player.possessions[O_WEAPON_HAND], m);
-		    else
-			player_miss (m, NORMAL_DAMAGE);
-		    break;
-		case 'l':
-		case 'L':
-		    strcpy (Str1, "You lunge ");
-		    strcat (Str1, actionlocstr (Player.meleestr[i + 1]));
-		    if (Verbosity == VERBOSE)
-			mprint (Str1);
-		    if (player_hit (Player.level + Player.dex, Player.meleestr[i + 1], m))
-			weapon_use (Player.level, &Player.possessions[O_WEAPON_HAND], m);
-		    else
-			player_miss (m, NORMAL_DAMAGE);
-		    break;
+    for (const char* attack = Player.meleestr; *attack && m->hp > 0; attack += 2) {
+	if (*attack == 't' || *attack == 'T') {
+	    if (Verbosity == VERBOSE) {
+		if (!Player.has_possession(O_WEAPON_HAND))
+		    strcpy (Str1, "You punch ");
+		else
+		    strcpy (Str1, "You thrust ");
+		strcat (Str1, actionlocstr (attack[1]));
+		mprint (Str1);
 	    }
+	    if (player_hit (2 * statmod (Player.dex), attack[1], m))
+		weapon_use (0, &Player.possessions[O_WEAPON_HAND], m);
+	    else
+		player_miss (m, NORMAL_DAMAGE);
+	} else if (*attack == 'c' || *attack == 'C') {
+	    if (Verbosity == VERBOSE) {
+		if (!Player.has_possession(O_WEAPON_HAND))
+		    strcpy (Str1, "You punch ");
+		else if (Player.possessions[O_WEAPON_HAND].type == CUTTING)
+		    strcpy (Str1, "You cut ");
+		else if (Player.possessions[O_WEAPON_HAND].type == STRIKING)
+		    strcpy (Str1, "You strike ");
+		else
+		    strcpy (Str1, "You attack ");
+		strcat (Str1, actionlocstr (attack[1]));
+		mprint (Str1);
+	    }
+	    if (player_hit (0, attack[1], m))
+		weapon_use (2 * statmod (Player.str), &Player.possessions[O_WEAPON_HAND], m);
+	    else
+		player_miss (m, NORMAL_DAMAGE);
+	} else if (*attack == 'l' || *attack == 'L') {
+	    strcpy (Str1, "You lunge ");
+	    strcat (Str1, actionlocstr (attack[1]));
+	    if (Verbosity == VERBOSE)
+		mprint (Str1);
+	    if (player_hit (Player.level + Player.dex, attack[1], m))
+		weapon_use (Player.level, &Player.possessions[O_WEAPON_HAND], m);
+	    else
+		player_miss (m, NORMAL_DAMAGE);
 	}
     }
 }
@@ -1671,39 +1210,36 @@ static void tacplayer (struct monster *m)
 // checks to see if player hits with hitmod vs. monster m at location hitloc
 static int player_hit (int hitmod, int hitloc, struct monster *m)
 {
-    int blocks = false, goodblocks = 0, hit;
     if (m->hp < 1) {
 	mprint ("Unfortunately, your opponent is already dead!");
-	return (false);
-    } else {
-	if (hitloc == 'X')
-	    hitloc = random_loc();
-
-	transcribe_monster_actions (m);
-
-	for (unsigned i = 0; i < strlen (m->meleestr); i += 2) {
-	    if ((m->meleestr[i] == 'B') || (m->meleestr[i] == 'R')) {
-		blocks = true;
-		if (hitloc == m->meleestr[i + 1])
-		    goodblocks++;
-	    }
-	}
-
-	if (!blocks)
-	    goodblocks = -1;
-	hit = hitp (Player.hit + hitmod, m->ac + goodblocks * 10);
-	if ((!hit) && (goodblocks > 0)) {
-	    if (m->uniqueness == COMMON) {
-		strcpy (Str1, "The ");
-		strcat (Str1, m->monstring);
-	    } else
-		strcpy (Str1, m->monstring);
-	    strcat (Str1, " blocks it!");
-	    if (Verbosity == VERBOSE)
-		mprint (Str1);
-	}
-	return (hit);
+	return (0);
     }
+    if (hitloc == 'X')
+	hitloc = random_loc();
+
+    transcribe_monster_actions (m);
+
+    bool blocks = false;
+    int goodblocks = 0;
+    for (const char* attack = m->meleestr; attack[0]; attack += 2) {
+	if (attack[0] == 'B' || attack[0] == 'R') {
+	    blocks = true;
+	    goodblocks += (hitloc == attack[1]);
+	}
+    }
+    if (!blocks)
+	goodblocks = -1;
+    int hit = hitp (Player.hit + hitmod, m->ac + 10*goodblocks);
+    if (!hit && goodblocks > 0 && Verbosity == VERBOSE) {
+	if (m->uniqueness == COMMON) {
+	    strcpy (Str1, "The ");
+	    strcat (Str1, m->monstring);
+	} else
+	    strcpy (Str1, m->monstring);
+	strcat (Str1, " blocks it!");
+	mprint (Str1);
+    }
+    return (hit);
 }
 
 // This function is used to undo all items temporarily, should
@@ -1711,20 +1247,19 @@ static int player_hit (int hitmod, int hitloc, struct monster *m)
 // anomalous stats and item-usage if used indiscriminately
 void toggle_item_use (int on)
 {
-    static bool used[MAXITEMS];
+    static bool used [MAXITEMS];
     setgamestatus (SUPPRESS_PRINTING);
     if (on) {
-	for (int i = 0; i < MAXITEMS; i++) {
+	for (unsigned i = 0; i < MAXITEMS; i++) {
 	    used[i] = false;
-	    if (Player.has_possession(i)) {
-		if ((used[i] = Player.possessions[i].used) == true) {
-		    Player.possessions[i].used = false;
-		    item_use (Player.possessions[i]);
-		}
+	    if (Player.has_possession(i) && Player.possessions[i].used) {
+		used[i] = true;
+		Player.possessions[i].used = false;
+		item_use (Player.possessions[i]);
 	    }
 	}
     } else {
-	for (int i = 0; i < MAXITEMS; i++) {
+	for (unsigned i = 0; i < MAXITEMS; i++) {
 	    if (used[i]) {
 		Player.possessions[i].used = true;
 		item_use (Player.possessions[i]);
@@ -1738,51 +1273,14 @@ void toggle_item_use (int on)
     resetgamestatus (SUPPRESS_PRINTING);
 }
 
-void enter_site (int site)
-{
-    switch (site) {
-	case CITY:
-	    change_environment (E_CITY);
-	    break;
-	case VILLAGE:
-	    change_environment (E_VILLAGE);
-	    break;
-	case CAVES:
-	    change_environment (E_CAVES);
-	    break;
-	case CASTLE:
-	    change_environment (E_CASTLE);
-	    break;
-	case VOLCANO:
-	    change_environment (E_VOLCANO);
-	    break;
-	case TEMPLE:
-	    change_environment (E_TEMPLE);
-	    break;
-	case DRAGONLAIR:
-	    change_environment (E_DLAIR);
-	    break;
-	case STARPEAK:
-	    change_environment (E_STARPEAK);
-	    break;
-	case MAGIC_ISLE:
-	    change_environment (E_MAGIC_ISLE);
-	    break;
-	default:
-	    print3 ("There's nothing to enter here!");
-	    break;
-    }
-}
-
 // Switches context dungeon/countryside/city, etc
-void change_environment (int new_environment)
+void change_environment (EEnvironment new_environment)
 {
     int i, emerging = false;
 
     Player.sx = -1;
     Player.sy = -1;		// reset sanctuary if there was one
     resetgamestatus (LOST);	// in case the player gets lost _on_ a site
-
     resetgamestatus (FAST_MOVE);
 
     Last_Environment = Current_Environment;
@@ -1794,10 +1292,18 @@ void change_environment (int new_environment)
 	Level->lastx = Player.x;
 	Level->lasty = Player.y;
     }
-    if (((Last_Environment == E_CITY) || (Last_Environment == E_VILLAGE)) && ((new_environment == E_MANSION) || (new_environment == E_HOUSE) || (new_environment == E_HOVEL) || (new_environment == E_SEWERS) || (new_environment == E_ARENA))) {
+
+    // FIXME: Exiting from one level to another should use a level stack
+    if ((Last_Environment == E_CITY || Last_Environment == E_VILLAGE)
+	    && (new_environment == E_MANSION || new_environment == E_HOUSE
+		|| new_environment == E_HOVEL || new_environment == E_SEWERS
+		|| new_environment == E_ARENA)) {
 	LastTownLocX = Player.x;
 	LastTownLocY = Player.y;
-    } else if (((Last_Environment == E_MANSION) || (Last_Environment == E_HOUSE) || (Last_Environment == E_HOVEL) || (Last_Environment == E_SEWERS) || (Last_Environment == E_ARENA)) && ((new_environment == E_CITY) || (new_environment == E_VILLAGE))) {
+    } else if ((Last_Environment == E_MANSION || Last_Environment == E_HOUSE
+		|| Last_Environment == E_HOVEL || Last_Environment == E_SEWERS
+		|| Last_Environment == E_ARENA)
+	       && (new_environment == E_CITY || new_environment == E_VILLAGE)) {
 	Player.x = LastTownLocX;
 	Player.y = LastTownLocY;
 	emerging = true;
@@ -2175,18 +1681,16 @@ void change_environment (int new_environment)
 // check every ten minutes
 void tenminute_check (void)
 {
-    if (Time % 60 == 0)
-	hourly_check();
-    else {
-	if (Current_Environment == Current_Dungeon)
-	    wandercheck();
-	minute_status_check();
-	tenminute_status_check();
-	if ((Player.status[DISEASED] < 1) && (Player.hp < Player.maxhp))
-	    Player.hp = min (Player.maxhp, Player.hp + Player.level + 1);
-	if (Current_Environment != E_COUNTRYSIDE && Current_Environment != E_ABYSS)
-	    indoors_random_event();
-    }
+    if (!(Time % 60))
+	return (hourly_check());
+    if (Current_Environment == Current_Dungeon)
+	wandercheck();
+    minute_status_check();
+    tenminute_status_check();
+    if (Player.status[DISEASED] < 1 && Player.hp < Player.maxhp)
+	Player.hp = min (Player.maxhp, Player.hp + Player.level + 1);
+    if (Current_Environment != E_COUNTRYSIDE && Current_Environment != E_ABYSS)
+	indoors_random_event();
 }
 
 // hourly check is same as ten_minutely check except food is also
@@ -2194,18 +1698,18 @@ void tenminute_check (void)
 // outdoors_random_event is possible
 void hourly_check (void)
 {
-    Player.food--;
+    --Player.food;
     foodcheck();
-    if (hour() == 0) {		// midnight, a new day
+    if (!hour()) {	// midnight, a new day
 	moon_check();
-	Date++;
+	++Date;
     }
     torch_check();
     if (Current_Environment == Current_Dungeon)
 	wandercheck();
     minute_status_check();
     tenminute_status_check();
-    if ((Player.status[DISEASED] == 0) && (Player.hp < Player.maxhp))
+    if (Player.status[DISEASED] == 0 && Player.hp < Player.maxhp)
 	Player.hp = min (Player.maxhp, Player.hp + Player.level + 1);
     if (Current_Environment != E_COUNTRYSIDE && Current_Environment != E_ABYSS)
 	indoors_random_event();
@@ -2214,23 +1718,18 @@ void hourly_check (void)
 static void indoors_random_event (void)
 {
     switch (random_range (1000)) {
-	case 0:
-	    print3 ("You feel an unexplainable elation.");
+	case 0: print3 ("You feel an unexplainable elation."); morewait(); break;
+	case 1: print3 ("You hear a distant rumbling."); morewait(); break;
+	case 2: print3 ("You realize your fly is open."); morewait(); break;
+	case 3: print3 ("You have a sudden craving for a pecan twirl."); morewait(); break;
+	case 4: print3 ("You discover an itch just where you can't scratch it."); morewait(); break;
+	case 5: print3 ("You feel strangely lucky."); morewait(); break;
+	case 6:
+	    print3 ("A cosmic ray strikes!");
+	    p_damage (10, UNSTOPPABLE, "a cosmic ray");
 	    morewait();
 	    break;
-	case 1:
-	    print3 ("You hear a distant rumbling.");
-	    morewait();
-	    break;
-	case 2:
-	    print3 ("You realize your fly is open.");
-	    morewait();
-	    break;
-	case 3:
-	    print3 ("You have a sudden craving for a pecan twirl.");
-	    morewait();
-	    break;
-	case 4:
+	case 7:
 	    print3 ("A mysterious healing flux settles over the level.");
 	    foreach (m, Level->mlist)
 		if (m->hp > 0)
@@ -2238,29 +1737,15 @@ static void indoors_random_event (void)
 	    Player.hp = max (Player.hp, Player.maxhp);
 	    morewait();
 	    break;
-	case 5:
-	    print3 ("You discover an itch just where you can't scratch it.");
-	    morewait();
-	    break;
-	case 6:
-	    print3 ("A cosmic ray strikes!");
-	    p_damage (10, UNSTOPPABLE, "a cosmic ray");
-	    morewait();
-	    break;
-	case 7:
-	    print3 ("You catch your second wind....");
-	    Player.maxhp++;
-	    Player.hp = max (Player.hp, Player.maxhp);
-	    Player.mana = max (Player.mana, calcmana());
-	    morewait();
-	    break;
 	case 8:
-	    print3 ("You find some spare change in a hidden pocket.");
-	    Player.cash += Player.level * Player.level + 1;
+	    print3 ("You catch your second wind....");
+	    Player.hp = max (Player.hp, ++Player.maxhp);
+	    Player.mana = max (Player.mana, Player.calcmana());
 	    morewait();
 	    break;
 	case 9:
-	    print3 ("You feel strangely lucky.");
+	    print3 ("You find some spare change in a hidden pocket.");
+	    Player.cash += Player.level * Player.level + 1;
 	    morewait();
 	    break;
 	case 10:
@@ -2296,18 +1781,13 @@ static void indoors_random_event (void)
 
 static void outdoors_random_event (void)
 {
-    int num, i, j;
     switch (random_range (300)) {
 	case 0:
 	    switch (Country->site(Player.x,Player.y).showchar()) {
-		case TUNDRA:
-		    mprint ("It begins to snow. Heavily.");
-		    break;
-		case DESERT:
-		    mprint ("A sandstorm swirls around you.");
-		    break;
+		case TUNDRA: mprint ("It begins to snow. Heavily."); break;
+		case DESERT: mprint ("A sandstorm swirls around you."); break;
 		default:
-		    if ((Date > 75) && (Date < 330))
+		    if (Date > 75 && Date < 330)
 			mprint ("You are drenched by a sudden downpour!");
 		    else
 			mprint ("It begins to snow. Heavily.");
@@ -2349,12 +1829,12 @@ static void outdoors_random_event (void)
 	    morewait();
 	    l_commandant();
 	    break;
-	case 5:
+	case 5: {
 	    mprint ("A weird howling tornado hits from out of the West!");
 	    morewait();
 	    mprint ("You've been caught in a chaos storm!");
 	    morewait();
-	    num = random_range (300);
+	    unsigned num = random_range (300);
 	    if (num < 10) {
 		mprint ("Your cell-structure was disrupted!");
 		p_damage (random_range (100), UNSTOPPABLE, "a chaos storm");
@@ -2367,27 +1847,29 @@ static void outdoors_random_event (void)
 		mprint ("You feel average...");
 		morewait();
 		toggle_item_use (true);
-		Player.str = Player.maxstr = Player.con = Player.maxcon = Player.dex = Player.maxdex = Player.agi = Player.maxagi = Player.iq = Player.maxiq = Player.pow = Player.maxpow =
-		    ((Player.maxstr + Player.maxcon + Player.maxdex + Player.maxagi + Player.maxiq + Player.maxpow + 12) / 6);
+		Player.str = Player.maxstr = Player.con = Player.maxcon = Player.dex = Player.maxdex
+		    = Player.agi = Player.maxagi = Player.iq = Player.maxiq = Player.pow = Player.maxpow
+		    = (Player.maxstr + Player.maxcon + Player.maxdex + Player.maxagi + Player.maxiq + Player.maxpow + 12) / 6;
 		toggle_item_use (false);
 	    } else if (num < 30) {
 		mprint ("Your entire body glows with an eerie flickering light.");
 		morewait();
 		toggle_item_use (true);
-		for (i = 1; i < MAXITEMS; i++)
+		for (unsigned i = 1; i < MAXITEMS; i++) {
 		    if (Player.has_possession(i)) {
-			Player.possessions[i].plus++;
+			++Player.possessions[i].plus;
 			if (Player.possessions[i].objchar == STICK)
 			    Player.possessions[i].charge += 10;
 			Player.possessions[i].blessing += 10;
 		    }
+		}
 		toggle_item_use (false);
 		cleanse (1);
 		mprint ("You feel filled with energy!");
 		morewait();
 		Player.maxpow += 5;
 		Player.pow += 5;
-		Player.mana = Player.maxmana = calcmana() * 5;
+		Player.mana = Player.maxmana = Player.calcmana() * 5;
 		mprint ("You also feel weaker. Paradoxical, no?");
 		morewait();
 		Player.con -= 5;
@@ -2440,7 +1922,7 @@ static void outdoors_random_event (void)
 		morewait();
 		Player.xp = 0;
 		Player.level = 0;
-		for (i = 0; i < NUMGUILDS; i++)
+		for (unsigned i = 0; i < NUMGUILDS; i++)
 		    Player.rank[i] = 0;
 		forget_all_spells();
 		rename_player();
@@ -2451,7 +1933,7 @@ static void outdoors_random_event (void)
 		morewait();
 		gain_experience (1000);
 	    }
-	    break;
+	    } break;
 	case 6:
 	case 7:
 	case 8:
@@ -2468,8 +1950,8 @@ static void outdoors_random_event (void)
 		resetgamestatus (LOST);
 		mprint ("You know where you are now.");
 	    }
-	    for (i = Player.x - 5; i < Player.x + 6; i++) {
-		for (j = Player.y - 5; j < Player.y + 6; j++) {
+	    for (int i = Player.x - 5; i < Player.x + 6; ++i) {
+		for (int j = Player.y - 5; j < Player.y + 6; ++j) {
 		    if (inbounds (i, j)) {
 			c_set (i, j, SEEN);
 			c_set (i, j, CHANGED);
@@ -2508,34 +1990,26 @@ static void outdoors_random_event (void)
 
 char getlocation (void)
 {
-    char c = '\0';
-
     menuprint (" (enter location [HCL]) ");
     showmenu();
-    while (c == '\0')
-	switch (c = ((char) mcigetc())) {
-	    case 'h':
-		menuprint (" High.");
-		break;
-	    case 'c':
-		menuprint (" Center.");
-		break;
-	    case 'l':
-		menuprint (" Low.");
-		break;
-	    default:
-		c = '\0';
-		break;
+    char c = '\0';
+    while (c == '\0') {
+	switch ((c = mcigetc())) {
+	    case 'h': menuprint (" High."); break;
+	    case 'c': menuprint (" Center."); break;
+	    case 'l': menuprint (" Low."); break;
+	    default: c = '\0'; break;
 	}
+    }
     showmenu();
-    return (c - 'a' + 'A');
+    return (c-'a'+'A');
 }
 
 // chance for player to resist magic somehow
 // hostile_magic ranges in power from 0 (weak) to 10 (strong)
-int magic_resist (int hostile_magic)
+bool magic_resist (unsigned hostile_magic)
 {
-    if ((Player.rank[COLLEGE] + Player.rank[CIRCLE] > 0) && (Player.level / 2 + random_range (20) > hostile_magic + random_range (20))) {
+    if ((Player.rank[COLLEGE] + Player.rank[CIRCLE] > 0) && (Player.level / 2 + urandom_range (20) > hostile_magic + urandom_range (20))) {
 	if (Player.mana > hostile_magic * hostile_magic) {
 	    mprint ("Thinking fast, you defend youself with a counterspell!");
 	    Player.mana -= hostile_magic * hostile_magic;
@@ -2543,46 +2017,46 @@ int magic_resist (int hostile_magic)
 	    return (true);
 	}
     }
-    if (Player.level / 4 + Player.status[PROTECTION] + random_range (20) > hostile_magic + random_range (30)) {
+    if (Player.level / 4 + Player.status[PROTECTION] + urandom_range (20) > hostile_magic + urandom_range (30)) {
 	mprint ("You resist the spell!");
 	return (true);
     } else
 	return (false);
 }
 
-void terrain_check (int takestime)
+void terrain_check (bool takestime)
 {
-    int faster = 0;
+    bool faster = false;
     if (Player.patron == DRUID) {
-	faster = 1;
-	switch (random_range (32)) {
+	faster = true;
+	switch (urandom_range (32)) {
 	    case 0: print2 ("Along the many paths of nature..."); break;
 	    case 1: print2 ("You move swiftly through the wilderness."); break;
 	}
     } else if (gamestatusp (MOUNTED)) {
-	faster = 1;
-	switch (random_range (32)) {
+	faster = true;
+	switch (urandom_range (32)) {
 	    case 0:
 	    case 1: print2 ("Clippity Clop."); break;
 	    case 2: print2 ("....my spurs go jingle jangle jingle...."); break;
 	    case 3: print2 ("....as I go riding merrily along...."); break;
 	}
     } else if (Player.has_possession(O_BOOTS) && Player.possessions[O_BOOTS].usef == I_BOOTS_7LEAGUE) {
-	takestime = 0;
-	switch (random_range (32)) {
+	takestime = false;
+	switch (urandom_range (32)) {
 	    case 0: print2 ("Boingg!"); break;
 	    case 1: print2 ("Whooosh!"); break;
 	    case 2: print2 ("Over hill, over dale...."); break;
 	    case 3: print2 ("...able to leap over 7 leagues in a single bound...."); break;
 	}
     } else if (Player.status[SHADOWFORM]) {
-	faster = 1;
-	switch (random_range (32)) {
+	faster = true;
+	switch (urandom_range (32)) {
 	    case 0: print2 ("As swift as a shadow."); break;
 	    case 1: print2 ("\"I walk through the trees...\""); break;
 	}
     } else {
-	switch (random_range (32)) {
+	switch (urandom_range (32)) {
 	    case 0: print2 ("Trudge. Trudge."); break;
 	    case 1: print2 ("The road goes ever onward...."); break;
 	}
@@ -2601,12 +2075,10 @@ void terrain_check (int takestime)
 	    else
 		locprint ("River Greenshriek.");
 	    if (takestime) {
-		Time += 60;
-		hourly_check();
-		Time += 60;
-		hourly_check();
-		Time += 60;
-		hourly_check();
+		for (unsigned i = 0; i < 3; ++i) {
+		    Time += 60;
+		    hourly_check();
+		}
 	    }
 	    break;
 	case ROAD:
@@ -2698,21 +2170,7 @@ void terrain_check (int takestime)
 	    else
 		locprint ("Borderland Mountains.");
 	    if (takestime) {
-		Time += 60;
-		hourly_check();
-		Time += 60;
-		hourly_check();
-		Time += 60;
-		hourly_check();
-		Time += 60;
-		hourly_check();
-		Time += 60;
-		hourly_check();
-		if (!faster) {
-		    Time += 60;
-		    hourly_check();
-		    Time += 60;
-		    hourly_check();
+		for (unsigned i = 0; i < 5u+3*!faster; ++i) {
 		    Time += 60;
 		    hourly_check();
 		}
@@ -2738,21 +2196,7 @@ void terrain_check (int takestime)
 	case SWAMP:
 	    locprint ("The Loathly Swamp.");
 	    if (takestime) {
-		Time += 60;
-		hourly_check();
-		Time += 60;
-		hourly_check();
-		Time += 60;
-		hourly_check();
-		Time += 60;
-		hourly_check();
-		Time += 60;
-		hourly_check();
-		Time += 60;
-		hourly_check();
-		if (!faster) {
-		    Time += 60;
-		    hourly_check();
+		for (unsigned i = 0; i < 6u+2*!faster; ++i) {
 		    Time += 60;
 		    hourly_check();
 		}
@@ -2789,26 +2233,14 @@ void terrain_check (int takestime)
 	    mprint ("The castle is hewn from solid granite. The drawbridge is down.");
 	    break;
 	case TEMPLE:
-	    switch (Country->site(Player.x,Player.y).aux) {
-		case ODIN:
-		    locprint ("A rough-hewn granite temple.");
-		    break;
-		case SET:
-		    locprint ("A black pyramidal temple made of sandstone.");
-		    break;
-		case ATHENA:
-		    locprint ("A classical marble-columned temple.");
-		    break;
-		case HECATE:
-		    locprint ("A temple of ebony adorned with ivory.");
-		    break;
-		case DRUID:
-		    locprint ("A temple formed of living trees.");
-		    break;
-		case DESTINY:
-		    locprint ("A temple of some mysterious blue crystal.");
-		    break;
-	    }
+	    static const char c_TempleDesc[] =
+		"\0A rough-hewn granite temple.\0"
+		"A black pyramidal temple made of sandstone.\0"
+		"A classical marble-columned temple.\0"
+		"A temple of ebony adorned with ivory.\0"
+		"A temple formed of living trees.\0"
+		"A temple of some mysterious blue crystal.";
+	    locprint (zstrn (c_TempleDesc, Country->site(Player.x,Player.y).aux, DESTINY));
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
@@ -2856,11 +2288,10 @@ void terrain_check (int takestime)
 
 void countrysearch (void)
 {
-    int x, y;
     Time += 60;
     hourly_check();
-    for (x = Player.x - 1; x < Player.x + 2; x++) {
-	for (y = Player.y - 1; y < Player.y + 2; y++) {
+    for (int x = Player.x - 1; x < Player.x + 2; ++x) {
+	for (int y = Player.y - 1; y < Player.y + 2; ++y) {
 	    if (!inbounds (x, y) || !c_statusp (x,y, SECRET))
 		continue;
 	    clearmsg();
@@ -2919,25 +2350,25 @@ static const char* sitenames[NUMCITYSITES] = {	// alphabetical listing
     "pawn shop", "sorcerors' guild ", "tavern", "temple", "thieves' guild"
 };
 
-static int sitenums[NUMCITYSITES] = {	// the order matches sitenames[]
+static int sitenums[ArraySize(sitenames)] = {	// the order matches sitenames[]
     L_ALCHEMIST, L_ARENA, L_ARMORER, L_BANK, L_BROTHEL, L_CASINO, L_CASTLE,
     L_COUNTRYSIDE, L_COLLEGE, L_CONDO, L_DPW, L_DINER, L_CLUB, L_COMMANDANT,
     L_GYM, L_HEALER, L_CHARITY, L_CRAP, L_LIBRARY, L_MERC_GUILD, L_ORACLE,
     L_ORDER, L_PAWN_SHOP, L_SORCERORS, L_TAVERN, L_TEMPLE, L_THIEVES_GUILD
 };
 
-static void showknownsites (int first, int last)
+static void showknownsites (unsigned first, unsigned last)
 {
-    int i, printed = false;
-
+    bool printed = false;
     menuclear();
     menuprint ("\nPossible Sites:\n");
-    for (i = first; i <= last; i++)
+    for (unsigned i = first; i <= last; i++) {
 	if (CitySiteList[sitenums[i] - CITYSITEBASE][0]) {
 	    printed = true;
 	    menuprint (sitenames[i]);
 	    menuprint ("\n");
 	}
+    }
     if (!printed)
 	menuprint ("\nNo known sites match that prefix!");
     showmenu();
@@ -3021,15 +2452,12 @@ int parsecitysite (void)
 }
 
 // are there hostile monsters within 2 moves?
-int hostilemonstersnear (void)
+bool hostilemonstersnear (void)
 {
-    int hostile = false;
-    for (int i = Player.x - 2; ((i < Player.x + 3) && (!hostile)); i++)
-	for (int j = Player.y - 2; ((j < Player.y + 3) && (!hostile)); j++)
-	    if (inbounds (i, j))
-		if (Level->creature(i,j))
-		    hostile = m_statusp (Level->creature(i,j), HOSTILE);
-    return (hostile);
+    for (const monster& m : Level->mlist)
+	if (m_statusp(m, HOSTILE) && abs_distance(m.x,Player.x) < 3 && abs_distance(m.y,Player.y) < 3)
+	    return (true);
+    return (false);
 }
 
 // random effects from some of stones in villages
@@ -3223,7 +2651,7 @@ int stonecheck (int alignment)
 
 void alert_guards (void)
 {
-    int foundguard = false;
+    bool foundguard = false;
     foreach (m, Level->mlist) {
 	if ((m->id == GUARD || (m->id == HISCORE_NPC && m->aux2 == NPC_JUSTICIAR)) && m->hp > 0) {
 	    foundguard = true;
@@ -3237,7 +2665,7 @@ void alert_guards (void)
 	    Level->site(40,60).p_locf = L_NO_OP;	// pacify_guards restores this
     }
     if (!foundguard && Current_Environment == E_CITY && !gamestatusp (DESTROYED_ORDER)) {
-	int suppress = gamestatusp (SUPPRESS_PRINTING);
+	bool suppress = gamestatusp (SUPPRESS_PRINTING);
 	resetgamestatus (SUPPRESS_PRINTING);
 	print2 ("The last member of the Order of Paladins dies....");
 	morewait();
@@ -3275,27 +2703,23 @@ void alert_guards (void)
     }
 }
 
-// can only occur when player is in city, so OK to use Level
 static void destroy_order (void)
 {
     setgamestatus (DESTROYED_ORDER);
-    if (Level != City) {
-	print1 ("Zounds! A Serious Mistake!");
-	return;
-    }
     Level->mlist.clear();
-    for (int i = 35; i < 46; i++) {
-	for (int j = 60; j < 63; j++) {
+    // Disable jail
+    for (unsigned i = 35; i < 46; ++i) {
+	for (unsigned j = 60; j < 63; ++j) {
+	    location& l = Level->site(i,j);
 	    if (i == 40 && (j == 60 || j == 61)) {
-		lreset (i, j, SECRET);
-		Level->site(i,j).locchar = FLOOR;
-		Level->site(i,j).p_locf = L_NO_OP;
-		lset (i, j, CHANGED);
+		l.lstatus &= ~SECRET;
+		l.locchar = FLOOR;
+		l.p_locf = L_NO_OP;
 	    } else {
-		Level->site(i,j).locchar = RUBBLE;
-		Level->site(i,j).p_locf = L_RUBBLE;
-		lset (i, j, CHANGED);
+		l.locchar = RUBBLE;
+		l.p_locf = L_RUBBLE;
 	    }
+	    l.lstatus |= CHANGED;
 	    monster& m = make_site_monster (i, j, GHOST);
 	    m.monstring = "ghost of a Paladin";
 	    m_status_set (m, HOSTILE);
@@ -3303,32 +2727,24 @@ static void destroy_order (void)
     }
 }
 
-int maneuvers (void)
+unsigned maneuvers (void)
 {
-    int m = 2 + Player.level / 7;
-    if (Player.rank[ARENA])
-	++m;
-    if (Player.status[HASTED])
-	m *= 2;
-    if (Player.status[SLOWED])
-	m /= 2;
-    return (min (8, max (1, m)));
+    unsigned m = 2 + Player.level / 7;
+    if (Player.rank[ARENA])	++m;
+    if (Player.status[HASTED])	m *= 2;
+    if (Player.status[SLOWED])	m /= 2;
+    return (min (8U, max (1U, m)));
 }
 
 // for when haste runs out, etc.
 static void default_maneuvers (void)
 {
-    int i;
     morewait();
     clearmsg();
     print1 ("Warning, resetting your combat options to the default.");
     print2 ("Use the 'F' command to select which options you prefer.");
     morewait();
-    for (i = 0; i < maneuvers(); i += 2) {
-	Player.meleestr[i * 2] = 'A';
-	Player.meleestr[(i * 2) + 1] = 'C';
-	Player.meleestr[(i + 1) * 2] = 'B';
-	Player.meleestr[((i + 1) * 2) + 1] = 'C';
-    }
-    Player.meleestr[maneuvers() * 2] = 0;
+    const unsigned nManeuvers = maneuvers();
+    fill_n ((uint32_t*) Player.meleestr.data(), DivRU(nManeuvers,2), vpack('A','C','B','C'));
+    Player.meleestr[nManeuvers*2] = '\0';
 }

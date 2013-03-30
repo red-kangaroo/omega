@@ -67,19 +67,15 @@ void show_screen (void)
     wrefresh (Levelw);
 }
 
-char mgetc (void)
+chtype mgetc (void)
 {
     return (wgetch (Msgw));
 }
 
 // case insensitive mgetc -- sends uppercase to lowercase
-int mcigetc (void)
+char mcigetc (void)
 {
-    int c = wgetch (Msgw);
-    if ((c >= (int) 'A') && (c <= (int) 'Z'))
-	return (c + (int) ('a' - 'A'));
-    else
-	return (c);
+    return (tolower (wgetch (Msgw)));
 }
 
 char menugetc (void)

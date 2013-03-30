@@ -57,7 +57,7 @@ level::level (void)
 , mlist()
 , things()
 , next(NULL)
-, environment(0)
+, environment (E_NEVER_NEVER_LAND)
 , last_visited(0)
 , depth(0)
 , generated(0)
@@ -2147,7 +2147,7 @@ void l_sorcerors (void)
 			print2 ("Begone, deadbeat, or face the wrath of the Circle!");
 		    else {
 			Player.cash -= fee;
-			total = calcmana();
+			total = Player.calcmana();
 			while (Player.mana < total) {
 			    Player.mana++;
 			    dataprint();
@@ -2310,7 +2310,7 @@ void l_order (void)
 }
 
 // loads the house level into Level
-void load_house (int kind)
+void load_house (EEnvironment kind)
 {
     initrand (Current_Environment, Player.x + Player.y + hour() * 10);
     const char* ld = Level->init_from_data (kind, kind == E_HOUSE ? Level_House : (kind == E_MANSION ? Level_Mansion : Level_Hovel));
@@ -2386,6 +2386,7 @@ void load_house (int kind)
 		case '#':
 		    s.locchar = WALL;
 		    switch (kind) {
+			default:
 			case E_HOVEL: s.aux = 10; break;
 			case E_HOUSE: s.aux = 50; break;
 			case E_MANSION: s.aux = 150; break;
@@ -2725,8 +2726,7 @@ void wandercheck (void)
 // call make_creature and place created monster on Level->mlist and Level
 monster& make_site_monster (int i, int j, int mid, int wandering, int dlevel)
 {
-    Level->mlist.push_back();
-    monster& m = Level->mlist.back();
+    monster& m = Level->mlist.push_back();
     if (mid >= ML0)
 	make_creature (m, mid);
     else
@@ -4437,7 +4437,7 @@ void l_adept (void)
 	    Player.xp = 0;
 	    Player.level = 0;
 	    Player.hp = Player.maxhp = Player.con;
-	    Player.mana = calcmana();
+	    Player.mana = Player.calcmana();
 	    print2 ("You suddenly feel very inexperienced.");
 	    dataprint();
 	}
@@ -4457,7 +4457,7 @@ void l_adept (void)
 	print2 ("and clears....");
 	morewait();
 	Player.hp = Player.maxhp;
-	Player.mana = calcmana();
+	Player.mana = Player.calcmana();
 	change_environment (E_ABYSS);
     }
 }
