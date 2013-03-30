@@ -73,13 +73,8 @@ bool restore_game (void)
 {
     char savestr [128];
     snprintf (ArrayBlock(savestr), OMEGA_SAVED_GAME, getenv("HOME"));
-
-    if (0 != access (savestr, R_OK)) {
-	print1 ("Unable to access save file: ");
-	nprint1 (savestr);
-	morewait();
-	return false;
-    }
+    if (0 != access (savestr, R_OK))
+	return (false);
 
     memblock buf;
     try {
@@ -387,7 +382,7 @@ void monster_data::write (ostream& os) const noexcept
 {
     uint8_t components = 0;
     if (id < ArraySize(Monsters)) {
-	if (!memcmp(this, &Monsters[id], MONSTERCHANGEABLESIZE))
+	if (0 != memcmp(this, &Monsters[id], MONSTERCHANGEABLESIZE))
 	    components |= 1;
 	if ((monstring && monstring != Monsters[id].monstring) || (corpsestr && corpsestr != Monsters[id].corpsestr))
 	    components |= 2;
@@ -407,7 +402,7 @@ streamsize monster_data::stream_size (void) const noexcept
 {
     streamsize sz = 4;
     if (id < ArraySize(Monsters)) {
-	if (!memcmp(this, &Monsters[id], MONSTERCHANGEABLESIZE))
+	if (0 != memcmp(this, &Monsters[id], MONSTERCHANGEABLESIZE))
 	    sz += MONSTERCHANGEABLESIZE;
 	if ((monstring && monstring != Monsters[id].monstring) || (corpsestr && corpsestr != Monsters[id].corpsestr))
 	    sz += Align(strlen(monstring)+1+strlen(corpsestr)+1,stream_align(*this));
@@ -466,7 +461,7 @@ void object_data::write (ostream& os) const noexcept
 {
     uint8_t components = 0;
     if (id < ArraySize(Objects)) {
-	if (!memcmp(&weight, &Objects[id].weight, OBJECTCHANGEABLESIZE))
+	if (0 != memcmp(&weight, &Objects[id].weight, OBJECTCHANGEABLESIZE))
 	    components |= 1;
 	if ((objstr && objstr != Objects[id].objstr) || (truename && truename != Objects[id].truename) || (cursestr && cursestr != Objects[id].cursestr))
 	    components |= 2;
@@ -486,7 +481,7 @@ streamsize object_data::stream_size (void) const noexcept
 {
     streamsize sz = stream_size_of(id) + stream_size_of(level);
     if (id < ArraySize(Objects)) {
-	if (!memcmp(&weight, &Objects[id].weight, OBJECTCHANGEABLESIZE))
+	if (0 != memcmp(&weight, &Objects[id].weight, OBJECTCHANGEABLESIZE))
 	    sz += OBJECTCHANGEABLESIZE;
 	if ((objstr && objstr != Objects[id].objstr) || (truename && truename != Objects[id].truename) || (cursestr && cursestr != Objects[id].cursestr))
 	    sz += Align(strlen(objstr)+1+strlen(truename)+1+strlen(cursestr)+1,stream_align(*this));
