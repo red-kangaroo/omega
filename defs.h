@@ -767,8 +767,7 @@ public:
     int16_t x;
     int16_t y;
 public:
-		object (void)			{ itzero (this); }
-		object (int nx, int ny, unsigned tid, unsigned n = 1);
+    explicit	object (int nx = 0, int ny = 0, unsigned tid = 0, unsigned n = 1);
 		object (const object_data& o)	: number(1), x(0), y(0) { operator= (o); }
     object&	operator= (const object_data& o){ *implicit_cast<object_data*>(this) = o; return (*this); }
     bool	operator== (const object& v) const;
