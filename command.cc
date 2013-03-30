@@ -1026,11 +1026,8 @@ void save (int compress, int force)
 	print1 ("Confirm Save? [yn] ");
 	ok = (ynq1() == 'y');
     }
-    if ((force || ok) && save_game()) {
-	print3 ("Bye!");
-	endgraf();
-	exit (0);
-    }
+    if ((force || ok) && save_game())
+	return;
     if (force) {
 	morewait();
 	clearmsg();
