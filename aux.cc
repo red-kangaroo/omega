@@ -2464,17 +2464,15 @@ bool hostilemonstersnear (void)
 // if alignment of stone is alignment of player, gets done sooner
 int stonecheck (int alignment)
 {
-    int *stone, match = false, cycle = false, i;
+    bool match = false, cycle = false;
 
+    uint8_t* stone = &Mindstone;
     if (alignment == 1) {
 	stone = &Lawstone;
 	match = Player.alignment > 0;
     } else if (alignment == -1) {
 	stone = &Chaostone;
 	match = Player.alignment < 0;
-    } else {
-	stone = &Mindstone;
-	match = false;
     }
     *stone += random_range (4) + (match ? random_range (4) : 0);
     switch ((*stone)++) {
@@ -2588,7 +2586,7 @@ int stonecheck (int alignment)
 	case 29:
 	    print1 ("The stone glows blue-violet");
 	    print2 ("You feel forgetful.");
-	    for (i = 0; i < NUMSPELLS; i++) {
+	    for (unsigned i = 0; i < NUMSPELLS; i++) {
 		if (spell_is_known(ESpell(i))) {
 		    forget_spell(ESpell(i));
 		    break;

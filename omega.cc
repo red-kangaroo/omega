@@ -33,18 +33,18 @@ uint8_t ObjectAttrs[TOTALITEMS] = {0};
 // locations of city sites [0] - found, [1] - x, [2] - y
 citysite CitySiteList[NUMCITYSITES];
 
-long GameStatus = 0L;		// Game Status bit vector
-int ScreenLength = 0;		// How large is level window
+uint32_t GameStatus = 0;	// Game Status bit vector
+uint8_t ScreenLength = 0;	// How large is level window
 struct player Player;		// the player
 struct level* Country = NULL;	// The countryside
 struct level* City = NULL;	// The city of Rampart
 struct level* TempLevel = NULL;	// Place holder
 struct level* Level = NULL;	// Pointer to current Level
 struct level* Dungeon = NULL;	// Pointer to current Dungeon
-int Villagenum = 0;		// Current Village number
-int ScreenOffset = 0;		// Offset of displayed screen to level
-int MaxDungeonLevels = 0;	// Deepest level allowed in dungeon
-int Current_Dungeon = -1;	// What is Dungeon now
+uint8_t Villagenum = 0;		// Current Village number
+int8_t ScreenOffset = 0;	// Offset of displayed screen to level
+uint8_t MaxDungeonLevels = 0;	// Deepest level allowed in dungeon
+int8_t Current_Dungeon = -1;	// What is Dungeon now
 EEnvironment Current_Environment = E_CITY;	// Which environment are we in
 EEnvironment Last_Environment = E_COUNTRYSIDE;	// Which environment were we in
 const int8_t Dirs[2][9] = {	// 9 xy directions
@@ -52,48 +52,47 @@ const int8_t Dirs[2][9] = {	// 9 xy directions
     { 1, -1, 1, -1, 0, 0, 1, -1, 0 }
 };
 chtype Cmd = 's';		// last player command
-int Command_Duration = 0;	// how long does current command take
-int Arena_Opponent = 0;		// case label of opponent in l_arena()
-int Arena_Victory = 0;		// did player win in arena?
-int Imprisonment = 0;		// amount of time spent in jail
-int Precipitation = 0;		// Hours of rain, snow, etc
-int Lunarity = 0;		// Effect of the moon on character
-int Phase = 0;			// Phase of the moon
-int Date = 0;			// Starting date
-int Pawndate = 0;		// Pawn Shop item generation date
+uint16_t Command_Duration = 0;	// how long does current command take
+uint8_t Arena_Opponent = 0;	// case label of opponent in l_arena()
+uint8_t Arena_Victory = 0;	// did player win in arena?
+uint8_t Imprisonment = 0;	// amount of time spent in jail
+uint8_t Precipitation = 0;	// Hours of rain, snow, etc
+int8_t Lunarity = 0;		// Effect of the moon on character
+uint8_t Phase = 0;		// Phase of the moon
+uint16_t Date = 0;		// Starting date
+uint16_t Pawndate = 0;		// Pawn Shop item generation date
 vector<object> Pawnitems;
 
 // items in pawn shop
-int SymbolUseHour = -1;		// holy symbol use marker
-int ViewHour = -1;		// crystal ball use marker
-int ZapHour = -1;		// staff of enchantment use marker
-int HelmHour = -1;		// helm of teleportation use marker
-int Constriction = 0;		// Dragonlord Attack State
-int Blessing = false;		// Altar Blessing State
-int LastDay = -1;		// DPW date of dole
-int RitualHour = -1;		// last use of ritual magic
-int RitualRoom = -1;		// last room of ritual magic
-int Lawstone = 0;		// magic stone counter
-int Chaostone = 0;		// magic stone counter
-int Mindstone = 0;		// magic stone counter
-int Searchnum = 1;		// number of times to search on 's'
-int Behavior;			// Player NPC behavior
-int Verbosity = VERBOSE;	// verbosity level
-long Time = 0;			// turn number
-int Tick = 0;			// 10 a turn; action coordinator
+int8_t SymbolUseHour = -1;		// holy symbol use marker
+int8_t ViewHour = -1;		// crystal ball use marker
+int8_t ZapHour = -1;		// staff of enchantment use marker
+int8_t HelmHour = -1;		// helm of teleportation use marker
+uint8_t Constriction = 0;	// Dragonlord Attack State
+bool Blessing = false;		// Altar Blessing State
+int16_t LastDay = -1;		// DPW date of dole
+int8_t RitualHour = -1;		// last use of ritual magic
+int8_t RitualRoom = -1;		// last room of ritual magic
+uint8_t Lawstone = 0;		// magic stone counter
+uint8_t Chaostone = 0;		// magic stone counter
+uint8_t Mindstone = 0;		// magic stone counter
+uint8_t Searchnum = 1;		// number of times to search on 's'
+EVerbosity Verbosity = VERBOSE;	// verbosity level
+uint32_t Time = 0;		// turn number
+uint8_t Tick = 0;		// 10 a turn; action coordinator
 char Stringbuffer[STRING_BUFFER_SIZE][80];	// last strings printed
-long Gymcredit = 0;		// credit at rampart gym
-int Spellsleft = 0;		// research allowance at college
-int StarGemUse = 0;		// last date of star gem use
-int HiMagicUse = 0;		// last date of high magic use
-int HiMagic = 0;		// current level for l_throne
-long Balance = 0;		// bank account
-long FixedPoints = 0;		// points are frozen after adepthood
-int LastTownLocX = 0;		// previous position in village or city
-int LastTownLocY = 0;		// previous position in village or city
-int LastCountryLocX = 0;	// previous position in countryside
-int LastCountryLocY = 0;	// previous position in countryside
-char Password[64];		// autoteller password
+uint32_t Gymcredit = 0;		// credit at rampart gym
+uint8_t Spellsleft = 0;		// research allowance at college
+uint16_t StarGemUse = 0;	// last date of star gem use
+uint16_t HiMagicUse = 0;	// last date of high magic use
+uint8_t HiMagic = 0;		// current level for l_throne
+uint32_t Balance = 0;		// bank account
+uint32_t FixedPoints = 0;	// points are frozen after adepthood
+uint8_t LastTownLocX = 0;	// previous position in village or city
+uint8_t LastTownLocY = 0;	// previous position in village or city
+uint8_t LastCountryLocX = 0;	// previous position in countryside
+uint8_t LastCountryLocY = 0;	// previous position in countryside
+char Password[8];		// autoteller password
 char Str1[STRING_LEN], Str2[STRING_LEN], Str3[STRING_LEN], Str4[STRING_LEN]; // Some string space, random uses
 
 vector<object> Condoitems;	// Items in condo
@@ -108,22 +107,22 @@ const char Hidescrip[] = "Killed by a pun";
 const char Hiscorer[] = "Zippy";
 const char Justiciar[] = "Morgon";
 const char Lawlord[] = "Ariel";
-const char Priest[7][12] = { "", "Gallow", "Kharst", "Allana", "Dara", "Thistleman", "Humperdinck" };
-const int Priestbehavior[7] = { 0, 2711, 2712, 2931, 2932, 2933, 5718 };
-const int Priestlevel[7] = { 0, 10, 10, 10, 10, 10, 10 };
+const char Priest[NUMRELIGIONS][12] = { "", "Gallow", "Kharst", "Allana", "Dara", "Thistleman", "Humperdinck" };
+const uint16_t Priestbehavior[NUMRELIGIONS] = { 0, 2711, 2712, 2931, 2932, 2933, 5718 };
+const uint8_t Priestlevel[NUMRELIGIONS] = { 0, 10, 10, 10, 10, 10, 10 };
 const char Prime[] = "Blackskull";
 const char Shadowlord[] = "Shadowspawn";
 
 // New globals which used to be statics
-int twiddle = false;
-int saved = false;
-int onewithchaos = false;
-int club_hinthour = 0;
-int winnings = 0;
-int tavern_hinthour;
+bool twiddle = false;
+bool saved = false;
+bool onewithchaos = false;
+uint8_t club_hinthour = 0;
+uint16_t winnings = 0;
+uint8_t tavern_hinthour;
 
-int deepest[E_MAX + 1];
-int level_seed[E_MAX + 1];	// random number seed that generated level
+uint8_t deepest [E_MAX + 1];
+uint32_t level_seed [E_MAX + 1];	// random number seed that generated level
 
 static void signalexit (int sig);
 

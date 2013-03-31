@@ -100,7 +100,7 @@ bool restore_game (void)
 		Level = City;
 	}
 	print3 ("Restoration complete.");
-	ScreenOffset = -1000;	// to force a redraw
+	ScreenOffset = -100;	// to force a redraw
 	setgamestatus (SKIP_MONSTERS);
     } catch (const exception& e) {
 	char errbuf[80];
@@ -115,16 +115,17 @@ bool restore_game (void)
 template <typename Stm>
 static inline void globals_serialize (Stm& stm)
 {
-    stm & GameStatus & Time & Gymcredit & Balance & FixedPoints
-	& SpellKnown & Current_Environment & Last_Environment & Current_Dungeon & Villagenum
-	& Verbosity & Tick & Searchnum & Behavior & Phase
-	& Date & Spellsleft & SymbolUseHour & ViewHour & HelmHour
-	& Constriction & Blessing & LastDay & RitualHour & Lawstone
-	& Chaostone & Mindstone & Arena_Opponent & Imprisonment & StarGemUse
-	& HiMagicUse & HiMagic & LastCountryLocX & LastCountryLocY & LastTownLocX
-	& LastTownLocY & Pawndate & Command_Duration & Precipitation & Lunarity
-	& ZapHour & RitualRoom & twiddle & saved & onewithchaos
-	& club_hinthour & winnings & tavern_hinthour;
+    stm & ios::align(8)
+	& GameStatus & Time & Gymcredit & Balance & SpellKnown
+	& FixedPoints & Command_Duration & Date & HiMagicUse & LastDay
+	& Pawndate & StarGemUse & winnings & Arena_Opponent & Blessing
+	& Chaostone & Constriction & Current_Dungeon & Current_Environment & HelmHour
+	& HiMagic & Imprisonment & LastCountryLocX & LastCountryLocY & LastTownLocX
+	& LastTownLocY & Last_Environment & Lawstone & Lunarity & Mindstone
+	& Phase & Precipitation & RitualHour & RitualRoom & Searchnum
+	& Spellsleft & SymbolUseHour & Tick & Verbosity & ViewHour
+	& Villagenum & ZapHour & club_hinthour & onewithchaos & saved
+	& tavern_hinthour & twiddle;	// End is currently 4-grain
 }
 
 streamsize player::stream_size (void) const
@@ -135,14 +136,12 @@ streamsize player::stream_size (void) const
     ss << immunity << status << guildxp;
     ss.skipalign (stream_align(name));
     ss << name << meleestr;
+
+    globals_serialize (ss);
     ss.write (Password, sizeof(Password));
     ss.write (CitySiteList, sizeof (CitySiteList));
-    ss << ios::align(alignof(GameStatus));
-    globals_serialize (ss);
     ss.write (deepest, sizeof(deepest));
     ss.write (level_seed, sizeof(level_seed));
-
-    // Save player item knowledge
     ss.write (Spells, sizeof (Spells));
     ss.write (ObjectAttrs, sizeof(ObjectAttrs));
 
@@ -162,14 +161,13 @@ void player::write (ostream& os) const
     os << immunity << status << guildxp;
     os.skipalign (stream_align(name));
     os << name << meleestr;
+
+    // Save globals
+    globals_serialize (os);
     os.write (Password, sizeof(Password));
     os.write (CitySiteList, sizeof (CitySiteList));
-    os << ios::align(alignof(GameStatus));
-    globals_serialize (os);
     os.write (deepest, sizeof(deepest));
     os.write (level_seed, sizeof(level_seed));
-
-    // Save player item knowledge
     os.write (Spells, sizeof (Spells));
     os.write (ObjectAttrs, sizeof(ObjectAttrs));
 
@@ -187,31 +185,21 @@ void player::read (istream& is)
     is >> immunity >> status >> guildxp;
     is.align (stream_align(name));
     is >> name >> meleestr;
+
+    // Restore globals
+    globals_serialize (is);
     is.read (Password, sizeof(Password));
     is.read (CitySiteList, sizeof(CitySiteList));
-    is >> ios::align(alignof(GameStatus));
-    globals_serialize (is);
     is.read (deepest, sizeof(deepest));
     is.read (level_seed, sizeof(level_seed));
     is.read (Spells, sizeof(Spells));
     is.read (ObjectAttrs, sizeof(ObjectAttrs));
-
     switch (Current_Dungeon) {
-	case E_ASTRAL:
-	    MaxDungeonLevels = ASTRALLEVELS;
-	    break;
-	case E_SEWERS:
-	    MaxDungeonLevels = SEWERLEVELS;
-	    break;
-	case E_CASTLE:
-	    MaxDungeonLevels = CASTLELEVELS;
-	    break;
-	case E_CAVES:
-	    MaxDungeonLevels = CAVELEVELS;
-	    break;
-	case E_VOLCANO:
-	    MaxDungeonLevels = VOLCANOLEVELS;
-	    break;
+	case E_ASTRAL:	MaxDungeonLevels = ASTRALLEVELS; break;
+	case E_SEWERS:	MaxDungeonLevels = SEWERLEVELS; break;
+	case E_CASTLE:	MaxDungeonLevels = CASTLELEVELS; break;
+	case E_CAVES:	MaxDungeonLevels = CAVELEVELS; break;
+	case E_VOLCANO:	MaxDungeonLevels = VOLCANOLEVELS; break;
     }
 
     is.align (stream_align (possessions));

@@ -7,7 +7,6 @@
 static void initstats(void);
 static void save_omegarc(void);
 static void load_omegarc (const char* filename);
-static int competence_check(int attack);
 static void user_character_stats(void);
 static void omegan_character_stats(void);
 static bool personal_question_yn (const char* q);
@@ -32,7 +31,6 @@ void initplayer (void)
 {
     Player.itemweight = 0;
     Player.food = 36;
-    Behavior = -1;
     Player.options = 0;
     fill (Player.immunity, 0);
     fill (Player.status, 0);
@@ -68,7 +66,7 @@ void initplayer (void)
     Player.click = 1;
     Player.meleestr = "CCBC";
     calc_melee();
-    ScreenOffset = -1000;	// to force a redraw
+    ScreenOffset = -100;	// to force a redraw
 }
 
 static void initstats (void)
@@ -114,8 +112,8 @@ static inline void omegarc_serialize_player_static (Stm& stm)
 template <typename Stm>
 static inline void omegarc_write (Stm& stm)
 {
-    const uint32_t fmt = OMEGA_PLAYER_FORMAT;
-    const uint32_t savefmt = OMEGA_SAVE_FORMAT;
+    const uint8_t fmt = OMEGA_PLAYER_FORMAT;
+    const uint8_t savefmt = OMEGA_SAVE_FORMAT;
     stm << fmt << savefmt << Searchnum << Verbosity << Player.name;
     omegarc_serialize_player_static (stm);
 }
@@ -138,7 +136,7 @@ static void load_omegarc (const char* filename)
     buf.read_file (filename);
     istream is (buf);
 
-    uint32_t fmt, savefmt;
+    uint8_t fmt, savefmt;
     is.verify_remaining ("load_omegarc", stream_size_of(fmt)+stream_size_of(savefmt)+stream_size_of(Searchnum)+stream_size_of(Verbosity));
     is >> fmt >> savefmt >> Searchnum >> Verbosity;
     if (fmt != OMEGA_PLAYER_FORMAT)
@@ -148,105 +146,6 @@ static void load_omegarc (const char* filename)
     omegarc_serialize_player_static (ss);
     is.verify_remaining ("load_omegarc", ss.pos());
     omegarc_serialize_player_static (is);
-}
-
-
-//  npcbehavior digits 1234
-//
-// 4 : alignment (LAWFUL,CHAOTIC, or NEUTRAL)
-// 3 : primary combat action (melee,missile,spell,thief,flight,1..5)
-// 2 : competence at 4 (0..9, 0 = incompetent, 9 = masterful)
-// 1 : conversation mode
-//
-// status : 1 = dead, 2 = saved, 3 = retired, 4 = still playing
-int fixnpc (int status)
-{
-    int npcbehavior = 0;
-    char response;
-    if (status == 1) {		// player is dead, all undead are chaotic
-	npcbehavior += CHAOTIC;
-	npcbehavior += 10;	// melee
-	npcbehavior += 100 * min (9, ((int) (Player.level / 3)));
-	npcbehavior += 1000;	// threaten
-    } else if (Behavior >= 0)
-	npcbehavior = Behavior;
-    else {
-	menuclear();
-	menuprint ("NPC Behavior Determination Module\n\n");
-	menuprint ("Your overall NPC behavior is:");
-	if (Player.alignment < -10) {
-	    npcbehavior += CHAOTIC;
-	    menuprint ("\n\n CHAOTIC");
-	} else if (Player.alignment > 10) {
-	    npcbehavior += LAWFUL;
-	    menuprint ("\n\n LAWFUL");
-	} else {
-	    npcbehavior += NEUTRAL;
-	    menuprint ("\n\n NEUTRAL");
-	}
-	menuprint ("\n\n1: hand-to-hand combat");
-	menuprint ("\n2: missile combat");
-	menuprint ("\n3: spellcasting");
-	menuprint ("\n4: thieving");
-	menuprint ("\n5: escape");
-	menuprint ("\n\nEnter NPC response to combat: ");
-	showmenu();
-	response = '0';
-	while ((response != '1') && (response != '2') && (response != '3') && (response != '4') && (response != '5'))
-	    response = menugetc();
-	menuaddch (response);
-	npcbehavior += 10 * (response - '0');
-	npcbehavior += 100 * competence_check (response - '0');
-	response = '0';
-	menuclear();
-	menuprint ("1: threaten");
-	menuprint ("\n2: greet");
-	menuprint ("\n3: aid");
-	menuprint ("\n4: beg");
-	menuprint ("\n5: silence");
-	menuprint ("\n\nEnter NPC response to conversation: ");
-	showmenu();
-	while ((response != '1') && (response != '2') && (response != '3') && (response != '4') && (response != '5'))
-	    response = menugetc();
-	menuaddch (response);
-	npcbehavior += 1000 * (response - '0');
-	xredraw();
-    }
-    Behavior = npcbehavior;
-    return (npcbehavior);
-}
-
-// estimates on a 0..9 scale how good a player is at something
-static int competence_check (int attack)
-{
-    int ability = 0;
-    switch (attack) {
-	case 1:		// melee
-	    ability += statmod (Player.str);
-	case 2:		// missle
-	    ability += statmod (Player.dex);
-	    ability += Player.rank[LEGION];
-	    ability += ((int) (Player.dmg / 10) - 1);
-	    break;
-	case 3:		// spellcasting
-	    ability += statmod (Player.iq);
-	    ability += statmod (Player.pow);
-	    ability += Player.rank[CIRCLE];
-	    ability += Player.rank[COLLEGE];
-	    ability += Player.rank[PRIEST];
-	    break;
-	case 4:		// thieving
-	    ability += statmod (Player.dex);
-	    ability += statmod (Player.agi);
-	    ability += Player.rank[THIEVES];
-	    break;
-	case 5:		// escape
-	    ability += 2 * statmod (Player.agi);
-	    break;
-    }
-    ability += Player.level/5;
-    ability = min(9,max(0,ability));
-    return (ability);
 }
 
 static bool personal_question_yn (const char* q)

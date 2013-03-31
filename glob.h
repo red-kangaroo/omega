@@ -9,104 +9,103 @@ extern uint8_t ObjectAttrs[TOTALITEMS];		// attributes such as known and uniquen
 extern const struct object_data NullObject;
 extern citysite CitySiteList[NUMCITYSITES];	// locations of city sites
 extern struct player Player;			// the player
-extern long GameStatus;				// Game Status bit vector
-extern int ScreenLength;			// How large is level window
+extern uint32_t GameStatus;			// Game Status bit vector
+extern uint8_t ScreenLength;			// How large is level window
 extern struct level* Country;			// The countryside
 extern struct level* City;			// The city of Rampart
 extern struct level* TempLevel;			// Place holder
 extern struct level* Dungeon;			// Pointer to current Dungeon
 extern struct level* Level;			// Pointer to current Level
-extern int Current_Dungeon;			// What is Dungeon now (an E_ constant)
-extern int Villagenum;				// Current Village number
-extern int ScreenOffset;			// Offset of displayed screen to level
-extern int MaxDungeonLevels;			// Deepest level allowed in dungeon
+extern int8_t Current_Dungeon;			// What is Dungeon now (an E_ constant)
+extern uint8_t Villagenum;			// Current Village number
+extern int8_t ScreenOffset;			// Offset of displayed screen to level
+extern uint8_t MaxDungeonLevels;		// Deepest level allowed in dungeon
 extern EEnvironment Current_Environment;	// Which environment are we in (an E_ constant)
 extern EEnvironment Last_Environment;		// Which environment were we in last (an E_ constant)
 extern const int8_t Dirs[2][9];			// 9 xy directions
 extern chtype Cmd;				// last player command
-extern int Command_Duration;			// how long does current command take
-extern int Arena_Opponent;			// case label of opponent in l_arena()
-extern int Arena_Victory;			// did player win in arena?
-extern int Imprisonment;			// amount of time spent in jail
-extern int Precipitation;			// Hours of rain, snow, etc
-extern int Phase;				// Phase of the moon
-extern int Lunarity;				// How player is affected by moon
-extern int Date;				// day of the year
-extern int Pawndate;				// Pawn Shop item generation date
+extern uint16_t Command_Duration;		// how long does current command take
+extern uint8_t Arena_Opponent;			// case label of opponent in l_arena()
+extern uint8_t Arena_Victory;			// did player win in arena?
+extern uint8_t Imprisonment;			// amount of time spent in jail
+extern uint8_t Precipitation;			// Hours of rain, snow, etc
+extern uint8_t Phase;				// Phase of the moon
+extern int8_t Lunarity;				// How player is affected by moon
+extern uint16_t Date;				// day of the year
+extern uint16_t Pawndate;			// Pawn Shop item generation date
 extern vector<object> Pawnitems;		// items in pawn shop
-extern int ViewHour;				// crystal ball use marker
-extern int ZapHour;				// staff of enchantment use marker
-extern int HelmHour;				// helm of teleportation use marker
-extern int SymbolUseHour;			// holy symbol use marker
-extern int Constriction;			// Dragonlord Attack State
-extern int Blessing;				// Altar Blessing State
-extern int LastDay;				// DPW date of dole
-extern int RitualHour;				// last use of ritual magic
-extern int RitualRoom;				// last room use of ritual magic
-extern int Lawstone;				// magic stone counter
-extern int Chaostone;				// magic stone counter
-extern int Mindstone;				// magic stone counter
-extern int Searchnum;				// number of times to search on 's'
-extern int Verbosity;				// verbosity level
-extern int Behavior;				// NPC behavior, if entered
-extern long Time;				// turn number
-extern int Tick;				// current second in minute; action coordinator
+extern int8_t ViewHour;				// crystal ball use marker
+extern int8_t ZapHour;				// staff of enchantment use marker
+extern int8_t HelmHour;				// helm of teleportation use marker
+extern int8_t SymbolUseHour;			// holy symbol use marker
+extern uint8_t Constriction;			// Dragonlord Attack State
+extern bool Blessing;				// Altar Blessing State
+extern int16_t LastDay;				// DPW date of dole
+extern int8_t RitualHour;			// last use of ritual magic
+extern int8_t RitualRoom;			// last room use of ritual magic
+extern uint8_t Lawstone;			// magic stone counter
+extern uint8_t Chaostone;			// magic stone counter
+extern uint8_t Mindstone;			// magic stone counter
+extern uint8_t Searchnum;			// number of times to search on 's'
+extern EVerbosity Verbosity;			// verbosity level
+extern uint32_t Time;				// turn number
+extern uint8_t Tick;				// current second in minute; action coordinator
 extern char Stringbuffer[STRING_BUFFER_SIZE][80];	// the last printed strings
-extern long Gymcredit;				// credit at rampart gym
-extern int Spellsleft;				// research allowance at college
-extern int StarGemUse;				// last date of star gem use
-extern int HiMagicUse;				// last date of high magic use
-extern int HiMagic;				// current level for l_throne
-extern long Balance;				// bank account
-extern long FixedPoints;			// points are frozen after adepthood
-extern int LastCountryLocX;			// previous position in countryside
-extern int LastCountryLocY;			// previous position in countryside
-extern int LastTownLocX;			// previous position in village or city
-extern int LastTownLocY;			// previous position in village or city
-extern char Password[64];			// autoteller password
+extern uint32_t Gymcredit;			// credit at rampart gym
+extern uint8_t Spellsleft;			// research allowance at college
+extern uint16_t StarGemUse;			// last date of star gem use
+extern uint16_t HiMagicUse;			// last date of high magic use
+extern uint8_t HiMagic;				// current level for l_throne
+extern uint32_t Balance;			// bank account
+extern uint32_t FixedPoints;			// points are frozen after adepthood
+extern uint8_t LastCountryLocX;			// previous position in countryside
+extern uint8_t LastCountryLocY;			// previous position in countryside
+extern uint8_t LastTownLocX;			// previous position in village or city
+extern uint8_t LastTownLocY;			// previous position in village or city
+extern char Password[8];			// autoteller password
 extern vector<object> Condoitems;		// items in condo
-extern char Str1[100], Str2[100], Str3[100], Str4[100];	// Some string space, random uses
+extern char Str1[STRING_LEN], Str2[STRING_LEN], Str3[STRING_LEN], Str4[STRING_LEN];	// Some string space, random uses
 
 // high score names, levels, behavior
-const int Archmagebehavior = 2933;
-const int Archmagelevel = 10;
-const int Championbehavior = 2713;
-const int Championlevel = 10;
-const int Chaos = -100;
-const int Chaoslordbehavior = 2712;
-const int Chaoslordlevel = 10;
-const int Commandantbehavior = 2713;
-const int Commandantlevel = 10;
-const int Dukebehavior = 2718;
-const int Dukelevel = 10;
-const int Hibehavior = 2713;
-const int Hilevel = 0;
-const int Justiciarbehavior = 2718;
-const int Justiciarlevel = 10;
-const int Law = 100;
-const int Lawlordbehavior = 2711;
-const int Lawlordlevel = 10;
-const int Primebehavior = 2932;
-const int Primelevel = 10;
-const int Shadowlordbehavior = 2712;
-const int Shadowlordlevel = 10;
-const int Hiscore = 0L;
-extern const int Priestbehavior[7];
+const uint16_t Archmagebehavior = 2933;
+const uint16_t Archmagelevel = 10;
+const uint16_t Championbehavior = 2713;
+const uint16_t Championlevel = 10;
+const uint16_t Chaos = -100;
+const uint16_t Chaoslordbehavior = 2712;
+const uint16_t Chaoslordlevel = 10;
+const uint16_t Commandantbehavior = 2713;
+const uint16_t Commandantlevel = 10;
+const uint16_t Dukebehavior = 2718;
+const uint16_t Dukelevel = 10;
+const uint16_t Hibehavior = 2713;
+const uint16_t Hilevel = 0;
+const uint16_t Justiciarbehavior = 2718;
+const uint16_t Justiciarlevel = 10;
+const uint16_t Law = 100;
+const uint16_t Lawlordbehavior = 2711;
+const uint16_t Lawlordlevel = 10;
+const uint16_t Primebehavior = 2932;
+const uint16_t Primelevel = 10;
+const uint16_t Shadowlordbehavior = 2712;
+const uint16_t Shadowlordlevel = 10;
+const uint16_t Hiscore = 0;
+extern const uint16_t Priestbehavior [NUMRELIGIONS];
 extern const char Shadowlord[], Archmage[], Prime[], Commandant[], Duke[];
-extern const char Champion[], Priest[7][12], Hiscorer[], Hidescrip[];
+extern const char Champion[], Priest[NUMRELIGIONS][12], Hiscorer[], Hidescrip[];
 extern const char Chaoslord[], Lawlord[], Justiciar[];
-extern const int Priestlevel[7];
+extern const uint8_t Priestlevel [NUMRELIGIONS];
 
 // New globals which used to be statics
-extern int twiddle;
-extern int saved;
-extern int onewithchaos;
-extern int club_hinthour;
-extern int winnings;
-extern int tavern_hinthour;
+extern bool twiddle;
+extern bool saved;
+extern bool onewithchaos;
+extern uint8_t club_hinthour;
+extern uint16_t winnings;
+extern uint8_t tavern_hinthour;
 
-extern int deepest[E_MAX + 1];
-extern int level_seed[E_MAX + 1];
+extern uint8_t deepest[E_MAX + 1];
+extern uint32_t level_seed[E_MAX + 1];
 
 // Data files
 extern const char Help_Overview[];

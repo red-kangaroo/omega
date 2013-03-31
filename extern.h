@@ -49,7 +49,6 @@ void alert_guards (void);
 unsigned maneuvers (void);
 // char.c
 void initplayer (void);
-int fixnpc (int status);
 // command.c
 void p_process (void);
 void p_country_process (void);

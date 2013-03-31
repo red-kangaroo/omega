@@ -88,7 +88,7 @@ void l_chaos (void)
 	print1 ("You are immersed in raw Chaos....");
     if (Player.rank[ADEPT]) {
 	if (!onewithchaos) {
-	    onewithchaos = 1;
+	    onewithchaos = true;
 	    print2 ("You achieve oneness of Chaos....");
 	}
 	Player.mana = max (Player.mana, Player.calcmana());

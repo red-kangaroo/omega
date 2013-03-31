@@ -1368,7 +1368,7 @@ void l_arena (void)
 	print2 ("Enter the games, or Register as a Gladiator? [e,r,ESCAPE] ");
 	do
 	    response = (char) mcigetc();
-	while ((response != 'e') && (response != 'r') && (response != KEY_ESCAPE));
+	while (response != 'e' && response != 'r' && response != KEY_ESCAPE);
     } else {
 	print2 ("Enter the games? [yn] ");
 	response = ynq2();
@@ -1412,23 +1412,6 @@ void l_arena (void)
 	time_clock (true);
 	while (Current_Environment == E_ARENA)
 	    time_clock (false);
-
-	// WDT -- Sheldon Simms points out that these objects are not
-	// wastes of space; on the contrary, they can be carried out of the
-	// arena.  Freeing them was causing subtle and hard to find problems.
-	// However, not freeing them is causing a couple of tiny memory leaks.
-	// This should be fixed, probably by modifying the object destruction
-	// procedures to account for this case.  I'm not really concerned.
-	// David Given has proposed a nicer solution, but it still causes a
-	// memory leak.  Obviously, we need a special field just for names
-	// in the monster struct.  Yadda yadda -- I'll mmark this with a
-	// HACK!, and comme back to it later.
-	// can not free the corpse string... it is referenced in the
-	// corpse string of the corpse object.
-	// Unfortunately, this will cause a memory leak, but I don't see
-	// any way to avoid it.  This fixes the munged arena corpse names
-	// problem. -DAG
-	// delete corpse;
 
 	if (!Arena_Victory) {
 	    print1 ("The crowd boos your craven behavior!!!");
@@ -2886,7 +2869,6 @@ void l_bank (void)
     int done = false, valid = false;
     long amount;
     char response;
-    char passwd[64];
     print1 ("First Bank of Omega: Autoteller Carrel.");
 
     if (gamestatusp (BANK_BROKEN))
@@ -2904,7 +2886,7 @@ void l_bank (void)
 	    if (response == '?') {
 		menuclear();
 		menuprint ("?: This List.\n");
-		if (strcmp (Password, "") == 0)
+		if (!Password[0])
 		    menuprint ("O: Open an account.\n");
 		else {
 		    menuprint ("P: Enter password.\n");
@@ -2916,10 +2898,12 @@ void l_bank (void)
 		morewait();
 		xredraw();
 		continue;
-	    } else if ((response == 'P') && (strcmp (Password, "") != 0)) {
+	    } else if (response == 'P' && Password[0]) {
 		clearmsg();
 		print1 ("Password: ");
-		strcpy (passwd, msgscanstring());
+		char passwd [ArraySize(Password)];
+		strncpy (passwd, msgscanstring(), sizeof(passwd));
+		ArrayEnd(passwd)[-1] = 0;
 		valid = (strcmp (passwd, Password) == 0);
 		if (!valid) {
 		    done = true;
@@ -2971,7 +2955,7 @@ void l_bank (void)
 		    }
 		} else
 		    print2 ("Password accepted. Working.");
-	    } else if ((response == 'D') && valid) {
+	    } else if (response == 'D' && valid) {
 		clearmsg();
 		print1 ("Amount: ");
 		amount = get_money (Player.cash);
@@ -2984,7 +2968,7 @@ void l_bank (void)
 		    Balance += amount;
 		    Player.cash -= amount;
 		}
-	    } else if ((response == 'W') && valid) {
+	    } else if (response == 'W' && valid) {
 		clearmsg();
 		print1 ("Amount: ");
 		amount = get_money (Balance);
@@ -3001,12 +2985,13 @@ void l_bank (void)
 		clearmsg();
 		print1 ("Bye!");
 		done = true;
-	    } else if ((response == 'O') && (strcmp (Password, "") == 0)) {
+	    } else if (response == 'O' && !Password[0]) {
 		clearmsg();
 		print1 ("Opening new account.");
 		nprint1 (" Please enter new password: ");
-		strcpy (Password, msgscanstring());
-		if (strcmp (Password, "") == 0) {
+		strncpy (Password, msgscanstring(), sizeof(Password));
+		ArrayEnd(Password)[-1] = 0;
+		if (!Password[0]) {
 		    print3 ("Illegal to use null password -- aborted.");
 		    done = true;
 		} else {

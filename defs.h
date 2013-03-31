@@ -34,7 +34,7 @@ enum {
 };
 
 // Verbosity levels
-enum { TERSE, MEDIUM, VERBOSE };
+enum EVerbosity : uint8_t { TERSE, MEDIUM, VERBOSE };
 
 // Overall Game Progress Vector Bits
 // Long had BETTER have at least 32 bits....
@@ -67,7 +67,7 @@ enum {
     UNDEAD_GUARDS	= (1<<25),
 };
 
-enum EEnvironment {
+enum EEnvironment : int8_t {
     // non-existant environments for the random number seeding routine
     E_RESTORE = -2,
     E_RANDOM,
@@ -138,7 +138,7 @@ enum { NOT_IN_ORDER,	GALLANT, GUARDIAN, CHEVALIER, PALADIN, JUSTICIAR, FORMER_PA
 enum { NOT_IN_CIRCLE,	INITIATE, ENCHANTER, SORCEROR, HIGHSORCEROR, PRIME, FORMER_SOURCEROR = -1 };
 enum { NOT_NOBILITY,	COMMONER, ESQUIRE, KNIGHT, LORD, DUKE, FORMER_LORD = -1 };
 enum { NOT_A_BELIEVER,	LAY, ACOLYTE, PRIEST, SPRIEST, HIGHPRIEST, FORMER_PRIEST = -1 };
-enum { NOT_A_RELIGION,	ODIN, SET, ATHENA, HECATE, DRUID, DESTINY, ATHEISM = -1 };
+enum { NOT_A_RELIGION,	ODIN, SET, ATHENA, HECATE, DRUID, DESTINY, NUMRELIGIONS, ATHEISM = -1 };
 
 // Top-level NPCs. Value of monster::aux2
 enum {
