@@ -884,8 +884,8 @@ void drawscreen (void)
 	    for (unsigned j = 0; j < Level->height; j++)
 		lset (i, j, SEEN);
     if (Current_Environment == E_CITY)
-	for (unsigned i = 0; i < NUMCITYSITES; i++)
-	    CitySiteList[i][0] = 1;
+	for (unsigned i = 0; i < ArraySize(CitySiteList); i++)
+	    CitySiteList[i].known = true;
     show_screen();
 }
 

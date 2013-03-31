@@ -2341,18 +2341,21 @@ const char* countryid (int terrain)
 }
 
 static const char* sitenames[NUMCITYSITES] = {	// alphabetical listing
-    "alchemist", "arena", "armorer", "bank", "brothel", "casino", "castle",
-    "city gates", "collegium magii", "condo", "department of public works",
-    "diner", "explorers' club", "fast food", "gymnasium", "healer", "hospice",
-    "les crapuleux", "library", "mercenary guild", "oracle", "order of paladins",
-    "pawn shop", "sorcerors' guild ", "tavern", "temple", "thieves' guild"
+    "alchemist", "arena", "armorer", "bank", "brothel",
+    "casino", "castle", "city gates", "collegium magii", "condo",
+    "department of public works", "diner", "explorers' club", "fast food", "gymnasium",
+    "healer", "hospice", "jail", "les crapuleux", "library",
+    "mercenary guild", "oracle", "order of paladins", "pawn shop", "sorcerors' guild ",
+    "tavern", "temple", "thieves' guild"
 };
 
 static int sitenums[ArraySize(sitenames)] = {	// the order matches sitenames[]
-    L_ALCHEMIST, L_ARENA, L_ARMORER, L_BANK, L_BROTHEL, L_CASINO, L_CASTLE,
-    L_COUNTRYSIDE, L_COLLEGE, L_CONDO, L_DPW, L_DINER, L_CLUB, L_COMMANDANT,
-    L_GYM, L_HEALER, L_CHARITY, L_CRAP, L_LIBRARY, L_MERC_GUILD, L_ORACLE,
-    L_ORDER, L_PAWN_SHOP, L_SORCERORS, L_TAVERN, L_TEMPLE, L_THIEVES_GUILD
+    L_ALCHEMIST, L_ARENA, L_ARMORER, L_BANK, L_BROTHEL,
+    L_CASINO, L_CASTLE, L_COUNTRYSIDE, L_COLLEGE, L_CONDO,
+    L_DPW, L_DINER, L_CLUB, L_COMMANDANT, L_GYM,
+    L_HEALER, L_CHARITY, L_JAIL, L_CRAP, L_LIBRARY,
+    L_MERC_GUILD, L_ORACLE, L_ORDER, L_PAWN_SHOP, L_SORCERORS,
+    L_TAVERN, L_TEMPLE, L_THIEVES_GUILD
 };
 
 static void showknownsites (unsigned first, unsigned last)
@@ -2361,7 +2364,7 @@ static void showknownsites (unsigned first, unsigned last)
     menuclear();
     menuprint ("\nPossible Sites:\n");
     for (unsigned i = first; i <= last; i++) {
-	if (CitySiteList[sitenums[i] - CITYSITEBASE][0]) {
+	if (CitySiteList[sitenums[i] - CITYSITEBASE].known) {
 	    printed = true;
 	    menuprint (sitenames[i]);
 	    menuprint ("\n");
@@ -2391,13 +2394,13 @@ int parsecitysite (void)
 		byte = prefix[pos - 1];
 		f = first;
 		while (f >= 0 && !strncmp (prefix, sitenames[f], pos)) {
-		    if (CitySiteList[sitenums[f] - CITYSITEBASE][0])
+		    if (CitySiteList[sitenums[f] - CITYSITEBASE].known)
 			first = f;
 		    f--;
 		}
 		l = last;
 		while (l < NUMCITYSITES-1 && !strncmp (prefix, sitenames[l], pos)) {
-		    if (CitySiteList[sitenums[l] - CITYSITEBASE][0])
+		    if (CitySiteList[sitenums[l] - CITYSITEBASE].known)
 			last = l;
 		    l++;
 		}
@@ -2416,17 +2419,16 @@ int parsecitysite (void)
 	    return ABORT;
 	} else if (byte == '?')
 	    showknownsites (first, last);
-	else if (byte != '\n') {
-	    if (byte >= 'A' && byte <= 'Z')
-		byte += 'a' - 'A';
+	else if (byte != KEY_ENTER) {
+	    byte = tolower (byte);
 	    if (found)
 		continue;
 	    f = first;
 	    l = last;
-	    while (f < NUMCITYSITES && (!CitySiteList[sitenums[f] - CITYSITEBASE][0] || (int)strlen (sitenames[f]) < pos || sitenames[f][pos] < byte))
+	    while (f < NUMCITYSITES && (!CitySiteList[sitenums[f] - CITYSITEBASE].known || (int)strlen (sitenames[f]) < pos || sitenames[f][pos] < byte))
 		f++;
-	    while (l >= 0 && (!CitySiteList[sitenums[l] - CITYSITEBASE][0] || (int)strlen (sitenames[l]) < pos || sitenames[l][pos] > byte))
-		l--;
+	    while (l >= 0 && (!CitySiteList[sitenums[l] - CITYSITEBASE].known || (int)strlen (sitenames[l]) < pos || sitenames[l][pos] > byte))
+		--l;
 	    if (l < f)
 		continue;
 	    prefix[pos++] = byte;
@@ -2439,7 +2441,7 @@ int parsecitysite (void)
 		nprint2 (sitenames[first] + pos);
 	    }
 	}
-    } while (byte != '\n');
+    } while (byte != KEY_ENTER);
     xredraw();
     if (found)
 	return sitenums[first] - CITYSITEBASE;

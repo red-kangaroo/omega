@@ -31,7 +31,7 @@ uint64_t SpellKnown = 0;
 uint8_t ObjectAttrs[TOTALITEMS] = {0};
 
 // locations of city sites [0] - found, [1] - x, [2] - y
-int CitySiteList[NUMCITYSITES][3];
+citysite CitySiteList[NUMCITYSITES];
 
 long GameStatus = 0L;		// Game Status bit vector
 int ScreenLength = 0;		// How large is level window
@@ -209,8 +209,8 @@ static void init_world (void)
     Level = Country = new level;
     clear_level (Country);
     load_country();
-    for (int i = 0; i < NUMCITYSITES; i++)
-	CitySiteList[i][0] = false;
+    for (unsigned i = 0; i < ArraySize(CitySiteList); i++)
+	CitySiteList[i].known = false;
     for (unsigned i = 0; i < ArraySize(ObjectAttrs); ++i)
 	ObjectAttrs[i] = Objects[i].uniqueness;
     Level = City = new level;

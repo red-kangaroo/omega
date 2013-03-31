@@ -7,7 +7,7 @@ extern uint64_t SpellKnown;			// bit set for known spells
 extern const struct object_data Objects[TOTALITEMS];	// one of each item
 extern uint8_t ObjectAttrs[TOTALITEMS];		// attributes such as known and uniqueness
 extern const struct object_data NullObject;
-extern int CitySiteList[NUMCITYSITES][3];	// locations of city sites [0] - found, [1] - x, [2] - y
+extern citysite CitySiteList[NUMCITYSITES];	// locations of city sites
 extern struct player Player;			// the player
 extern long GameStatus;				// Game Status bit vector
 extern int ScreenLength;			// How large is level window

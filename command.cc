@@ -713,7 +713,7 @@ static void downstairs (void)
 	    print1 ("You descend a level.");
 	    change_level (Level->depth, Level->depth + 1, false);
 	    roomcheck();
-	} else if ((Current_Environment == E_CITY) || (Last_Environment == E_CITY))
+	} else if (Current_Environment == E_CITY || Last_Environment == E_CITY)
 	    change_environment (E_SEWERS);
 	else if (Current_Environment != Current_Dungeon)
 	    print3 ("This stairway is deviant. You can't use it.");
@@ -1790,7 +1790,7 @@ static void tunnel (void)
 
 static void hunt (int terrain)
 {
-    int fertility = 0;
+    unsigned fertility = 0;
     switch (terrain) {
 	case SWAMP:
 	    mprint ("You hesitate to hunt for food in the marshy wasteland.");
@@ -1860,9 +1860,9 @@ static void hunt (int terrain)
     }
     if ((Date % 360 < 60 || Date % 360 > 300) && terrain != DESERT && terrain != JUNGLE) {
 	mprint ("The cold weather impedes your hunt....");
-	fertility = fertility / 2;
+	fertility /= 2;
     }
-    if (fertility > random_range (100)) {
+    if (fertility > urandom_range(100)) {
 	mprint ("You have an encounter...");
 	change_environment (E_TACTICAL_MAP);
     } else
@@ -1906,7 +1906,7 @@ static void city_move (void)
 	if (site != ABORT) {
 	    mprint ("You're on your way...");
 	    morewait();
-	    while ((x != CitySiteList[site][1]) || (y != CitySiteList[site][2])) {
+	    while ((x != CitySiteList[site].x) || (y != CitySiteList[site].y)) {
 		toggle = !toggle;
 		if (toggle) {
 		    Time++;
@@ -1915,8 +1915,8 @@ static void city_move (void)
 		    else
 			minute_status_check();
 		}
-		x += sign (CitySiteList[site][1] - x);
-		y += sign (CitySiteList[site][2] - y);
+		x += sign (CitySiteList[site].x - x);
+		y += sign (CitySiteList[site].y - y);
 		screencheck (y);
 		omshowcursor (x, y);
 	    }

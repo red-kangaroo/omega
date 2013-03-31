@@ -252,7 +252,7 @@ static void l_lift (void)
     print1 ("Go up, down, or neither [u,d,ESCAPE] ");
     do
 	response = (char) mcigetc();
-    while ((response != 'u') && (response != 'd') && (response != KEY_ESCAPE));
+    while (response != 'u' && response != 'd' && response != KEY_ESCAPE);
     if (response != KEY_ESCAPE) {
 	print1 ("How many levels?");
 	levelnum = (int) parsenum();
@@ -365,7 +365,7 @@ static void l_tactical_exit (void)
     // Free up monsters and items, and the level
     free_level (Level);
     Level = NULL;
-    if ((Current_Environment == E_TEMPLE) || (Current_Environment == E_TACTICAL_MAP))
+    if (Current_Environment == E_TEMPLE || Current_Environment == E_TACTICAL_MAP)
 	change_environment (E_COUNTRYSIDE);
     else
 	change_environment (Last_Environment);

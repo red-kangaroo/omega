@@ -685,7 +685,7 @@ enum {
 
 // city level shop and guild functions
 // following are those in CitySiteList
-enum {
+enum ELocation {
     CITYSITEBASE = 10,
     L_CHARITY, L_ARMORER, L_CLUB, L_GYM, L_THIEVES_GUILD,
     L_COLLEGE, L_HEALER, L_CASINO, L_TAVERN, L_MERC_GUILD,
@@ -731,6 +731,13 @@ enum {
 };
 
 // structure definitions
+
+struct citysite {
+    bool	known;
+    uint8_t	_spacer;
+    uint8_t	x;
+    uint8_t	y;
+};
 
 struct spell { uint8_t powerdrain; };
 
@@ -931,17 +938,18 @@ public:
     char		numrooms;	// number of rooms on level
     uint8_t		tunnelled;	// amount of tunnelling done on this level
 public:
-		level (void);
-    void	clear (void);
-    void	resize (unsigned x, unsigned y)		{ width = x; height = y; }
-    const char*	init_from_data (EEnvironment e, const char* d)	{ environment = e; resize (d[0], d[1]); lastx = d[2]; lasty = d[3]; return (d+4); }
-    monster*	creature (int x, int y);
-    object*	thing (int x, int y);
-    void	make_thing (int x, int y, unsigned tid, unsigned n = RANDOM);
-    void	remove_things (int x, int y);
-    void	add_thing (int x, int y, const object& o, unsigned n = RANDOM);
-    void	tunnelcheck (void);
-    inline location& site (int x, int y)		{ return (_site[y*MAXWIDTH+x]); }
-    inline const location& site (int x, int y) const	{ return (const_cast<level*>(this)->site(x,y)); }
+			level (void);
+    void		clear (void);
+    void		resize (uint8_t x, uint8_t y)	{ width = x; height = y; }
+    template <typename SiteFunc>
+    static inline void	load_map (EEnvironment e, const char* edata, SiteFunc sf);
+    monster*		creature (int x, int y);
+    object*		thing (int x, int y);
+    void		make_thing (int x, int y, unsigned tid, unsigned n = RANDOM);
+    void		remove_things (int x, int y);
+    void		add_thing (int x, int y, const object& o, unsigned n = RANDOM);
+    void		tunnelcheck (void);
+    inline location&	site (unsigned x, int y)	{ return (_site[y*MAXWIDTH+x]); }
+    const location&	site (unsigned x, int y) const	{ return (const_cast<level*>(this)->site(x,y)); }
 };
 typedef level* plv;
