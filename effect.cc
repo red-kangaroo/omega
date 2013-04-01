@@ -247,7 +247,7 @@ static void bolt (int fx, int fy, int tx, int ty, int hit, int dmg, EDamageType 
 
     do_los (boltchar, &xx, &yy, tx, ty);
 
-    if ((xx == Player.x) && (yy == Player.y)) {
+    if (xx == (int)Player.x && yy == (int)Player.y) {
 	if (Player.status[DEFLECTION] > 0)
 	    mprint ("The bolt just missed you!");
 	else {
@@ -391,7 +391,7 @@ static void ball (int fx, int fy, int tx, int ty, int dmg, EDamageType dtype)
 	ex = xx + Dirs[0][i];
 	ey = yy + Dirs[1][i];
 
-	if ((ex == Player.x) && (ey == Player.y)) {
+	if (ex == (int)Player.x && ey == (int)Player.y) {
 	    switch (dtype) {
 		default:
 		case FLAME:
@@ -1676,7 +1676,7 @@ void disrupt (int x, int y, int amount)
 {
     struct monster *target;
 
-    if ((x == Player.x) && (y == Player.y)) {
+    if (x == (int)Player.x && y == (int)Player.y) {
 	mprint ("You feel disrupted!");
 	p_damage (amount, NORMAL_DAMAGE, "magical disruption");
     } else {
@@ -1705,7 +1705,7 @@ void disintegrate (int x, int y)
     struct monster *target;
     if (!inbounds (x, y))
 	mprint ("You feel a sense of wastage.");
-    else if ((x == Player.x) && (y == Player.y)) {
+    else if (x == (int)Player.x && y == (int)Player.y) {
 	if (Player.has_possession(O_CLOAK)) {
 	    mprint ("Your cloak disintegrates!");
 	    Player.remove_possession (O_CLOAK);
@@ -1817,10 +1817,12 @@ void p_teleport (int type)
 	    Player.x = x;
 	    Player.y = y;
 	}
-    } else if (type == 0)
-	findspace (&Player.x, &Player.y);
-    else {
-	setspot (&Player.x, &Player.y);
+    } else if (type == 0) {
+	findspace (&x, &y);
+	Player.x = x; Player.y = y;
+    } else {
+	setspot (&x, &y);
+	Player.x = x; Player.y = y;
 	if (Level->site(Player.x,Player.y).locchar != FLOOR || Level->creature(Player.x,Player.y)) {
 	    mprint ("You feel deflected.");
 	    p_teleport (0);
@@ -2102,7 +2104,7 @@ void dispel (int blessing)
     monster* target;
     if (blessing > -1) {
 	setspot (&x, &y);
-	if ((x == Player.x) && (y == Player.y)) {
+	if (x == (int)Player.x && y == (int)Player.y) {
 	    for (i = 0; i < MAXITEMS; i++) {
 		if (!Player.has_possession(i))
 		    continue;
@@ -2180,7 +2182,7 @@ void polymorph (int blessing)
     struct monster *m;
     setspot (&x, &y);
     clearmsg();
-    if ((x == Player.x) && (y == Player.y)) {
+    if (x == (int)Player.x && y == (int)Player.y) {
 	// WDT HACK: shouldn't this use one of the 'getarticle' functions
 	// to prevent things like "a elder grue" (should be "an elder grue")?
 	mprint ("You enjoy your new life as a");
@@ -2242,7 +2244,7 @@ void polymorph (int blessing)
 void hellfire (int x, int y, int blessing)
 {
     struct monster *m;
-    if ((x == Player.x) && (y == Player.y)) {
+    if (x == (int) Player.x && y == (int) Player.y) {
 	mprint ("You have been completely annihilated. Congratulations.");
 	p_death ("hellfire");
     } else if ((m = Level->creature(x,y)) == NULL) {
@@ -2277,7 +2279,7 @@ void drain (int blessing)
     struct monster *m;
     setspot (&x, &y);
     mprint ("You begin to drain energy...");
-    if ((x == Player.x) && (y == Player.y)) {
+    if (x == (int)Player.x && y == (int)Player.y) {
 	mprint ("You drain your own energy....");
 	mprint ("Uh, oh, positive feedback....");
 	level_drain (Player.level, "self-vampirism");
@@ -2341,12 +2343,16 @@ void drain (int blessing)
 
 void sanctuary (void)
 {
-    if (Level->environment == E_TEMPLE)
+    location& l = Level->site(Player.x,Player.y);
+    if (Level->environment == E_TEMPLE || Player.patron <= NOT_A_RELIGION)
 	mprint ("Odd, the spell has no effect. I wonder why.");
+    else if (l.locchar != FLOOR)
+	mprint ("There is no space for an altar here.");
     else {
 	mprint ("You're standing on sacred ground!");
-	Player.sx = Player.x;
-	Player.sy = Player.y;
+	l.locchar = ALTAR;
+	l.aux = Player.patron;
+	l.lstatus |= CHANGED| SEEN| LIT;
     }
 }
 
@@ -2414,7 +2420,7 @@ void drain_life (int amount)
 void inflict_fear (int x, int y)
 {
     struct monster *m;
-    if ((Player.x == x) && (Player.y == y)) {
+    if ((int)Player.x == x && (int)Player.y == y) {
 	mprint ("You shudder with otherworldly dread.");
 	if (Player.immunity[FEAR] > 0)
 	    mprint ("You brace up and face your fear like a hero!");

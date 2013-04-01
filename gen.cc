@@ -98,8 +98,6 @@ void generate_level (int fromlevel, int tolevel)
 void change_level (int fromlevel, int tolevel, int rewrite_level)
 {
     struct level *thislevel = NULL;
-    Player.sx = -1;
-    Player.sy = -1;		// sanctuary effect dispelled
     thislevel = findlevel (Dungeon, tolevel);
     deepest[Current_Environment] = max (deepest[Current_Environment], tolevel);
     if (!thislevel) {
@@ -128,17 +126,14 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
 // tries to find the level of depth levelnum in dungeon; if can't find it returns NULL
 static plv findlevel (struct level* dungeon, char levelnum)
 {
-    if (dungeon == NULL)
+    if (!dungeon)
 	return (NULL);
-    else {
-	while ((dungeon->next != NULL) && (dungeon->depth != levelnum))
-	    dungeon = dungeon->next;
-	if (dungeon->depth == levelnum) {
-	    dungeon->last_visited = time(NULL);
-	    return (dungeon);
-	} else
-	    return (NULL);
-    }
+    while (dungeon->next && dungeon->depth != levelnum)
+	dungeon = dungeon->next;
+    if (dungeon->depth == levelnum)
+	return (dungeon);
+    else
+	return (NULL);
 }
 
 // keep going in one orthogonal direction or another until we hit our destination
@@ -432,7 +427,9 @@ static void find_stairs (char fromlevel, char tolevel)
 	}
     }
     if (!found) {
-	findspace (&Player.x, &Player.y);
+	int x,y;
+	findspace (&x, &y);
+	Player.x = x; Player.y = y;
 	if (Level->environment != E_ASTRAL) {
 	    Level->site(Player.x,Player.y).locchar = sitechar;
 	    lset (Player.x, Player.y, CHANGED);

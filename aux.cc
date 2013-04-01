@@ -87,9 +87,7 @@ void showroom (int i)
 
 bool player::on_sanctuary (void) const
 {
-    return ((x == sx && y == sy)
-	    || (Level->site(x,y).locchar == ALTAR
-		&& Level->site(x,y).aux == patron));
+    return (Level->site(x,y).locchar == ALTAR && Level->site(x,y).aux == patron);
 }
 
 // check a move attempt, maybe attack something, return true if ok to move.
@@ -1276,8 +1274,6 @@ void change_environment (EEnvironment new_environment)
 {
     int i, emerging = false;
 
-    Player.sx = -1;
-    Player.sy = -1;		// reset sanctuary if there was one
     resetgamestatus (LOST);	// in case the player gets lost _on_ a site
     resetgamestatus (FAST_MOVE);
 
@@ -1648,9 +1644,9 @@ void change_environment (EEnvironment new_environment)
 	    Player.x = Level->width / 2;
 	    Player.y = Level->height / 2;
 	    while (Level->site(Player.x,Player.y).locchar == WATER) {
-		if (Player.y < (int)Level->height / 2 + 5)
+		if (Player.y < Level->height / 2 + 5u)
 		    Player.y++;
-		else if (Player.x > (int)Level->width / 2 - 10) {
+		else if (Player.x > Level->width / 2 - 10u) {
 		    Player.x--;
 		    Player.y = Level->height / 2 - 5;
 		} else {
@@ -1948,8 +1944,8 @@ static void outdoors_random_event (void)
 		resetgamestatus (LOST);
 		mprint ("You know where you are now.");
 	    }
-	    for (int i = Player.x - 5; i < Player.x + 6; ++i) {
-		for (int j = Player.y - 5; j < Player.y + 6; ++j) {
+	    for (unsigned i = Player.x - 5; i < Player.x + 6; ++i) {
+		for (unsigned j = Player.y - 5; j < Player.y + 6; ++j) {
 		    if (inbounds (i, j)) {
 			c_set (i, j, SEEN);
 			c_set (i, j, CHANGED);
@@ -2288,8 +2284,8 @@ void countrysearch (void)
 {
     Time += 60;
     hourly_check();
-    for (int x = Player.x - 1; x < Player.x + 2; ++x) {
-	for (int y = Player.y - 1; y < Player.y + 2; ++y) {
+    for (unsigned x = Player.x - 1; x < Player.x + 2; ++x) {
+	for (unsigned y = Player.y - 1; y < Player.y + 2; ++y) {
 	    if (!inbounds (x, y) || !c_statusp (x,y, SECRET))
 		continue;
 	    clearmsg();

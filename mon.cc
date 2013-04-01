@@ -325,7 +325,7 @@ static void m_follow_move (struct monster *m)
 // allows monsters to fall into pools, revealed traps, etc
 static void m_confused_move (struct monster *m)
 {
-    int i, nx, ny, done = false;
+    unsigned i, nx, ny, done = false;
     erase_monster (m);
     for (i = 0; ((i < 8) && (!done)); i++) {
 	nx = m->x + random_range (3) - 1;
@@ -339,7 +339,7 @@ static void m_confused_move (struct monster *m)
 
 static void m_random_move (struct monster *m)
 {
-    int i, nx, ny, done = false;
+    unsigned i, nx, ny, done = false;
     erase_monster (m);
     for (i = 0; ((i < 8) && (!done)); i++) {
 	nx = m->x + random_range (3) - 1;

@@ -9,6 +9,19 @@ static void save_level(ostream& os, plv level);
 
 //----------------------------------------------------------------------
 
+struct SGHeader {
+    char	o;
+    char	m;
+    char	e;
+    char	g;
+    char	a;
+    uint8_t	format;
+    uint8_t	gamever;
+    bool	compressed;
+};
+
+//----------------------------------------------------------------------
+
 // Various functions for doing game saves and restores
 // The game remembers various player information, the city level,
 // the country level, and the last or current dungeon level
@@ -32,10 +45,9 @@ bool save_game (void)
 	memblock buf (UINT16_MAX);
 	ostream os (buf);
 
-	uint32_t ver = OMEGA_SAVE_FORMAT, gamever = OMEGA_VERSION;
-	os << ver << gamever;
-
+	os << (SGHeader){'o','m','e','g','a',OMEGA_SAVE_FORMAT,OMEGA_VERSION,optionp(COMPRESS)};
 	os << Player;
+
 	save_level (os, Country);
 	save_level (os, City);
 
@@ -81,11 +93,13 @@ bool restore_game (void)
 	buf.read_file (savestr);
 	istream is (buf);
 	print1 ("Restoring...");
-	uint32_t ver, gamever;
-	is >> ver >> gamever;
-	if (ver != OMEGA_SAVE_FORMAT)
+
+	SGHeader header;
+	is >> header;
+	if (header.format != OMEGA_SAVE_FORMAT)
 	    runtime_error::emit ("incorrect saved game file format");
 	is >> Player;
+
 	restore_level (is);	// the countryside
 	restore_level (is);	// the city level
 	int i;
@@ -211,26 +225,26 @@ void player::read (istream& is)
 static void save_level (ostream& os, plv level)
 {
     unsigned run;
-    uint16_t i, j;
-    os << ios::align(alignof(level->environment)) << level->environment << level->last_visited
+    os << level->environment
 	<< level->width << level->height << level->lastx << level->lasty
 	<< level->depth << level->generated << level->numrooms << level->tunnelled;
+    os.skipalign(4);
+    uint16_t i, j;
     for (j = 0; j < MAXLENGTH; j++) {
 	for (i = 0; i < MAXWIDTH; i++) {
 	    if (level->site(i,j).lstatus & CHANGED) {	// this loc has been changed
 		for (run = i + 1; run < MAXWIDTH &&	// find how many in a row
 		     level->site(run,j).lstatus & CHANGED; run++);
-		os << ios::align(alignof(i)) << i << j << run;
+		os << i << j << run;
 		for (; i < run; i++)
 		    os << level->site(i,j);
 	    }
 	}
     }
-    os << ios::align(alignof(i)) << i << j;	// signify end
+    os << i << j;	// signify end
     // since we don't mark the 'seen' bits as CHANGED, need to save a bitmask
     uint32_t mask = 0;
-    run = 8 * sizeof (mask);
-    os.align (alignof(mask));
+    run = 8*sizeof (mask);
     for (j = 0; j < MAXLENGTH; j++) {
 	for (i = 0; i < MAXWIDTH; i++) {
 	    if (run == 0) {
@@ -257,9 +271,10 @@ static void restore_level (istream& is)
 
     Level = new level;
     clear_level (Level);
-    is >> ios::align(alignof(Level->environment)) >> Level->environment >> Level->last_visited
+    is >> Level->environment
 	>> Level->width >> Level->height >> Level->lastx >> Level->lasty
 	>> Level->depth >> Level->generated >> Level->numrooms >> Level->tunnelled;
+    is.skipalign (4);
     Level->generated = true;
     EEnvironment temp_env = Current_Environment;
     Current_Environment = Level->environment;
@@ -310,15 +325,14 @@ static void restore_level (istream& is)
 	    break;
     }
     Current_Environment = temp_env;
-    is >> ios::align(alignof(i)) >> i >> j;
+    is >> i >> j;
     while (j < MAXLENGTH && i < MAXWIDTH) {
 	is >> run;
 	for (; i < run; i++)
 	    is >> Level->site(i,j);
-	is >> ios::align(alignof(i)) >> i >> j;
+	is >> i >> j;
     }
     run = 0;
-    is.align (alignof(mask));
     for (j = 0; j < MAXLENGTH; j++) {
 	for (i = 0; i < MAXWIDTH; i++) {
 	    if (run == 0) {

@@ -57,7 +57,6 @@ level::level (void)
 , things()
 , next(NULL)
 , environment (E_NEVER_NEVER_LAND)
-, last_visited(0)
 , depth(0)
 , generated(0)
 , numrooms(0)
@@ -74,7 +73,6 @@ void level::clear (void)
     depth = 0;
     mlist.clear();
     next = NULL;
-    last_visited = time(NULL);
     fill (_site, (location){ WALL, (uint8_t) min(UINT8_MAX,20u*difficulty()), L_NO_OP, 0, RS_WALLSPACE });
 }
 

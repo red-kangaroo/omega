@@ -58,13 +58,13 @@ int unblocked (int x, int y)
 	Level->site(x,y).locchar != STATUE &&
 	Level->site(x,y).locchar != HEDGE &&
 	Level->site(x,y).locchar != CLOSED_DOOR &&
-	!loc_statusp (x, y, SECRET) && (x != Player.x || y != Player.y));
+	!loc_statusp (x, y, SECRET) && (x != (int)Player.x || y != (int)Player.y));
 }
 
 // do monsters want to move through a spot
 int m_unblocked (struct monster *m, int x, int y)
 {
-    if ((!inbounds (x, y)) || ((x == Player.x) && (y == Player.y)))
+    if (!inbounds(x, y) || (x == (int)Player.x && y == (int)Player.y))
 	return (false);
     else if ((Level->creature(x,y) != NULL) || (Level->site(x,y).locchar == SPACE))
 	return (false);

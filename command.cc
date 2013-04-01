@@ -1191,7 +1191,7 @@ static void examine (void)
 	    monster* sm = Level->creature(x,y);
 	    if (sm)
 		mprint (mstatus_string (sm));
-	    else if ((Player.x == x) && (Player.y == y))
+	    else if ((int)Player.x == x && (int)Player.y == y)
 		describe_player();
 	    if (loc_statusp (x, y, SECRET))
 		print2 ("An age-worn stone wall.");
@@ -1337,7 +1337,7 @@ static void fire (void)
 	x1 = x2 = Player.x;
 	y1 = y2 = Player.y;
 	setspot (&x2, &y2);
-	if (x2 == Player.x && y2 == Player.y) {
+	if (x2 == (int)Player.x && y2 == (int)Player.y) {
 	    mprint ("You practice juggling for a moment or two.");
 	    p_drop_at (x2, y2, obj, 1);
 	} else {

@@ -842,11 +842,10 @@ public:
 STREAM_ALIGN (monster, 4);
 
 struct player_pod {
-    uint32_t	cash;
-    uint32_t	options;
+    uint32_t	x,y;
     uint32_t	xp;
-    int		x, y;			// current player coordinates
-    int		sx, sy;			// sanctuary coordinates
+    uint32_t	options;
+    uint32_t	cash;
     int16_t	absorption;
     int16_t	alignment;
     int16_t	defense;
@@ -855,7 +854,6 @@ struct player_pod {
     int16_t	hit;
     int16_t	hp;
     int16_t	level;
-    uint16_t	click;
     uint16_t	itemweight;
     uint16_t	mana;
     uint16_t	maxhp;
@@ -875,6 +873,7 @@ struct player_pod {
     uint8_t	maxstr;
     uint8_t	patron;
     uint8_t	speed;
+    uint8_t	click;
     char	preference;
 public:
     inline	player_pod (void)		{ itzero (this); }
@@ -928,7 +927,6 @@ public:
     vector<object>	things;		// List of objects on level
     level*		next;		// pointer to next level in dungeon
     EEnvironment	environment;	// where kind of level is this?
-    int			last_visited;	// time player was last on this level
     uint8_t		width;
     uint8_t		height;
     uint8_t		lastx;		// Last player position

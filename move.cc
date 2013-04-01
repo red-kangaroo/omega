@@ -392,13 +392,13 @@ void l_portcullis_trap (void)
     bool slam = false;
     print3 ("Click.");
     morewait();
-    for (unsigned i = max (Player.x - 5, 0); i < min (6u+Player.x, Level->width); i++) {
-	for (unsigned j = max (Player.y - 5, 0); j < min (6u+Player.y, Level->height); j++) {
+    for (unsigned i = max (Player.x - 5, 0u); i < min (6u+Player.x, Level->width); i++) {
+	for (unsigned j = max (Player.y - 5, 0u); j < min (6u+Player.y, Level->height); j++) {
 	    if ((Level->site(i,j).p_locf == L_PORTCULLIS) && (Level->site(i,j).locchar != PORTCULLIS)) {
 		Level->site(i,j).locchar = PORTCULLIS;
 		lset (i, j, CHANGED);
 		putspot (i, j, PORTCULLIS);
-		if ((int)i == Player.x && (int)j == Player.y) {
+		if (i == Player.x && j == Player.y) {
 		    print3 ("Smash! You've been hit by a falling portcullis!");
 		    morewait();
 		    p_damage (random_range (1000), NORMAL_DAMAGE, "a portcullis");
@@ -426,7 +426,7 @@ static void l_drop_every_portcullis (void)
 		Level->site(i,j).locchar = PORTCULLIS;
 		lset (i, j, CHANGED);
 		putspot (i, j, PORTCULLIS);
-		if ((int)i == Player.x && (int)j == Player.y) {
+		if (i == Player.x && j == Player.y) {
 		    print3 ("Smash! You've been hit by a falling portcullis!");
 		    morewait();
 		    p_damage (random_range (1000), NORMAL_DAMAGE, "a portcullis");
