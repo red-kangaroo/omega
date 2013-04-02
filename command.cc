@@ -743,16 +743,16 @@ void setoptions (void)
 	    case KEY_HOME: slot = 0; break;
 	    case KEY_LL: slot = NUMOPTIONS - 1; break;
 	    case 't':
-		if (slot <= NUMTFOPTIONS)
-		    optionset (pow2 (slot - 1));
+		if (slot < NUMTFOPTIONS)
+		    optionset (pow2 (slot));
 		else if (slot == VERBOSITY_LEVEL)
 		    Verbosity = TERSE;
 		else
 		    print3 ("'T' is meaningless for this option.");
 		break;
 	    case 'f':
-		if (slot <= NUMTFOPTIONS)
-		    optionreset (pow2 (slot - 1));
+		if (slot < NUMTFOPTIONS)
+		    optionreset (pow2 (slot));
 		else
 		    print3 ("'F' is meaningless for this option.");
 		break;

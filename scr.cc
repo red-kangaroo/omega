@@ -1268,25 +1268,25 @@ void display_possessions (unsigned selection)
 
 void display_options (unsigned selection)
 {
+    static const char optionText[] =
+	"\0Option BELLICOSE:\t%c\n\0"
+	"Option JUMPMOVE:\t%c\n\0"
+	"Option RUNSTOP:\t\t%c\n\0"
+	"Option PICKUP:\t\t%c\n\0"
+	"Option CONFIRM:\t\t%c\n\0"
+	"Option PACKADD:\t\t%c\n\0"
+	"Option COMPRESS:\t%c\n";
     werase (Menuw);
-    if (selection == 0) wstandout(Menuw);
-    wprintw (Menuw, "Option BELLICOSE:	%s\n", optionp (BELLICOSE) ? "true" : "false");
-    if (selection == 1) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option JUMPMOVE:	%s\n", optionp (JUMPMOVE) ? "true" : "false");
-    if (selection == 2) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option RUNSTOP:	%s\n", optionp (RUNSTOP) ? "true" : "false");
-    if (selection == 3) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option PICKUP:	%s\n", optionp (PICKUP) ? "true" : "false");
-    if (selection == 4) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option CONFIRM:	%s\n", optionp (CONFIRM) ? "true" : "false");
-    if (selection == 5) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option PACKADD:	%s\n", optionp (PACKADD) ? "true" : "false");
-    if (selection == 6) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option COMPRESS:	%s\n", optionp (COMPRESS) ? "true" : "false");
-    if (selection == 7) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option VERBOSITY: %s\n", (Verbosity == VERBOSE ? "Verbose" : (Verbosity == MEDIUM ? "Medium" : "Terse")));
-    if (selection == 8) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option SEARCHNUM:	%u", Searchnum);
+    const char* ot = optionText;
+    for (unsigned i = 0; i < NUMTFOPTIONS; ++i) {
+	if (selection == i)	wstandout(Menuw);
+	else			wstandend(Menuw);
+	wprintw (Menuw, ot = strnext(ot), "FT"[optionp(1<<i)]);
+    }
+    if (selection == VERBOSITY_LEVEL) wstandout(Menuw); else wstandend(Menuw);
+    wprintw (Menuw, "Option VERBOSITY:\t%s\n", (Verbosity == VERBOSE ? "Verbose" : (Verbosity == MEDIUM ? "Medium" : "Terse")));
+    if (selection == SEARCH_DURATION) wstandout(Menuw); else wstandend(Menuw);
+    wprintw (Menuw, "Option SEARCHNUM:\t%u", Searchnum);
     wstandend(Menuw);
     wrefresh (Menuw);
 }

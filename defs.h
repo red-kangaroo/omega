@@ -27,14 +27,7 @@ enum {
     CAVELEVELS = 10,
     VOLCANOLEVELS = 20,
     NOCITYMOVE = 250,		// cannot use M command on site with this aux value
-    NUMTFOPTIONS = 7,		// number of options with true/false values
-    VERBOSITY_LEVEL,		// The slot number of the two options not in Player.options
-    SEARCH_DURATION,
-    NUMOPTIONS = SEARCH_DURATION-1	// total number of player options
 };
-
-// Verbosity levels
-enum EVerbosity : uint8_t { TERSE, MEDIUM, VERBOSE };
 
 // Overall Game Progress Vector Bits
 // Long had BETTER have at least 32 bits....
@@ -337,15 +330,33 @@ enum EObjchar : chtype {
     BED			= ('9' | CLR_CYAN_BLACK)
 };
 
+// Verbosity levels
+enum EVerbosity : uint8_t { TERSE, MEDIUM, VERBOSE };
+
+// Player.options bit indexes
+enum EOption {
+    OPT_BELLICOSE,
+    OPT_JUMPMOVE,
+    OPT_RUNSTOP,
+    OPT_PICKUP,
+    OPT_CONFIRM,
+    OPT_PACKADD,
+    OPT_COMPRESS,
+    NUMTFOPTIONS,			// number of options with true/false values
+    VERBOSITY_LEVEL = NUMTFOPTIONS,	// The slot number of the two options not in Player.options
+    SEARCH_DURATION,
+    NUMOPTIONS				// total number of player options
+};
+
 // Player.options bits
 enum {
-    BELLICOSE	= (1<<0),
-    JUMPMOVE	= (1<<1),
-    RUNSTOP	= (1<<2),
-    PICKUP	= (1<<3),
-    CONFIRM 	= (1<<4),
-    PACKADD 	= (1<<5),
-    COMPRESS	= (1<<6)
+    BELLICOSE	= (1<<OPT_BELLICOSE),
+    JUMPMOVE	= (1<<OPT_JUMPMOVE),
+    RUNSTOP	= (1<<OPT_RUNSTOP),
+    PICKUP	= (1<<OPT_PICKUP),
+    CONFIRM 	= (1<<OPT_CONFIRM),
+    PACKADD 	= (1<<OPT_PACKADD),
+    COMPRESS	= (1<<OPT_COMPRESS)
 };
 
 // running sum of itemtypes, for indexing into Objects array

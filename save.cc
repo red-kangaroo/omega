@@ -6,6 +6,8 @@
 
 static void restore_level(istream& is);
 static void save_level(ostream& os, plv level);
+static memblock compress (const cmemlink& buf);
+static memblock decompress (const cmemlink& buf);
 
 //----------------------------------------------------------------------
 
@@ -45,8 +47,8 @@ bool save_game (void)
 	memblock buf (UINT16_MAX);
 	ostream os (buf);
 
-	os << (SGHeader){'o','m','e','g','a',OMEGA_SAVE_FORMAT,OMEGA_VERSION,optionp(COMPRESS)};
-	os << Player;
+	const SGHeader h = {'o','m','e','g','a',OMEGA_SAVE_FORMAT,OMEGA_VERSION,optionp(COMPRESS)};
+	os << h << Player;
 
 	save_level (os, Country);
 	save_level (os, City);
@@ -67,6 +69,9 @@ bool save_game (void)
 	    save_level (os, Level);	// put current level last
 
 	buf.resize (os.pos());
+
+	if (h.compressed)
+	    buf.swap (compress (buf));
 	buf.write_file (savestr);
 	print1 ("Game Saved.");
 	writeok = true;
@@ -98,6 +103,10 @@ bool restore_game (void)
 	is >> header;
 	if (header.format != OMEGA_SAVE_FORMAT)
 	    runtime_error::emit ("incorrect saved game file format");
+	if (header.compressed) {
+	    buf.swap (decompress (buf));
+	    is.relink (buf);
+	}
 	is >> Player;
 
 	restore_level (is);	// the countryside
@@ -478,4 +487,58 @@ streamsize object_data::stream_size (void) const noexcept
 	    sz += Align(strlen(objstr)+1+strlen(truename)+1+strlen(cursestr)+1,stream_align(*this));
     }
     return (sz);
+}
+
+//----------------------------------------------------------------------
+
+enum : uint8_t { RUN_CODE = 0xCD };
+
+static memblock compress (const cmemlink& buf)
+{
+    memblock obuf (buf.size());
+    ostream os (obuf);
+    const uint8_t *i = (const uint8_t*) buf.begin();
+    os << *(const SGHeader*)i << buf.size();
+    for (streampos io = sizeof(SGHeader), ileft; (ileft = buf.size()-io); ++io) {
+	unsigned mm = 0, mdm = 0, dml = min(255u,min(io,ileft));
+	for (unsigned m = 0, dm = 1; dm <= dml; ++dm) {
+	    for (m = 0; m < dml && i[io+m-dm] == i[io+m]; ++m) {}
+	    if (m > mm) {
+		mm = m;
+		mdm = dm;
+	    }
+	}
+	if (mm > 3) {
+	    os << RUN_CODE << uint8_t(mdm) << uint8_t(mm);
+	    io += mm-1;
+	} else if (i[io] == RUN_CODE) {
+	    os.uiwrite (vpack(RUN_CODE,uint8_t(0),uint8_t(1),uint8_t(0)));
+	    os.skip (-1);
+	} else
+	    os << i[io];
+    }
+    obuf.memlink::resize (os.pos());
+    return (obuf);
+}
+
+static memblock decompress (const cmemlink& buf)
+{
+    istream is (buf.begin(), buf.size());
+    sized_type<sizeof(SGHeader)>::type h;
+    memblock::size_type ucsz;
+    is >> h >> ucsz;
+    memblock obuf (ucsz);
+    ostream os (obuf);
+    os << h;
+    for (uint8_t b,o,l; is.remaining();) {
+	is >> b; os << b;
+	if (b == RUN_CODE) {
+	    is >> o >> l;
+	    os.skip (-1);
+	    copy_n (os.ipos()-o, l, os.ipos());
+	    os.skip (l);
+	}
+    }
+    obuf.memlink::resize (os.pos());
+    return (obuf);
 }

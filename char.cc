@@ -31,7 +31,7 @@ void initplayer (void)
 {
     Player.itemweight = 0;
     Player.food = 36;
-    Player.options = 0;
+    Player.options = RUNSTOP| CONFIRM;
     fill (Player.immunity, 0);
     fill (Player.status, 0);
     fill (Player.rank, 0);
@@ -55,11 +55,8 @@ void initplayer (void)
 	    morewait();
 	}
     }
-    if (!oldchar) {
-	optionset (RUNSTOP);
-	optionset (CONFIRM);
+    if (!oldchar)
 	initstats();
-    }
     Searchnum = max (1, min (9, Searchnum));
     Player.hp = Player.maxhp = Player.maxcon;
     Player.mana = Player.maxmana = Player.calcmana();
