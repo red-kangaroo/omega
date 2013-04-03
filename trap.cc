@@ -7,22 +7,22 @@ void l_trap_siren (void)
 {
     Level->site(Player.x,Player.y).locchar = TRAP;
     lset (Player.x, Player.y, CHANGED);
-    print1 ("A klaxon goes off!");
-    print2 ("'Intruder Alert -- Intruder Alert -- Intruder Alert'");
-    print3 ("You have the feeling you have been discovered....");
+    mprint ("A klaxon goes off!");
+    mprint ("'Intruder Alert -- Intruder Alert -- Intruder Alert'");
+    mprint ("You have the feeling you have been discovered....");
     morewait();
     clearmsg();
     if (Current_Environment == E_HOUSE || Current_Environment == E_MANSION) {
 	if (gamestatusp (DESTROYED_ORDER))
-	    print1 ("Nobody answers the alarm.");
+	    mprint ("Nobody answers the alarm.");
 	else {
-	    print1 ("The city guard arrives!");
-	    print2 ("You are apprehended....");
+	    mprint ("The city guard arrives!");
+	    mprint ("You are apprehended....");
 	    morewait();
 	    send_to_jail();
 	}
     } else if (Current_Environment == E_HOVEL)
-	print1 ("Nobody answers the alarm.");
+	mprint ("Nobody answers the alarm.");
     else {
 	if (Current_Environment == E_CIRCLE) {
 	    summon (-1, DEMON_PRINCE);	// prime circle demon

@@ -51,7 +51,7 @@ void initplayer (void)
 	    load_omegarc (Str1);
 	    oldchar = true;
 	} catch (exception& e) {
-	    print1 (e.what());
+	    mprint (e.what());
 	    morewait();
 	}
     }
@@ -69,20 +69,20 @@ void initplayer (void)
 static void initstats (void)
 {
     do {
-	print1 ("Do you want to run a character [c] or play yourself [p]?");
+	mprint ("Do you want to run a character [c] or play yourself [p]?");
 	char response = (char) mcigetc();
 	if (response == 'c')
 	    omegan_character_stats();
 	else if (response == 'p') {
 	    user_character_stats();
-	    print1 ("Do you want to save this set-up to .omegarc in your home directory? [yn] ");
-	    if (ynq1() == 'y') {
-		print1 ("First, set options.");
+	    mprint ("Do you want to save this set-up to .omegarc in your home directory? [yn] ");
+	    if (ynq() == 'y') {
+		mprint ("First, set options.");
 		setoptions();
 		try {
 		    save_omegarc();
 		} catch (exception& e) {
-		    print1 (e.what());
+		    mprint (e.what());
 		    morewait();
 		}
 	    }
@@ -146,14 +146,14 @@ static void load_omegarc (const char* filename)
 }
 
 static bool personal_question_yn (const char* q)
-    { print1 (q); return (ynq1() == 'y'); }
+    { mprint (q); return (ynq() == 'y'); }
 static unsigned personal_question_num (const char* q)
-    { print1 (q); return (parsenum()); }
+    { mprint (q); return (parsenum()); }
 
 static void user_character_stats (void)
 {
     int num, iqpts = 0, numints = 0, ok, agipts = 0, dexpts = 0, powpts = 0, conpts = 0;
-    print1 ("OK, now try to answer the following questions honestly:");
+    mprint ("OK, now try to answer the following questions honestly:");
     morewait();
     num = personal_question_num ("How many pounds can you bench press? ");
     if (num < 30)
@@ -163,7 +163,7 @@ static void user_character_stats (void)
     else
 	Player.str = Player.maxstr = 9 + ((num - 120) / 30);
     if (Player.str > 18) {
-	print2 ("Even if it's true, I don't believe it.");
+	mprint ("Even if it's true, I don't believe it.");
 	morewait();
 	clearmsg();
 	Player.str = Player.maxstr = 18;
@@ -172,7 +172,7 @@ static void user_character_stats (void)
     if (personal_question_yn ("Took an official IQ test? [yn] ")) {
 	num = personal_question_num ("So, whadja get? ") / 10;
 	if (num > 18) {
-	    print2 ("Even if it's true, I don't believe it.");
+	    mprint ("Even if it's true, I don't believe it.");
 	    morewait();
 	    clearmsg();
 	    num = 18;
@@ -186,7 +186,7 @@ static void user_character_stats (void)
 	    num = personal_question_num ("So, what percentile? ");
 	    ok = (num < 100);
 	    if (!ok) {
-		print2 ("That's impossible!");
+		mprint ("That's impossible!");
 		morewait();
 		clearmsg();
 	    }
@@ -199,7 +199,7 @@ static void user_character_stats (void)
 	    num = personal_question_num ("So, what percentile? ");
 	    ok = (num < 100);
 	    if (!ok) {
-		print2 ("That's impossible!");
+		mprint ("That's impossible!");
 		morewait();
 		clearmsg();
 	    }
@@ -211,10 +211,10 @@ static void user_character_stats (void)
     if (!numints) {
 	if (personal_question_yn ("Pretty dumb, aren't you? [yn] ")) {
 	    Player.iq = random_range (3) + 3;
-	    print2 ("I thought so....");
+	    mprint ("I thought so....");
 	} else {
 	    Player.iq = random_range (6) + 8;
-	    print2 ("Well, not *that* dumb.");
+	    mprint ("Well, not *that* dumb.");
 	}
 	morewait();
 	clearmsg();
@@ -266,13 +266,13 @@ static void user_character_stats (void)
     clearmsg();
     if (personal_question_yn ("Have you ever picked a lock? [yn] ")) {
 	dexpts += 2;
-	print2 ("Really. Well, the police are being notified.");
+	mprint ("Really. Well, the police are being notified.");
     }
     morewait();
     clearmsg();
     num = personal_question_num ("What's your typing speed (words per minute) ");
     if (num > 125) {
-	print2 ("Tell me another one....");
+	mprint ("Tell me another one....");
 	morewait();
 	clearmsg();
 	num = 125;
@@ -307,7 +307,7 @@ static void user_character_stats (void)
 	conpts += 2;
     num = personal_question_num ("How many miles can you run? ");
     if (num > 25) {
-	print2 ("Right. Sure. Give me a break.");
+	mprint ("Right. Sure. Give me a break.");
 	morewait();
 	clearmsg();
 	conpts += 8;
@@ -321,18 +321,18 @@ static void user_character_stats (void)
 	conpts += 8;
     Player.con = Player.maxcon = 12 + conpts / 3;
     if (personal_question_yn ("Do animals react oddly to your presence? [yn] ")) {
-	print2 ("How curious that must be.");
+	mprint ("How curious that must be.");
 	morewait();
 	clearmsg();
 	powpts += 2;
     }
     if (personal_question_yn ("Can you see auras? [yn] ")) {
-	nprint1 (" How strange.");
+	mprint ("How strange.");
 	morewait();
 	powpts += 3;
     }
     if (personal_question_yn ("Ever have an out-of-body experience? [yn] ")) {
-	print2 ("Wow, man. Fly the friendly skies....");
+	mprint ("Wow, man. Fly the friendly skies....");
 	morewait();
 	clearmsg();
 	powpts += 3;
@@ -341,40 +341,40 @@ static void user_character_stats (void)
 	powpts += 3;
 	if (personal_question_yn (" Did it work? [yn] ")) {
 	    powpts += 7;
-	    print2 ("Sure it did.");
+	    mprint ("Sure it did.");
 	    morewait();
 	    clearmsg();
 	}
     }
     if (personal_question_yn ("Do you have ESP? [yn] ")) {
 	powpts += 3;
-	print2 ("Somehow, I knew you were going to say that.");
+	mprint ("Somehow, I knew you were going to say that.");
 	morewait();
 	clearmsg();
     }
     if (personal_question_yn ("Do you have PK? [yn] ")) {
 	powpts += 6;
-	print2 ("I can't tell you how much that moves me.");
+	mprint ("I can't tell you how much that moves me.");
 	morewait();
 	clearmsg();
     }
     if (personal_question_yn ("Do you believe in ghosts? [yn] ")) {
 	powpts += 2;
-	print2 ("I do! I do! I do believe in ghosts!");
+	mprint ("I do! I do! I do believe in ghosts!");
 	morewait();
 	clearmsg();
     }
     if (personal_question_yn ("Are you Irish? [yn] ")) {
 	powpts += 2;
-	nprint1 (" Is that blarney or what?");
+	mprint ("Is that blarney or what?");
 	morewait();
     }
     Player.pow = Player.maxpow = 3 + powpts / 2;
     clearmsg();
-    print1 ("Please enter your character's name: ");
+    mprint ("Please enter your character's name: ");
     Player.name = msgscanstring();
     Player.name[0] = toupper (Player.name[0]);
-    print1 ("Are you sexually interested in males or females? [mf] ");
+    mprint ("Are you sexually interested in males or females? [mf] ");
     do
 	Player.preference = (char) mcigetc();
     while (Player.preference != 'm' && Player.preference != 'f' && Player.preference != 'y' && Player.preference != 'n');	// :-)
@@ -382,12 +382,12 @@ static void user_character_stats (void)
 
 static void omegan_character_stats (void)
 {
-    print1 ("To reroll hit ESCAPE; hit any other key to accept these stats.");
+    mprint ("To reroll hit ESCAPE; hit any other key to accept these stats.");
     unsigned i = 0;
     do {
 	++i;
 	sprintf (Str1, "You have only %d chance%s to reroll... ", REROLLS - i, (i == (REROLLS - 1)) ? "" : "s");
-	print2 (Str1);
+	mprint (Str1);
 	unsigned share;	// Baseline for related stats
 	Player.iq  = Player.maxiq  = 4 + random_range(5) + (share = random_range(12));
 	Player.pow = Player.maxpow = 4 + random_range(5) + share;
@@ -400,10 +400,10 @@ static void omegan_character_stats (void)
 	dataprint();
     } while (i < REROLLS && mgetc() == KEY_ESCAPE);
     clearmsg();
-    print1 ("Please enter your character's name: ");
+    mprint ("Please enter your character's name: ");
     Player.name = msgscanstring();
     Player.name[0] = toupper (Player.name[0]);
-    print1 ("Is your character sexually interested in males or females? [mf] ");
+    mprint ("Is your character sexually interested in males or females? [mf] ");
     do
 	Player.preference = (char) mcigetc();
     while (Player.preference != 'm' && Player.preference != 'f' && Player.preference != 'y' && Player.preference != 'n');	// :-)

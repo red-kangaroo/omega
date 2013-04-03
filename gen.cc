@@ -80,7 +80,7 @@ void generate_level (int fromlevel, int tolevel)
 	    }
 	    break;
 	default:
-	    print3 ("This dungeon not implemented!");
+	    mprint ("This dungeon not implemented!");
 	    break;
     }
     install_traps();
@@ -700,7 +700,7 @@ void make_country_screen (int terrain)
 	    break;
     }
     if (nighttime()) {
-	print3 ("Night's gloom shrouds your sight.");
+	mprint ("Night's gloom shrouds your sight.");
 	for (unsigned i = 0; i < Level->width; ++i)
 	    for (unsigned j = 0; j < Level->height; ++j)
 		Level->site(i,j).lstatus = 0;

@@ -405,17 +405,17 @@ static void movemonster (struct monster *m, int newx, int newy)
 static void m_talk_druid (struct monster *m)
 {
     if (!m_statusp (m, HOSTILE)) {
-	print1 ("The Archdruid raises a hand in greeting.");
+	mprint ("The Archdruid raises a hand in greeting.");
 	if (!gamestatusp (SPOKE_TO_DRUID)) {
 	    setgamestatus (SPOKE_TO_DRUID);
 	    morewait();
-	    print1 ("The Archdruid congratulates you on reaching his sanctum.");
-	    print2 ("You feel competent.");
+	    mprint ("The Archdruid congratulates you on reaching his sanctum.");
+	    mprint ("You feel competent.");
 	    morewait();
 	    gain_experience (300);
 	    if (Player.patron == DRUID) {
-		print1 ("The Archdruid conveys to you the wisdom of nature....");
-		print2 ("You feel like a sage.");
+		mprint ("The Archdruid conveys to you the wisdom of nature....");
+		mprint ("You feel like a sage.");
 		morewait();
 		for (int i = 0; i < NUMGUILDS; i++)
 		    if (Player.guildxp[i] > 0)
@@ -513,30 +513,30 @@ static void m_talk_hungry (struct monster *m)
 static void m_talk_guard (struct monster *m)
 {
     if (m_statusp (m, HOSTILE)) {
-	print1 ("'Surrender in the name of the Law!'");
-	print2 ("Do it? [yn] ");
-	if (ynq2() == 'y') {
+	mprint ("'Surrender in the name of the Law!'");
+	mprint ("Do it? [yn] ");
+	if (ynq() == 'y') {
 	    Player.alignment++;
 	    if (Current_Environment == E_CITY) {
-		print1 ("Go directly to jail. Do not pass go, do not collect 200Au.");
-		print2 ("You are taken to the city gaol.");
+		mprint ("Go directly to jail. Do not pass go, do not collect 200Au.");
+		mprint ("You are taken to the city gaol.");
 		morewait();
 		send_to_jail();
 		drawvision (Player.x, Player.y);
 	    } else {
 		clearmsg();
-		print1 ("Mollified, the guard disarms you and sends you away.");
+		mprint ("Mollified, the guard disarms you and sends you away.");
 		Player.remove_possession (O_WEAPON_HAND);
 		pacify_guards();
 	    }
 	} else {
 	    clearmsg();
-	    print1 ("All right, you criminal scum, you asked for it!");
+	    mprint ("All right, you criminal scum, you asked for it!");
 	}
     } else if (Player.rank[ORDER] >= GALLANT)
-	print1 ("'Greetings comrade! May you always tread the paths of Law.'");
+	mprint ("'Greetings comrade! May you always tread the paths of Law.'");
     else
-	print1 ("Move it right along, stranger!");
+	mprint ("Move it right along, stranger!");
 }
 
 static void m_talk_mp (struct monster *m UNUSED)
@@ -563,9 +563,9 @@ static void m_talk_thief (struct monster *m)
 	    m->monstring = "sneak thief";
 	else
 	    m->monstring = "master thief";
-	print1 ("The cloaked figure makes a gesture which you recognize...");
-	print2 ("...the thieves' guild recognition signal!");
-	print3 ("'Sorry, mate, thought you were a mark....'");
+	mprint ("The cloaked figure makes a gesture which you recognize...");
+	mprint ("...the thieves' guild recognition signal!");
+	mprint ("'Sorry, mate, thought you were a mark....'");
 	morewait();
 	m_vanish (m);
     } else
@@ -576,8 +576,8 @@ static void m_talk_thief (struct monster *m)
 static void m_talk_assassin (struct monster *m)
 {
     m->monstring = "master assassin";
-    print1 ("The ominous figure does not reply, but hands you an embossed card:");
-    print2 ("'Guild of Assassins Ops are forbidden to converse with targets.'");
+    mprint ("The ominous figure does not reply, but hands you an embossed card:");
+    mprint ("'Guild of Assassins Ops are forbidden to converse with targets.'");
 }
 
 static void m_talk_im (struct monster *m)
@@ -822,7 +822,7 @@ static void m_talk_servant (struct monster *m)
     if (ynq() != 'y')
 	mprint ("The servant shrugs and turns away.");
     else {
-	print1 ("Show me.");
+	mprint ("Show me.");
 	show_screen();
 	drawmonsters (true);
 	setspot (&x, &y);
@@ -916,18 +916,18 @@ static void m_talk_prime (struct monster *m)
     if (m_statusp (m, HOSTILE))
 	return (m_talk_evil (m));
     if (Current_Environment == E_CIRCLE) {
-	print1 ("The Prime nods brusquely at you, removes a gem from his");
-	print2 ("sleeve, places it on the floor, and vanishes wordlessly.");
+	mprint ("The Prime nods brusquely at you, removes a gem from his");
+	mprint ("sleeve, places it on the floor, and vanishes wordlessly.");
 	morewait();
 	m_dropstuff (m);
 	m_vanish (m);
     } else {
-	print1 ("The Prime makes an intricate gesture, which leaves behind");
-	print2 ("glowing blue sparks... He winks mischievously at you....");
+	mprint ("The Prime makes an intricate gesture, which leaves behind");
+	mprint ("glowing blue sparks... He winks mischievously at you....");
 	if (Player.rank[CIRCLE] >= INITIATE) {
 	    morewait();
-	    print1 ("The blue sparks strike you! You feel enhanced!");
-	    print2 ("You feel more experienced....");
+	    mprint ("The blue sparks strike you! You feel enhanced!");
+	    mprint ("You feel more experienced....");
 	    Player.pow += Player.rank[CIRCLE];
 	    Player.mana += Player.calcmana();
 	    gain_experience (1000);
@@ -975,7 +975,7 @@ static void tacmonster (struct monster *m)
 static void monster_melee (struct monster *m, int hitloc, int bonus)
 {
     if (Player.on_sanctuary()) {
-	print1 ("The aegis of your deity protects you!");
+	mprint ("The aegis of your deity protects you!");
 	return;
     }
     // It's lawful to wait to be attacked
@@ -1072,27 +1072,28 @@ static void monster_melee (struct monster *m, int hitloc, int bonus)
 		    m->speed = min (30, m->speed * 2);
 		    break;
 	    }
-	}
-	switch (random_range (10)) {
-	    case 0: msg = "flailed stupidly at you"; break;
-	    case 1: msg = "made you laugh"; break;
-	    case 2: msg = "is seriously ashamed"; break;
-	    case 3: msg = " made a boo-boo"; break;
-	    case 4: msg = "blundered"; break;
-	    case 5: msg = "cries out in anger and frustration"; break;
-	    case 6: msg = "curses your ancestry"; break;
-	    case 7:
-		msg = "blundered severely";
-		m_damage (m, m->dmg, UNSTOPPABLE);
-		break;
-	    case 8:
-		msg = "tripped while attacking";
-		m_dropstuff (m);
-		break;
-	    case 9:
-		msg = "seems seriously confused";
-		m->speed = min (30, m->speed * 2);
-		break;
+	} else {
+	    switch (random_range (10)) {
+		case 0: msg = "flailed stupidly at you"; break;
+		case 1: msg = "made you laugh"; break;
+		case 2: msg = "is seriously ashamed"; break;
+		case 3: msg = " made a boo-boo"; break;
+		case 4: msg = "blundered"; break;
+		case 5: msg = "cries out in anger and frustration"; break;
+		case 6: msg = "curses your ancestry"; break;
+		case 7:
+		    msg = "blundered severely";
+		    m_damage (m, m->dmg, UNSTOPPABLE);
+		    break;
+		case 8:
+		    msg = "tripped while attacking";
+		    m_dropstuff (m);
+		    break;
+		case 9:
+		    msg = "seems seriously confused";
+		    m->speed = min (30, m->speed * 2);
+		    break;
+	    }
 	}
 	mprintf ("%s %s", m->name(), msg);
     }
@@ -2057,7 +2058,7 @@ static void monster_move (struct monster *m)
 static void monster_strike (struct monster *m)
 {
     if (Player.on_sanctuary())
-	print1 ("The aegis of your deity protects you!");
+	mprint ("The aegis of your deity protects you!");
     else {
 	// It's lawful to wait to be attacked
 	if (!m->attacked)

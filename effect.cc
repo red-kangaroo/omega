@@ -17,15 +17,17 @@ void enchant (int delta)
 
     if (delta < 0) {
 	i = random_item();
+
+	const char* your = "Your ";
+	if (object_uniqueness(Player.possessions[i]) != COMMON)
+	    your = "";
+
 	if (i == ABORT || Player.possessions[i].usef == I_NOTHING || Player.possessions[i].usef == I_NO_OP || Player.possessions[i].usef == I_NORMAL_ARMOR || Player.possessions[i].usef == I_NORMAL_WEAPON
 	    || Player.possessions[i].usef == I_NORMAL_SHIELD || Player.possessions[i].objchar == FOOD || Player.possessions[i].objchar == MISSILEWEAPON) {
-	    print1 ("You feel fortunate.");
+	    mprint ("You feel fortunate.");
 	    morewait();
 	} else if (Player.possessions[i].blessing < 0 || (Player.possessions[i].objchar == ARTIFACT && random_range (3))) {
-	    if (object_uniqueness(Player.possessions[i]) == COMMON)
-		print1 ("Your ");
-	    nprint1 (itemid (Player.possessions[i]));
-	    nprint1 (" glows, but the glow flickers out...");
+	    mprintf ("%s%s glows, but the glow flickers out...", your, itemid (Player.possessions[i]));
 	    morewait();
 	} else {
 	    used = (Player.possessions[i].used);
@@ -33,10 +35,7 @@ void enchant (int delta)
 		Player.possessions[i].used = false;
 		item_use (Player.possessions[i]);
 	    }
-	    if (object_uniqueness(Player.possessions[i]) == COMMON)
-		print1 ("Your ");
-	    nprint1 (itemid (Player.possessions[i]));
-	    nprint1 (" radiates an aura of mundanity!");
+	    mprintf ("%s%s radiates an aura of mundanity!", your, itemid (Player.possessions[i]));
 	    morewait();
 	    Player.possessions[i].plus = 0;
 	    Player.possessions[i].charge = -1;
@@ -49,33 +48,32 @@ void enchant (int delta)
     } else {
 	i = getitem (CASH);
 	if (i == ABORT) {
-	    print1 ("You feel unlucky.");
+	    mprint ("You feel unlucky.");
 	    morewait();
 	} else if (i == CASHVALUE) {
-	    print1 ("You enchant your money.... What a concept!");
+	    mprint ("You enchant your money.... What a concept!");
 	    change_cash = Player.cash * (random_range (7) - 3) / 6;
 	    if (change_cash > 0)
-		print2 ("Seems to have been a good idea!");
+		mprint ("Seems to have been a good idea!");
 	    else
-		print2 ("Maybe it wasn't such a good idea....");
+		mprint ("Maybe it wasn't such a good idea....");
 	    Player.cash += change_cash;
 	    morewait();
 	} else if (Player.possessions[i].objchar == ARTIFACT) {
 	    if (Player.possessions[i].usef != Objects[Player.possessions[i].id].usef) {
-		print1 ("It re-acquires its magical aura!");
+		mprint ("It re-acquires its magical aura!");
 		Player.possessions[i].usef = Objects[Player.possessions[i].id].usef;
 	    } else {
-		print1 ("The enchantment spell enfolds the ");
-		nprint1 (itemid (Player.possessions[i]));
-		print2 ("and the potent enchantment of the Artifact causes a backlash!");
+		mprintf ("The enchantment spell enfolds the %s", itemid (Player.possessions[i]));
+		mprint ("and the potent enchantment of the Artifact causes a backlash!");
 		morewait();
 		clearmsg();
 		manastorm (Player.x, Player.y, Player.possessions[i].level * 5);
 	    }
 	} else {
 	    if (Player.possessions[i].plus > random_range (20) + 1) {
-		print1 ("Uh-oh, the force of the enchantment was too much!");
-		print2 ("There is a loud explosion!");
+		mprint ("Uh-oh, the force of the enchantment was too much!");
+		mprint ("There is a loud explosion!");
 		morewait();
 		manastorm (Player.x, Player.y, Player.possessions[i].plus * 5);
 		Player.remove_possession (i, 1);
@@ -87,7 +85,7 @@ void enchant (int delta)
 		    item_use (Player.possessions[i]);
 		    resetgamestatus (SUPPRESS_PRINTING);
 		}
-		print1 ("The item shines!");
+		mprint ("The item shines!");
 		morewait();
 		Player.possessions[i].plus += delta + 1;
 		if (Player.possessions[i].charge > -1)
@@ -112,13 +110,13 @@ void bless (int blessing)
     if (blessing < 0) {
 	iidx = random_item();
 	if (iidx == ABORT) {
-	    print1 ("You feel fortunate.");
+	    mprint ("You feel fortunate.");
 	    morewait();
 	} else {
-	    print1 ("A foul odor arises from ");
-	    if (object_uniqueness(Player.possessions[iidx]) == COMMON)
-		nprint1 ("your ");
-	    nprint1 (itemid (Player.possessions[iidx]));
+	    const char* your = "your ";
+	    if (object_uniqueness(Player.possessions[iidx]) != COMMON)
+		your = "";
+	    mprintf ("A foul odor arises from %s%s", your, itemid(Player.possessions[iidx]));
 	    morewait();
 	    used = (Player.possessions[iidx].used);
 	    if (used) {
@@ -140,7 +138,7 @@ void bless (int blessing)
     } else {
 	iidx = getitem (NULL_ITEM);
 	if (iidx == CASHVALUE) {
-	    print1 ("Blessing your money has no effect.");
+	    mprint ("Blessing your money has no effect.");
 	    morewait();
 	} else if (iidx != ABORT) {
 	    used = (Player.possessions[iidx].used == true);
@@ -150,22 +148,22 @@ void bless (int blessing)
 		item_use (Player.possessions[iidx]);
 		resetgamestatus (SUPPRESS_PRINTING);
 	    }
-	    print1 ("A pure white light surrounds the item... ");
+	    mprint ("A pure white light surrounds the item... ");
 	    if (Player.possessions[iidx].blessing < 0 - (blessing + 1)) {
-		print2 ("which is evil enough to resist the effect of the blessing!");
+		mprint ("which is evil enough to resist the effect of the blessing!");
 		morewait();
 	    } else if (Player.possessions[iidx].blessing < -1) {
-		print2 ("which disintegrates under the influence of the holy aura!");
+		mprint ("which disintegrates under the influence of the holy aura!");
 		morewait();
 		Player.itemweight -= Player.possessions[iidx].weight;
 		Player.remove_possession (iidx, 1);
 	    } else if (Player.possessions[iidx].blessing < blessing + 1) {
-		print2 ("which now seems affected by afflatus!");
+		mprint ("which now seems affected by afflatus!");
 		morewait();
 		Player.possessions[iidx].blessing++;
 		Player.possessions[iidx].plus = absv (Player.possessions[iidx].plus) + 1;
 	    } else {
-		print2 ("The hierolux fades without any appreciable effect....");
+		mprint ("The hierolux fades without any appreciable effect....");
 		morewait();
 	    }
 	    if (used && Player.has_possession(iidx)) {
@@ -493,24 +491,24 @@ void identify (int blessing)
 {
     clearmsg();
     if (blessing == 0) {
-	print1 ("Identify:");
+	mprint ("Identify:");
 	int iidx = getitem (NULL_ITEM);
 	if (iidx == CASHVALUE)
-	    print3 ("Your money is really money.");
+	    mprint ("Your money is really money.");
 	else if (iidx == ABORT)
 	    setgamestatus (SKIP_MONSTERS);
 	else {
 	    learn_object (Player.possessions[iidx]);
-	    print1 ("Identified: ");
+	    mprint ("Identified: ");
 	    mprint (itemid (Player.possessions[iidx]));
 	}
     } else if (blessing < 0) {
-	print2 ("You feel forgetful.");
+	mprint ("You feel forgetful.");
 	for (unsigned iidx = 0; iidx < MAXITEMS; iidx++)
 	    if (Player.has_possession(iidx))
 		forget_object (Player.possessions[iidx]);
     } else {
-	print2 ("You feel encyclopaedic.");
+	mprint ("You feel encyclopaedic.");
 	for (unsigned iidx = 0; iidx < MAXITEMS; iidx++)
 	    learn_object (Player.possessions[iidx]);
 	foreach (i, Player.pack)
@@ -538,44 +536,44 @@ void wish (int blessing)
 {
     char wishstr[80];
     clearmsg();
-    print1 ("What do you wish for? ");
+    mprint ("What do you wish for? ");
     if (blessing < 0)
 	deathprint();
     else
 	strcpy (wishstr, msgscanstring());
     if (blessing < 0 || strcmp (wishstr, "Death") == 0) {
-	print2 ("As you wish, so shall it be.");
+	mprint ("As you wish, so shall it be.");
 	p_death ("a deathwish");
     }
     if (strcmp (wishstr, "Power") == 0) {
-	print2 ("You feel a sudden surge of energy");
+	mprint ("You feel a sudden surge of energy");
 	Player.mana = Player.calcmana() * 10;
     } else if (strcmp (wishstr, "Skill") == 0) {
-	print2 ("You feel more competent.");
+	mprint ("You feel more competent.");
 	gain_experience (min (10000U, Player.xp));
     } else if (strcmp (wishstr, "Wealth") == 0) {
-	print2 ("You are submerged in shower of gold pieces!");
+	mprint ("You are submerged in shower of gold pieces!");
 	Player.cash += 10000;
     } else if (strcmp (wishstr, "Balance") == 0) {
-	print2 ("You feel neutral.");
+	mprint ("You feel neutral.");
 	Player.alignment = 0;
     } else if (strcmp (wishstr, "Chaos") == 0) {
-	print2 ("You feel chaotic.");
+	mprint ("You feel chaotic.");
 	Player.alignment -= 100;
     } else if (strcmp (wishstr, "Law") == 0) {
-	print2 ("You feel lawful.");
+	mprint ("You feel lawful.");
 	Player.alignment += 100;
     } else if (strcmp (wishstr, "Location") == 0)
 	strategic_teleport (1);
     else if (strcmp (wishstr, "Knowledge") == 0) {
-	print2 ("You feel more knowledgeable.");
+	mprint ("You feel more knowledgeable.");
 	ESpell i = (ESpell) random_range (NUMSPELLS);
 	if (spell_is_known(i))
 	    Spells[i].powerdrain = (max (1, Spells[i].powerdrain / 2));
 	else
 	    learn_spell(i);
     } else if (strcmp (wishstr, "Health") == 0) {
-	print2 ("You feel vigorous");
+	mprint ("You feel vigorous");
 	Player.food = 40;
 	toggle_item_use (true);
 	Player.str = max (Player.str, Player.maxstr);
@@ -599,7 +597,7 @@ void wish (int blessing)
 	Player.str = Player.maxstr = Player.con = Player.maxcon = Player.agi = Player.maxagi = Player.dex = Player.maxdex = Player.iq = Player.maxiq = Player.pow = Player.maxpow = 200;
 	calc_melee();
     } else
-	print2 ("You feel stupid.");
+	mprint ("You feel stupid.");
     dataprint();
     showflags();
 }
@@ -615,9 +613,8 @@ void acquire (int blessing)
 	if (iidx == ABORT)
 	    mprint ("You feel fortunate.");
 	else {
-	    print1 ("Smoke drifts out of your pack.... ");
-	    print2 ("Destroyed: ");
-	    nprint2 (itemid (Player.possessions[iidx]));
+	    mprint ("Smoke drifts out of your pack.... ");
+	    mprintf ("Destroyed: %s", itemid (Player.possessions[iidx]));
 	    morewait();
 	    Player.remove_possession (iidx);
 	}
@@ -625,9 +622,9 @@ void acquire (int blessing)
 	object newthing;
 	newthing.id = NO_THING;
 	if (gamestatusp (CHEATED))
-	    print1 ("Acquire which kind of item: !?][}{)/=%%\\& ");
+	    mprint ("Acquire which kind of item: !?][}{)/=%%\\& ");
 	else
-	    print1 ("Acquire which kind of item: !?][}{)/=%%\\ ");
+	    mprint ("Acquire which kind of item: !?][}{)/=%%\\ ");
 	otype = mgetc();
 	switch (otype) {
 	    case (POTION & 0xff):
@@ -636,7 +633,7 @@ void acquire (int blessing)
 		else
 		    id = random_range (NUMPOTIONS);
 		if (id < 0)
-		    print2 ("You feel stupid.");
+		    mprint ("You feel stupid.");
 		else
 		    newthing = make_potion (id);
 		break;
@@ -646,7 +643,7 @@ void acquire (int blessing)
 		else
 		    id = random_range (NUMSCROLLS);
 		if (id < 0)
-		    print2 ("You feel stupid.");
+		    mprint ("You feel stupid.");
 		else
 		    newthing = make_scroll (id);
 		break;
@@ -656,7 +653,7 @@ void acquire (int blessing)
 		else
 		    id = random_range (NUMRINGS);
 		if (id < 0)
-		    print2 ("You feel stupid.");
+		    mprint ("You feel stupid.");
 		else
 		    newthing = make_ring (id);
 		break;
@@ -666,7 +663,7 @@ void acquire (int blessing)
 		else
 		    id = random_range (NUMSTICKS);
 		if (id < 0)
-		    print2 ("You feel stupid.");
+		    mprint ("You feel stupid.");
 		else
 		    newthing = make_stick (id);
 		break;
@@ -676,7 +673,7 @@ void acquire (int blessing)
 		else
 		    id = random_range (NUMARMOR);
 		if (id < 0)
-		    print2 ("You feel stupid.");
+		    mprint ("You feel stupid.");
 		else
 		    newthing = make_armor (id);
 		break;
@@ -686,7 +683,7 @@ void acquire (int blessing)
 		else
 		    id = random_range (NUMSHIELDS);
 		if (id < 0)
-		    print2 ("You feel stupid.");
+		    mprint ("You feel stupid.");
 		else
 		    newthing = make_shield (id);
 		break;
@@ -696,7 +693,7 @@ void acquire (int blessing)
 		else
 		    id = random_range (NUMWEAPONS);
 		if (id < 0)
-		    print2 ("You feel stupid.");
+		    mprint ("You feel stupid.");
 		else
 		    newthing = make_weapon (id);
 		break;
@@ -706,7 +703,7 @@ void acquire (int blessing)
 		else
 		    id = random_range (NUMBOOTS);
 		if (id < 0)
-		    print2 ("You feel stupid.");
+		    mprint ("You feel stupid.");
 		else
 		    newthing = make_boots (id);
 		break;
@@ -716,7 +713,7 @@ void acquire (int blessing)
 		else
 		    id = random_range (NUMCLOAKS);
 		if (id < 0)
-		    print2 ("You feel stupid.");
+		    mprint ("You feel stupid.");
 		else
 		    newthing = make_cloak (id);
 		break;
@@ -726,7 +723,7 @@ void acquire (int blessing)
 		else
 		    id = random_range (NUMFOODS);
 		if (id < 0)
-		    print2 ("You feel stupid.");
+		    mprint ("You feel stupid.");
 		else
 		    newthing = make_food (id);
 		break;
@@ -736,7 +733,7 @@ void acquire (int blessing)
 		else
 		    id = random_range (NUMTHINGS);
 		if (id < 0)
-		    print2 ("You feel stupid.");
+		    mprint ("You feel stupid.");
 		else
 		    newthing = make_thing (id);
 		break;
@@ -746,12 +743,12 @@ void acquire (int blessing)
 		else
 		    id = -1;
 		if (id < 0)
-		    print2 ("You feel stupid.");
+		    mprint ("You feel stupid.");
 		else
 		    newthing = make_artifact (id);
 		break;
 	    default:
-		print2 ("You feel stupid.");
+		mprint ("You feel stupid.");
 	}
 	xredraw();
 	if (id != ABORT) {
@@ -1423,8 +1420,8 @@ static int itemlist (int itemindex, int num)
 {
     int i, itemno;
 
-    print2 ("Show ID list? ");
-    if (ynq2() == 'y') {
+    mprint ("Show ID list? ");
+    if (ynq() == 'y') {
 	menuclear();
 	for (i = 0; i < num; i++) {
 	    menunumprint (i + 1);
@@ -1444,11 +1441,11 @@ static int itemlist (int itemindex, int num)
 static int selectmonster (void)
 {
     int i, itemno;
-    print2 ("Show ID list? ");
-    if (ynq2() == 'y')
+    mprint ("Show ID list? ");
+    if (ynq() == 'y')
 	do {
 	    clearmsg();
-	    print1 ("Summon monster: ");
+	    mprint ("Summon monster: ");
 	    menuclear();
 	    for (i = 0; i < NUMMONSTERS; i++) {
 		menunumprint (i + 1);
@@ -1459,13 +1456,13 @@ static int selectmonster (void)
 	    showmenu();
 	    itemno = (int) parsenum() - 1;
 	    if ((itemno < 0) || (itemno > NUMMONSTERS - 1)) {
-		print3 ("How about trying a real monster?");
+		mprint ("How about trying a real monster?");
 		morewait();
 	    }
 	} while ((itemno < 0) || (itemno > NUMMONSTERS - 1));
     else
 	do {
-	    print1 ("Summon monster: ");
+	    mprint ("Summon monster: ");
 	    itemno = (int) parsenum() - 1;
 	} while ((itemno < 0) || (itemno > NUMMONSTERS - 1));
     return (itemno);
@@ -1514,10 +1511,10 @@ void annihilate (int blessing)
     if (blessing > 0) {
 	if (Current_Environment == E_COUNTRYSIDE) {
 	    clearmsg();
-	    print1 ("Bolts of lightning flash down for as far as you can see!!!");
+	    mprint ("Bolts of lightning flash down for as far as you can see!!!");
 	    morewait();
-	    print1 ("There is a rain of small birds and insects from the sky, and you");
-	    print2 ("notice that you can't hear any animal noises around here any more...");
+	    mprint ("There is a rain of small birds and insects from the sky, and you");
+	    mprint ("notice that you can't hear any animal noises around here any more...");
 	    Player.alignment -= 3;
 	} else {
 	    mprint ("Thousands of bolts of lightning flash throughout the level!!!");
@@ -1632,20 +1629,18 @@ void learnspell (int blessing)
     } else {
 	learn_object (SCROLL_SPELLS);
 	ESpell spell = (ESpell) random_range (NUMSPELLS);
-	print1 ("Spell Research");
 	if ((random_range (4 * Spells[spell].powerdrain) + Spells[spell].powerdrain) < (4 * Player.iq + 8 * Player.level)) {
-	    nprint1 (" -- Research successful: ");
-	    nprint1 (spellid (spell));
+	    mprintf ("Spell research successful: %s", spellid (spell));
 	    if (spell_is_known (spell)) {
-		print2 ("...is now easier to cast.");
+		mprint ("...is now easier to cast.");
 		Spells[spell].powerdrain = ((int) ((Spells[spell].powerdrain + 1) / 2));
 	    } else {
-		print2 ("...is added to your repertoire");
+		mprint ("...is added to your repertoire");
 		learn_spell (spell);
 		gain_experience (Spells[spell].powerdrain * 10);
 	    }
 	} else
-	    nprint1 (" -- Research unsuccessful.");
+	    mprint ("Spell research unsuccessful.");
     }
 }
 
@@ -1985,7 +1980,7 @@ void strategic_teleport (int blessing)
 	}
 	xredraw();
 	if (gamestatusp (LOST)) {
-	    print1 ("You know where you are now.");
+	    mprint ("You know where you are now.");
 	    resetgamestatus (LOST);
 	    Precipitation = 0;
 	}

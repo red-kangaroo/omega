@@ -50,7 +50,6 @@ extern uint8_t Searchnum;			// number of times to search on 's'
 extern EVerbosity Verbosity;			// verbosity level
 extern uint32_t Time;				// turn number
 extern uint8_t Tick;				// current second in minute; action coordinator
-extern char Stringbuffer[STRING_BUFFER_SIZE][80];	// the last printed strings
 extern uint32_t Gymcredit;			// credit at rampart gym
 extern uint8_t Spellsleft;			// research allowance at college
 extern uint16_t StarGemUse;			// last date of star gem use
@@ -154,15 +153,15 @@ extern const char Level_Village6[];
 
 namespace {
 
-static constexpr inline int pow2 (int n) { return (1 << n); }
+static constexpr inline unsigned pow2 (unsigned n) { return (1u << n); }
 
-static inline bool loc_statusp (int x, int y, unsigned stat)	{ return (Level->site(x,y).lstatus & stat); }
-static inline void lset (int x, int y, unsigned stat)		{ Level->site(x,y).lstatus |= stat; }
-static inline void lreset (int x, int y, unsigned stat)		{ Level->site(x,y).lstatus &= ~stat; }
+static inline bool loc_statusp (unsigned x, unsigned y, unsigned stat)	{ return (Level->site(x,y).lstatus & stat); }
+static inline void lset (unsigned x, unsigned y, unsigned stat)		{ Level->site(x,y).lstatus |= stat; }
+static inline void lreset (unsigned x, unsigned y, unsigned stat)	{ Level->site(x,y).lstatus &= ~stat; }
 
-static inline bool c_statusp (int x, int y, unsigned stat)	{ return (Country->site(x,y).lstatus & stat); }
-static inline void c_set (int x, int y, unsigned stat)		{ Country->site(x,y).lstatus |= stat; }
-static inline void c_reset(int x, int y, unsigned stat)		{ Country->site(x,y).lstatus &= ~stat; }
+static inline bool c_statusp (unsigned x, unsigned y, unsigned stat)	{ return (Country->site(x,y).lstatus & stat); }
+static inline void c_set (unsigned x, unsigned y, unsigned stat)	{ Country->site(x,y).lstatus |= stat; }
+static inline void c_reset(unsigned x, unsigned y, unsigned stat)	{ Country->site(x,y).lstatus &= ~stat; }
 
 static inline bool m_statusp (const monster_data* m,unsigned s)	{ return (m->status & s); }
 static inline void m_status_set (monster* m, unsigned s)	{ m->status |= s; }

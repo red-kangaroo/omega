@@ -386,48 +386,23 @@ static void i_knowledge (pob o)
 static void i_jane_t (pob o)
 {
     int volume = random_range (6);
-    int j = 0, k = 0;
-    char v;
-
     learn_object (o);
-    print1 ("Jane's Guide to the World's Treasures: ");
-    switch (volume) {
-	case 0:
-	    nprint1 ("SCROLLS");
-	    j = SCROLLID;
-	    k = POTIONID;
-	    break;
-	case 1:
-	    nprint1 ("POTIONS");
-	    j = POTIONID;
-	    k = WEAPONID;
-	    break;
-	case 2:
-	    nprint1 ("CLOAKS");
-	    j = CLOAKID;
-	    k = BOOTID;
-	    break;
-	case 3:
-	    nprint1 ("BOOTS");
-	    j = BOOTID;
-	    k = RINGID;
-	    break;
-	case 4:
-	    nprint1 ("RINGS");
-	    j = RINGID;
-	    k = STICKID;
-	    break;
-	case 5:
-	    nprint1 ("STICKS");
-	    j = STICKID;
-	    k = ARTIFACTID;
-	    break;
-    }
+    static const struct { const char* name; int j,k; } c_Guides[] = {
+	{ "SCROLLS", SCROLLID, POTIONID },
+	{ "POTIONS", POTIONID, WEAPONID },
+	{ "CLOAKS", CLOAKID, BOOTID },
+	{ "BOOTS", BOOTID, RINGID },
+	{ "RINGS", RINGID, STICKID },
+	{ "STICKS", STICKID, ARTIFACTID }
+    };
+    mprintf ("Jane's Guide to the World's Treasures: %s", c_Guides[volume].name);
+    int j = c_Guides[volume].j;
+    int k = c_Guides[volume].k;
     menuclear();
     menuprint ("You could probably now recognise:\n");
     for (int i = j; i < k; i++) {
 	learn_object (i);
-	v = Objects[i].truename[0];
+	char v = Objects[i].truename[0];
 	if ((v >= 'A' && v <= 'Z') || volume == 3)
 	    sprintf (Str1, "   %s\n", Objects[i].truename);
 	else if (v == 'a' || v == 'e' || v == 'i' || v == 'o' || v == 'u')
@@ -1384,7 +1359,7 @@ static void i_perm_breathing (pob o)
     } else if (o->used) {
 	Player.status[BREATHING] = 0;
 	p_drown();
-	print1 ("Water pours from the broken suit.");
+	mprint ("Water pours from the broken suit.");
     }
 }
 
@@ -1701,9 +1676,9 @@ static void i_perm_deflect (pob o)
 static void i_planes (pob o UNUSED)
 {
     if (Player.mana < 1)
-	print1 ("The amulet spits some multicolored sparks.");
+	mprint ("The amulet spits some multicolored sparks.");
     else {
-	print1 ("You focus mana into the amulet....");
+	mprint ("You focus mana into the amulet....");
 	Player.mana = max (0, Player.mana - 100);
 	dataprint();
 	morewait();
@@ -1715,20 +1690,20 @@ static void i_planes (pob o UNUSED)
 static void i_sceptre (pob o UNUSED)
 {
     if (HiMagicUse == Date)
-	print1 ("The Sceptre makes a sort of dull 'thut' noise.");
+	mprint ("The Sceptre makes a sort of dull 'thut' noise.");
     else if (Current_Environment == E_CIRCLE || Current_Environment == E_ASTRAL) {
 	HiMagicUse = Date;	// WDT: this looks like it's a good place to use the batteries.
-	print1 ("The Sceptre warps strangely for a second, and then subsides.");
+	mprint ("The Sceptre warps strangely for a second, and then subsides.");
 	morewait();
-	print2 ("You smell ozone.");	// WDT: explain the battery use.
+	mprint ("You smell ozone.");	// WDT: explain the battery use.
     } else {
 	HiMagicUse = Date;
-	print1 ("With a shriek of tearing aether, a magic portal appears!");
-	print2 ("Step through? [yn] ");
+	mprint ("With a shriek of tearing aether, a magic portal appears!");
+	mprint ("Step through? [yn] ");
 	if (ynq() == 'y')
 	    change_environment (E_COURT);
-	print1 ("The sceptre seems to subside. You hear a high whine, as of");
-	print2 ("capacitors beginning to recharge.");
+	mprint ("The sceptre seems to subside. You hear a high whine, as of");
+	mprint ("capacitors beginning to recharge.");
 	morewait();
     }
 }
@@ -1737,29 +1712,29 @@ static void i_sceptre (pob o UNUSED)
 static void i_stargem (pob o)
 {
     if (StarGemUse == Date) {
-	print1 ("The Star Gem glints weakly as if to say:");
-	print2 ("'You have used me overmuch.'");
-	print3 ("and it vanishes a puff of regret.");
+	mprint ("The Star Gem glints weakly as if to say:");
+	mprint ("'You have used me overmuch.'");
+	mprint ("and it vanishes a puff of regret.");
 	set_object_uniqueness (o, UNIQUE_UNMADE);
 	// it's now out there, somewhere
 	Player.remove_possession (o, 1);
     } else {
 	StarGemUse = Date;
 	if (o->blessing < 1) {
-	    print1 ("The Star Gem shines brightly and emits a musical tone.");
-	    print2 ("You see a dark cloud roil away from it.");
+	    mprint ("The Star Gem shines brightly and emits a musical tone.");
+	    mprint ("You see a dark cloud roil away from it.");
 	    morewait();
 	    o->blessing = 10;
 	}
-	print1 ("The star gem flares with golden light!");
+	mprint ("The star gem flares with golden light!");
 	morewait();
 	if (Player.status[ILLUMINATION] < 1000) {
-	    print1 ("Interesting, you seem to be permanently accompanied");
-	    print2 ("by a friendly lambent glow....");
+	    mprint ("Interesting, you seem to be permanently accompanied");
+	    mprint ("by a friendly lambent glow....");
 	    morewait();
 	    Player.status[ILLUMINATION] = 1500;
 	}
-	print1 ("You suddenly find yourself whisked away by some unknown force!");
+	mprint ("You suddenly find yourself whisked away by some unknown force!");
 	morewait();
 	setgamestatus (COMPLETED_ASTRAL);
 	change_environment (E_COUNTRYSIDE);
@@ -1770,7 +1745,7 @@ static void i_stargem (pob o)
 	locprint ("Star Peak");
 	c_reset (Player.x, Player.y, SECRET);
 	c_set (Player.x, Player.y, CHANGED);
-	print2 ("The Star Gem's brilliance seems to fade.");
+	mprint ("The Star Gem's brilliance seems to fade.");
     }
 }
 
@@ -1793,17 +1768,17 @@ static void i_juggernaut (pob o)
     int seen = 1, not_seen = 0;
     int tunneled = 0;
 
-    print1 ("You activate the Juggernaut of Karnak!");
+    mprint ("You activate the Juggernaut of Karnak!");
     if (!object_is_known(o)) {
-	print2 ("Uh, oh, it's coming this way!");
+	mprint ("Uh, oh, it's coming this way!");
 	p_death ("the Juggernaut of Karnak");
 	return;
     }
     d = getdir();
     if (d == ABORT)
-	print2 ("You deactivate the Juggernaut before it escapes.");
+	mprint ("You deactivate the Juggernaut before it escapes.");
     else {
-	print1 ("Vroom! ");
+	mprint ("Vroom! ");
 	while (inbounds (x + Dirs[0][d], y + Dirs[1][d])) {
 	    x += Dirs[0][d];
 	    y += Dirs[1][d];
@@ -1819,7 +1794,7 @@ static void i_juggernaut (pob o)
 	    lset (x, y, CHANGED);
 	    if (Level->creature(x,y) != NULL) {
 		if (seen)
-		    nprint1 ("Splat! ");
+		    mprint ("Splat! ");
 		else
 		    not_seen++;
 		setgamestatus (SUPPRESS_PRINTING);
@@ -1830,13 +1805,13 @@ static void i_juggernaut (pob o)
 	    omshowcursor (x, y);
 	}
 	if (not_seen > 6)
-	    print2 ("You hear many distant screams...");
+	    mprint ("You hear many distant screams...");
 	else if (not_seen > 3)
-	    print2 ("You hear several distant screams...");
+	    mprint ("You hear several distant screams...");
 	else if (not_seen > 1)
-	    print2 ("You hear a couple of distant screams...");
+	    mprint ("You hear a couple of distant screams...");
 	else if (not_seen == 1)
-	    print2 ("You hear a distant scream...");
+	    mprint ("You hear a distant scream...");
 	gain_experience (1000);
 	Player.remove_possession (o, 1);
 	Level->tunnelled += tunneled - 1;
@@ -1847,12 +1822,12 @@ static void i_juggernaut (pob o)
 static void i_symbol (pob o)
 {
     if (!object_is_known(o))
-	print1 ("Nothing seems to happen.");
+	mprint ("Nothing seems to happen.");
     // if o->charge != 17, then symbol was stolen from own high priest!
     else if ((o->aux != Player.patron) || (o->charge != 17)) {
-	print1 ("You invoke the deity...");
-	print2 ("...who for some reason seems rather annoyed at you...");
-	print3 ("You are enveloped in Godsfire!");
+	mprint ("You invoke the deity...");
+	mprint ("...who for some reason seems rather annoyed at you...");
+	mprint ("You are enveloped in Godsfire!");
 	morewait();
 	for (; Player.hp > 1; Player.hp--) {
 	    dataprint();
@@ -1861,13 +1836,13 @@ static void i_symbol (pob o)
 	    Player.mana = 0;
 	}
     } else if (SymbolUseHour == hour()) {
-	print1 ("Your deity frowns upon this profligate use of power...");
-	print2 ("Shazam! A bolt of Godsfire! Your symbol shatters!");
+	mprint ("Your deity frowns upon this profligate use of power...");
+	mprint ("Shazam! A bolt of Godsfire! Your symbol shatters!");
 	Player.remove_possession (o, 1);
 	Player.hp = 1;
 	dataprint();
     } else {
-	print1 ("A mystic flow of theurgic energy courses through your body!");
+	mprint ("A mystic flow of theurgic energy courses through your body!");
 	SymbolUseHour = hour();
 	cleanse (1);
 	heal (10);
@@ -1878,25 +1853,25 @@ static void i_symbol (pob o)
 static void i_crystal (pob o)
 {
     if (!object_is_known(o)) {
-	print1 ("You can't figure out how to activate this orb.");
+	mprint ("You can't figure out how to activate this orb.");
 	return;
     }
-    print1 ("You gaze into your crystal ball.");
+    mprint ("You gaze into your crystal ball.");
     if (ViewHour == hour())
-	print2 ("All you get is Gilligan's Island reruns.");
+	mprint ("All you get is Gilligan's Island reruns.");
     else if (o->blessing < 0 || Player.iq + Player.level < random_range(30)) {
 	ViewHour = hour();
-	print2 ("Weird interference patterns from the crystal fog your mind....");
+	mprint ("Weird interference patterns from the crystal fog your mind....");
 	amnesia();
     } else {
 	ViewHour = hour();
-	print2 ("You sense the presence of life...");
+	mprint ("You sense the presence of life...");
 	mondet (1);
 	morewait();
-	print2 ("You sense the presence of objects...");
+	mprint ("You sense the presence of objects...");
 	objdet (1);
 	morewait();
-	print2 ("You begin to see visions of things beyond your ken....");
+	mprint ("You begin to see visions of things beyond your ken....");
 	hint();
     }
 }
@@ -1906,40 +1881,40 @@ static void i_antioch (pob o)
     int x = Player.x, y = Player.y;
     int count;
     if (!object_is_known(o)) {
-	print1 ("Ka-Boom!");
-	print2 ("You seem to have annihilated yourself.");
+	mprint ("Ka-Boom!");
+	mprint ("You seem to have annihilated yourself.");
 	p_death ("the Holy Hand-Grenade of Antioch");
     } else {
-	print1 ("Bring out the Holy Hand-Grenade of Antioch!");
+	mprint ("Bring out the Holy Hand-Grenade of Antioch!");
 	setspot (&x, &y);
-	print2 ("Ok, you pull the pin.....");
+	mprint ("Ok, you pull the pin.....");
 	morewait();
-	print1 ("What do you count up to? ");
+	mprint ("What do you count up to? ");
 	count = (int) parsenum();
 	if (count < 3 && Level->creature(x,y)) {
-	    print1 ("`Three shall be the number of thy counting....");
-	    print2 ("And the number of thy counting shall be three.'");
-	    print3 ("Your target picks up the grenade and throws it back!");
+	    mprint ("`Three shall be the number of thy counting....");
+	    mprint ("And the number of thy counting shall be three.'");
+	    mprint ("Your target picks up the grenade and throws it back!");
 	    morewait();
 	    clearmsg();
-	    print1 ("Ka-Boom!");
+	    mprint ("Ka-Boom!");
 	    p_death ("the Holy Hand-Grenade of Antioch");
 	} else if (count > 3) {
-	    print1 ("`Three shall be the number of thy counting.");
-	    print2 ("And the number of thy counting shall be three.'");
+	    mprint ("`Three shall be the number of thy counting.");
+	    mprint ("And the number of thy counting shall be three.'");
 	    morewait();
 	    clearmsg();
-	    print1 ("Ka-Boom!");
+	    mprint ("Ka-Boom!");
 	    p_death ("the Holy Hand-Grenade of Antioch");
 	} else {
-	    print1 ("Ka-Boom!");
+	    mprint ("Ka-Boom!");
 	    gain_experience (1000);
 	    Level->site(x,y).locchar = TRAP;
 	    Level->site(x,y).p_locf = L_TRAP_DOOR;
 	    lset (x, y, CHANGED);
 	    if (Level->creature(x,y)) {
 		m_death (Level->creature(x,y));
-		print2 ("You are covered with gore.");
+		mprint ("You are covered with gore.");
 	    }
 	    Level->remove_things (x, y);
 	}
@@ -1950,11 +1925,11 @@ static void i_antioch (pob o)
 static void i_kolwynia (pob o)
 {
     if (!object_is_known(o)) {
-	print1 ("You destroy youself with a mana storm. How sad.");
+	mprint ("You destroy youself with a mana storm. How sad.");
 	p_death ("Kolwynia, The Key That Was Lost");
     } else {
 	gain_experience (5000);
-	print1 ("You seem to have gained complete mastery of magic.");
+	mprint ("You seem to have gained complete mastery of magic.");
 	Player.pow = Player.maxpow = 2 * Player.maxpow;
 	learn_all_spells();
     }
@@ -1965,18 +1940,18 @@ static void i_enchantment (pob o)
 {
     char response;
     if (ZapHour == hour())
-	print1 ("The staff doesn't seem to have recharged yet.");
+	mprint ("The staff doesn't seem to have recharged yet.");
     else if (!object_is_known(o)) {
 	ZapHour = hour();
-	print1 ("You blast the staff backwards....");
+	mprint ("You blast the staff backwards....");
 	dispel (-1);
     } else {
 	ZapHour = hour();
-	print1 ("Zap with white or black end [wb] ");
+	mprint ("Zap with white or black end [wb] ");
 	do
 	    response = (char) mcigetc();
 	while ((response != 'w') && (response != 'b'));
-	print2 ("The staff discharges!");
+	mprint ("The staff discharges!");
 	if (response == 'w')
 	    enchant (o->blessing * 2 + 1);
 	else
@@ -1987,14 +1962,14 @@ static void i_enchantment (pob o)
 static void i_helm (pob o)
 {
     if (HelmHour == hour())
-	print1 ("The helm doesn't seem to have recharged yet.");
+	mprint ("The helm doesn't seem to have recharged yet.");
     else if (!object_is_known(o)) {
 	HelmHour = hour();
-	print1 ("You put the helm on backwards....");
+	mprint ("You put the helm on backwards....");
 	p_teleport (-1);
     } else {
 	HelmHour = hour();
-	print1 ("Your environment fades.... and rematerializes.");
+	mprint ("Your environment fades.... and rematerializes.");
 	p_teleport (o->blessing);
     }
 }
@@ -2002,14 +1977,14 @@ static void i_helm (pob o)
 static void i_death (pob o UNUSED)
 {
     clearmsg();
-    print1 ("Bad move...");
+    mprint ("Bad move...");
     p_death ("the Potion of Death");
 }
 
 static void i_life (pob o)
 {
     clearmsg();
-    print1 ("Good move.");
+    mprint ("Good move.");
     Player.hp = Player.maxhp = 2 * Player.maxhp;
     Player.remove_possession (o, 1);
 }
@@ -2018,18 +1993,18 @@ static void i_life (pob o)
 static int orbcheck (int element)
 {
     char response;
-    print1 ("The orb begins to glow with increasing intensity!");
-    print2 ("You have the feeling you need to do something more....");
+    mprint ("The orb begins to glow with increasing intensity!");
+    mprint ("You have the feeling you need to do something more....");
     morewait();
-    print1 ("Burn it in fire [f] ");
-    print2 ("Douse it with water [w] ");
+    mprint ("Burn it in fire [f] ");
+    mprint ("Douse it with water [w] ");
     morewait();
-    print1 ("Smash it against the earth [e] ");
-    print2 ("Toss is through the air [a] ");
+    mprint ("Smash it against the earth [e] ");
+    mprint ("Toss is through the air [a] ");
     morewait();
-    print1 ("Mix the above actions, doing them in sequence [m] ");
+    mprint ("Mix the above actions, doing them in sequence [m] ");
     do {
-	print2 ("Which one [f,w,e,a,m] ");
+	mprint ("Which one [f,w,e,a,m] ");
 	response = (char) mcigetc();
     } while ((response != 'f') && (response != 'w') && (response != 'e') && (response != 'a') && (response != 'm'));
     return (response == element);
@@ -2039,16 +2014,16 @@ static int orbcheck (int element)
 static void i_orbfire (pob o)
 {
     if (!orbcheck ('f')) {
-	print1 ("Bad choice!");
-	print2 ("The Orb of Fire blasts you!");
+	mprint ("Bad choice!");
+	mprint ("The Orb of Fire blasts you!");
 	fball (Player.x, Player.y, Player.x, Player.y, 250);
 	learn_object (o);
     } else {
-	print1 ("The Orb of Fire flares a brilliant red!");
+	mprint ("The Orb of Fire flares a brilliant red!");
 	learn_spell (S_FIREBOLT);
 	gain_experience (10000);
 	Player.immunity[FLAME] += 100;
-	print2 ("You feel fiery!");
+	mprint ("You feel fiery!");
 	o->plus = 100;
 	o->blessing = 100;
 	i_firebolt (o);
@@ -2059,16 +2034,16 @@ static void i_orbfire (pob o)
 static void i_orbwater (pob o)
 {
     if (!orbcheck ('w')) {
-	print1 ("A serious mistake!");
-	print2 ("The Orb of Water blasts you!");
+	mprint ("A serious mistake!");
+	mprint ("The Orb of Water blasts you!");
 	heal (-250);
 	learn_object (o);
     } else {
-	print1 ("The Orb of Water pulses a deep green!");
+	mprint ("The Orb of Water pulses a deep green!");
 	learn_spell (S_DISRUPT);
 	Player.immunity[POISON] += 100;
 	gain_experience (10000);
-	print2 ("You feel wet!");
+	mprint ("You feel wet!");
 	o->plus = 100;
 	o->blessing = 100;
 	i_disrupt (o);
@@ -2079,23 +2054,23 @@ static void i_orbwater (pob o)
 static void i_orbearth (pob o)
 {
     if (!orbcheck ('e')) {
-	print1 ("What a moron!");
-	print2 ("The Orb of Earth blasts you!");
+	mprint ("What a moron!");
+	mprint ("The Orb of Earth blasts you!");
 	Player.con -= 10;
 	if (Player.con < 3)
 	    p_death ("congestive heart failure");
 	else {
-	    print3 ("Your possessions disintegrate!");
+	    mprint ("Your possessions disintegrate!");
 	    Player.remove_all_possessions();
 	    Player.pack.clear();
 	    learn_object (o);
 	}
     } else {
-	print1 ("The Orb of Earth emanates a brownish aura!");
+	mprint ("The Orb of Earth emanates a brownish aura!");
 	learn_spell (S_DISINTEGRATE);
 	gain_experience (10000);
 	Player.immunity[NEGENERGY] += 100;
-	print2 ("You feel earthy!");
+	mprint ("You feel earthy!");
 	o->plus = 100;
 	o->blessing = 100;
 	i_disintegrate (o);
@@ -2106,15 +2081,15 @@ static void i_orbearth (pob o)
 static void i_orbair (pob o)
 {
     if (!orbcheck ('a')) {
-	print1 ("You lose!");
-	print2 ("The Orb of Air blasts you!");
+	mprint ("You lose!");
+	mprint ("The Orb of Air blasts you!");
 	lball (Player.x, Player.y, Player.x, Player.y, 100);
 	learn_object (o);
     } else {
-	print1 ("The Orb of Air flashes blue!");
+	mprint ("The Orb of Air flashes blue!");
 	learn_spell (S_LBALL);
 	gain_experience (10000);
-	print2 ("You feel airy!");
+	mprint ("You feel airy!");
 	Player.immunity[ELECTRICITY] += 100;
 	o->plus = 100;
 	o->blessing = 100;
@@ -2128,13 +2103,13 @@ static void i_orbmastery (pob o)
 {
 
     if (!orbcheck ('m')) {
-	print1 ("A fatal error!");
-	print2 ("The Orb of Mastery blasts you to cinders!");
+	mprint ("A fatal error!");
+	mprint ("The Orb of Mastery blasts you to cinders!");
 	p_death ("playing with the Orb of Mastery");
 	learn_object (o);
     } else if ((find_and_remove_item (ORB_OF_FIRE, -1)) && (find_and_remove_item (ORB_OF_EARTH, -1)) && (find_and_remove_item (ORB_OF_AIR, -1)) && (find_and_remove_item (ORB_OF_WATER, -1))) {
-	print1 ("The Orb of Mastery radiates rainbow colors!");
-	print2 ("You feel godlike.");
+	mprint ("The Orb of Mastery radiates rainbow colors!");
+	mprint ("You feel godlike.");
 	Player.iq = Player.maxiq = 2 * Player.maxiq;
 	Player.pow = Player.maxpow = 2 * Player.maxpow;
 	Player.str = Player.maxstr = 2 * Player.maxstr;
@@ -2143,17 +2118,17 @@ static void i_orbmastery (pob o)
 	Player.agi = Player.maxagi = 2 * Player.maxagi;
 	dataprint();
 	morewait();
-	print1 ("You have been imbued with a cosmic power....");
+	mprint ("You have been imbued with a cosmic power....");
 	morewait();
 	wish (1);
 	morewait();
 	clearmsg();
-	print2 ("You feel much more experienced.");
+	mprint ("You feel much more experienced.");
 	gain_experience (20000);
 	*o = Objects[ORB_BURNT_OUT];
     } else {
-	print1 ("The Orb of Mastery's power is unbalanced!");
-	print2 ("The Orb of Mastery blasts you to cinders!");
+	mprint ("The Orb of Mastery's power is unbalanced!");
+	mprint ("The Orb of Mastery blasts you to cinders!");
 	p_death ("playing with the Orb of Mastery");
     }
 }
@@ -2161,9 +2136,9 @@ static void i_orbmastery (pob o)
 static void i_orbdead (pob o UNUSED)
 {
     int i;
-    print1 ("The burnt-out orb drains all your energy!");
+    mprint ("The burnt-out orb drains all your energy!");
     forget_all_spells();
-    print2 ("You feel not at all like a mage.");
+    mprint ("You feel not at all like a mage.");
     for (i = 0; i < MAXITEMS; i++) {
 	if (Player.has_possession(i)) {
 	    Player.possessions[i].plus = 0;
@@ -2171,7 +2146,7 @@ static void i_orbdead (pob o UNUSED)
 		Player.possessions[i].usef = I_NOTHING;
 	}
     }
-    print3 ("A storm of mundanity surounds you!");
+    mprint ("A storm of mundanity surounds you!");
     level_drain (Player.level - 1, "a Burnt-out Orb");
     Player.mana = 0;
     Player.pow -= 10;

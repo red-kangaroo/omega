@@ -724,12 +724,12 @@ static int spellparse (void)
     while (first < NUMSPELLS && !spell_is_known (spell_ids[first]))
 	first++;
     if (first == NUMSPELLS) {
-	print1 ("You don't know any spells!");
+	mprint ("You don't know any spells!");
 	return ABORT;
     }
     last = NUMSPELLS - 1;
     pos = 0;
-    print2 ("");
+    mprint ("");
     do {
 	byte = mgetc();
 	if (byte == KEY_BACKSPACE) {
@@ -750,13 +750,13 @@ static int spellparse (void)
 		}
 		if (found)
 		    found = 0;
-		print2 (prefix);
+		mprint (prefix);
 	    }
 	    if (pos == 0) {
 		first = 0;
 		last = NUMSPELLS - 1;
 		found = 0;
-		print2 ("");
+		mprint ("");
 	    }
 	} else if (byte == KEY_ESCAPE) {
 	    xredraw();
@@ -778,12 +778,12 @@ static int spellparse (void)
 		continue;
 	    prefix[pos++] = byte;
 	    prefix[pos] = '\0';
-	    nprint2 (prefix + pos - 1);
+	    mprint (prefix + pos - 1);
 	    first = f;
 	    last = l;
 	    if (first == last && !found) {	// unique name
 		found = 1;
-		nprint2 (spell_names[first] + pos);
+		mprint (spell_names[first] + pos);
 	    }
 	}
     } while (byte != '\n');
@@ -791,7 +791,7 @@ static int spellparse (void)
     if (found)
 	return spell_ids[first];
     else {
-	print3 ("That is an ambiguous abbreviation!");
+	mprint ("That is an ambiguous abbreviation!");
 	return ABORT;
     }
 }

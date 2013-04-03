@@ -80,7 +80,6 @@ uint8_t Searchnum = 1;		// number of times to search on 's'
 EVerbosity Verbosity = VERBOSE;	// verbosity level
 uint32_t Time = 0;		// turn number
 uint8_t Tick = 0;		// 10 a turn; action coordinator
-char Stringbuffer[STRING_BUFFER_SIZE][80];	// last strings printed
 uint32_t Gymcredit = 0;		// credit at rampart gym
 uint8_t Spellsleft = 0;		// research allowance at college
 uint16_t StarGemUse = 0;	// last date of star gem use
@@ -151,9 +150,6 @@ int main (void)
     srandrand();
     initgraf();
 
-    for (unsigned count = 0; count < STRING_BUFFER_SIZE; count++)
-	strcpy (Stringbuffer[count], "<nothing>");
-
     // Try to restore game, if any
     bool continuing = restore_game();
 
@@ -219,7 +215,7 @@ static void init_world (void)
     Player.y = Level->lasty;
     Level = City;
     Current_Environment = E_CITY;
-    print1 ("You pass through the massive gates of Rampart, the city.");
+    mprint ("You pass through the massive gates of Rampart, the city.");
 }
 
 // This function coordinates monsters and player actions, as well as

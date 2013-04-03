@@ -9,10 +9,9 @@
 
 //----------------------------------------------------------------------
 
-static int bufferappend(const char* s);
 static void blankoutspot(int i, int j);
 static void blotspot(int i, int j);
-static void buffercycle(const char* s);
+static void buffermsg (const char* s);
 static void dobackspace(void);
 static void drawplayer(void);
 static void lightspot(int x, int y);
@@ -22,7 +21,7 @@ static void lightspot(int x, int y);
 static constexpr inline attr_t CHARATTR (chtype c) { return (c & ~A_CHARTEXT); }
 
 static WINDOW *Levelw, *Dataw, *Flagw, *Timew, *Menuw, *Locw, *Morew, *Phasew;
-static WINDOW *Comwin, *Msg1w, *Msg2w, *Msg3w, *Msgw;
+static WINDOW *Comwin, *Msgw;
 
 void phaseprint (void)
 {
@@ -67,28 +66,28 @@ void show_screen (void)
     wrefresh (Levelw);
 }
 
-chtype mgetc (void)
+wchar_t mgetc (void)
 {
     return (wgetch (Msgw));
 }
 
 // case insensitive mgetc -- sends uppercase to lowercase
-char mcigetc (void)
+wchar_t mcigetc (void)
 {
     return (tolower (wgetch (Msgw)));
 }
 
-char menugetc (void)
+wchar_t menugetc (void)
 {
     return (wgetch (Menuw));
 }
 
-char lgetc (void)
+wchar_t lgetc (void)
 {
     return (wgetch (Levelw));
 }
 
-int ynq (void)
+wchar_t ynq (void)
 {
     char p = '*';		// the user's choice; start with something impossible
 				// to prevent a loop.
@@ -116,212 +115,10 @@ int ynq (void)
     return (p);
 }
 
-int ynq1 (void)
-{
-    char p = '*';		// the user's choice; start with something impossible
-				// to prevent a loop.
-    while ((p != 'n') && (p != 'y') && (p != 'q') && (p != KEY_ESCAPE) && (p != ' ') && (p != EOF))
-	p = wgetch (Msg1w);
-    switch (p) {
-	case 'y':
-	    wprintw (Msg1w, "yes. ");
-	    break;
-	case 'n':
-	    wprintw (Msg1w, "no. ");
-	    break;
-
-	case KEY_ESCAPE:
-	    p = 'q';		// fall through to 'q'
-	case ' ':
-	    p = 'q';		// fall through to 'q'
-	case 'q':
-	    wprintw (Msg1w, "quit. ");
-	    break;
-	default:
-	    assert (p == EOF);
-    }
-    wrefresh (Msg1w);
-    return (p);
-}
-
-int ynq2 (void)
-{
-    char p = '*';		// the user's choice; start with something impossible
-				// to prevent a loop.
-    while ((p != 'n') && (p != 'y') && (p != 'q') && (p != KEY_ESCAPE) && (p != ' ') && (p != EOF))
-	p = wgetch (Msg2w);
-    switch (p) {
-	case 'y':
-	    wprintw (Msg2w, "yes. ");
-	    break;
-	case 'n':
-	    wprintw (Msg2w, "no. ");
-	    break;
-
-	case KEY_ESCAPE:
-	    p = 'q';		// fall through to 'q'
-	case ' ':
-	    p = 'q';		// fall through to 'q'
-	case 'q':
-	    wprintw (Msg2w, "quit. ");
-	    break;
-	default:
-	    assert (p == EOF);
-    }
-    wrefresh (Msg2w);
-    return (p);
-}
-
-// puts up a morewait to allow reading if anything in top two lines
-void checkclear (void)
-{
-    int y1 = getcury (Msg1w), y2 = getcury (Msg2w);
-    if ((y1 != 0) || (y2 != 0)) {
-	morewait();
-	werase (Msg1w);
-	werase (Msg2w);
-	wnoutrefresh (Msg1w);
-	wrefresh (Msg2w);
-    }
-}
-
-// for external call
-void clearmsg (void)
-{
-    werase (Msg1w);
-    werase (Msg2w);
-    werase (Msg3w);
-    Msgw = Msg1w;
-    wnoutrefresh (Msg1w);
-    wnoutrefresh (Msg2w);
-    wrefresh (Msg3w);
-}
-
-void clearmsg3 (void)
-{
-    werase (Msg3w);
-    wrefresh (Msg3w);
-}
-
-void clearmsg1 (void)
-{
-    werase (Msg1w);
-    werase (Msg2w);
-    Msgw = Msg1w;
-    wnoutrefresh (Msg1w);
-    wrefresh (Msg2w);
-}
-
 void erase_level (void)
 {
     werase (Levelw);
     wrefresh (Levelw);
-}
-
-// direct print to first msg line
-void print1 (const char* s)
-{
-    if (!gamestatusp (SUPPRESS_PRINTING)) {
-	buffercycle (s);
-	werase (Msg1w);
-	wprintw (Msg1w, s);
-	wrefresh (Msg1w);
-    }
-}
-
-// for run on-messages -- print1 clears first....
-void nprint1 (const char* s)
-{
-    if (!gamestatusp (SUPPRESS_PRINTING)) {
-	if (bufferappend (s)) {
-	    wprintw (Msg1w, s);
-	    wrefresh (Msg1w);
-	}
-    }
-}
-
-// direct print to second msg line
-void print2 (const char* s)
-{
-    if (!gamestatusp (SUPPRESS_PRINTING)) {
-	buffercycle (s);
-	werase (Msg2w);
-	wprintw (Msg2w, s);
-	wrefresh (Msg2w);
-    }
-}
-
-// for run on-messages -- print2 clears first....
-void nprint2 (const char* s)
-{
-    if (!gamestatusp (SUPPRESS_PRINTING)) {
-	if (bufferappend (s)) {
-	    wprintw (Msg2w, s);
-	    wrefresh (Msg2w);
-	}
-    }
-}
-
-// msg line 3 is not part of the region that mprint or printm can reach
-// typical use of print3 is for "you can't do that" type error messages
-void print3 (const char* s)
-{
-    if (!gamestatusp (SUPPRESS_PRINTING)) {
-	buffercycle (s);
-	werase (Msg3w);
-	wprintw (Msg3w, s);
-	wrefresh (Msg3w);
-    }
-}
-
-// for run on-messages -- print3 clears first....
-void nprint3 (const char* s)
-{
-    if (!gamestatusp (SUPPRESS_PRINTING)) {
-	if (bufferappend (s)) {
-	    wprintw (Msg3w, s);
-	    wrefresh (Msg3w);
-	}
-    }
-}
-
-// prints wherever cursor is in window, but checks to see if
-// it should morewait and clear window
-void mprint (const char* s)
-{
-    if (!gamestatusp (SUPPRESS_PRINTING)) {
-	unsigned x = getcurx (Msgw);
-	if (x + strlen (s) >= MAXWIDTH) {
-	    buffercycle (s);
-	    if (Msgw == Msg1w) {
-		werase (Msg2w);
-		Msgw = Msg2w;
-	    } else {
-		morewait();
-		werase (Msg1w);
-		werase (Msg2w);
-		wnoutrefresh (Msg2w);
-		Msgw = Msg1w;
-	    }
-	} else if (x > 0)
-	    bufferappend (s);
-	else
-	    buffercycle (s);
-	wprintw (Msgw, s);
-	waddch (Msgw, ' ');
-	wrefresh (Msgw);
-    }
-}
-
-void mprintf (const char* fmt, ...)
-{
-    char buf [128];
-    va_list args;
-    va_start (args, fmt);
-    vsnprintf (ArrayBlock(buf), fmt, args);
-    buf[ArraySize(buf)-1] = 0;
-    mprint (buf);
-    va_end (args);
 }
 
 // display a file given a string name of file
@@ -403,10 +200,7 @@ void initgraf (void)
 	exit (0);
     }
     ScreenLength = LINES - 6;
-    Msg1w = newwin (1, 80, 0, 0);
-    Msg2w = newwin (1, 80, 1, 0);
-    Msg3w = newwin (1, 80, 2, 0);
-    Msgw = Msg1w;
+    Msgw = newwin (3, 80, 0, 0);
     Morew = newwin (1, 15, 3, 65);
     Locw = newwin (1, 80, ScreenLength + 3, 0);
     Levelw = newwin (ScreenLength, 64, 3, 0);
@@ -668,13 +462,6 @@ chtype getspot (int x, int y, int showmonster)
     }
 }
 
-void commanderror (void)
-{
-    werase (Msg3w);
-    wprintw (Msg3w, "%c : unknown command", Cmd);
-    wrefresh (Msg3w);
-}
-
 void timeprint (void)
 {
     werase (Timew);
@@ -713,7 +500,6 @@ void dataprint (void)
 void xredraw (void)
 {
     touchwin (Msgw);
-    touchwin (Msg3w);
     touchwin (Levelw);
     touchwin (Timew);
     touchwin (Flagw);
@@ -723,7 +509,6 @@ void xredraw (void)
     touchwin (Phasew);
     touchwin (Comwin);
     wnoutrefresh (Msgw);
-    wnoutrefresh (Msg3w);
     wnoutrefresh (Levelw);
     wnoutrefresh (Timew);
     wnoutrefresh (Flagw);
@@ -901,11 +686,10 @@ int getnumber (int range)
     else {
 	while (!done) {
 	    clearmsg();
-	    wprintw (Msg1w, "How many? Change with < or >, ESCAPE to select:");
-	    mnumprint (value);
+	    mprintf ("How many? Change with < or >, ESCAPE to select: %d", value);
 	    do
 		atom = mcigetc();
-	    while ((atom != '<') && (atom != '>') && (atom != KEY_ESCAPE));
+	    while (atom != '<' && atom != '>' && atom != KEY_ESCAPE);
 	    if ((atom == '>') && (value < range))
 		value++;
 	    else if ((atom == '<') && (value > 1))
@@ -980,55 +764,17 @@ void display_win (void)
 {
     clear();
     touchwin (stdscr);
-    printw ("\n\n\n\n");
-    printw (Player.name);
-    if (Player.rank[ADEPT]) {
+    printw ("\n\n\n\n%s", Player.name.c_str());
+    if (Player.rank[ADEPT])
 	printw (" is a total master of omega with %ld points!", FixedPoints);
-	strcpy (Str4, "A total master of omega");
-    } else {
-	strcpy (Str4, "retired a winner");
+    else
 	printw (" triumphed in omega with %ld points!", calc_points());
-    }
     printw ("\n\n\n\n\nHit any key to quit.");
     refresh();
     wgetch (stdscr);
     clear();
     touchwin (stdscr);
     refresh();
-}
-
-void display_bigwin (void)
-{
-    clear();
-    touchwin (stdscr);
-    printw ("\n\n\n\n");
-    printw (Player.name);
-    strcpy (Str4, "retired, an Adept of Omega.");
-    printw (" retired, an Adept of Omega with %ld points!", FixedPoints);
-    printw ("\n\n\n\n\nHit any key to quit.");
-    refresh();
-    wgetch (stdscr);
-    clear();
-    touchwin (stdscr);
-    refresh();
-}
-
-void mnumprint (int n)
-{
-    char numstr[20];
-    sprintf (numstr, "%d", n);
-    bufferappend (numstr);
-    wprintw (Msgw, "%d", n);
-    wrefresh (Msgw);
-}
-
-void mlongprint (long n)
-{
-    char numstr[20];
-    sprintf (numstr, "%ld", n);
-    bufferappend (numstr);
-    wprintw (Msgw, "%ld", n);
-    wrefresh (Msgw);
 }
 
 void menunumprint (int n)
@@ -1220,7 +966,7 @@ void spreadroomdark (int x, int y, int roomno)
 void display_pack (void)
 {
     if (Player.pack.empty()) {
-	print3 ("Pack is empty.");
+	mprint ("Pack is empty.");
 	return;
     }
     menuclear();
@@ -1268,25 +1014,18 @@ void display_possessions (unsigned selection)
 
 void display_options (unsigned selection)
 {
-    static const char optionText[] =
-	"\0Option BELLICOSE:\t%c\n\0"
-	"Option JUMPMOVE:\t%c\n\0"
-	"Option RUNSTOP:\t\t%c\n\0"
-	"Option PICKUP:\t\t%c\n\0"
-	"Option CONFIRM:\t\t%c\n\0"
-	"Option PACKADD:\t\t%c\n\0"
-	"Option COMPRESS:\t%c\n";
+    static const char optionText[NUMTFOPTIONS][10] =
+	{ "BELLICOSE", "JUMPMOVE ", "RUNSTOP  ", "PICKUP   ", "CONFIRM  ", "PACKADD  ", "COMPRESS " };
     werase (Menuw);
-    const char* ot = optionText;
     for (unsigned i = 0; i < NUMTFOPTIONS; ++i) {
 	if (selection == i)	wstandout(Menuw);
 	else			wstandend(Menuw);
-	wprintw (Menuw, ot = strnext(ot), "FT"[optionp(1<<i)]);
+	wprintw (Menuw, "Option %s\t%c\n", optionText[i], "NY"[optionp(1<<i)]);
     }
     if (selection == VERBOSITY_LEVEL) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option VERBOSITY:\t%s\n", (Verbosity == VERBOSE ? "Verbose" : (Verbosity == MEDIUM ? "Medium" : "Terse")));
+    wprintw (Menuw, "Option VERBOSITY\t%u\n", Verbosity+1);
     if (selection == SEARCH_DURATION) wstandout(Menuw); else wstandend(Menuw);
-    wprintw (Menuw, "Option SEARCHNUM:\t%u", Searchnum);
+    wprintw (Menuw, "Option SEARCHNUM\t%u", Searchnum);
     wstandend(Menuw);
     wrefresh (Menuw);
 }
@@ -1312,68 +1051,81 @@ void deathprint (void)
     napms (200);
 }
 
-void clear_if_necessary (void)
+static char _msgbuf [4096];
+static unsigned _nextmsg = 0;
+static unsigned _visiblemsg[3];
+
+static void buffermsg (const char* s)
 {
-    if (getcurx(Msg1w) != 0) {
-	werase (Msg1w);
-	wrefresh (Msg1w);
+    unsigned slen = strlen(s)+1, spaceleft = ArraySize(_msgbuf)-_nextmsg;
+    if (spaceleft < slen) {
+	unsigned bte = ArraySize(_msgbuf)/4;
+	bte += strlen(_msgbuf+bte)+1;
+	memmove (_msgbuf, _msgbuf+bte, _nextmsg-bte);
+	_nextmsg -= bte;
+	for (unsigned i = 0; i < ArraySize(_visiblemsg); ++i)
+	    _visiblemsg[i] -= bte;
     }
-    if (getcurx(Msg2w) != 0) {
-	werase (Msg2w);
-	wrefresh (Msg2w);
-    }
-    if (getcurx(Msg3w) != 0) {
-	werase (Msg3w);
-	wrefresh (Msg3w);
-    }
+    memcpy (_msgbuf+_nextmsg, s, slen);
+    while (ArrayEnd(_visiblemsg)[-1] != _nextmsg)
+	msglist_down();
+    _nextmsg += slen;
 }
 
-static int bufferpos = 0;
-
-static void buffercycle (const char* s)
+void display_messages (void)
 {
-    strcpy (Stringbuffer[bufferpos++], s);
-    if (bufferpos >= STRING_BUFFER_SIZE)
-	bufferpos = 0;
+    werase (Msgw);
+    unsigned i = 0;
+    for (i = 0; i < ArraySize(_visiblemsg)-1 && _visiblemsg[i] == _visiblemsg[i+1]; ++i) {}
+    for (; i < ArraySize(_visiblemsg); ++i)
+	if (_visiblemsg[i] != _nextmsg)
+	    wprintw (Msgw, "%s\n", _msgbuf+_visiblemsg[i]);
+    wrefresh (Msgw);
 }
 
-static int bufferappend (const char* s)
+void clearmsg (void)
 {
-    int pos = bufferpos - 1;
-
-    if (pos < 0)
-	pos = STRING_BUFFER_SIZE - 1;
-    if (strlen (Stringbuffer[pos]) + strlen (s) < 80 - 1) {
-	strcat (Stringbuffer[pos], s);
-	return 1;
-    } else
-	return 0;
+    fill_n (ArrayBlock(_visiblemsg), _nextmsg);
+    display_messages();
 }
 
-void bufferprint (void)
+void msglist_down (void)
 {
-    int i = bufferpos - 1, c, finished = 0;
-    clearmsg();
-    wprintw (Msg1w, "^p for previous message, ^n for next, anything else to quit.");
-    wnoutrefresh (Msg1w);
-    do {
-	if (i >= STRING_BUFFER_SIZE)
-	    i = 0;
-	if (i < 0)
-	    i = STRING_BUFFER_SIZE - 1;
-	werase (Msg2w);
-	wprintw (Msg2w, Stringbuffer[i]);
-	wrefresh (Msg2w);
-	c = mgetc();
-	if (c == 16)		// ^p
-	    i--;
-	else if (c == 14)	// ^n
-	    i++;
-	else
-	    finished = 1;
-    } while (!finished);
-    clearmsg();
-    omshowcursor (Player.x, Player.y);
+    if (_visiblemsg[ArraySize(_visiblemsg)-1] == _nextmsg)
+	return;
+    for (unsigned i = 1; i < ArraySize(_visiblemsg); ++i)
+	_visiblemsg[i-1] = _visiblemsg[i];
+    _visiblemsg[ArraySize(_visiblemsg)-1] += strlen(_msgbuf+_visiblemsg[ArraySize(_visiblemsg)-1])+1;
+}
+
+void msglist_up (void)
+{
+    unsigned curtop = _visiblemsg[0];
+    if (!curtop)
+	return;
+    for (unsigned i = ArraySize(_visiblemsg)-1; i; --i)
+	_visiblemsg[i] = _visiblemsg[i-1];
+    while (--curtop && _msgbuf[curtop-1]) {}
+    _visiblemsg[0] = curtop;
+}
+
+void mprint (const char* s)
+{
+    if (gamestatusp (SUPPRESS_PRINTING))
+	return;
+    buffermsg (s);
+    display_messages();
+}
+
+void mprintf (const char* fmt, ...)
+{
+    char buf [128];
+    va_list args;
+    va_start (args, fmt);
+    vsnprintf (ArrayBlock(buf), fmt, args);
+    buf[ArraySize(buf)-1] = 0;
+    mprint (buf);
+    va_end (args);
 }
 
 void clear_screen (void)

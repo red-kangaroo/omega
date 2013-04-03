@@ -15,7 +15,6 @@ enum {
     MAXITEMS = 16,		// number of slots in inventory. Cannot be changed without work
     MAXPACK = 26,		// number of slots in pack. Should be <= 26.
     PAWNITEMS = 20,		// number of items in pawn shop. Should be <= 26
-    STRING_BUFFER_SIZE = 25,	// number of lines back strings are recalled
     REROLLS = 31,		// number of rerolls allowed +1
     MAXROOMS = 48,
     MAXCONNECTIONS = 4,
@@ -26,7 +25,7 @@ enum {
     CASTLELEVELS = 16,
     CAVELEVELS = 10,
     VOLCANOLEVELS = 20,
-    NOCITYMOVE = 250,		// cannot use M command on site with this aux value
+    NOCITYMOVE = 250		// cannot use M command on site with this aux value
 };
 
 // Overall Game Progress Vector Bits

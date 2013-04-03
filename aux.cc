@@ -41,7 +41,7 @@ void level::tunnelcheck (void)
 	    c_set (Player.x, Player.y, SEEN);
 	    c_set (Player.x, Player.y, SECRET);
 	    c_set (Player.x, Player.y, CHANGED);
-	    print1 ("In your shadowy state, you float back up to the surface.");
+	    mprint ("In your shadowy state, you float back up to the surface.");
 	    return;
 	}
 	mprint ("You are flattened into an unpleasant jellylike substance.");
@@ -103,7 +103,7 @@ bool p_moveable (int x, int y)
 	    return confirmation();
     } else if (loc_statusp (x, y, SECRET)) {
 	if (!gamestatusp (FAST_MOVE))
-	    print3 ("Ouch!");
+	    mprint ("Ouch!");
 	return (false);
     } else if (Level->creature(x,y)) {
 	if (!gamestatusp (FAST_MOVE)) {
@@ -117,7 +117,7 @@ bool p_moveable (int x, int y)
 		       || l.locchar == VOID_CHAR || l.locchar == FIRE || l.locchar == WHIRLWIND
 		       || l.locchar == WATER || l.locchar == LIFT || l.locchar == TRAP))) {
 	if (!gamestatusp (FAST_MOVE))
-	    print3 ("Ouch!");
+	    mprint ("Ouch!");
 	return (false);
     } else if (optionp (CONFIRM)) {
 	if (l.locchar == HEDGE || l.locchar == LAVA || l.locchar == FIRE || l.locchar == WHIRLWIND
@@ -126,7 +126,7 @@ bool p_moveable (int x, int y)
 	    // horses WILL go into water...
 	    if (gamestatusp (MOUNTED)) {
 		if (l.locchar != WATER || l.p_locf != L_WATER) {
-		    print1 ("You can't convince your steed to continue.");
+		    mprint ("You can't convince your steed to continue.");
 		    setgamestatus (SKIP_MONSTERS);
 		    return (false);
 		}
@@ -249,13 +249,13 @@ static void fight_monster (struct monster *m)
     int reallyfight = true;
 
     if (Player.status[AFRAID]) {
-	print3 ("You are much too afraid to fight!");
+	mprint ("You are much too afraid to fight!");
 	reallyfight = false;
     } else if (Player.on_sanctuary()) {
-	print3 ("You restrain yourself from desecrating this holy place.");
+	mprint ("You restrain yourself from desecrating this holy place.");
 	reallyfight = false;
     } else if (Player.status[SHADOWFORM]) {
-	print3 ("Your attack has no effect in your shadowy state.");
+	mprint ("Your attack has no effect in your shadowy state.");
 	reallyfight = false;
     } else if (Player.status[BERSERK] < 1 && !m_statusp (m, HOSTILE)) {
 	if (!optionp (BELLICOSE))
@@ -283,27 +283,27 @@ int damage_item (pob o)
 {
     // special case -- break star gem
     if (o->id == STAR_GEM) {
-	print1 ("The Star Gem shatters into a million glistening shards....");
+	mprint ("The Star Gem shatters into a million glistening shards....");
 	if (Current_Environment == E_STARPEAK) {
 	    if (!gamestatusp (KILLED_LAWBRINGER))
-		print2 ("You hear an agonizing scream of anguish and despair.");
+		mprint ("You hear an agonizing scream of anguish and despair.");
 	    morewait();
-	    print1 ("A raging torrent of energy escapes in an explosion of magic!");
-	    print2 ("The energy flows to the apex of Star Peak where there is");
+	    mprint ("A raging torrent of energy escapes in an explosion of magic!");
+	    mprint ("The energy flows to the apex of Star Peak where there is");
 	    morewait();
 	    clearmsg();
-	    print1 ("an enormous explosion!");
+	    mprint ("an enormous explosion!");
 	    morewait();
 	    annihilate (1);
-	    print3 ("You seem to gain strength in the chaotic glare of magic!");
+	    mprint ("You seem to gain strength in the chaotic glare of magic!");
 	    Player.str = max (Player.str, Player.maxstr + 5);
 	    Player.pow = max (Player.pow, Player.maxpow + 5);
 	    Player.alignment -= 200;
 	    Player.remove_possession (o, 1);
 	} else {
 	    morewait();
-	    print1 ("The shards coalesce back together again, and vanish");
-	    print2 ("with a muted giggle.");
+	    mprint ("The shards coalesce back together again, and vanish");
+	    mprint ("with a muted giggle.");
 	    Player.remove_possession (o, 1);
 	    set_object_uniqueness (o, UNIQUE_UNMADE);
 	    // WDT HACK: the above is correct only if UNIQUE_UNMADE means that
@@ -317,12 +317,13 @@ int damage_item (pob o)
 	if (o->fragility < random_range (30)) {
 	    if (o->objchar == STICK) {
 		snprintf (ArrayBlock(Str1), "Your %s explodes!", (o->blessing >= 0 ? o->truename : o->cursestr));
-		print1 (Str1);
-		morewait();
-		if (o->charge < 1)
-		    nprint1 (" Fzzz... Out of Power... Oh well...");
-		else {
-		    nprint1 (" Ka-Blamm!!!");
+		if (o->charge < 1) {
+		    strcat (Str1, " Fzzz... Out of Power... Oh well...");
+		    mprint (Str1);
+		    morewait();
+		} else {
+		    strcat (Str1, " Ka-Blamm!!!");
+		    mprint (Str1);
 		    // general case. Some sticks will eventually do special things
 		    morewait();
 		    manastorm (Player.x, Player.y, o->charge * o->level * 10);
@@ -331,24 +332,24 @@ int damage_item (pob o)
 		return 1;
 	    } else if ((o->blessing > 0) && (o->level > random_range (10))) {
 		snprintf (ArrayBlock(Str1), "Your %s glows strongly", itemid(o));
-		print1 (Str1);
+		mprint (Str1);
 		return 0;
 	    } else if ((o->blessing < -1) && (o->level > random_range (10))) {
 		snprintf (ArrayBlock(Str1), "You hear an evil giggle from your %s", itemid(o));
-		print1 (Str1);
+		mprint (Str1);
 		return 0;
 	    } else if (o->plus > 0) {
 		snprintf (ArrayBlock(Str1), "Your %s glows and then fades", itemid(o));
-		print1 (Str1);
+		mprint (Str1);
 		o->plus--;
 		return 0;
 	    } else {
 		if (o->blessing > 0)
-		    print1 ("You hear a faint despairing cry!");
+		    mprint ("You hear a faint despairing cry!");
 		else if (o->blessing < 0)
-		    print1 ("You hear an agonized scream!");
+		    mprint ("You hear an agonized scream!");
 		snprintf (ArrayBlock(Str1), "Your %s shatters in a thousand lost fragments!", itemid(o));
-		print2 (Str1);
+		mprint (Str1);
 		morewait();
 		Player.remove_possession (o, 1);
 		return 1;
@@ -380,7 +381,7 @@ void p_damage (int dmg, EDamageType dtype, const char* fromstring)
 void p_death (const char* fromstring)
 {
     Player.hp = -1;
-    print3 ("You died!");
+    mprint ("You died!");
     morewait();
     display_death (fromstring);
     endgraf();
@@ -392,7 +393,7 @@ void p_win (void)
 {
     morewait();
     clearmsg();
-    print1 ("You won!");
+    mprint ("You won!");
     morewait();
     display_win();
     endgraf();
@@ -447,7 +448,7 @@ int getdir (void)
 	const char* ikey = strchr (c_dirkey, c);
 	if (ikey)
 	    return ((unsigned)distance(c_dirkey,ikey)/3);
-	print3 ("That's not a direction! ");
+	mprint ("That's not a direction! ");
     }
 }
 
@@ -483,22 +484,23 @@ const char* mstatus_string (struct monster *m)
 void describe_player (void)
 {
     if (Player.hp < (Player.maxhp / 5))
-	print1 ("A grievously injured ");
+	strcpy (Str1, "A grievously injured ");
     else if (Player.hp < (Player.maxhp / 2))
-	print1 ("A seriously wounded ");
+	strcpy (Str1, "A seriously wounded ");
     else if (Player.hp < Player.maxhp)
-	print1 ("A somewhat bruised ");
+	strcpy (Str1, "A somewhat bruised ");
     else
-	print1 ("A fit ");
+	strcpy (Str1, "A fit ");
 
     if (Player.status[SHADOWFORM])
-	nprint1 ("shadow");
+	strcat (Str1, "shadow");
     else
-	nprint1 (levelname (Player.level));
-    nprint1 (" named ");
-    nprint1 (Player.name);
+	strcat (Str1, levelname (Player.level));
+    strcat (Str1, " named ");
+    strcat (Str1, Player.name);
     if (gamestatusp (MOUNTED))
-	nprint1 (" (riding a horse.)");
+	strcat (Str1, " (riding a horse.)");
+    mprint (Str1);
 }
 
 // access to player experience...
@@ -541,23 +543,23 @@ void foodcheck (void)
 {
     if (Player.food > 48) {
 	Player.food = 12;
-	print3 ("You vomit up your huge meal.");
+	mprint ("You vomit up your huge meal.");
     } else if (Player.food == 30)
-	print3 ("Time for a smackerel of something.");
+	mprint ("Time for a smackerel of something.");
     else if (Player.food == 20)
-	print3 ("You feel hungry.");
+	mprint ("You feel hungry.");
     else if (Player.food == 12)
-	print3 ("You are ravenously hungry.");
+	mprint ("You are ravenously hungry.");
     else if (Player.food < 4) {
 	if (gamestatusp (FAST_MOVE)) {
 	    drawvision (Player.x, Player.y);
 	    resetgamestatus (FAST_MOVE);
 	}
 	if (Player.food >= 0)
-	    print3 ("You feel weak.");
+	    mprint ("You feel weak.");
 	else {
 	    p_damage (-5 * Player.food, UNSTOPPABLE, "starvation");
-	    print3 ("You're starving!");
+	    mprint ("You're starving!");
 	}
     }
     showflags();
@@ -586,28 +588,28 @@ void surrender (struct monster *m)
 	"You cry 'uncle'!\0"
 	"You beg for mercy.\0"
 	"You yield to the monster.";
-    print1 (zstrn (c_SurrenderPlea, random_range(4), 4));
+    mprint (zstrn (c_SurrenderPlea, random_range(4), 4));
     if (m->id == GUARD) {
 	if (m_statusp (m, HOSTILE))
 	    monster_talk (m);
 	else {
-	    print2 ("The guard (bored): Have you broken a law? [yn] ");
-	    if (ynq2() == 'n')
-		print2 ("Then don't bother me. Scat!");
+	    mprint ("The guard (bored): Have you broken a law? [yn] ");
+	    if (ynq() == 'n')
+		mprint ("Then don't bother me. Scat!");
 	    else {
-		print2 ("The guard grabs you, and drags you to court.");
+		mprint ("The guard grabs you, and drags you to court.");
 		morewait();
 		send_to_jail();
 	    }
 	}
     } else if (m->talkf == M_NO_OP || m->talkf == M_TALK_STUPID)
-	print3 ("Your plea is ignored.");
+	mprint ("Your plea is ignored.");
     else {
 	morewait();
-	print1 ("Your surrender is accepted.");
+	mprint ("Your surrender is accepted.");
 	if (Player.cash > 0) {
 	    Player.cash = 0;
-	    nprint1 (" All your gold is taken....");
+	    mprint ("All your gold is taken....");
 	}
 	int bestitem = ABORT;
 	unsigned bestvalue = 0;
@@ -621,16 +623,14 @@ void surrender (struct monster *m)
 	    }
 	}
 	if (bestitem != ABORT) {
-	    print2 ("You also give away your best item... ");
-	    nprint2 (itemid (Player.possessions[bestitem]));
+	    mprintf ("You also give away your best item... %s", itemid (Player.possessions[bestitem]));
 	    morewait();
 	    givemonster (*m, Player.possessions[bestitem]);
 	    morewait();	// msgs come from givemonster
 	    Player.remove_possession (bestitem);
 	}
-	print2 ("You feel less experienced... ");
 	Player.xp = max (0, (int)Player.xp - m->xpv);
-	nprint2 ("The monster seems more experienced!");
+	mprint ("You feel less experienced... The monster seems more experienced!");
 	m->level = min (10, m->level + 1);
 	m->hp += m->level * 20;
 	m->hit += m->level;
@@ -640,11 +640,11 @@ void surrender (struct monster *m)
 	morewait();
 	clearmsg();
 	if (m->talkf == M_TALK_EVIL && random_range(10)) {
-	    print1 ("It continues to attack you, laughing evilly!");
+	    mprint ("It continues to attack you, laughing evilly!");
 	    m_status_set (m, HOSTILE);
 	    m_status_reset (m, GREEDY);
 	} else {
-	    print1 ("The monster leaves, chuckling to itself....");
+	    mprint ("The monster leaves, chuckling to itself....");
 	    m_teleport (m);
 	}
     }
@@ -662,40 +662,40 @@ void threaten (struct monster *m)
     mprint (zstrn (c_Threat, random_range(4), 4));
     morewait();
     if (!m_statusp (m, HOSTILE)) {
-	print3 ("You only annoy it with your futile demand.");
+	mprint ("You only annoy it with your futile demand.");
 	m_status_set (m, HOSTILE);
     } else if ((2*m->level > Player.level && m->hp > Player.dmg) || m->uniqueness != COMMON)
-	print1 ("It sneers contemptuously at you.");
+	mprint ("It sneers contemptuously at you.");
     else if (m->talkf != M_TALK_GREEDY && m->talkf != M_TALK_HUNGRY && m->talkf != M_TALK_EVIL
 		&& m->talkf != M_TALK_MAN && m->talkf != M_TALK_BEG && m->talkf != M_TALK_THIEF
 		&& m->talkf != M_TALK_MERCHANT && m->talkf != M_TALK_IM)
-	print1 ("Your demand is ignored");
+	mprint ("Your demand is ignored");
     else {
-	print1 ("It yields to your mercy.");
+	mprint ("It yields to your mercy.");
 	Player.alignment += 3;
-	print2 ("Kill it, rob it, or free it? [krf] ");
+	mprint ("Kill it, rob it, or free it? [krf] ");
 	for (char response;;) {
 	    response = (char) mcigetc();
 	    if (response == 'k') {
 		m_death (m);
-		print2 ("You treacherous rogue!");
+		mprint ("You treacherous rogue!");
 		Player.alignment -= 13;
 		break;
 	    } else if (response == 'r') {
 		Player.alignment -= 2;
-		print2 ("It drops its treasure and flees.");
+		mprint ("It drops its treasure and flees.");
 		m_dropstuff (m);
 		Level->mlist.erase (m);
 		putspot (m->x, m->y, getspot (m->x, m->y, false));
 		break;
 	    } else if (response == 'f') {
 		Player.alignment += 2;
-		print2 ("'If you love something set it free ... '");
+		mprint ("'If you love something set it free ... '");
 		if (!random_range(100)) {
 		    morewait();
-		    print2 ("'...If it doesn't come back, hunt it down and kill it.'");
+		    mprint ("'...If it doesn't come back, hunt it down and kill it.'");
 		}
-		print3 ("It departs with a renewed sense of its own mortality.");
+		mprint ("It departs with a renewed sense of its own mortality.");
 		Level->mlist.erase (m);
 		putspot (m->x, m->y, getspot (m->x, m->y, false));
 		break;
@@ -1024,10 +1024,8 @@ static void gain_level (void)
 	    morewait();
 	gained = true;
 	++Player.level;
-	print1 ("You have attained a new experience level!");
-	print2 ("You are now ");
-	nprint2 (getarticle (levelname (Player.level)));
-	nprint2 (levelname (Player.level));
+	mprint ("You have attained a new experience level!");
+	mprintf ("You are now %s%s", getarticle (levelname (Player.level)), levelname (Player.level));
 	Player.maxhp += random_range (Player.con)+1;
 	Player.hp = max (Player.hp, Player.maxhp);
 	Player.maxmana = Player.calcmana();
@@ -1086,11 +1084,11 @@ void p_drown (void)
 	menuclear();
 	if (!attempts)
 	    p_death ("drowning");
-	print3 ("You try to hold your breath...");
+	mprint ("You try to hold your breath...");
 	if (attempts <= 2)
-	    nprint3 (" You choke...");
+	    mprint (" You choke...");
 	if (attempts <= 1)
-	    nprint3 (" Your lungs fill...");
+	    mprint (" Your lungs fill...");
 	morewait();
 	menuprint ("a: Drop an item.\n");
 	menuprint ("b: Bash an item.\n");
@@ -1346,33 +1344,33 @@ void change_environment (EEnvironment new_environment)
 	    clear_level (Level);
 	    load_circle();
 	    if (object_uniqueness(STAR_GEM) == UNIQUE_TAKEN) {
-		print1 ("A bemused voice says:");
-		print2 ("'Why are you here? You already have the Star Gem!'");
+		mprint ("A bemused voice says:");
+		mprint ("'Why are you here? You already have the Star Gem!'");
 		morewait();
 	    } else if (Player.rank[CIRCLE] >= INITIATE) {
-		print1 ("You hear the voice of the Prime Sorceror:");
-		print2 ("'Congratulations on your attainment of the Circle's Demesne.'");
+		mprint ("You hear the voice of the Prime Sorceror:");
+		mprint ("'Congratulations on your attainment of the Circle's Demesne.'");
 		morewait();
-		print1 ("For the honor of the Circle, you may take the Star Gem");
-		print2 ("and destroy it on the acme of Star Peak.");
+		mprint ("For the honor of the Circle, you may take the Star Gem");
+		mprint ("and destroy it on the acme of Star Peak.");
 		morewait();
-		print1 ("Beware the foul LawBringer who resides there...");
-		print2 ("By the way, some of the members of the Circle seem to");
+		mprint ("Beware the foul LawBringer who resides there...");
+		mprint ("By the way, some of the members of the Circle seem to");
 		morewait();
-		print1 ("have become a bit jealous of your success --");
-		print2 ("I'd watch out for them too if I were you.");
+		mprint ("have become a bit jealous of your success --");
+		mprint ("I'd watch out for them too if I were you.");
 		morewait();
 	    } else if (Player.alignment > 0) {
-		print1 ("A mysterious ghostly image materializes in front of you.");
-		print2 ("It speaks: 'Greetings, fellow abider in Law. I am called");
+		mprint ("A mysterious ghostly image materializes in front of you.");
+		mprint ("It speaks: 'Greetings, fellow abider in Law. I am called");
 		morewait();
-		print1 ("The LawBringer. If you wish to advance our cause, obtain");
-		print2 ("the mystic Star Gem and return it to me on Star Peak.");
+		mprint ("The LawBringer. If you wish to advance our cause, obtain");
+		mprint ("the mystic Star Gem and return it to me on Star Peak.");
 		morewait();
-		print1 ("Beware the power of the evil Circle of Sorcerors and the");
-		print2 ("forces of Chaos which guard the gem.'");
+		mprint ("Beware the power of the evil Circle of Sorcerors and the");
+		mprint ("forces of Chaos which guard the gem.'");
 		morewait();
-		print1 ("The strange form fades slowly.");
+		mprint ("The strange form fades slowly.");
 		morewait();
 	    }
 	    Player.x = Level->lastx;
@@ -1494,10 +1492,10 @@ void change_environment (EEnvironment new_environment)
 	    break;
 	case E_CITY:
 	    if (emerging) {
-		print1 ("You emerge onto the street.");
+		mprint ("You emerge onto the street.");
 		emerging = false;
 	    } else
-		print1 ("You pass through the massive gates of Rampart, the city.");
+		mprint ("You pass through the massive gates of Rampart, the city.");
 	    Level = City;
 	    if (!Level) {
 		TempLevel = Level;
@@ -1528,22 +1526,22 @@ void change_environment (EEnvironment new_environment)
 	    } else
 		Level = TempLevel;
 	    if (emerging) {
-		print1 ("You emerge onto the street.");
+		mprint ("You emerge onto the street.");
 		emerging = false;
 	    } else
-		print1 ("You enter a small rural village.");
+		mprint ("You enter a small rural village.");
 	    Player.x = Level->lastx;
 	    Player.y = Level->lasty;
 	    ScreenOffset = 0;
 	    show_screen();
 	    break;
 	case E_CAVES:
-	    print1 ("You enter a dark cleft in a hillside;");
-	    print2 ("You note signs of recent passage in the dirt nearby.");
+	    mprint ("You enter a dark cleft in a hillside;");
+	    mprint ("You note signs of recent passage in the dirt nearby.");
 	    if (gamestatusp (MOUNTED)) {
 		morewait();
-		print1 ("Seeing as you might not be coming back, you feel compelled");
-		print2 ("to let your horse go, rather than keep him hobbled outside.");
+		mprint ("Seeing as you might not be coming back, you feel compelled");
+		mprint ("to let your horse go, rather than keep him hobbled outside.");
 		resetgamestatus (MOUNTED);
 		calc_melee();
 	    }
@@ -1557,11 +1555,11 @@ void change_environment (EEnvironment new_environment)
 	    change_level (0, 1, false);
 	    break;
 	case E_VOLCANO:
-	    print1 ("You pass down through the glowing crater.");
+	    mprint ("You pass down through the glowing crater.");
 	    if (gamestatusp (MOUNTED)) {
 		morewait();
-		print1 ("Seeing as you might not be coming back, you feel compelled");
-		print2 ("to let your horse go, rather than keep him hobbled outside.");
+		mprint ("Seeing as you might not be coming back, you feel compelled");
+		mprint ("to let your horse go, rather than keep him hobbled outside.");
 		resetgamestatus (MOUNTED);
 		calc_melee();
 	    }
@@ -1575,9 +1573,9 @@ void change_environment (EEnvironment new_environment)
 	    change_level (0, 1, false);
 	    break;
 	case E_ASTRAL:
-	    print1 ("You are in a weird flickery maze.");
+	    mprint ("You are in a weird flickery maze.");
 	    if (gamestatusp (MOUNTED)) {
-		print2 ("Your horse doesn't seem to have made it....");
+		mprint ("Your horse doesn't seem to have made it....");
 		resetgamestatus (MOUNTED);
 		calc_melee();
 	    }
@@ -1591,11 +1589,11 @@ void change_environment (EEnvironment new_environment)
 	    change_level (0, 1, false);
 	    break;
 	case E_CASTLE:
-	    print1 ("You cross the drawbridge. Strange forms move beneath the water.");
+	    mprint ("You cross the drawbridge. Strange forms move beneath the water.");
 	    if (gamestatusp (MOUNTED)) {
 		morewait();
-		print1 ("Seeing as you might not be coming back, you feel compelled");
-		print2 ("to let your horse go, rather than keep him hobbled outside.");
+		mprint ("Seeing as you might not be coming back, you feel compelled");
+		mprint ("to let your horse go, rather than keep him hobbled outside.");
 		resetgamestatus (MOUNTED);
 	    }
 	    MaxDungeonLevels = CASTLELEVELS;
@@ -1608,9 +1606,9 @@ void change_environment (EEnvironment new_environment)
 	    change_level (0, 1, false);
 	    break;
 	case E_SEWERS:
-	    print1 ("You pry open a manhole and descend into the sewers below.");
+	    mprint ("You pry open a manhole and descend into the sewers below.");
 	    if (gamestatusp (MOUNTED)) {
-		print2 ("You horse waits patiently outside the sewer entrance....");
+		mprint ("You horse waits patiently outside the sewer entrance....");
 		dismount_steed();
 	    }
 	    MaxDungeonLevels = SEWERLEVELS;
@@ -1623,7 +1621,7 @@ void change_environment (EEnvironment new_environment)
 	    change_level (0, 1, false);
 	    break;
 	case E_COUNTRYSIDE:
-	    print1 ("You return to the fresh air of the open countryside.");
+	    mprint ("You return to the fresh air of the open countryside.");
 	    Level = Country;
 	    if (Last_Environment == E_CITY) {
 		Player.x = 27;
@@ -1638,7 +1636,7 @@ void change_environment (EEnvironment new_environment)
 	    show_screen();
 	    break;
 	case E_TACTICAL_MAP:
-	    print1 ("You are now on the tactical screen; exit off any side to leave");
+	    mprint ("You are now on the tactical screen; exit off any side to leave");
 	    make_country_screen (Country->site(Player.x,Player.y).showchar());
 	    make_country_monsters (Country->site(Player.x,Player.y).showchar());
 	    Player.x = Level->width / 2;
@@ -1659,8 +1657,8 @@ void change_environment (EEnvironment new_environment)
 	    break;
 	case E_NEVER_NEVER_LAND:
 	default:
-	    print1 ("There must be some mistake. You don't look like Peter Pan.");
-	    print2 ("(But here you are in Never-Never Land)");
+	    mprint ("There must be some mistake. You don't look like Peter Pan.");
+	    mprint ("(But here you are in Never-Never Land)");
 	    ScreenOffset = Player.y - (ScreenLength / 2);
 	    show_screen();
 	    break;
@@ -1712,19 +1710,19 @@ void hourly_check (void)
 static void indoors_random_event (void)
 {
     switch (random_range (1000)) {
-	case 0: print3 ("You feel an unexplainable elation."); morewait(); break;
-	case 1: print3 ("You hear a distant rumbling."); morewait(); break;
-	case 2: print3 ("You realize your fly is open."); morewait(); break;
-	case 3: print3 ("You have a sudden craving for a pecan twirl."); morewait(); break;
-	case 4: print3 ("You discover an itch just where you can't scratch it."); morewait(); break;
-	case 5: print3 ("You feel strangely lucky."); morewait(); break;
+	case 0: mprint ("You feel an unexplainable elation."); morewait(); break;
+	case 1: mprint ("You hear a distant rumbling."); morewait(); break;
+	case 2: mprint ("You realize your fly is open."); morewait(); break;
+	case 3: mprint ("You have a sudden craving for a pecan twirl."); morewait(); break;
+	case 4: mprint ("You discover an itch just where you can't scratch it."); morewait(); break;
+	case 5: mprint ("You feel strangely lucky."); morewait(); break;
 	case 6:
-	    print3 ("A cosmic ray strikes!");
+	    mprint ("A cosmic ray strikes!");
 	    p_damage (10, UNSTOPPABLE, "a cosmic ray");
 	    morewait();
 	    break;
 	case 7:
-	    print3 ("A mysterious healing flux settles over the level.");
+	    mprint ("A mysterious healing flux settles over the level.");
 	    foreach (m, Level->mlist)
 		if (m->hp > 0)
 		    m->hp = Monsters[m->id].hp;
@@ -1732,41 +1730,41 @@ static void indoors_random_event (void)
 	    morewait();
 	    break;
 	case 8:
-	    print3 ("You catch your second wind....");
+	    mprint ("You catch your second wind....");
 	    Player.hp = max (Player.hp, ++Player.maxhp);
 	    Player.mana = max (Player.mana, Player.calcmana());
 	    morewait();
 	    break;
 	case 9:
-	    print3 ("You find some spare change in a hidden pocket.");
+	    mprint ("You find some spare change in a hidden pocket.");
 	    Player.cash += Player.level * Player.level + 1;
 	    morewait();
 	    break;
 	case 10:
-	    print3 ("You trip over something hidden in a shadow...");
+	    mprint ("You trip over something hidden in a shadow...");
 	    morewait();
 	    Level->add_thing (Player.x, Player.y, create_object(difficulty()));
 	    pickup();
 	    break;
 	case 11:
-	    print3 ("A mysterious voice echoes all around you....");
+	    mprint ("A mysterious voice echoes all around you....");
 	    morewait();
 	    hint();
 	    morewait();
 	    break;
 	case 12:
 	    if (Balance > 0) {
-		print3 ("You get word of the failure of your bank!");
+		mprint ("You get word of the failure of your bank!");
 		Balance = 0;
 	    } else
-		print3 ("You feel lucky.");
+		mprint ("You feel lucky.");
 	    break;
 	case 13:
 	    if (Balance > 0) {
-		print3 ("You get word of a bank error in your favor!");
+		mprint ("You get word of a bank error in your favor!");
 		Balance += 5000;
 	    } else
-		print3 ("You feel unlucky.");
+		mprint ("You feel unlucky.");
 	    break;
     }
     dataprint();
@@ -1800,7 +1798,7 @@ static void outdoors_random_event (void)
 	    morewait();
 	    mprint ("poppies...");
 	    morewait();
-	    print3 ("You become somewhat disoriented...");
+	    mprint ("You become somewhat disoriented...");
 	    setgamestatus (LOST);
 	    break;
 	case 2:
@@ -2024,35 +2022,35 @@ void terrain_check (bool takestime)
     if (Player.patron == DRUID) {
 	faster = true;
 	switch (urandom_range (32)) {
-	    case 0: print2 ("Along the many paths of nature..."); break;
-	    case 1: print2 ("You move swiftly through the wilderness."); break;
+	    case 0: mprint ("Along the many paths of nature..."); break;
+	    case 1: mprint ("You move swiftly through the wilderness."); break;
 	}
     } else if (gamestatusp (MOUNTED)) {
 	faster = true;
 	switch (urandom_range (32)) {
 	    case 0:
-	    case 1: print2 ("Clippity Clop."); break;
-	    case 2: print2 ("....my spurs go jingle jangle jingle...."); break;
-	    case 3: print2 ("....as I go riding merrily along...."); break;
+	    case 1: mprint ("Clippity Clop."); break;
+	    case 2: mprint ("....my spurs go jingle jangle jingle...."); break;
+	    case 3: mprint ("....as I go riding merrily along...."); break;
 	}
     } else if (Player.has_possession(O_BOOTS) && Player.possessions[O_BOOTS].usef == I_BOOTS_7LEAGUE) {
 	takestime = false;
 	switch (urandom_range (32)) {
-	    case 0: print2 ("Boingg!"); break;
-	    case 1: print2 ("Whooosh!"); break;
-	    case 2: print2 ("Over hill, over dale...."); break;
-	    case 3: print2 ("...able to leap over 7 leagues in a single bound...."); break;
+	    case 0: mprint ("Boingg!"); break;
+	    case 1: mprint ("Whooosh!"); break;
+	    case 2: mprint ("Over hill, over dale...."); break;
+	    case 3: mprint ("...able to leap over 7 leagues in a single bound...."); break;
 	}
     } else if (Player.status[SHADOWFORM]) {
 	faster = true;
 	switch (urandom_range (32)) {
-	    case 0: print2 ("As swift as a shadow."); break;
-	    case 1: print2 ("\"I walk through the trees...\""); break;
+	    case 0: mprint ("As swift as a shadow."); break;
+	    case 1: mprint ("\"I walk through the trees...\""); break;
 	}
     } else {
 	switch (urandom_range (32)) {
-	    case 0: print2 ("Trudge. Trudge."); break;
-	    case 1: print2 ("The road goes ever onward...."); break;
+	    case 0: mprint ("Trudge. Trudge."); break;
+	    case 1: mprint ("The road goes ever onward...."); break;
 	}
     }
     switch (Country->site(Player.x,Player.y).showchar()) {
@@ -2381,7 +2379,7 @@ int parsecitysite (void)
     first = 0;
     last = NUMCITYSITES - 1;
     pos = 0;
-    print2 ("");
+    mprint ("");
     do {
 	byte = mgetc();
 	if (byte == KEY_BACKSPACE) {
@@ -2402,13 +2400,13 @@ int parsecitysite (void)
 		}
 		if (found)
 		    found = 0;
-		print2 (prefix);
+		mprint (prefix);
 	    }
 	    if (pos == 0) {
 		first = 0;
 		last = NUMCITYSITES - 1;
 		found = 0;
-		print2 ("");
+		mprint ("");
 	    }
 	} else if (byte == KEY_ESCAPE) {
 	    xredraw();
@@ -2429,12 +2427,12 @@ int parsecitysite (void)
 		continue;
 	    prefix[pos++] = byte;
 	    prefix[pos] = '\0';
-	    nprint2 (prefix + pos - 1);
+	    mprint (prefix + pos - 1);
 	    first = f;
 	    last = l;
 	    if (first == last && !found) {	// unique name
 		found = 1;
-		nprint2 (sitenames[first] + pos);
+		mprint (sitenames[first] + pos);
 	    }
 	}
     } while (byte != KEY_ENTER);
@@ -2442,7 +2440,7 @@ int parsecitysite (void)
     if (found)
 	return sitenums[first] - CITYSITEBASE;
     else {
-	print3 ("That is an ambiguous abbreviation!");
+	mprint ("That is an ambiguous abbreviation!");
 	return ABORT;
     }
 }
@@ -2493,95 +2491,95 @@ int stonecheck (int alignment)
 	case 36:
 	case 38:
 	case 40:
-	    print1 ("The stone glows grey.");
-	    print2 ("Not much seems to happen this time.");
+	    mprint ("The stone glows grey.");
+	    mprint ("Not much seems to happen this time.");
 	    (*stone)--;
 	    break;
 	case 1:
-	    print1 ("The stone glows black");
-	    print2 ("A burden has been removed from your shoulders.....");
-	    print3 ("Your pack has disintegrated!");
+	    mprint ("The stone glows black");
+	    mprint ("A burden has been removed from your shoulders.....");
+	    mprint ("Your pack has disintegrated!");
 	    Player.pack.clear();
 	    break;
 	case 3:
-	    print1 ("The stone glows microwave");
-	    print2 ("A vortex of antimana spins about you!");
+	    mprint ("The stone glows microwave");
+	    mprint ("A vortex of antimana spins about you!");
 	    morewait();
 	    dispel (-1);
 	    break;
 	case 5:
-	    print1 ("The stone glows infrared");
-	    print2 ("A portal opens nearby and an obviously confused monster appears!");
+	    mprint ("The stone glows infrared");
+	    mprint ("A portal opens nearby and an obviously confused monster appears!");
 	    summon (-1, -1);
 	    morewait();
 	    break;
 	case 7:
-	    print1 ("The stone glows brick red");
-	    print2 ("A gold piece falls from the heavens into your money pouch!");
+	    mprint ("The stone glows brick red");
+	    mprint ("A gold piece falls from the heavens into your money pouch!");
 	    Player.cash++;
 	    break;
 	case 9:
-	    print1 ("The stone glows cherry red");
-	    print2 ("A flush of warmth spreads through your body.");
+	    mprint ("The stone glows cherry red");
+	    mprint ("A flush of warmth spreads through your body.");
 	    augment (1);
 	    break;
 	case 11:
-	    print1 ("The stone glows orange");
-	    print2 ("A flux of energy blasts you!");
+	    mprint ("The stone glows orange");
+	    mprint ("A flux of energy blasts you!");
 	    manastorm (Player.x, Player.y, random_range (Player.maxhp) + 1);
 	    break;
 	case 13:
-	    print1 ("The stone glows lemon yellow");
-	    print2 ("You're surrounded by enemies! You begin to foam at the mouth.");
+	    mprint ("The stone glows lemon yellow");
+	    mprint ("You're surrounded by enemies! You begin to foam at the mouth.");
 	    Player.status[BERSERK] += 10;
 	    break;
 	case 15:
-	    print1 ("The stone glows yellow");
-	    print2 ("Oh no! The DREADED AQUAE MORTIS!");
+	    mprint ("The stone glows yellow");
+	    mprint ("Oh no! The DREADED AQUAE MORTIS!");
 	    morewait();
-	    print2 ("No, wait, it's just your imagination.");
+	    mprint ("No, wait, it's just your imagination.");
 	    break;
 	case 17:
-	    print1 ("The stone glows chartreuse");
-	    print2 ("Your joints stiffen up.");
+	    mprint ("The stone glows chartreuse");
+	    mprint ("Your joints stiffen up.");
 	    Player.agi -= 3;
 	    break;
 	case 19:
-	    print1 ("The stone glows green");
-	    print2 ("You come down with an acute case of Advanced Leprosy.");
+	    mprint ("The stone glows green");
+	    mprint ("You come down with an acute case of Advanced Leprosy.");
 	    Player.status[DISEASED] = 1100;
 	    Player.hp = 1;
 	    Player.dex -= 5;
 	    break;
 	case 21:
-	    print1 ("The stone glows forest green");
-	    print2 ("You feel wonderful!");
+	    mprint ("The stone glows forest green");
+	    mprint ("You feel wonderful!");
 	    Player.status[HERO] += 10;
 	    break;
 	case 23:
-	    print1 ("The stone glows cyan");
-	    print2 ("You feel a strange twisting sensation....");
+	    mprint ("The stone glows cyan");
+	    mprint ("You feel a strange twisting sensation....");
 	    morewait();
 	    strategic_teleport (-1);
 	    break;
 	case 25:
-	    print1 ("The stone glows blue");
+	    mprint ("The stone glows blue");
 	    morewait();
-	    print1 ("You feel a tingle of an unearthly intuition:");
+	    mprint ("You feel a tingle of an unearthly intuition:");
 	    morewait();
 	    hint();
 	    break;
 	case 27:
-	    print1 ("The stone glows navy blue");
-	    print2 ("A sudden shock of knowledge overcomes you.");
+	    mprint ("The stone glows navy blue");
+	    mprint ("A sudden shock of knowledge overcomes you.");
 	    morewait();
 	    clearmsg();
 	    identify (1);
 	    knowledge (1);
 	    break;
 	case 29:
-	    print1 ("The stone glows blue-violet");
-	    print2 ("You feel forgetful.");
+	    mprint ("The stone glows blue-violet");
+	    mprint ("You feel forgetful.");
 	    for (unsigned i = 0; i < NUMSPELLS; i++) {
 		if (spell_is_known(ESpell(i))) {
 		    forget_spell(ESpell(i));
@@ -2590,32 +2588,32 @@ int stonecheck (int alignment)
 	    }
 	    break;
 	case 31:
-	    print1 ("The stone glows violet");
+	    mprint ("The stone glows violet");
 	    morewait();
 	    acquire (0);
 	    break;
 	case 33:
-	    print1 ("The stone glows deep purple");
-	    print2 ("You vanish.");
+	    mprint ("The stone glows deep purple");
+	    mprint ("You vanish.");
 	    Player.status[INVISIBLE] += 10;
 	    break;
 	case 35:
-	    print1 ("The stone glows ultraviolet");
-	    print2 ("All your hair rises up on end.... A bolt of lightning hits you!");
+	    mprint ("The stone glows ultraviolet");
+	    mprint ("All your hair rises up on end.... A bolt of lightning hits you!");
 	    p_damage (random_range (Player.maxhp), ELECTRICITY, "mystic lightning");
 	    break;
 	case 37:
-	    print1 ("The stone glows roentgen");
-	    print2 ("You feel more experienced.");
+	    mprint ("The stone glows roentgen");
+	    mprint ("You feel more experienced.");
 	    gain_experience ((Player.level + 1) * 250);
 	    break;
 	case 39:
-	    print1 ("The stone glows gamma");
-	    print2 ("Your left hand shines silvery, and your right emits a golden aura.");
+	    mprint ("The stone glows gamma");
+	    mprint ("Your left hand shines silvery, and your right emits a golden aura.");
 	    morewait();
 	    enchant (1);
 	    bless (1);
-	    print3 ("Your hands stop glowing.");
+	    mprint ("Your hands stop glowing.");
 	    break;
 	case 41:
 	case 42:
@@ -2626,14 +2624,14 @@ int stonecheck (int alignment)
 	case 47:
 	case 48:
 	case 49:
-	    print1 ("The stone glows cosmic!");
-	    print2 ("The stone's energy field quiets for a moment...");
+	    mprint ("The stone glows cosmic!");
+	    mprint ("The stone's energy field quiets for a moment...");
 	    *stone = 50;
 	    cycle = true;
 	    break;
 	default:
-	    print1 ("The stone glows polka-dot (?!?!?!?)");
-	    print2 ("You feel a strange twisting sensation....");
+	    mprint ("The stone glows polka-dot (?!?!?!?)");
+	    mprint ("You feel a strange twisting sensation....");
 	    morewait();
 	    *stone = 0;
 	    strategic_teleport (-1);
@@ -2661,33 +2659,33 @@ void alert_guards (void)
     if (!foundguard && Current_Environment == E_CITY && !gamestatusp (DESTROYED_ORDER)) {
 	bool suppress = gamestatusp (SUPPRESS_PRINTING);
 	resetgamestatus (SUPPRESS_PRINTING);
-	print2 ("The last member of the Order of Paladins dies....");
+	mprint ("The last member of the Order of Paladins dies....");
 	morewait();
 	gain_experience (1000);
 	Player.alignment -= 250;
 	if (!gamestatusp (KILLED_LAWBRINGER)) {
-	    print1 ("A chime sounds from far away.... The sound grows stronger....");
-	    print2 ("Suddenly the great shadowy form of the LawBringer appears over");
-	    print3 ("the city. He points his finger at you....");
+	    mprint ("A chime sounds from far away.... The sound grows stronger....");
+	    mprint ("Suddenly the great shadowy form of the LawBringer appears over");
+	    mprint ("the city. He points his finger at you....");
 	    morewait();
-	    print1 ("\"Cursed art thou, minion of chaos! May thy strength fail thee");
-	    print2 ("in thy hour of need!\" You feel an unearthly shiver as the");
-	    print3 ("LawBringer waves his palm across the city skies....");
+	    mprint ("\"Cursed art thou, minion of chaos! May thy strength fail thee");
+	    mprint ("in thy hour of need!\" You feel an unearthly shiver as the");
+	    mprint ("LawBringer waves his palm across the city skies....");
 	    morewait();
 	    Player.str /= 2;
 	    dataprint();
-	    print1 ("You hear a bell tolling, and eerie moans all around you....");
-	    print2 ("Suddenly, the image of the LawBringer is gone.");
-	    print3 ("You hear a guardsman's whistle in the distance!");
+	    mprint ("You hear a bell tolling, and eerie moans all around you....");
+	    mprint ("Suddenly, the image of the LawBringer is gone.");
+	    mprint ("You hear a guardsman's whistle in the distance!");
 	    morewait();
 	    resurrect_guards();
 	} else {
-	    print1 ("The Order's magical defenses have dropped, and the");
-	    print2 ("Legions of Chaos strike....");
+	    mprint ("The Order's magical defenses have dropped, and the");
+	    mprint ("Legions of Chaos strike....");
 	    morewait();
-	    print1 ("The city shakes! An earthquake has struck!");
-	    print2 ("Cracks open in the street, and a chasm engulfs the Order HQ!");
-	    print3 ("Flames lick across the sky and you hear wild laughter....");
+	    mprint ("The city shakes! An earthquake has struck!");
+	    mprint ("Cracks open in the street, and a chasm engulfs the Order HQ!");
+	    mprint ("Flames lick across the sky and you hear wild laughter....");
 	    morewait();
 	    gain_experience (5000);
 	    destroy_order();
@@ -2735,8 +2733,8 @@ static void default_maneuvers (void)
 {
     morewait();
     clearmsg();
-    print1 ("Warning, resetting your combat options to the default.");
-    print2 ("Use the 'F' command to select which options you prefer.");
+    mprint ("Warning, resetting your combat options to the default.");
+    mprint ("Use the 'F' command to select which options you prefer.");
     morewait();
     const unsigned nManeuvers = maneuvers();
     fill_n ((uint32_t*) Player.meleestr.data(), DivRU(nManeuvers,2), vpack('A','C','B','C'));

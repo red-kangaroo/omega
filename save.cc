@@ -41,7 +41,7 @@ bool save_game (void)
     mkpath (savestr);
 
     plv current, levelToSave;
-    print1 ("Saving Game....");
+    mprint ("Saving Game....");
     bool writeok = false;
     try {
 	memblock buf (UINT16_MAX);
@@ -73,10 +73,10 @@ bool save_game (void)
 	if (h.compressed)
 	    buf.swap (compress (buf));
 	buf.write_file (savestr);
-	print1 ("Game Saved.");
+	mprint ("Game Saved.");
 	writeok = true;
     } catch (...) {
-	print1 ("Something didn't work... save aborted.");
+	mprint ("Something didn't work... save aborted.");
 	morewait();
 	clearmsg();
     }
@@ -97,7 +97,7 @@ bool restore_game (void)
     try {
 	buf.read_file (savestr);
 	istream is (buf);
-	print1 ("Restoring...");
+	mprint ("Restoring...");
 
 	SGHeader header;
 	is >> header;
@@ -122,13 +122,13 @@ bool restore_game (void)
 	    if (Current_Environment == E_CITY)
 		Level = City;
 	}
-	print3 ("Restoration complete.");
+	mprint ("Restoration complete.");
 	ScreenOffset = -100;	// to force a redraw
 	setgamestatus (SKIP_MONSTERS);
     } catch (const exception& e) {
 	char errbuf[80];
 	snprintf (ArrayBlock(errbuf), "Error restoring %s: %s", savestr, e.what().c_str());
-	print1 (errbuf);
+	mprint (errbuf);
 	morewait();
 	return (false);
     }
@@ -330,7 +330,7 @@ static void restore_level (istream& is)
 	    load_court();
 	    break;
 	default:
-	    print3 ("This dungeon not implemented!");
+	    mprint ("This dungeon not implemented!");
 	    break;
     }
     Current_Environment = temp_env;
@@ -498,7 +498,7 @@ static memblock compress (const cmemlink& buf)
     memblock obuf (buf.size());
     ostream os (obuf);
     const uint8_t *i = (const uint8_t*) buf.begin();
-    os << *(const SGHeader*)i << buf.size();
+    os << *(const SGHeader*)i << (buf.size()-sizeof(SGHeader));
     for (streampos io = sizeof(SGHeader), ileft; (ileft = buf.size()-io); ++io) {
 	unsigned mm = 0, mdm = 0, dml = min(255u,min(io,ileft));
 	for (unsigned m = 0, dm = 1; dm <= dml; ++dm) {
@@ -527,14 +527,15 @@ static memblock decompress (const cmemlink& buf)
     sized_type<sizeof(SGHeader)>::type h;
     memblock::size_type ucsz;
     is >> h >> ucsz;
-    memblock obuf (ucsz);
+    memblock obuf (ucsz+sizeof(SGHeader));
     ostream os (obuf);
     os << h;
-    for (uint8_t b,o,l; is.remaining();) {
+    for (uint8_t b,o,l; os.remaining();) {
 	is >> b; os << b;
 	if (b == RUN_CODE) {
 	    is >> o >> l;
 	    os.skip (-1);
+	    if (os.remaining() < l) break;
 	    copy_n (os.ipos()-o, l, os.ipos());
 	    os.skip (l);
 	}
