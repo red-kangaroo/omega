@@ -142,6 +142,8 @@ bool restore_game (void)
     return (true);
 }
 
+//----------------------------------------------------------------------
+
 template <typename Stm>
 static inline void globals_serialize (Stm& stm)
 {
@@ -158,62 +160,13 @@ static inline void globals_serialize (Stm& stm)
 	& tavern_hinthour & twiddle;	// End is currently 4-grain
 }
 
-streamsize player::stream_size (void) const
-{
-    bstrs ss (player_pod::stream_size());
-    ss << rank;
-    ss.skipalign (stream_align(immunity));
-    ss << immunity << status << guildxp;
-    ss.skipalign (stream_align(name));
-    ss << name << meleestr;
-
-    globals_serialize (ss);
-    ss.write (Password, sizeof(Password));
-    ss.write (CitySiteList, sizeof (CitySiteList));
-    ss.write (deepest, sizeof(deepest));
-    ss.write (level_seed, sizeof(level_seed));
-    ss.write (Spells, sizeof (Spells));
-    ss.write (ObjectAttrs, sizeof(ObjectAttrs));
-
-    // Save player possessions
-    ss.skipalign (stream_align (possessions));
-    ss << possessions << pack;
-    ss << Pawnitems << Condoitems;
-    return (ss.pos());
-}
-
-// also saves some globals like Level->depth...
-void player::write (bstro& os) const
-{
-    player_pod::write (os);
-    os << rank;
-    os.skipalign (stream_align(immunity));
-    os << immunity << status << guildxp;
-    os.skipalign (stream_align(name));
-    os << name << meleestr;
-
-    // Save globals
-    globals_serialize (os);
-    os.write (Password, sizeof(Password));
-    os.write (CitySiteList, sizeof (CitySiteList));
-    os.write (deepest, sizeof(deepest));
-    os.write (level_seed, sizeof(level_seed));
-    os.write (Spells, sizeof (Spells));
-    os.write (ObjectAttrs, sizeof(ObjectAttrs));
-
-    // Save player possessions
-    os.skipalign (stream_align (possessions));
-    os << possessions << pack;
-    os << Pawnitems << Condoitems;
-}
-
 void player::read (bstri& is)
 {
     player_pod::read (is);
     is >> rank;
-    is.align (stream_align(immunity));
+    is.align (stream_align_of(immunity));
     is >> immunity >> status >> guildxp;
-    is.align (stream_align(name));
+    is.align (stream_align_of(name));
     is >> name >> meleestr;
 
     // Restore globals
@@ -232,10 +185,38 @@ void player::read (bstri& is)
 	case E_VOLCANO:	MaxDungeonLevels = VOLCANOLEVELS; break;
     }
 
-    is.align (stream_align (possessions));
+    is.align (stream_align_of (possessions));
     is >> possessions >> pack;
     is >> Pawnitems >> Condoitems;
 }
+
+// also saves some globals like Level->depth...
+template <typename Stm>
+void player::write (Stm& os) const
+{
+    player_pod::write (os);
+    os << rank;
+    os.skipalign (stream_align_of(immunity));
+    os << immunity << status << guildxp;
+    os.skipalign (stream_align_of(name));
+    os << name << meleestr;
+
+    // Save globals
+    globals_serialize (os);
+    os.write (Password, sizeof(Password));
+    os.write (CitySiteList, sizeof (CitySiteList));
+    os.write (deepest, sizeof(deepest));
+    os.write (level_seed, sizeof(level_seed));
+    os.write (Spells, sizeof (Spells));
+    os.write (ObjectAttrs, sizeof(ObjectAttrs));
+
+    // Save player possessions
+    os.skipalign (stream_align_of (possessions));
+    os << possessions << pack;
+    os << Pawnitems << Condoitems;
+}
+
+//----------------------------------------------------------------------
 
 // Save whatever is pointed to by level
 static void save_level (bstro& os, plv level)
@@ -381,11 +362,12 @@ void monster_data::read (bstri& is) noexcept
     if (components & 2) {
 	monstring = strdup (is.read_strz());
 	corpsestr = strdup (is.read_strz());
-	is.align(stream_align(*this));
+	is.align(stream_align_of(*this));
     }
 }
 
-void monster_data::write (bstro& os) const noexcept
+template <typename Stm>
+void monster_data::write (Stm& os) const noexcept
 {
     uint8_t components = 0;
     if (id < ArraySize(Monsters)) {
@@ -401,46 +383,27 @@ void monster_data::write (bstro& os) const noexcept
     if (components & 2) {
 	os.write_strz (monstring);
 	os.write_strz (corpsestr);
-	os.skipalign(stream_align(*this));
+	os.skipalign(stream_align_of(*this));
     }
-}
-
-streamsize monster_data::stream_size (void) const noexcept
-{
-    streamsize sz = 4;
-    if (id < ArraySize(Monsters)) {
-	if (0 != memcmp(this, &Monsters[id], MONSTERCHANGEABLESIZE))
-	    sz += MONSTERCHANGEABLESIZE;
-	if ((monstring && monstring != Monsters[id].monstring) || (corpsestr && corpsestr != Monsters[id].corpsestr))
-	    sz += Align(strlen(monstring)+1+strlen(corpsestr)+1,stream_align(*this));
-    }
-    return (sz);
 }
 
 //----------------------------------------------------------------------
-
-void monster::write (bstro& os) const
-{
-    monster_data::write (os);
-    os << aux1 << aux2 << attacked << click << x << y;
-    os << possessions;
-    os.skipalign (stream_align(*this));
-}
 
 void monster::read (bstri& is)
 {
     monster_data::read (is);
     is >> aux1 >> aux2 >> attacked >> click >> x >> y;
     is >> possessions;
-    is.align (stream_align(*this));
+    is.align (stream_align_of(*this));
 }
 
-streamsize monster::stream_size (void) const noexcept
+template <typename Stm>
+void monster::write (Stm& os) const
 {
-    streamsize r = monster_data::stream_size();
-    r += stream_size_of(aux1)+stream_size_of(aux2)+stream_size_of(attacked)+stream_size_of(click)+stream_size_of(x)+stream_size_of(y);
-    r += stream_size_of(possessions);
-    return (Align(r,stream_align(*this)));
+    monster_data::write (os);
+    os << aux1 << aux2 << attacked << click << x << y;
+    os << possessions;
+    os.skipalign (stream_align_of(*this));
 }
 
 //----------------------------------------------------------------------
@@ -460,11 +423,12 @@ void object_data::read (bstri& is) noexcept
 	objstr = strdup (is.read_strz());
 	truename = strdup (is.read_strz());
 	cursestr = strdup (is.read_strz());
-	is.align(stream_align(*this));
+	is.align(stream_align_of(*this));
     }
 }
 
-void object_data::write (bstro& os) const noexcept
+template <typename Stm>
+void object_data::write (Stm& os) const noexcept
 {
     uint8_t components = 0;
     if (id < ArraySize(Objects)) {
@@ -480,20 +444,8 @@ void object_data::write (bstro& os) const noexcept
 	os.write_strz (objstr);
 	os.write_strz (truename);
 	os.write_strz (cursestr);
-	os.skipalign(stream_align(*this));
+	os.skipalign(stream_align_of(*this));
     }
-}
-
-streamsize object_data::stream_size (void) const noexcept
-{
-    streamsize sz = stream_size_of(id) + stream_size_of(level);
-    if (id < ArraySize(Objects)) {
-	if (0 != memcmp(&weight, &Objects[id].weight, OBJECTCHANGEABLESIZE))
-	    sz += OBJECTCHANGEABLESIZE;
-	if ((objstr && objstr != Objects[id].objstr) || (truename && truename != Objects[id].truename) || (cursestr && cursestr != Objects[id].cursestr))
-	    sz += Align(strlen(objstr)+1+strlen(truename)+1+strlen(cursestr)+1,stream_align(*this));
-    }
-    return (sz);
 }
 
 //----------------------------------------------------------------------

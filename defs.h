@@ -775,8 +775,8 @@ struct object_data {
     const char* cursestr;
 public:
     void	read (bstri& is) noexcept;
-    void	write (bstro& os) const noexcept;
-    streamsize	stream_size (void) const noexcept;
+    template <typename Stm>
+    void	write (Stm& os) const noexcept;
 };
 STREAM_ALIGN (object_data, 2);
 
@@ -790,9 +790,9 @@ public:
 		object (const object_data& o)	: number(1), x(0), y(0) { operator= (o); }
     object&	operator= (const object_data& o){ *implicit_cast<object_data*>(this) = o; return (*this); }
     bool	operator== (const object& v) const;
-    inline void	write (bstro& os) const	{ object_data::write (os); os << number << x << y; }
-    inline void	read (bstri& is)		{ object_data::read (is); is >> number >> x >> y; }
-    inline streamsize stream_size (void) const	{ return (object_data::stream_size() + stream_size_of(number) + stream_size_of(x) + stream_size_of(y)); }
+    inline void	read (bstri& is)	{ object_data::read (is); is >> number >> x >> y; }
+    template <typename Stm>
+    inline void	write (Stm& os) const	{ object_data::write (os); os << number << x << y; }
 };
 typedef object* pob;
 STREAM_ALIGN (object, 2);
@@ -828,8 +828,8 @@ struct monster_data {
     const char* meleestr;
 public:
     void	read (bstri& is) noexcept;
-    void	write (bstro& os) const noexcept;
-    streamsize	stream_size (void) const noexcept;
+    template <typename Stm>
+    void	write (Stm& os) const noexcept;
 };
 STREAM_ALIGN (monster_data, 4);
 
@@ -844,8 +844,8 @@ struct monster : public monster_data {
 public:
     inline monster&	operator= (const monster_data& v)	{ *implicit_cast<monster_data*>(this) = v; possessions.clear(); return (*this); }
     void		read (bstri& is);
-    void		write (bstro& os) const;
-    streamsize		stream_size (void) const noexcept;
+    template <typename Stm>
+    void		write (Stm& os) const;
     const char*		name (void) const PURE;
     const char*		by_name (void) const PURE;
     inline const char*	definite_article (void) const PURE	{ return (uniqueness == COMMON ? "the " : ""); }
@@ -888,10 +888,10 @@ struct player_pod {
     uint8_t	click;
     char	preference;
 public:
-    inline	player_pod (void)		{ itzero (this); }
-    inline void	read (bstri& is)		{ is.read (this, sizeof(*this)); }
-    inline void	write (bstro& os) const	{ os.write (this, sizeof(*this)); }
-    inline streamsize stream_size (void) const	{ return (sizeof(*this)); }
+    inline	player_pod (void)	{ itzero (this); }
+    inline void	read (bstri& is)	{ is.read (this, sizeof(*this)); }
+    template <typename Stm>
+    inline void	write (Stm& os) const	{ os.write (this, sizeof(*this)); }
 };
 
 struct player : public player_pod {
@@ -916,8 +916,8 @@ public:
     bool		on_sanctuary (void) const;
     void		calc_melee (void);
     void		read (bstri& is);
-    void		write (bstro& os) const;
-    streamsize		stream_size (void) const;
+    template <typename Stm>
+    void		write (Stm& os) const;
 };
 
 // dungeon locations

@@ -413,14 +413,14 @@ private:
 //{{{2 inline bodies
 
 template <typename T>
-inline constexpr streamsize stream_align (const T& v) { return (alignof(v)); }
+inline constexpr streamsize stream_align_of (const T& v) { return (alignof(v)); }
 #define STREAM_ALIGN(type,grain)	\
-template <> inline constexpr streamsize stream_align (const type&) { return (grain); }
+template <> inline constexpr streamsize stream_align_of (const type&) { return (grain); }
 STREAM_ALIGN(string,4)
 template <typename T>
-inline constexpr streamsize stream_align (const vector<T>& v) { return (4); }
+inline constexpr streamsize stream_align_of (const vector<T>& v) { return (4); }
 template <typename T, size_t N>
-inline constexpr streamsize stream_align (const array<T,N>& v) { return (stream_align(v[0])); }
+inline constexpr streamsize stream_align_of (const array<T,N>& v) { return (stream_align_of(v[0])); }
 
 template <typename T>
 streamsize stream_size_of (const T& v)	{ bstrs ss; ss << v; return (ss.pos()); }
