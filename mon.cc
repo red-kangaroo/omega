@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include "glob.h"
 
 //----------------------------------------------------------------------
@@ -163,7 +165,7 @@ void m_pulse (struct monster *m)
 	}
     }
     // prevents monsters from casting spells from other side of dungeon
-    if (range < max (5, m->level) && m->hp > 0 && random_range(2))
+    if (range < max<int> (5, m->level) && m->hp > 0 && random_range(2))
 	monster_special (m);
 }
 
@@ -355,7 +357,7 @@ static void m_random_move (struct monster *m)
 void m_vanish (struct monster *m)
 {
     mprintf ("%s vanishes in the twinkling of an eye!", m->name());
-    Level->mlist.erase (m);
+    Level->mlist.erase (p2i(Level->mlist,m));
     levelrefresh();
 }
 
@@ -598,14 +600,12 @@ static void m_talk_im (struct monster *m)
 	    mprint ("Well, I'll let you have it for what you've got.");
 	    Player.cash = 0;
 	    gain_item (*o);
-	    m->possessions.erase(o);
 	} else
 	    mprint ("Beat it, you deadbeat!");
     } else {
 	mprint ("Here you are. Have a good day.");
 	Player.cash -= cost;
 	gain_item (*o);
-	m->possessions.erase(o);
     }
     m_vanish (m);
 }
@@ -702,7 +702,7 @@ static void m_talk_gf (struct monster *m)
 	}
     }
     mprint ("In a flash of sweet-smelling light, the fairy vanishes....");
-    Player.hp = max (Player.hp, Player.maxhp);
+    Player.hp = max<int16_t> (Player.hp, Player.maxhp);
     Player.mana = max (Player.mana, Player.calcmana());
     mprint ("You feel mellow.");
     m_vanish (m);
@@ -789,7 +789,7 @@ static void m_talk_horse (struct monster *m)
     else {
 	mprint ("The horse lets you pat his nose. Want to ride him? [yn] ");
 	if (ynq() == 'y') {
-	    Level->mlist.erase (m);
+	    Level->mlist.erase (p2i(Level->mlist,m));
 	    setgamestatus (MOUNTED);
 	    calc_melee();
 	    mprint ("You are now equitating!");
@@ -1103,7 +1103,7 @@ static void monster_melee (struct monster *m, int hitloc, int bonus)
 static int monster_hit (struct monster *m, int hitloc, int bonus)
 {
     int blocks = false, goodblocks = 0, hit, riposte = false;
-    for (unsigned i = 0; i < strlen (Player.meleestr); i += 2) {
+    for (unsigned i = 0; i < strlen (Player.meleestr.c_str()); i += 2) {
 	if (Player.meleestr[i] == 'B' || Player.meleestr[i] == 'R') {
 	    blocks = true;
 	    if (hitloc == Player.meleestr[i + 1]) {
@@ -1147,7 +1147,7 @@ void transcribe_monster_actions (struct monster *m)
 	p_blocks[i] = p_attacks[i] = 0;
 
     // Find which area player blocks and attacks least in
-    for (unsigned i = 0; i < strlen (Player.meleestr); i += 2) {
+    for (unsigned i = 0; i < strlen (Player.meleestr.c_str()); i += 2) {
 	if ((Player.meleestr[i] == 'B') || (Player.meleestr[i] == 'R')) {
 	    if (Player.meleestr[i + 1] == 'H')
 		p_blocks[0]++;
@@ -1269,7 +1269,7 @@ static void m_sp_mp (struct monster *m)
 	mprint ("You feel impressed...");
 	Player.alignment += 5;
 	if (Player.alignment > 20)
-	    Player.hp = max (Player.hp, Player.maxhp);
+	    Player.hp = max<int16_t> (Player.hp, Player.maxhp);
 	m_vanish (m);
     }
 }
@@ -1322,7 +1322,7 @@ static void m_sp_demon (struct monster *m)
 	    NIGHT_GAUNT, NIGHT_GAUNT, NIGHT_GAUNT, NIGHT_GAUNT, L_FDEMON,
 	    L_FDEMON, FROST_DEMON, OUTER_DEMON, DEMON_SERP, INNER_DEMON
 	};
-	int mid = _demons[min(ArraySize(_demons),(unsigned)m->level)];
+	int mid = _demons[min<unsigned>(ArraySize(_demons),m->level)];
 	summon (-1, mid);
 	summon (-1, mid);
     }
@@ -1692,7 +1692,7 @@ static void m_sp_swarm (struct monster *m)
 static void m_sp_raise (struct monster *m)
 {
     foreach (i, Level->things) {
-	if (abs_distance (i->x, m->x) <= 2 && abs_distance(i->y, m->y) <= 2 && i->id == CORPSEID) {
+	if (absv(m->x-i->x) <= 2 && absv(m->y-i->y) <= 2 && i->id == CORPSEID) {
 	    mprint ("The Zombie Overlord makes a mystical gesture...");
 	    summon (-1, i->charge);
 	    --(i = Level->things.erase(i));
@@ -1719,7 +1719,7 @@ static void m_sp_mb (struct monster *m)
 	    mprint ("You feel toasty warm inside!");
 	    Player.pow++;
 	    Player.mana = max (Player.mana, Player.calcmana());
-	    Player.hp = max (Player.hp, ++Player.maxhp);
+	    Player.hp = max<int16_t> (Player.hp, ++Player.maxhp);
 	}
 	m->hp = 0;
     }
@@ -1826,7 +1826,7 @@ static void m_sp_court (struct monster *m)
     mprint ("A storm of spells hits you!");
     foreach (sm, Level->mlist) {
 	m_status_set (*sm, HOSTILE);
-	m_sp_spell (sm);
+	m_sp_spell (&*sm);
 	if (sm->specialf == M_SP_COURT)
 	    sm->specialf = M_SP_SPELL;
     }
@@ -1964,16 +1964,16 @@ void m_death (struct monster *m)
 			    mprint ("A Servant of Chaos materializes, grabs the corpse,");
 			    mprint ("snickers a bit, and vanishes.");
 			} else {
-			    object* ibadge = NULL;
+			    object* ibadge = nullptr;
 			    foreach (i, Level->things)
 				if (i->id == THING_JUSTICIAR_BADGE)
-				    ibadge = i;
+				    ibadge = &*i;
 			    mprint ("In the distance you hear a trumpet. A Servant of Law");
 			    // promote one of the city guards to be justiciar
 			    monster* guard = NULL;
 			    foreach (g, City->mlist)
 				if (g->id == GUARD && g->hp > 0)
-				    guard = g;
+				    guard = &*g;
 			    if (!guard) {
 				mprint ("materializes, sheds a tear, and leaves.");
 				morewait();
@@ -1983,7 +1983,7 @@ void m_death (struct monster *m)
 				else {
 				    mprint ("materializes, sheds a tear, picks up the badge, and leaves.");
 				    guard->pickup (*ibadge);
-				    Level->things.erase (ibadge);
+				    Level->things.erase (p2i(Level->things,ibadge));
 				}
 				mprint ("A new justiciar has been promoted!");
 				make_hiscore_npc (*guard, NPC_JUSTICIAR);
@@ -2046,7 +2046,7 @@ void m_death (struct monster *m)
 		m_status_set (m, HOSTILE);
 		monster_action (m, m->specialf);
 	}
-	Level->mlist.erase (m);
+	Level->mlist.erase (p2i(Level->mlist,m));
     }
 }
 

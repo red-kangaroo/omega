@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include "glob.h"
 
 //----------------------------------------------------------------------
@@ -331,7 +333,7 @@ static void s_ritual (void)
 			    } else if (random_range (3) == 1) {
 				mprint ("You feel Fated.");
 				gain_experience (Player.level * Player.level * 10);
-				Player.hp = max (Player.hp, Player.maxhp);
+				Player.hp = max<int16_t> (Player.hp, Player.maxhp);
 			    } else if (random_range (2)) {
 				mprint ("You feel Doomed.");
 				Player.hp = 1;

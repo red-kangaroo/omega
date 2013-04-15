@@ -1,8 +1,4 @@
-// omega (c) 1987,1988,1989 by Laurence Raphael Brothers
-// scr.c
-// functions that use curses routines directly
-// plus a few file i/o stuff
-// also some in file.c
+// Omega is free software, distributed under the MIT license
 
 #include "glob.h"
 #include <unistd.h>
@@ -47,8 +43,8 @@ void phaseprint (void)
 void show_screen (void)
 {
     werase (Levelw);
-    int top = max (0, ScreenOffset);
-    int bottom = min ((int)Level->height, ScreenOffset + ScreenLength);
+    int top = max<int> (0, ScreenOffset);
+    int bottom = min<int> (Level->height, ScreenOffset + ScreenLength);
     for (int j = top; j < bottom; j++) {
 	wmove (Levelw, screenmod (j), 0);
 	for (unsigned i = 0; i < Level->width; i++) {
@@ -398,10 +394,10 @@ void drawmonsters (int display)
 	if (m->hp < 0) continue;
 	if (display) {
 	    if (view_los_p (Player.x, Player.y, m->x, m->y))
-		if (Player.status[TRUESIGHT] || (!m_statusp (m, M_INVISIBLE)))
+		if (Player.status[TRUESIGHT] || (!m_statusp (*m, M_INVISIBLE)))
 		    putspot (m->x, m->y, m->monchar);
 	} else
-	    erase_monster (m);
+	    erase_monster (&*m);
     }
 }
 

@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include "glob.h"
 
 //----------------------------------------------------------------------
@@ -887,7 +889,7 @@ static void i_pick (pob o)
 	    mprint ("You picked the lock!");
 	    Level->site(ox,oy).aux = UNLOCKED;
 	    lset (ox, oy, CHANGED);
-	    gain_experience (max (3, Level->depth));
+	    gain_experience (max<int> (3, Level->depth));
 	} else
 	    mprint ("You failed to pick the lock.");
     } else
@@ -967,7 +969,7 @@ static void i_corpse (pob o)
 	    break;
 	case BEHEMOTH:
 	    mprint ("You feel infinitely more virile now.");
-	    Player.str = max (Player.str, Player.maxstr + 10);
+	    Player.str = max<uint8_t> (Player.str, Player.maxstr + 10);
 	    Player.food = 24;
 	    foodcheck();
 	    break;
@@ -1009,7 +1011,7 @@ static void i_corpse (pob o)
 	case EATER:
 	    mprint ("Oh, yuck. The 'food' seems to be tainted.");
 	    mprint ("You feel very sick. You throw up.");
-	    Player.food = min (Player.food, 4);
+	    Player.food = min<int16_t> (Player.food, 4);
 	default:
 	    mprint ("It proved completely inedible, but you tried anyhow.");
     }
@@ -1398,10 +1400,10 @@ void weapon_demonblade (int dmgmod, pob o, struct monster *m)
     } else if (m->meleef != M_MELEE_SPIRIT) {
 	if (m->level > random_range (10)) {
 	    if (Player.hp < Player.maxhp)
-		Player.hp = min (Player.maxhp, Player.hp + m->hp);
+		Player.hp = min<int16_t> (Player.maxhp, Player.hp + m->hp);
 	    Player.str++;
 	    if (Player.pow < Player.maxpow)
-		Player.pow = min (Player.maxpow, Player.pow + m->level);
+		Player.pow = min<uint8_t> (Player.maxpow, Player.pow + m->level);
 	    m_death (m);
 	    mprint ("You feel a surge of raw power from Demonblade!");
 	} else
@@ -1549,7 +1551,7 @@ void weapon_desecrate (int dmgmod, pob o, struct monster *m)
 	Player.alignment--;
 	if (Player.hp < Player.maxhp) {
 	    mprint ("You feel a thrill of power surging up your blade!");
-	    Player.hp = min (Player.maxhp, Player.hp + Player.dmg + dmgmod);
+	    Player.hp = min<int16_t> (Player.maxhp, Player.hp + Player.dmg + dmgmod);
 	}
     } else {
 	mprint ("Your blade turns in your hands and hits you!");
@@ -1565,7 +1567,7 @@ void weapon_firestar (int dmgmod, pob o, struct monster *m)
 {
     if (random_range (3) == 1) {
 	learn_object (o);
-	fball (Player.x, Player.y, Player.x, Player.y, max (Player.dmg, 25));
+	fball (Player.x, Player.y, Player.x, Player.y, max<int16_t> (Player.dmg, 25));
     }
     if (m->hp > 0)
 	weapon_normal_hit (dmgmod, o, m);

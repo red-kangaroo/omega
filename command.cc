@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include <unistd.h>
 #include <ctype.h>
 #include "glob.h"
@@ -1242,7 +1244,7 @@ static void examine (void)
 		foreach (o, Level->things) {
 		    if (o->x == x && o->y == y) {
 			menuprint ("\n");
-			menuprint (itemid(o));
+			menuprint (itemid(*o));
 		    }
 		}
 		showmenu();
@@ -1686,7 +1688,7 @@ void rename_player (void)
     mprint ("Rename Character: ");
     strcpy (Str1, msgscanstring());
     if (strlen (Str1) == 0)
-	mprint (Player.name);
+	mprint (Player.name.c_str());
     else {
 	if (Str1[0] >= 'a' && Str1[0] <= 'z')
 	    Str1[0] += 'A' - 'a';

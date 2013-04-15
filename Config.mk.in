@@ -5,6 +5,7 @@ MAJOR		:= @PKG_MAJOR@
 MINOR		:= @PKG_MINOR@
 
 #DEBUG		:= 1
+#USE_UCC	:= 1
 
 ################ Programs ############################################
 
@@ -23,9 +24,11 @@ BINDIR		:= @bindir@
 
 WARNOPTS	:= -Wall -Wextra -Wpointer-arith -Woverloaded-virtual\
 		-Wshadow -Wredundant-decls -Wcast-qual @SYSWARNS@
-CXXFLAGS	:= ${WARNOPTS} @CUSTOMINCDIR@
+CXXFLAGS	:= ${WARNOPTS} -std=c++11 @CUSTOMINCDIR@
 LDFLAGS		:= @CUSTOMLIBDIR@
-LIBS		:=
+ifndef USE_UCC
+    LIBS	:=@libncurses@
+endif
 ifdef DEBUG
     CXXFLAGS	+= -O0 -g
 else

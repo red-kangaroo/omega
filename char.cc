@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include "glob.h"
 #include <sys/types.h>
 #include <unistd.h>
@@ -21,7 +23,7 @@ player::player (void)
 , status()
 , guildxp()
 , name("Player")
-, meleestr(64)
+, meleestr(64,'\0')
 , possessions()
 , pack()
 {
@@ -57,7 +59,7 @@ void initplayer (void)
     }
     if (!oldchar)
 	initstats();
-    Searchnum = max (1, min (9, Searchnum));
+    Searchnum = max<uint8_t> (1, min<uint8_t> (9, Searchnum));
     Player.hp = Player.maxhp = Player.maxcon;
     Player.mana = Player.maxmana = Player.calcmana();
     Player.click = 1;
@@ -119,10 +121,10 @@ static void save_omegarc (void)
 {
     snprintf (ArrayBlock(Str1), OMEGA_PLAYER_FILE, getenv("HOME"));
     mkpath (Str1);
-    sizestream ss;
+    bstrs ss;
     omegarc_write (ss);
     memblock buf (ss.pos());
-    ostream os (buf);
+    bstro os (buf);
     omegarc_write (os);
     buf.write_file (Str1);
 }
@@ -131,15 +133,15 @@ static void load_omegarc (const char* filename)
 {
     memblock buf;
     buf.read_file (filename);
-    istream is (buf);
+    bstri is (buf);
 
     uint8_t fmt, savefmt;
     is.verify_remaining ("load_omegarc", stream_size_of(fmt)+stream_size_of(savefmt)+stream_size_of(Searchnum)+stream_size_of(Verbosity));
     is >> fmt >> savefmt >> Searchnum >> Verbosity;
     if (fmt != OMEGA_PLAYER_FORMAT)
-	runtime_error::emit ("omegarc format is not readable");
+	throw runtime_error ("omegarc format is not readable");
     is >> Player.name;
-    sizestream ss;
+    bstrs ss;
     omegarc_serialize_player_static (ss);
     is.verify_remaining ("load_omegarc", ss.pos());
     omegarc_serialize_player_static (is);

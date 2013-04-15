@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include "glob.h"
 #include <signal.h>
 #include <fcntl.h>
@@ -136,14 +138,14 @@ void initrand (int environment, int level)
 int main (void)
 {
     // always catch ^c and other fatal signals
-    #define S(s) __sigmask(s)
-    constexpr sigset_t sigset_Quit =
+    #define S(s) (1u<<s)
+    constexpr unsigned sigset_Quit =
 	S(SIGHUP)|S(SIGINT)|S(SIGPIPE)|S(SIGQUIT)|S(SIGTERM)|
 	S(SIGPWR)|S(SIGILL)|S(SIGABRT)|S(SIGBUS)|S(SIGFPE)|
 	S(SIGSYS)|S(SIGSEGV)|S(SIGALRM)|S(SIGXCPU);
     #undef S
-    for (uint32_t i = NSIG; --i;)
-	if (sigismember(&sigset_Quit,i))
+    for (unsigned i = NSIG; --i;)
+	if (GetBit(sigset_Quit,i))
 	    signal (i, signalexit);
 
     // all kinds of initialization
@@ -250,7 +252,7 @@ void time_clock (int reset)
 		--(m = Level->mlist.erase(m));
 	    if (Tick == m->click) {
 		m->click = (m->click + m->speed) % 60;
-		m_pulse (m);
+		m_pulse (&*m);
 	    }
 	}
     }

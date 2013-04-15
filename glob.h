@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include "defs.h"
 #include "extern.h"
 

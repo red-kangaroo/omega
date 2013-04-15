@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include "glob.h"
 #include <sys/types.h>
 #include <sys/time.h>
@@ -390,7 +392,7 @@ long calc_points (void)
 	    points += Player.possessions[i].level * (object_is_known(Player.possessions[i]) + 1);
 
     foreach (i, Player.pack)
-	points += i->level * (object_is_known(i) + 1);
+	points += i->level * (object_is_known(*i) + 1);
 
     for (unsigned i = 0; i < NUMGUILDS; i++) {
 	if (Player.rank[i] == 5)

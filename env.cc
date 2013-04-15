@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include "glob.h"
 #include <unistd.h>
 
@@ -73,14 +75,14 @@ void level::clear (void)
     depth = 0;
     mlist.clear();
     next = NULL;
-    fill (_site, (location){ WALL, (uint8_t) min(UINT8_MAX,20u*difficulty()), L_NO_OP, 0, RS_WALLSPACE });
+    fill (_site, (location){ WALL, min<uint8_t>(UINT8_MAX,20*difficulty()), L_NO_OP, 0, RS_WALLSPACE });
 }
 
 monster* level::creature (int x, int y)
 {
     foreach (m, mlist)
 	if (m->x == x && m->y == y)
-	    return (m);
+	    return (&*m);
     return (NULL);
 }
 
@@ -88,7 +90,7 @@ object* level::thing (int x, int y)
 {
     foreach (i, things)
 	if (i->x == x && i->y == y)
-	    return (i);
+	    return (&*i);
     return (NULL);
 }
 
@@ -106,7 +108,7 @@ void level::remove_things (int x, int y)
 
 void level::add_thing (int x, int y, const object& o, unsigned n)
 {
-    object* no = things.insert (things.end(), o);
+    auto no = things.insert (things.end(), o);
     no->x = x;
     no->y = y;
     no->used = false;
@@ -148,7 +150,7 @@ void load_arena (void)
 	GEEK, HORNET, HYENA, GOBLIN, GRUNT, TOVE, APPR_NINJA, SALAMANDER, ANT, MANTICORE,
 	SPECTRE, BANDERSNATCH, LICHE, AUTO_MAJOR, JABBERWOCK, JOTUN, HISCORE_NPC
     };
-    monster& m = make_site_monster (60, 7, _opponents[min((unsigned)Arena_Opponent,ArraySize(_opponents))]);
+    monster& m = make_site_monster (60, 7, _opponents[min<unsigned>(Arena_Opponent,ArraySize(_opponents))]);
     Arena_Victory = false;
 
     if (m.id == HISCORE_NPC) {
@@ -1607,7 +1609,7 @@ void l_thieves_guild (void)
 			    if (!object_is_known(Player.possessions[i]))
 				count++;
 		    foreach (i, Player.pack)
-			count += !object_is_known(i);
+			count += !object_is_known(&*i);
 		    clearmsg();
 		    mprintf ("The fee will be: %uAu. Pay it? [yn] ", max (count*fee, fee));
 		    if (ynq() == 'y') {
@@ -1650,16 +1652,16 @@ void l_thieves_guild (void)
 			foreach (i, Player.pack) {
 			    if (i->blessing > -1) {
 				clearmsg();
-				mprintf ("Sell %s for %u Au each? [ynq] ", itemid(i), 2*item_value(i)/3);
+				mprintf ("Sell %s for %u Au each? [ynq] ", itemid(&*i), 2*item_value(&*i)/3);
 				if ((c = ynq()) == 'q')
 				    break;
 				else if (c == 'y') {
 				    number = getnumber (i->number);
-				    Player.cash += 2 * number * item_value (i) / 3;
+				    Player.cash += 2 * number * item_value (&*i) / 3;
 				    if ((i->number -= number) < 1) {
 					// Fenced an artifact?  You just might see it again.
-					if (object_uniqueness(i) > UNIQUE_UNMADE)
-					    set_object_uniqueness (i, UNIQUE_UNMADE);
+					if (object_uniqueness(&*i) > UNIQUE_UNMADE)
+					    set_object_uniqueness (&*i, UNIQUE_UNMADE);
 					--(i = Player.pack.erase(i));
 				    }
 				    dataprint();
@@ -2419,7 +2421,7 @@ void populate_level (int monstertype)
 			SEWER_RAT, AGGRAVATOR, BLIPPER, NIGHT_GAUNT, NASTY, MURK, CATOBLEPAS, ACID_CLOUD,
 			DENEBIAN, CROC, TESLA, SHADOW, BOGTHING, WATER_ELEM, TRITON, ROUS
 		    };
-		    monsterid = _sewerMonsters[min(ArraySize(_sewerMonsters),(unsigned)random_range(Level->depth+3))];
+		    monsterid = _sewerMonsters[min<unsigned>(ArraySize(_sewerMonsters),random_range(Level->depth+3))];
 		}
 		break;
 	    case E_ASTRAL:
@@ -2458,7 +2460,7 @@ void populate_level (int monstertype)
 			BAD_FAIRY, DRAGON, FDEMON_L, SHADOW_SLAY, DEATHSTAR,
 			VAMP_LORD, DEMON_PRINCE
 		    };
-		    monsterid = _volcanoMonsters[random_range(min(unsigned(Level->depth/2+2),ArraySize(_volcanoMonsters)))];
+		    monsterid = _volcanoMonsters[random_range(min<unsigned>(Level->depth/2+2,ArraySize(_volcanoMonsters)))];
 		}
 		break;
 	    case E_CASTLE:
@@ -2492,7 +2494,11 @@ void wandercheck (void)
 // call make_creature and place created monster on Level->mlist and Level
 monster& make_site_monster (int i, int j, int mid, int wandering, int dlevel)
 {
-    monster& m = Level->mlist.push_back();
+    #if USE_UCC
+	monster& m = Level->mlist.push_back();
+    #else
+	monster& m = *Level->mlist.insert (Level->mlist.end(), monster());
+    #endif
     if (mid >= ML0)
 	make_creature (m, mid);
     else
@@ -2508,7 +2514,7 @@ monster& make_site_monster (int i, int j, int mid, int wandering, int dlevel)
 static void m_create (monster& m, int x, int y, int kind, unsigned level)
 {
     static const uint8_t _ranges[] = { ML1, ML2, ML3, ML4, ML5, ML6, ML7, ML8, ML9, ML10, NUMMONSTERS };
-    unsigned monster_range = _ranges[min(level,ArraySize(_ranges)-1)];
+    unsigned monster_range = _ranges[min<unsigned>(level,ArraySize(_ranges)-1)];
     unsigned mid;
     do
 	mid = random_range (monster_range);
@@ -3775,12 +3781,12 @@ void l_pawn_shop (void)
 	return;
     }
 
-    unsigned limit = min (Pawnitems.size()/4, unsigned(Date - Pawndate));
+    unsigned limit = min<unsigned> (Pawnitems.size()/4, Date - Pawndate);
     Pawndate = Date;
     for (unsigned i = 0; i < limit; ++i)
 	if (object_uniqueness(Pawnitems[0]) > UNIQUE_UNMADE)
 	    set_object_uniqueness (Pawnitems[0], UNIQUE_UNMADE);
-    Pawnitems.erase (Pawnitems.begin(), limit);
+    Pawnitems.erase (Pawnitems.begin(), Pawnitems.begin()+limit);
     while (Pawnitems.size() < PAWNITEMS) {
 	object o = create_object (5);
 	if (o.objchar != CASH && o.objchar != ARTIFACT && true_item_value(o) > 0)
@@ -3857,11 +3863,11 @@ void l_pawn_shop (void)
 	    }
 	} else if (action == 'p') {
 	    foreach (i, Player.pack) {
-		if (i->blessing <= 0 || true_item_value(i) <= 0)
+		if (i->blessing <= 0 || true_item_value(*i) <= 0)
 		    continue;
 		clearmsg();
-		unsigned cost = item_value (i) / 2;
-		mprintf ("Sell %s for %u Au each? [yn] ", itemid(i), cost);
+		unsigned cost = item_value (*i) / 2;
+		mprintf ("Sell %s for %u Au each? [yn] ", itemid(*i), cost);
 		if (ynq() == 'y') {
 		    unsigned number = getnumber (i->number);
 		    if (number > 0) {
@@ -3939,7 +3945,7 @@ void l_condo (void)
 		}
 	    } else if (response == 'b') {
 		foreach (i, Condoitems) {
-		    mprintf ("Retrieve %s [ynq] ", itemid(i));
+		    mprintf ("Retrieve %s [ynq] ", itemid(*i));
 		    response = (char) mcigetc();
 		    if (response == 'q')
 			break;
@@ -4044,7 +4050,7 @@ void pacify_guards (void)
 {
     foreach (m, Level->mlist) {
 	if (m->id == GUARD || (m->id == HISCORE_NPC && m->aux2 == NPC_JUSTICIAR)) {
-	    m_status_reset (m, HOSTILE);
+	    m_status_reset (*m, HOSTILE);
 	    m->specialf = M_NO_OP;
 	    if (m->id == GUARD && m->hp > 0 && m->aux1 > 0) {
 		m->x = m->aux1;

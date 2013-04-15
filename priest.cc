@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include "glob.h"
 
 //----------------------------------------------------------------------
@@ -229,7 +231,7 @@ static int increase_priest_rank (int deity)
 	switch (deity) {
 	    default:
 		mprint ("Some nameless god blesses you....");
-		Player.hp = max (Player.hp, Player.maxhp);
+		Player.hp = max<int16_t> (Player.hp, Player.maxhp);
 		morewait();
 		mprint ("The altar crumbles to dust and blows away.");
 		Level->site(Player.x,Player.y).locchar = FLOOR;

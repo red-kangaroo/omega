@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include "glob.h"
 #include <time.h>
 
@@ -99,7 +101,7 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
 {
     struct level *thislevel = NULL;
     thislevel = findlevel (Dungeon, tolevel);
-    deepest[Current_Environment] = max (deepest[Current_Environment], tolevel);
+    deepest[Current_Environment] = max<int> (deepest[Current_Environment], tolevel);
     if (!thislevel) {
 	thislevel = new level;
 	thislevel->resize (64, 64);
@@ -828,7 +830,7 @@ static void room_level (void)
     char rsi = RS_ROOMBASE + random_range (NUMROOMNAMES);
     if (Current_Dungeon == E_SEWERS && random_range (2))
 	rsi = RS_SEWER_CONTROL_ROOM;
-    int buildaux = min(UINT8_MAX,20u*difficulty());
+    int buildaux = min<int> (UINT8_MAX,20*difficulty());
     build_room (l, t, e, rsi, buildaux+1);
 
     for (i = 2; i <= Level->numrooms; i++) {

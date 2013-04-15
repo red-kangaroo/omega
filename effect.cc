@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include "glob.h"
 
 //----------------------------------------------------------------------
@@ -465,7 +467,7 @@ void mondet (int blessing)
     foreach (m, Level->mlist) {
 	if (m->hp <= 0) continue;
 	if (blessing > -1)
-	    plotmon (m);
+	    plotmon (&*m);
 	else
 	    putspot (random_range (Level->width), random_range (Level->height), Monsters[random_range (NUMMONSTERS)].monchar);
     }
@@ -512,7 +514,7 @@ void identify (int blessing)
 	for (unsigned iidx = 0; iidx < MAXITEMS; iidx++)
 	    learn_object (Player.possessions[iidx]);
 	foreach (i, Player.pack)
-	    learn_object(i);
+	    learn_object(&*i);
     }
     calc_melee();
 }
@@ -582,8 +584,8 @@ void wish (int blessing)
 	Player.dex = max (Player.dex, Player.maxdex);
 	Player.iq = max (Player.iq, Player.maxiq);
 	Player.pow = max (Player.pow, Player.maxpow);
-	Player.maxhp = max (Player.maxhp, Player.maxcon);
-	Player.hp = max (Player.hp, Player.maxhp);
+	Player.maxhp = max<uint16_t> (Player.maxhp, Player.maxcon);
+	Player.hp = max<int16_t> (Player.hp, Player.maxhp);
 	toggle_item_use (false);
 	Player.status[DISEASED] = 0;
 	Player.status[POISONED] = 0;
@@ -1221,7 +1223,7 @@ void recover_stat (int blessing)
 	Player.agi = max (Player.agi, Player.maxagi);
 	Player.iq = max (Player.iq, Player.maxiq);
 	Player.pow = max (Player.pow, Player.maxpow);
-	Player.maxhp = max (Player.maxhp, Player.maxcon);
+	Player.maxhp = max<uint16_t> (Player.maxhp, Player.maxcon);
     }
     calc_melee();
 }
@@ -1520,7 +1522,7 @@ void annihilate (int blessing)
 	    mprint ("Thousands of bolts of lightning flash throughout the level!!!");
 	    foreach (m, Level->mlist)
 		if (m->hp > 0)
-		    m_death (m);
+		    m_death (&*m);
 	}
     } else {
 	mprint ("You are hit by a bolt of mystic lightning!");
@@ -2208,7 +2210,7 @@ void polymorph (int blessing)
 	    // one's abilities.  This would be better because it would be robust
 	    // even in the face of additions to the monster structure.
 	    m->id = Monsters[newmonster].id;
-	    m->hp = max (m->hp, Monsters[newmonster].id);
+	    m->hp = max<int16_t> (m->hp, Monsters[newmonster].id);
 	    m->speed = Monsters[newmonster].speed;
 	    m->hit = Monsters[newmonster].hit;
 	    m->ac = Monsters[newmonster].ac;
@@ -2218,7 +2220,7 @@ void polymorph (int blessing)
 	    m->level = max (m->level, Monsters[newmonster].level);
 	    m->status = Monsters[newmonster].status;
 	    m->immunity = (m->immunity | Monsters[newmonster].immunity);
-	    m->xpv = max (m->xpv, Monsters[newmonster].wakeup);
+	    m->xpv = max<uint16_t> (m->xpv, Monsters[newmonster].wakeup);
 	    m->transformid = Monsters[newmonster].transformid;
 	    m->corpsevalue = Monsters[newmonster].corpsevalue;
 	    m->corpseweight = Monsters[newmonster].corpseweight;

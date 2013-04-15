@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #pragma once
 
 // aux.c

@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include "glob.h"
 
 //----------------------------------------------------------------------
@@ -207,8 +209,8 @@ void player::calc_melee (void)
 	speed /= 2;
     if (status[SLOWED])
 	speed *= 2;
-    speed -= min (speed, 4-4*itemweight/maxweight);
-    speed = max (1, min (25, speed));
+    speed -= min<uint8_t> (speed, 4-4*itemweight/maxweight);
+    speed = max<uint8_t> (1, min<uint8_t> (25, speed));
 
     if (gamestatusp (MOUNTED)) {
 	speed = 3;
@@ -235,7 +237,7 @@ void player::calc_melee (void)
 	defense += possessions[O_ARMOR].plus - possessions[O_ARMOR].aux;
     }
 
-    if (strlen(meleestr) > maneuvers()*2)
+    if (strlen(meleestr.c_str()) > maneuvers()*2)
 	default_maneuvers();
     comwinprint();
     showflags();
@@ -296,8 +298,8 @@ int damage_item (pob o)
 	    morewait();
 	    annihilate (1);
 	    mprint ("You seem to gain strength in the chaotic glare of magic!");
-	    Player.str = max (Player.str, Player.maxstr + 5);
-	    Player.pow = max (Player.pow, Player.maxpow + 5);
+	    Player.str = max<uint8_t> (Player.str, Player.maxstr + 5);
+	    Player.pow = max<uint8_t> (Player.pow, Player.maxpow + 5);
 	    Player.alignment -= 200;
 	    Player.remove_possession (o, 1);
 	} else {
@@ -497,7 +499,7 @@ void describe_player (void)
     else
 	strcat (Str1, levelname (Player.level));
     strcat (Str1, " named ");
-    strcat (Str1, Player.name);
+    strcat (Str1, Player.name.c_str());
     if (gamestatusp (MOUNTED))
 	strcat (Str1, " (riding a horse.)");
     mprint (Str1);
@@ -524,8 +526,13 @@ void gain_experience (int amount)
 bool goberserk (void)
 {
     bool wentberserk = false;
-    lstring meleestr (ArrayBlock("lLlClH"));
-    Player.meleestr.swap (raw_cast<string>(meleestr));
+    #if USE_UCC
+	lstring meleestr (ArrayBlock("lLlClH"));
+	Player.meleestr.swap (raw_cast<string>(meleestr));
+    #else
+	string meleestr; meleestr.swap (Player.meleestr);
+	Player.meleestr = "lLlClH";
+    #endif
     for (unsigned i = 0; i < 8; i++) {
 	monster* m = Level->creature(Player.x + Dirs[0][i], Player.y + Dirs[1][i]);
 	if (m) {
@@ -534,7 +541,11 @@ bool goberserk (void)
 	    morewait();
 	}
     }
-    Player.meleestr.swap (raw_cast<string>(meleestr));
+    #if USE_UCC
+	Player.meleestr.swap (raw_cast<string>(meleestr));
+    #else
+	swap (Player.meleestr, meleestr);
+    #endif
     return (wentberserk);
 }
 
@@ -685,7 +696,7 @@ void threaten (struct monster *m)
 		Player.alignment -= 2;
 		mprint ("It drops its treasure and flees.");
 		m_dropstuff (m);
-		Level->mlist.erase (m);
+		Level->mlist.erase (p2i(Level->mlist,m));
 		putspot (m->x, m->y, getspot (m->x, m->y, false));
 		break;
 	    } else if (response == 'f') {
@@ -696,7 +707,7 @@ void threaten (struct monster *m)
 		    mprint ("'...If it doesn't come back, hunt it down and kill it.'");
 		}
 		mprint ("It departs with a renewed sense of its own mortality.");
-		Level->mlist.erase (m);
+		Level->mlist.erase (p2i(Level->mlist,m));
 		putspot (m->x, m->y, getspot (m->x, m->y, false));
 		break;
 	    }
@@ -1027,7 +1038,7 @@ static void gain_level (void)
 	mprint ("You have attained a new experience level!");
 	mprintf ("You are now %s%s", getarticle (levelname (Player.level)), levelname (Player.level));
 	Player.maxhp += random_range (Player.con)+1;
-	Player.hp = max (Player.hp, Player.maxhp);
+	Player.hp = max<int16_t> (Player.hp, Player.maxhp);
 	Player.maxmana = Player.calcmana();
 	Player.mana = max (Player.mana, Player.maxmana);
 	morewait();
@@ -1157,7 +1168,7 @@ const char* actionlocstr (char dir)
 // execute player combat actions versus monster m
 static void tacplayer (struct monster* m)
 {
-    for (const char* attack = Player.meleestr; *attack && m->hp > 0; attack += 2) {
+    for (const char* attack = Player.meleestr.c_str(); *attack && m->hp > 0; attack += 2) {
 	if (*attack == 't' || *attack == 'T') {
 	    if (Verbosity == VERBOSE) {
 		if (!Player.has_possession(O_WEAPON_HAND))
@@ -1680,7 +1691,7 @@ void tenminute_check (void)
     minute_status_check();
     tenminute_status_check();
     if (Player.status[DISEASED] < 1 && Player.hp < Player.maxhp)
-	Player.hp = min (Player.maxhp, Player.hp + Player.level + 1);
+	Player.hp = min<int16_t> (Player.maxhp, Player.hp + Player.level + 1);
     if (Current_Environment != E_COUNTRYSIDE && Current_Environment != E_ABYSS)
 	indoors_random_event();
 }
@@ -1702,7 +1713,7 @@ void hourly_check (void)
     minute_status_check();
     tenminute_status_check();
     if (Player.status[DISEASED] == 0 && Player.hp < Player.maxhp)
-	Player.hp = min (Player.maxhp, Player.hp + Player.level + 1);
+	Player.hp = min<int16_t> (Player.maxhp, Player.hp + Player.level + 1);
     if (Current_Environment != E_COUNTRYSIDE && Current_Environment != E_ABYSS)
 	indoors_random_event();
 }
@@ -1726,12 +1737,12 @@ static void indoors_random_event (void)
 	    foreach (m, Level->mlist)
 		if (m->hp > 0)
 		    m->hp = Monsters[m->id].hp;
-	    Player.hp = max (Player.hp, Player.maxhp);
+	    Player.hp = max<int16_t> (Player.hp, Player.maxhp);
 	    morewait();
 	    break;
 	case 8:
 	    mprint ("You catch your second wind....");
-	    Player.hp = max (Player.hp, ++Player.maxhp);
+	    Player.hp = max<int16_t> (Player.hp, ++Player.maxhp);
 	    Player.mana = max (Player.mana, Player.calcmana());
 	    morewait();
 	    break;
@@ -2449,7 +2460,7 @@ int parsecitysite (void)
 bool hostilemonstersnear (void)
 {
     for (const monster& m : Level->mlist)
-	if (m_statusp(m, HOSTILE) && abs_distance(m.x,Player.x) < 3 && abs_distance(m.y,Player.y) < 3)
+	if (m_statusp(m, HOSTILE) && absv(Player.x-m.x) < 3 && absv(Player.y-m.y) < 3)
 	    return (true);
     return (false);
 }
@@ -2737,6 +2748,6 @@ static void default_maneuvers (void)
     mprint ("Use the 'F' command to select which options you prefer.");
     morewait();
     const unsigned nManeuvers = maneuvers();
-    fill_n ((uint32_t*) Player.meleestr.data(), DivRU(nManeuvers,2), vpack('A','C','B','C'));
+    fill_n ((uint32_t*) &Player.meleestr[0], DivRU(nManeuvers,2), vpack('A','C','B','C'));
     Player.meleestr[nManeuvers*2] = '\0';
 }

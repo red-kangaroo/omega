@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #pragma once
 #include "config.h"
 #include <curses.h>
@@ -772,8 +774,8 @@ struct object_data {
     const char* truename;
     const char* cursestr;
 public:
-    void	read (istream& is) noexcept;
-    void	write (ostream& os) const noexcept;
+    void	read (bstri& is) noexcept;
+    void	write (bstro& os) const noexcept;
     streamsize	stream_size (void) const noexcept;
 };
 STREAM_ALIGN (object_data, 2);
@@ -788,8 +790,8 @@ public:
 		object (const object_data& o)	: number(1), x(0), y(0) { operator= (o); }
     object&	operator= (const object_data& o){ *implicit_cast<object_data*>(this) = o; return (*this); }
     bool	operator== (const object& v) const;
-    inline void	write (ostream& os) const	{ object_data::write (os); os << number << x << y; }
-    inline void	read (istream& is)		{ object_data::read (is); is >> number >> x >> y; }
+    inline void	write (bstro& os) const	{ object_data::write (os); os << number << x << y; }
+    inline void	read (bstri& is)		{ object_data::read (is); is >> number >> x >> y; }
     inline streamsize stream_size (void) const	{ return (object_data::stream_size() + stream_size_of(number) + stream_size_of(x) + stream_size_of(y)); }
 };
 typedef object* pob;
@@ -825,8 +827,8 @@ struct monster_data {
     const char* corpsestr;
     const char* meleestr;
 public:
-    void	read (istream& is) noexcept;
-    void	write (ostream& os) const noexcept;
+    void	read (bstri& is) noexcept;
+    void	write (bstro& os) const noexcept;
     streamsize	stream_size (void) const noexcept;
 };
 STREAM_ALIGN (monster_data, 4);
@@ -841,8 +843,8 @@ struct monster : public monster_data {
     uint8_t		y;
 public:
     inline monster&	operator= (const monster_data& v)	{ *implicit_cast<monster_data*>(this) = v; possessions.clear(); return (*this); }
-    void		read (istream& is);
-    void		write (ostream& os) const;
+    void		read (bstri& is);
+    void		write (bstro& os) const;
     streamsize		stream_size (void) const noexcept;
     const char*		name (void) const PURE;
     const char*		by_name (void) const PURE;
@@ -887,8 +889,8 @@ struct player_pod {
     char	preference;
 public:
     inline	player_pod (void)		{ itzero (this); }
-    inline void	read (istream& is)		{ is.read (this, sizeof(*this)); }
-    inline void	write (ostream& os) const	{ os.write (this, sizeof(*this)); }
+    inline void	read (bstri& is)		{ is.read (this, sizeof(*this)); }
+    inline void	write (bstro& os) const	{ os.write (this, sizeof(*this)); }
     inline streamsize stream_size (void) const	{ return (sizeof(*this)); }
 };
 
@@ -913,8 +915,8 @@ public:
     inline uint16_t	calcmana (void) const			{ return (pow*(level+1)); }
     bool		on_sanctuary (void) const;
     void		calc_melee (void);
-    void		read (istream& is);
-    void		write (ostream& os) const;
+    void		read (bstri& is);
+    void		write (bstro& os) const;
     streamsize		stream_size (void) const;
 };
 

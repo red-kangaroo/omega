@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include "glob.h"
 #include <unistd.h>
 
@@ -92,7 +94,7 @@ void l_chaos (void)
 	    mprint ("You achieve oneness of Chaos....");
 	}
 	Player.mana = max (Player.mana, Player.calcmana());
-	Player.hp = max (Player.hp, Player.maxhp);
+	Player.hp = max<int16_t> (Player.hp, Player.maxhp);
     } else if (Player.rank[PRIESTHOOD] && !saved) {
 	mprint ("A mysterious force protects you from the Chaos!");
 	mprint ("Wow.... You feel a bit smug.");
@@ -392,8 +394,8 @@ void l_portcullis_trap (void)
     bool slam = false;
     mprint ("Click.");
     morewait();
-    for (unsigned i = max (Player.x - 5, 0u); i < min (6u+Player.x, Level->width); i++) {
-	for (unsigned j = max (Player.y - 5, 0u); j < min (6u+Player.y, Level->height); j++) {
+    for (unsigned i = max (Player.x - 5, 0u); i < min<unsigned> (Player.x+6, Level->width); i++) {
+	for (unsigned j = max (Player.y - 5, 0u); j < min<unsigned> (Player.y+6, Level->height); j++) {
 	    if ((Level->site(i,j).p_locf == L_PORTCULLIS) && (Level->site(i,j).locchar != PORTCULLIS)) {
 		Level->site(i,j).locchar = PORTCULLIS;
 		lset (i, j, CHANGED);
@@ -957,7 +959,7 @@ static void l_chaostone (void)
 	morewait();
 	if (stonecheck (-1)) {
 	    mprint ("You feel stronger!");
-	    Player.maxstr = min (Player.maxstr + 10, max (30, Player.maxstr));
+	    Player.maxstr = min<uint8_t> (Player.maxstr + 10, max<uint8_t> (30, Player.maxstr));
 	    dataprint();
 	}
     } else
@@ -1019,7 +1021,7 @@ static void l_lawstone (void)
 	morewait();
 	if (stonecheck (1)) {
 	    mprint ("You feel more vigorous!");
-	    Player.maxcon = min (Player.maxcon + 10, max (Player.maxcon, 30));
+	    Player.maxcon = min<uint8_t> (Player.maxcon + 10, max<uint8_t> (Player.maxcon, 30));
 	    dataprint();
 	}
     } else
@@ -1129,7 +1131,7 @@ static void l_mindstone (void)
 	morewait();
 	if (stonecheck (0)) {
 	    mprint ("Your mind has been enhanced by the experience!");
-	    Player.maxiq = min (Player.maxiq + 10, max (Player.maxiq, 30));
+	    Player.maxiq = min<uint8_t> (Player.maxiq + 10, max<uint8_t> (Player.maxiq, 30));
 	    dataprint();
 	}
     } else {

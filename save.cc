@@ -1,11 +1,13 @@
+// Omega is free software, distributed under the MIT license
+
 #include "glob.h"
 #include <unistd.h>
 #include <stdlib.h>
 
 //----------------------------------------------------------------------
 
-static void restore_level(istream& is);
-static void save_level(ostream& os, plv level);
+static void restore_level(bstri& is);
+static void save_level(bstro& os, plv level);
 static memblock compress (const cmemlink& buf);
 static memblock decompress (const cmemlink& buf);
 
@@ -45,7 +47,7 @@ bool save_game (void)
     bool writeok = false;
     try {
 	memblock buf (UINT16_MAX);
-	ostream os (buf);
+	bstro os (buf);
 
 	const SGHeader h = {'o','m','e','g','a',OMEGA_SAVE_FORMAT,OMEGA_VERSION,optionp(COMPRESS)};
 	os << h << Player;
@@ -96,16 +98,17 @@ bool restore_game (void)
     memblock buf;
     try {
 	buf.read_file (savestr);
-	istream is (buf);
+	bstri is (buf);
 	mprint ("Restoring...");
 
 	SGHeader header;
 	is >> header;
 	if (header.format != OMEGA_SAVE_FORMAT)
-	    runtime_error::emit ("incorrect saved game file format");
+	    throw runtime_error ("incorrect saved game file format");
 	if (header.compressed) {
 	    buf.swap (decompress (buf));
-	    is.relink (buf);
+	    is.link (buf);
+	    is.skip (stream_size_of(header));
 	}
 	is >> Player;
 
@@ -127,7 +130,11 @@ bool restore_game (void)
 	setgamestatus (SKIP_MONSTERS);
     } catch (const exception& e) {
 	char errbuf[80];
-	snprintf (ArrayBlock(errbuf), "Error restoring %s: %s", savestr, e.what().c_str());
+	#if USE_UCC
+	    snprintf (ArrayBlock(errbuf), "Error restoring %s: %s", savestr, e.what().c_str());
+	#else
+	    snprintf (ArrayBlock(errbuf), "Error restoring %s: %s", savestr, e.what());
+	#endif
 	mprint (errbuf);
 	morewait();
 	return (false);
@@ -138,8 +145,8 @@ bool restore_game (void)
 template <typename Stm>
 static inline void globals_serialize (Stm& stm)
 {
-    stm & ios::align(8)
-	& GameStatus & Time & Gymcredit & Balance & SpellKnown
+    stm.align(8);
+    stm	& GameStatus & Time & Gymcredit & Balance & SpellKnown
 	& FixedPoints & Command_Duration & Date & HiMagicUse & LastDay
 	& Pawndate & StarGemUse & winnings & Arena_Opponent & Blessing
 	& Chaostone & Constriction & Current_Dungeon & Current_Environment & HelmHour
@@ -153,7 +160,7 @@ static inline void globals_serialize (Stm& stm)
 
 streamsize player::stream_size (void) const
 {
-    sizestream ss (player_pod::stream_size());
+    bstrs ss (player_pod::stream_size());
     ss << rank;
     ss.skipalign (stream_align(immunity));
     ss << immunity << status << guildxp;
@@ -176,7 +183,7 @@ streamsize player::stream_size (void) const
 }
 
 // also saves some globals like Level->depth...
-void player::write (ostream& os) const
+void player::write (bstro& os) const
 {
     player_pod::write (os);
     os << rank;
@@ -200,7 +207,7 @@ void player::write (ostream& os) const
     os << Pawnitems << Condoitems;
 }
 
-void player::read (istream& is)
+void player::read (bstri& is)
 {
     player_pod::read (is);
     is >> rank;
@@ -231,7 +238,7 @@ void player::read (istream& is)
 }
 
 // Save whatever is pointed to by level
-static void save_level (ostream& os, plv level)
+static void save_level (bstro& os, plv level)
 {
     unsigned run;
     os << level->environment
@@ -272,7 +279,7 @@ static void save_level (ostream& os, plv level)
     os << level->mlist << level->things;
 }
 
-static void restore_level (istream& is)
+static void restore_level (bstri& is)
 {
     unsigned run;
     uint16_t i, j;
@@ -361,7 +368,7 @@ static void restore_level (istream& is)
 
 enum { MONSTERCHANGEABLESIZE = offsetof(monster_data,monstring) };
 
-void monster_data::read (istream& is) noexcept
+void monster_data::read (bstri& is) noexcept
 {
     uint8_t components;
     is >> id >> components;
@@ -378,7 +385,7 @@ void monster_data::read (istream& is) noexcept
     }
 }
 
-void monster_data::write (ostream& os) const noexcept
+void monster_data::write (bstro& os) const noexcept
 {
     uint8_t components = 0;
     if (id < ArraySize(Monsters)) {
@@ -412,7 +419,7 @@ streamsize monster_data::stream_size (void) const noexcept
 
 //----------------------------------------------------------------------
 
-void monster::write (ostream& os) const
+void monster::write (bstro& os) const
 {
     monster_data::write (os);
     os << aux1 << aux2 << attacked << click << x << y;
@@ -420,7 +427,7 @@ void monster::write (ostream& os) const
     os.skipalign (stream_align(*this));
 }
 
-void monster::read (istream& is)
+void monster::read (bstri& is)
 {
     monster_data::read (is);
     is >> aux1 >> aux2 >> attacked >> click >> x >> y;
@@ -440,7 +447,7 @@ streamsize monster::stream_size (void) const noexcept
 
 enum { OBJECTCHANGEABLESIZE = offsetof(object_data,objchar)-offsetof(object_data,weight) };
 
-void object_data::read (istream& is) noexcept
+void object_data::read (bstri& is) noexcept
 {
     uint8_t components;
     is >> id >> components;
@@ -457,7 +464,7 @@ void object_data::read (istream& is) noexcept
     }
 }
 
-void object_data::write (ostream& os) const noexcept
+void object_data::write (bstro& os) const noexcept
 {
     uint8_t components = 0;
     if (id < ArraySize(Objects)) {
@@ -496,11 +503,11 @@ enum : uint8_t { RUN_CODE = 0xCD };
 static memblock compress (const cmemlink& buf)
 {
     memblock obuf (buf.size());
-    ostream os (obuf);
+    bstro os (obuf);
     const uint8_t *i = (const uint8_t*) buf.begin();
-    os << *(const SGHeader*)i << (buf.size()-sizeof(SGHeader));
-    for (streampos io = sizeof(SGHeader), ileft; (ileft = buf.size()-io); ++io) {
-	unsigned mm = 0, mdm = 0, dml = min(255u,min(io,ileft));
+    os << *(const SGHeader*)i << memblock::size_type(buf.size()-sizeof(SGHeader));
+    for (streamsize io = sizeof(SGHeader), ileft; (ileft = buf.size()-io); ++io) {
+	unsigned mm = 0, mdm = 0, dml = min<unsigned>(255,min(io,ileft));
 	for (unsigned m = 0, dm = 1; dm <= dml; ++dm) {
 	    for (m = 0; m < dml && i[io+m-dm] == i[io+m]; ++m) {}
 	    if (m > mm) {
@@ -523,12 +530,12 @@ static memblock compress (const cmemlink& buf)
 
 static memblock decompress (const cmemlink& buf)
 {
-    istream is (buf.begin(), buf.size());
+    bstri is (buf.begin(), buf.size());
     sized_type<sizeof(SGHeader)>::type h;
     memblock::size_type ucsz;
     is >> h >> ucsz;
     memblock obuf (ucsz+sizeof(SGHeader));
-    ostream os (obuf);
+    bstro os (obuf);
     os << h;
     for (uint8_t b,o,l; os.remaining();) {
 	is >> b; os << b;
@@ -536,8 +543,10 @@ static memblock decompress (const cmemlink& buf)
 	    is >> o >> l;
 	    os.skip (-1);
 	    if (os.remaining() < l) break;
-	    copy_n (os.ipos()-o, l, os.ipos());
-	    os.skip (l);
+	    bstro::pointer rd = os.ipos();
+	    bstro::const_pointer rs = rd-o;
+	    movsv (rs, l, rd);
+	    os.iseek (rd);
 	}
     }
     obuf.memlink::resize (os.pos());

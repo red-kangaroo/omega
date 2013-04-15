@@ -1,3 +1,5 @@
+// Omega is free software, distributed under the MIT license
+
 #include <curses.h>
 #include "glob.h"
 
@@ -149,7 +151,7 @@ void pickup_at (int x, int y)
     }
     foreach (o, pickedup) {
 	clearmsg();
-	mprintf ("Pick up: %s [ynq]: ", itemid(o));
+	mprintf ("Pick up: %s [ynq]: ", itemid(*o));
 	char response = ynq();
 	if (response == 'q')
 	    break;
