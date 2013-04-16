@@ -184,8 +184,8 @@ static void m_normal_move (struct monster *m)
 // used by both m_normal_move and m_smart_move
 static void m_simple_move (struct monster *m)
 {
-    int dx = sign (Player.x - m->x);
-    int dy = sign (Player.y - m->y);
+    int dx = sign<int> (Player.x - m->x);
+    int dy = sign<int> (Player.y - m->y);
 
     erase_monster (m);
     if (m->hp < Monsters[m->id].hp / 4) {
@@ -209,16 +209,12 @@ static void m_simple_move (struct monster *m)
 		movemonster (m, m->x + 1, m->y + dy);
 	    else if (m_unblocked (m, m->x - 1, m->y + dy))
 		movemonster (m, m->x - 1, m->y + dy);
-	}
-
-	else if (dy == 0) {
+	} else if (dy == 0) {
 	    if (m_unblocked (m, m->x + dx, m->y + 1))
 		movemonster (m, m->x + dx, m->y + 1);
 	    else if (m_unblocked (m, m->x + dx, m->y - 1))
 		movemonster (m, m->x + dx, m->y - 1);
-	}
-
-	else {
+	} else {
 	    if (m_unblocked (m, m->x + dx, m->y))
 		movemonster (m, m->x + dx, m->y);
 	    else if (m_unblocked (m, m->x, m->y + dy))
@@ -238,8 +234,8 @@ static void m_move_animal (struct monster *m)
 // same as simple move except run in opposite direction
 static void m_scaredy_move (struct monster *m)
 {
-    int dx = -sign (Player.x - m->x);
-    int dy = -sign (Player.y - m->y);
+    int dx = -sign<int> (Player.x - m->x);
+    int dy = -sign<int> (Player.y - m->y);
     erase_monster (m);
     if (Player.status[INVISIBLE])
 	m_random_move (m);
@@ -251,16 +247,12 @@ static void m_scaredy_move (struct monster *m)
 		movemonster (m, m->x + 1, m->y + dy);
 	    else if (m_unblocked (m, m->x - 1, m->y + dy))
 		movemonster (m, m->x - 1, m->y + dy);
-	}
-
-	else if (dy == 0) {
+	} else if (dy == 0) {
 	    if (m_unblocked (m, m->x + dx, m->y + 1))
 		movemonster (m, m->x + dx, m->y + 1);
 	    else if (m_unblocked (m, m->x + dx, m->y - 1))
 		movemonster (m, m->x + dx, m->y - 1);
-	}
-
-	else {
+	} else {
 	    if (m_unblocked (m, m->x + dx, m->y))
 		movemonster (m, m->x + dx, m->y);
 	    else if (m_unblocked (m, m->x, m->y + dy))
@@ -273,14 +265,13 @@ static void m_scaredy_move (struct monster *m)
 // either they are noncorporeal or they can move through stone
 static void m_spirit_move (struct monster *m)
 {
-    int dx = sign (Player.x - m->x);
-    int dy = sign (Player.y - m->y);
+    int dx = sign<int> (Player.x - m->x);
+    int dy = sign<int> (Player.y - m->y);
     erase_monster (m);
     if (m->hp < Monsters[m->id].hp / 6) {
 	dx = -dx;
 	dy = -dy;
     }
-
     if (Player.status[INVISIBLE] > 0 || !m_unblocked (m, m->x + dx, m->y + dy))
 	m_random_move (m);
     else

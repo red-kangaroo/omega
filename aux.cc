@@ -209,7 +209,8 @@ void player::calc_melee (void)
 	speed /= 2;
     if (status[SLOWED])
 	speed *= 2;
-    speed -= min<uint8_t> (speed, 4-4*itemweight/maxweight);
+    if (itemweight)
+	speed += 4-maxweight/itemweight;
     speed = max<uint8_t> (1, min<uint8_t> (25, speed));
 
     if (gamestatusp (MOUNTED)) {
