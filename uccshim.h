@@ -204,10 +204,10 @@ inline const char* strnext (const char* s, unsigned& n)
 inline const char* strnext (const char* s) PURE;
 inline const char* strnext (const char* s) { unsigned n = -1; return (strnext(s,n)); }
 
-inline const char* zstrn (const char* strs, int n, size_t nstrs) PURE;
-inline const char* zstrn (const char* strs, int n, size_t nstrs)
+inline const char* zstrn (const char* strs, unsigned n, unsigned nstrs) PURE;
+inline const char* zstrn (const char* strs, unsigned n, unsigned nstrs)
 {
-    for (unsigned i = min((size_t)n,nstrs)+1,sz=-1; --i;)
+    for (unsigned i = min(n,nstrs-1)+1,sz=-1; --i;)
 	strs = strnext(strs,sz);
     return (strs);
 }
