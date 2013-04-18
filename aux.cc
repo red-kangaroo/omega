@@ -210,7 +210,7 @@ void player::calc_melee (void)
     if (status[SLOWED])
 	speed *= 2;
     if (itemweight)
-	speed += 4-maxweight/itemweight;
+	speed += max<int>(0, 4-maxweight/itemweight);
     speed = max<uint8_t> (1, min<uint8_t> (25, speed));
 
     if (gamestatusp (MOUNTED)) {
@@ -1313,47 +1313,44 @@ void change_environment (EEnvironment new_environment)
 	emerging = true;
     }
 
+    // Set environment and create new level
     Current_Environment = new_environment;
+    if (new_environment == E_ARENA
+	    || new_environment == E_ABYSS
+	    || new_environment == E_CIRCLE
+	    || new_environment == E_COURT
+	    || new_environment == E_MANSION
+	    || new_environment == E_HOUSE
+	    || new_environment == E_HOVEL
+	    || new_environment == E_DLAIR
+	    || new_environment == E_STARPEAK
+	    || new_environment == E_MAGIC_ISLE
+	    || new_environment == E_TEMPLE
+	    || (new_environment == E_VILLAGE
+		&& (!emerging || !TempLevel || TempLevel->environment != E_VILLAGE))
+	    || new_environment == E_TACTICAL_MAP
+	    ) {
+	TempLevel = Level;
+	if (TempLevel->ok_to_free()) {
+	    free_level (TempLevel);
+	    TempLevel = NULL;
+	}
+	Level = new level;
+	clear_level (Level);
+    }
+    ScreenOffset = 0;
+
     switch (new_environment) {
 	case E_ARENA:
-	    TempLevel = Level;
-	    if (ok_to_free (TempLevel)) {
-		free_level (TempLevel);
-		TempLevel = NULL;
-	    }
-	    Level = new level;
-	    clear_level (Level);
-	    setgamestatus (ARENA_MODE);
 	    load_arena();
-	    Player.x = Level->lastx;
-	    Player.y = Level->lasty;
-	    ScreenOffset = 0;
-	    show_screen();
+	    setgamestatus (ARENA_MODE);
 	    break;
 	case E_ABYSS:
-	    TempLevel = Level;
-	    if (ok_to_free (TempLevel)) {
-		free_level (TempLevel);
-		TempLevel = NULL;
-	    }
-	    Level = new level;
-	    clear_level (Level);
 	    load_abyss();
 	    displayfile (Data_AbyssIntro);
 	    lose_all_items();
-	    Player.x = Level->lastx;
-	    Player.y = Level->lasty;
-	    ScreenOffset = 0;
-	    show_screen();
 	    break;
 	case E_CIRCLE:
-	    TempLevel = Level;
-	    if (ok_to_free (TempLevel)) {
-		free_level (TempLevel);
-		TempLevel = NULL;
-	    }
-	    Level = new level;
-	    clear_level (Level);
 	    load_circle();
 	    if (object_uniqueness(STAR_GEM) == UNIQUE_TAKEN) {
 		mprint ("A bemused voice says:");
@@ -1385,123 +1382,15 @@ void change_environment (EEnvironment new_environment)
 		mprint ("The strange form fades slowly.");
 		morewait();
 	    }
-	    Player.x = Level->lastx;
-	    Player.y = Level->lasty;
-	    ScreenOffset = 0;
-	    show_screen();
 	    break;
-	case E_COURT:
-	    TempLevel = Level;
-	    if (ok_to_free (TempLevel)) {
-		free_level (TempLevel);
-		TempLevel = NULL;
-	    }
-	    Level = new level;
-	    clear_level (Level);
-	    load_court();
-	    Player.x = Level->lastx;
-	    Player.y = Level->lasty;
-	    ScreenOffset = 0;
-	    show_screen();
-	    break;
-	case E_MANSION:
-	    TempLevel = Level;
-	    if (ok_to_free (TempLevel)) {
-		free_level (TempLevel);
-		TempLevel = NULL;
-	    }
-	    Level = new level;
-	    clear_level (Level);
-	    load_house (E_MANSION);
-	    Player.x = Level->lastx;
-	    Player.y = Level->lasty;
-	    ScreenOffset = 0;
-	    show_screen();
-	    break;
-	case E_HOUSE:
-	    TempLevel = Level;
-	    if (ok_to_free (TempLevel)) {
-		free_level (TempLevel);
-		TempLevel = NULL;
-	    }
-	    Level = new level;
-	    clear_level (Level);
-	    load_house (E_HOUSE);
-	    Player.x = Level->lastx;
-	    Player.y = Level->lasty;
-	    ScreenOffset = 0;
-	    show_screen();
-	    break;
-	case E_HOVEL:
-	    TempLevel = Level;
-	    if (ok_to_free (TempLevel)) {
-		free_level (TempLevel);
-		TempLevel = NULL;
-	    }
-	    Level = new level;
-	    clear_level (Level);
-	    load_house (E_HOVEL);
-	    Player.x = Level->lastx;
-	    Player.y = Level->lasty;
-	    ScreenOffset = 0;
-	    show_screen();
-	    break;
-	case E_DLAIR:
-	    TempLevel = Level;
-	    if (ok_to_free (TempLevel)) {
-		free_level (TempLevel);
-		TempLevel = NULL;
-	    }
-	    Level = new level;
-	    clear_level (Level);
-	    load_dlair (gamestatusp (KILLED_DRAGONLORD));
-	    Player.x = Level->lastx;
-	    Player.y = Level->lasty;
-	    ScreenOffset = 0;
-	    show_screen();
-	    break;
-	case E_STARPEAK:
-	    TempLevel = Level;
-	    if (ok_to_free (TempLevel)) {
-		free_level (TempLevel);
-		TempLevel = NULL;
-	    }
-	    Level = new level;
-	    clear_level (Level);
-	    load_speak (gamestatusp (KILLED_LAWBRINGER));
-	    Player.x = Level->lastx;
-	    Player.y = Level->lasty;
-	    ScreenOffset = 0;
-	    show_screen();
-	    break;
-	case E_MAGIC_ISLE:
-	    TempLevel = Level;
-	    if (ok_to_free (TempLevel)) {
-		free_level (TempLevel);
-		TempLevel = NULL;
-	    }
-	    Level = new level;
-	    clear_level (Level);
-	    load_misle (gamestatusp (KILLED_EATER));
-	    Player.x = Level->lastx;
-	    Player.y = Level->lasty;
-	    ScreenOffset = 0;
-	    show_screen();
-	    break;
-	case E_TEMPLE:
-	    TempLevel = Level;
-	    if (ok_to_free (TempLevel)) {
-		free_level (TempLevel);
-		TempLevel = NULL;
-	    }
-	    Level = new level;
-	    clear_level (Level);
-	    load_temple (Country->site(Player.x,Player.y).aux);
-	    Player.x = Level->lastx;
-	    Player.y = Level->lasty;
-	    ScreenOffset = 0;
-	    show_screen();
-	    break;
+	case E_COURT:		load_court(); break;
+	case E_MANSION:		load_house (E_MANSION); break;
+	case E_HOUSE:		load_house (E_HOUSE); break;
+	case E_HOVEL:		load_house (E_HOVEL); break;
+	case E_DLAIR:		load_dlair (gamestatusp (KILLED_DRAGONLORD)); break;
+	case E_STARPEAK:	load_speak (gamestatusp (KILLED_LAWBRINGER)); break;
+	case E_MAGIC_ISLE:	load_misle (gamestatusp (KILLED_EATER)); break;
+	case E_TEMPLE:		load_temple (Country->site(Player.x,Player.y).aux); break;
 	case E_CITY:
 	    if (emerging) {
 		mprint ("You emerge onto the street.");
@@ -1509,30 +1398,10 @@ void change_environment (EEnvironment new_environment)
 	    } else
 		mprint ("You pass through the massive gates of Rampart, the city.");
 	    Level = City;
-	    if (!Level) {
-		TempLevel = Level;
-		if (ok_to_free (TempLevel)) {
-		    free_level (TempLevel);
-		    TempLevel = NULL;
-		}
-		Level = City = new level;
-		clear_level (Level);
-		load_city();
-	    }
-	    Player.x = Level->lastx;
-	    Player.y = Level->lasty;
-	    ScreenOffset = Player.y - (ScreenLength / 2);
-	    show_screen();
+	    ScreenOffset = Level->lasty - (ScreenLength / 2);
 	    break;
 	case E_VILLAGE:
 	    if (!emerging || !TempLevel || TempLevel->environment != E_VILLAGE) {
-		TempLevel = Level;
-		if (ok_to_free (TempLevel)) {
-		    free_level (TempLevel);
-		    TempLevel = NULL;
-		}
-		Level = new level;
-		clear_level (Level);
 		Villagenum = Country->site(Player.x,Player.y).aux;
 		load_village (Villagenum);
 	    } else
@@ -1542,10 +1411,6 @@ void change_environment (EEnvironment new_environment)
 		emerging = false;
 	    } else
 		mprint ("You enter a small rural village.");
-	    Player.x = Level->lastx;
-	    Player.y = Level->lasty;
-	    ScreenOffset = 0;
-	    show_screen();
 	    break;
 	case E_CAVES:
 	    mprint ("You enter a dark cleft in a hillside;");
@@ -1557,14 +1422,6 @@ void change_environment (EEnvironment new_environment)
 		resetgamestatus (MOUNTED);
 		calc_melee();
 	    }
-	    MaxDungeonLevels = CAVELEVELS;
-	    if (Current_Dungeon != E_CAVES) {
-		free_dungeon();
-		Dungeon = NULL;
-		Level = NULL;
-		Current_Dungeon = E_CAVES;
-	    }
-	    change_level (0, 1, false);
 	    break;
 	case E_VOLCANO:
 	    mprint ("You pass down through the glowing crater.");
@@ -1575,14 +1432,6 @@ void change_environment (EEnvironment new_environment)
 		resetgamestatus (MOUNTED);
 		calc_melee();
 	    }
-	    MaxDungeonLevels = VOLCANOLEVELS;
-	    if (Current_Dungeon != E_VOLCANO) {
-		free_dungeon();
-		Dungeon = NULL;
-		Level = NULL;
-		Current_Dungeon = E_VOLCANO;
-	    }
-	    change_level (0, 1, false);
 	    break;
 	case E_ASTRAL:
 	    mprint ("You are in a weird flickery maze.");
@@ -1591,14 +1440,6 @@ void change_environment (EEnvironment new_environment)
 		resetgamestatus (MOUNTED);
 		calc_melee();
 	    }
-	    MaxDungeonLevels = ASTRALLEVELS;
-	    if (Current_Dungeon != E_ASTRAL) {
-		free_dungeon();
-		Dungeon = NULL;
-		Level = NULL;
-		Current_Dungeon = E_ASTRAL;
-	    }
-	    change_level (0, 1, false);
 	    break;
 	case E_CASTLE:
 	    mprint ("You cross the drawbridge. Strange forms move beneath the water.");
@@ -1608,14 +1449,6 @@ void change_environment (EEnvironment new_environment)
 		mprint ("to let your horse go, rather than keep him hobbled outside.");
 		resetgamestatus (MOUNTED);
 	    }
-	    MaxDungeonLevels = CASTLELEVELS;
-	    if (Current_Dungeon != E_CASTLE) {
-		free_dungeon();
-		Dungeon = NULL;
-		Level = NULL;
-		Current_Dungeon = E_CASTLE;
-	    }
-	    change_level (0, 1, false);
 	    break;
 	case E_SEWERS:
 	    mprint ("You pry open a manhole and descend into the sewers below.");
@@ -1623,14 +1456,6 @@ void change_environment (EEnvironment new_environment)
 		mprint ("You horse waits patiently outside the sewer entrance....");
 		dismount_steed();
 	    }
-	    MaxDungeonLevels = SEWERLEVELS;
-	    if (Current_Dungeon != E_SEWERS) {
-		free_dungeon();
-		Dungeon = NULL;
-		Level = NULL;
-		Current_Dungeon = E_SEWERS;
-	    }
-	    change_level (0, 1, false);
 	    break;
 	case E_COUNTRYSIDE:
 	    mprint ("You return to the fresh air of the open countryside.");
@@ -1645,7 +1470,6 @@ void change_environment (EEnvironment new_environment)
 	    for (i = 0; i < 9; i++)
 		c_set (Player.x + Dirs[0][i], Player.y + Dirs[1][i], SEEN);
 	    ScreenOffset = Player.y - (ScreenLength / 2);
-	    show_screen();
 	    break;
 	case E_TACTICAL_MAP:
 	    mprint ("You are now on the tactical screen; exit off any side to leave");
@@ -1655,26 +1479,56 @@ void change_environment (EEnvironment new_environment)
 	    Player.y = Level->height / 2;
 	    while (Level->site(Player.x,Player.y).locchar == WATER) {
 		if (Player.y < Level->height / 2 + 5u)
-		    Player.y++;
+		    ++Player.y;
 		else if (Player.x > Level->width / 2 - 10u) {
-		    Player.x--;
+		    --Player.x;
 		    Player.y = Level->height / 2 - 5;
 		} else {
 		    Level->site(Player.x,Player.y).locchar = FLOOR;
 		    Level->site(Player.x,Player.y).p_locf = L_NO_OP;
 		}
 	    }
-	    ScreenOffset = 0;
-	    show_screen();
 	    break;
-	case E_NEVER_NEVER_LAND:
 	default:
 	    mprint ("There must be some mistake. You don't look like Peter Pan.");
 	    mprint ("(But here you are in Never-Never Land)");
 	    ScreenOffset = Player.y - (ScreenLength / 2);
-	    show_screen();
 	    break;
     }
+
+    // Not dungeon, restore last position
+    if (new_environment == E_ARENA
+	    || new_environment == E_ABYSS
+	    || new_environment == E_CIRCLE
+	    || new_environment == E_COURT
+	    || new_environment == E_MANSION
+	    || new_environment == E_HOUSE
+	    || new_environment == E_HOVEL
+	    || new_environment == E_DLAIR
+	    || new_environment == E_STARPEAK
+	    || new_environment == E_MAGIC_ISLE
+	    || new_environment == E_TEMPLE
+	    || new_environment == E_CITY
+	    || new_environment == E_VILLAGE) {
+	Player.x = Level->lastx;
+	Player.y = Level->lasty;
+    }
+
+    // Dungeon
+    if (new_environment >= E_FIRST_DUNGEON && new_environment <= E_LAST_DUNGEON) {
+	if (Current_Dungeon != new_environment) {
+	    free_dungeon();
+	    Dungeon = NULL;
+	    Level = NULL;
+	    Current_Dungeon = new_environment;
+	}
+	static const uint8_t c_DungeonDepth [E_NUMDUNGEONS] =
+	    { SEWERLEVELS, CASTLELEVELS, CAVELEVELS, VOLCANOLEVELS, ASTRALLEVELS };
+	MaxDungeonLevels = c_DungeonDepth [new_environment-E_FIRST_DUNGEON];
+	change_level (0, 1, false);
+    } else
+	show_screen();
+
     setlastxy (Player.x, Player.y);
     if (Current_Environment != E_COUNTRYSIDE)
 	showroom (Level->site(Player.x,Player.y).roomnumber);

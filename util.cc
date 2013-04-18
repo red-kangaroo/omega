@@ -521,26 +521,6 @@ void calc_weight (void)
     dataprint();
 }
 
-// returns true if its ok to get rid of a level
-int ok_to_free (plv level)
-{
-    return (level &&
-	    level->environment != E_COUNTRYSIDE &&
-	    level->environment != E_CITY &&
-	    level->environment != E_VILLAGE &&
-	    level->environment != Current_Dungeon);
-}
-
-// Free up monsters and items on a level
-void free_level (plv level)
-{
-    foreach (m, level->mlist)
-	m->possessions.clear();
-    level->mlist.clear();
-    level->things.clear();
-    delete level;
-}
-
 // there are various ways for the player to receive one of these hints
 void hint (void)
 {

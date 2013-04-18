@@ -1962,7 +1962,7 @@ void m_death (struct monster *m)
 			    mprint ("In the distance you hear a trumpet. A Servant of Law");
 			    // promote one of the city guards to be justiciar
 			    monster* guard = NULL;
-			    foreach (g, City->mlist)
+			    foreach (g, Level->mlist)
 				if (g->id == GUARD && g->hp > 0)
 				    guard = &*g;
 			    if (!guard) {

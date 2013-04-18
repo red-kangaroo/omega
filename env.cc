@@ -32,6 +32,18 @@ static void make_log_npc (monster& npc);
 
 //----------------------------------------------------------------------
 
+// Free up monsters and items on a level
+void free_level (plv level)
+{
+    foreach (m, level->mlist)
+	m->possessions.clear();
+    level->mlist.clear();
+    level->things.clear();
+    delete level;
+}
+
+//----------------------------------------------------------------------
+
 chtype location::showchar (void) const noexcept
 {
     if (!(lstatus & SEEN))
@@ -76,6 +88,16 @@ void level::clear (void)
     mlist.clear();
     next = NULL;
     fill (_site, (location){ WALL, min<uint8_t>(UINT8_MAX,20*difficulty()), L_NO_OP, 0, RS_WALLSPACE });
+}
+
+// returns true if its ok to get rid of a level
+bool level::ok_to_free (void) const
+{
+    return (this
+	    && environment != E_COUNTRYSIDE
+	    && environment != E_CITY
+	    && environment != E_VILLAGE
+	    && environment != Current_Dungeon);
 }
 
 monster* level::creature (int x, int y)
@@ -532,7 +554,6 @@ void load_city (void)
 		break;
 	}
     });
-    City = Level;
 
     // make all city monsters asleep, and shorten their wakeup range to 2
     // to prevent players from being molested by vicious monsters on the streets
@@ -695,7 +716,7 @@ static void repair_jail (void)
 		p_locf = L_PORTCULLIS;
 	    if (jail[j][i] == 'R')
 		p_locf = L_RAISE_PORTCULLIS;
-	    location& s (City->site(i+35,j+52));
+	    location& s (Level->site(i+35,j+52));
 	    s.locchar = locchar;
 	    s.p_locf = p_locf;
 	    s.aux = aux;

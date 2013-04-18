@@ -50,7 +50,7 @@ void show_screen (void)
 	for (unsigned i = 0; i < Level->width; i++) {
 	    chtype c = SPACE;
 	    if (Current_Environment == E_COUNTRYSIDE)
-		c = Country->site(i,j).showchar();
+		c = Level->site(i,j).showchar();
 	    else {
 		if (loc_statusp (i, j, SEEN))
 		    c = getspot (i, j, false);
@@ -221,7 +221,7 @@ static void drawplayer (void)
     if (Current_Environment == E_COUNTRYSIDE) {
 	if (inbounds (lastx, lasty) && !offscreen (lasty)) {
 	    wmove (Levelw, screenmod (lasty), lastx);
-	    chtype c = Country->site(lastx,lasty).showchar();
+	    chtype c = Level->site(lastx,lasty).showchar();
 	    wattrset (Levelw, CHARATTR (c));
 	    waddch (Levelw, (c & 0xff));
 	}
@@ -285,7 +285,7 @@ void drawvision (int x, int y)
 		    c_set (x + i, y + j, SEEN);
 		    if (!offscreen (y + j)) {
 			wmove (Levelw, screenmod (y + j), x + i);
-			c = Country->site(x+i,y+j).showchar();
+			c = Level->site(x+i,y+j).showchar();
 			wattrset (Levelw, CHARATTR (c));
 			waddch (Levelw, (c & 0xff));
 		    }

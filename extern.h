@@ -130,6 +130,7 @@ void truesight (int blessing);
 void warp (int blessing);
 void wish (int blessing);
 // env.c
+void free_level (plv level);
 int difficulty (void);
 void l_adept (void);
 void l_alchemist (void);
@@ -384,7 +385,6 @@ int distance (int x1, int y1, int x2, int y2);
 void do_los (int pyx, int* x1, int* y1, int x2, int y2);
 void do_object_los (int pyx, int* x1, int* y1, int x2, int y2);
 void findspace (int* x, int* y);
-void free_level (plv level);
 const char* getarticle (const char* str);
 void hint (void);
 int hitp (int hit, int ac);
@@ -397,7 +397,6 @@ const char* month (void);
 const char* nameprint (void);
 int nighttime (void);
 int offscreen (int y);
-int ok_to_free (plv level);
 const char* ordinal (int number);
 unsigned urandom_range (unsigned k);
 static inline int random_range (unsigned k) { return (urandom_range (k)); }

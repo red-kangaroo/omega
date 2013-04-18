@@ -14,11 +14,7 @@ static memblock decompress (const cmemlink& buf);
 //----------------------------------------------------------------------
 
 struct SGHeader {
-    char	o;
-    char	m;
-    char	e;
-    char	g;
-    char	a;
+    char	o,m,e,g,a;
     uint8_t	format;
     uint8_t	gamever;
     bool	compressed;
@@ -42,7 +38,6 @@ bool save_game (void)
     snprintf (ArrayBlock(savestr), OMEGA_SAVED_GAME, getenv("HOME"));
     mkpath (savestr);
 
-    plv current, levelToSave;
     mprint ("Saving Game....");
     bool writeok = false;
     try {
@@ -52,26 +47,23 @@ bool save_game (void)
 	const SGHeader h = {'o','m','e','g','a',OMEGA_SAVE_FORMAT,OMEGA_VERSION,optionp(COMPRESS)};
 	os << h << Player;
 
+	plv levelToSave = Level;
+	if (Current_Environment == E_CITY || Current_Environment == E_COUNTRYSIDE || Current_Environment == Current_Dungeon)
+	    levelToSave = Dungeon;
+	uint32_t nLevels = 2;	// Country+City
+	for (plv current = levelToSave; current; current = current->next)
+	    ++nLevels;
+	os << nLevels;
+
 	save_level (os, Country);
 	save_level (os, City);
-
-	if (Current_Environment == E_CITY || Current_Environment == E_COUNTRYSIDE)
-	    levelToSave = Dungeon;
-	else if (Current_Environment == Current_Dungeon)
-	    levelToSave = Dungeon;
-	else
-	    levelToSave = Level;
-	int i;
-	for (i = 0, current = levelToSave; current; current = current->next, i++);
-	os << i;
-	for (current = levelToSave; current; current = current->next)
+	for (plv current = levelToSave; current; current = current->next)
 	    if (current != Level)
 		save_level (os, current);
 	if (levelToSave)
 	    save_level (os, Level);	// put current level last
 
 	buf.resize (os.pos());
-
 	if (h.compressed)
 	    buf.swap (compress (buf));
 	buf.write_file (savestr);
@@ -112,11 +104,9 @@ bool restore_game (void)
 	}
 	is >> Player;
 
-	restore_level (is);	// the countryside
-	restore_level (is);	// the city level
-	int i;
-	is >> i;
-	for (; i > 0; i--) {
+	uint32_t nLevels;
+	is >> nLevels;
+	while (nLevels--) {
 	    restore_level (is);
 	    if (Level->environment == Current_Dungeon) {
 		Level->next = Dungeon;
@@ -130,11 +120,7 @@ bool restore_game (void)
 	setgamestatus (SKIP_MONSTERS);
     } catch (const exception& e) {
 	char errbuf[80];
-	#if USE_UCC
-	    snprintf (ArrayBlock(errbuf), "Error restoring %s: %s", savestr, e.what().c_str());
-	#else
-	    snprintf (ArrayBlock(errbuf), "Error restoring %s: %s", savestr, e.what());
-	#endif
+	snprintf (ArrayBlock(errbuf), "Error restoring %s: %s", savestr, e.what());
 	mprint (errbuf);
 	morewait();
 	return (false);

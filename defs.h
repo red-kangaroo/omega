@@ -87,7 +87,10 @@ enum EEnvironment : int8_t {
     E_TEMPLE,
     E_CIRCLE,
     E_COURT,
-    E_MAX = E_COURT
+    E_MAX = E_COURT,
+    E_FIRST_DUNGEON = E_SEWERS,
+    E_LAST_DUNGEON = E_ASTRAL,
+    E_NUMDUNGEONS = E_LAST_DUNGEON-E_FIRST_DUNGEON+1
 };
 
 // player game status
@@ -951,6 +954,7 @@ public:
 			level (void);
     void		clear (void);
     void		resize (uint8_t x, uint8_t y)	{ width = x; height = y; }
+    bool		ok_to_free (void) const;
     template <typename SiteFunc>
     static inline void	load_map (EEnvironment e, const char* edata, SiteFunc sf);
     monster*		creature (int x, int y);

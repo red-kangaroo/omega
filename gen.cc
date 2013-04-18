@@ -667,39 +667,18 @@ static void make_stairs (int fromlevel)
 // tactical map generating functions
 void make_country_screen (int terrain)
 {
-    TempLevel = Level;
-    if (ok_to_free (TempLevel)) {
-	free_level (TempLevel);
-	TempLevel = NULL;
-    }
-    Level = new level;
-    clear_level (Level);
     Level->environment = E_TACTICAL_MAP;
     Level->resize (64, 16);
     Level->generated = true;
     switch (terrain) {
-	case FOREST:
-	    make_forest();
-	    break;
-	case JUNGLE:
-	    make_jungle();
-	    break;
-	case SWAMP:
-	    make_swamp();
-	    break;
-	case RIVER:
-	    make_river();
-	    break;
+	case FOREST:	make_forest(); break;
+	case JUNGLE:	make_jungle(); break;
+	case SWAMP:	make_swamp(); break;
+	case RIVER:	make_river(); break;
 	case MOUNTAINS:
-	case PASS:
-	    make_mountains();
-	    break;
-	case ROAD:
-	    make_road();
-	    break;
-	default:
-	    make_plains();
-	    break;
+	case PASS:	make_mountains(); break;
+	case ROAD:	make_road(); break;
+	default:	make_plains(); break;
     }
     if (nighttime()) {
 	mprint ("Night's gloom shrouds your sight.");
