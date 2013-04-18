@@ -14,10 +14,10 @@ static memblock decompress (const cmemlink& buf);
 //----------------------------------------------------------------------
 
 struct SGHeader {
-    char	o,m,e,g,a;
+    char	o,m,e,g;
     uint8_t	format;
-    uint8_t	gamever;
     bool	compressed;
+    uint16_t	gamever;
 };
 
 //----------------------------------------------------------------------
@@ -44,7 +44,7 @@ bool save_game (void)
 	memblock buf (UINT16_MAX);
 	bstro os (buf);
 
-	const SGHeader h = {'o','m','e','g','a',OMEGA_SAVE_FORMAT,OMEGA_VERSION,optionp(COMPRESS)};
+	const SGHeader h = {'o','m','e','g',OMEGA_SAVE_FORMAT,optionp(COMPRESS),OMEGA_VERSION};
 	os << h << Player;
 
 	plv levelToSave = Level;
