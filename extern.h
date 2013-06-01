@@ -5,7 +5,6 @@
 // aux.c
 void showroom (int i);
 bool p_moveable (int x, int y);
-bool p_country_moveable (int x, int y);
 void searchat (int x, int y);
 int damage_item (pob o);
 void calc_melee (void);
@@ -130,7 +129,6 @@ void truesight (int blessing);
 void warp (int blessing);
 void wish (int blessing);
 // env.c
-void free_level (plv level);
 int difficulty (void);
 void l_adept (void);
 void l_alchemist (void);
@@ -178,12 +176,11 @@ void load_house (EEnvironment kind);
 void load_misle (int empty);
 void load_speak (int empty);
 void load_temple (int deity);
-void load_village (int villagenum);
-void make_country_monsters (int terrain);
+void load_village (uint8_t villagenum);
 monster& make_site_monster (int i, int j, int mid, int wandering = WANDERING, int dlevel = 0);
 void make_hiscore_npc (monster& npc, int npcid);
 void pacify_guards (void);
-void populate_level (int monstertype);
+void populate_level (void);
 void resurrect_guards (void);
 void send_to_jail (void);
 void sign_print (int x, int y, int signp);
@@ -193,9 +190,8 @@ void wandercheck (void);
 // gen.c
 void change_level (int fromlevel, int tolevel, int rewrite_level);
 void clear_level (struct level *dungeon_level);
-void free_dungeon (void);
-void generate_level (int fromlevel, int tolevel);
-void make_country_screen (int terrain);
+void generate_level (int tolevel);
+void load_encounter (char countryLocChar);
 const char* roomname (int ri);
 // inv.c
 int cursed (const object& o);

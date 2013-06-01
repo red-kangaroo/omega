@@ -32,18 +32,6 @@ static void make_log_npc (monster& npc);
 
 //----------------------------------------------------------------------
 
-// Free up monsters and items on a level
-void free_level (plv level)
-{
-    foreach (m, level->mlist)
-	m->possessions.clear();
-    level->mlist.clear();
-    level->things.clear();
-    delete level;
-}
-
-//----------------------------------------------------------------------
-
 chtype location::showchar (void) const noexcept
 {
     if (!(lstatus & SEEN))
@@ -69,11 +57,13 @@ level::level (void)
 : _site (MAXWIDTH*MAXLENGTH)
 , mlist()
 , things()
-, next(NULL)
 , environment (E_NEVER_NEVER_LAND)
+, width(0)
+, height(0)
+, lastx(0)
+, lasty(0)
 , depth(0)
 , generated(0)
-, numrooms(0)
 , tunnelled(0)
 {
 }
@@ -82,11 +72,9 @@ level::level (void)
 void level::clear (void)
 {
     generated = false;
-    numrooms = 0;
     tunnelled = 0;
     depth = 0;
     mlist.clear();
-    next = NULL;
     fill (_site, (location){ WALL, min<uint8_t>(UINT8_MAX,20*difficulty()), L_NO_OP, 0, RS_WALLSPACE });
 }
 
@@ -97,7 +85,24 @@ bool level::ok_to_free (void) const
 	    && environment != E_COUNTRYSIDE
 	    && environment != E_CITY
 	    && environment != E_VILLAGE
-	    && environment != Current_Dungeon);
+	    && !IsDungeon());
+}
+
+// Returns true if the level should not be preserved
+bool level::IsTransient (void) const
+{
+    return (environment == E_TACTICAL_MAP ||
+	    environment == E_ARENA ||
+	    environment == E_HOUSE ||
+	    environment == E_HOVEL ||
+	    environment == E_MANSION);
+}
+
+uint8_t level::MaxDepth (void) const
+{
+    static const uint8_t c_DungeonDepth [E_NUMDUNGEONS+1] =
+	{ CAVELEVELS, SEWERLEVELS, CASTLELEVELS, VOLCANOLEVELS, ASTRALLEVELS, 0 };
+    return (c_DungeonDepth [min<unsigned>(environment-E_FIRST_DUNGEON,ArraySize(c_DungeonDepth)-1)]);
 }
 
 monster* level::creature (int x, int y)
@@ -143,12 +148,119 @@ template <typename SiteFunc>
 {
     Level->environment = e;
     Level->resize (edata[0], edata[1]);
-    Level->lastx = edata[2];
-    Level->lasty = edata[3];
+    if (!Level->lastx) {
+	Level->lastx = edata[2];
+	Level->lasty = edata[3];
+    }
     const char* ld = &edata[4];
     for (unsigned j = 0; j < Level->height; ++j, ++ld)
 	for (unsigned i = 0; i < Level->width; ++i)
 	    sf (*ld++, Level->site(i,j), i, j);
+}
+
+void level::Generate (EEnvironment e, uint8_t subeid)
+{
+    Level = this;
+    clear();
+    environment = e;
+    if (IsDungeon())
+	depth = subeid;
+    else if (e == E_VILLAGE)
+	SetVillageId (subeid);
+    else if (e == E_TEMPLE)
+	SetTempleDeity (subeid);
+
+    // Load the default environment contents
+    switch (environment) {
+	default:
+	case E_COUNTRYSIDE:	load_country(); break;
+	case E_CITY:		load_city(); break;
+	case E_VILLAGE:		load_village (VillageId()); break;
+	case E_TACTICAL_MAP:	load_encounter (subeid); break;
+	case E_ARENA:		load_arena(); break;
+	case E_HOVEL:
+	case E_HOUSE:
+	case E_MANSION:		load_house (environment); break;
+	case E_CAVES:
+	case E_SEWERS:
+	case E_CASTLE:
+	case E_VOLCANO:
+	case E_ASTRAL:		generate_level (depth);
+				populate_level();
+				stock_level(); break;
+	case E_DLAIR:		load_dlair (gamestatusp (KILLED_DRAGONLORD)); break;
+	case E_STARPEAK:	load_speak (gamestatusp (KILLED_LAWBRINGER)); break;
+	case E_MAGIC_ISLE:	load_misle (gamestatusp (KILLED_EATER)); break;
+	case E_TEMPLE:		load_temple (TempleDeity()); break;
+	case E_CIRCLE:		load_circle(); break;
+	case E_COURT:		load_court(); break;
+    }
+}
+
+//----------------------------------------------------------------------
+
+EEnvironment CWorld::LastEnvironment (void) const
+{
+    return (_levels.size() > 1 ? _levels[_levels.size()-2].environment : E_NEVER_NEVER_LAND);
+}
+
+vector<level>::iterator CWorld::FindEnvironment (EEnvironment e, uint8_t subeid)
+{
+    foreach (l, _levels)
+	if (l->environment == e
+	    && (!l->IsDungeon() || l->depth == subeid)
+	    && (e != E_VILLAGE || l->VillageId() == subeid)
+	    && (e != E_TEMPLE || l->TempleDeity() == subeid))
+	    return (l);
+    return (_levels.end());
+}
+
+void CWorld::MoveInCountry (uint8_t x, uint8_t y)
+{
+    auto country = FindEnvironment (E_COUNTRYSIDE);
+    assert (country < _levels.end());
+    country->lastx = x;
+    country->lasty = y;
+}
+
+void CWorld::LoadEnvironment (EEnvironment e, uint8_t subeid)
+{
+    if (Level) {
+	Level->lastx = Player.x;
+	Level->lasty = Player.y;
+	if (Level->IsTransient()) {
+	    _levels.pop_back();			// Encounters and arena maps are never kept
+	    Level = nullptr;
+	}
+    }
+    vector<level>::iterator nl = FindEnvironment (e, subeid);
+    if (nl < _levels.end()) {
+	rotate (nl, nl+1, _levels.end());	// Keep last used level last
+	Level = &_levels.back();
+    } else {
+	if (_levels.size() >= c_MaxLevels) {	// Make room for new level
+	    foreach (l, _levels) {
+		if (l->ok_to_free()) {
+		    --(l = _levels.erase(l));
+		    break;
+		}
+	    }
+	}
+	Level = &*(nl = _levels.emplace (_levels.end()));
+	Level->Generate (e, subeid);
+    }
+    Player.x = Level->lastx;
+    Player.y = Level->lasty;
+}
+
+void CWorld::DeleteLevel (EEnvironment e, uint8_t subeid)
+{
+    auto l = FindEnvironment (e, subeid);
+    if (l < _levels.end()) {
+	if (Level == &*l)
+	    Level = nullptr;
+	_levels.erase (l);
+    }
 }
 
 //----------------------------------------------------------------------
@@ -293,8 +405,7 @@ static monster& make_prime (int i, int j)
 // loads the court of the archmage into Level
 void load_court (void)
 {
-    LastCountryLocX = 6;	// Because HyMagick can teleport here
-    LastCountryLocY = 1;
+    World.MoveInCountry(6,1);	// HyMagick can teleport directly here
     level::load_map (E_COURT, Level_Court, [&](char sc, location& s, unsigned i, unsigned j) {
 	s.locchar = FLOOR;
 	s.p_locf = L_NO_OP;
@@ -720,7 +831,7 @@ static void repair_jail (void)
 	    s.locchar = locchar;
 	    s.p_locf = p_locf;
 	    s.aux = aux;
-	    lreset (i + 35, j + 52, CHANGED);
+	    lreset (i+35, j+52, CHANGED);
 	}
     }
 }
@@ -767,7 +878,7 @@ void load_country (void)
 	    case 'e':
 	    case 'f':
 		s.locchar = VILLAGE;
-		s.aux = 1 + sc - 'a';
+		s.aux = sc - 'a';
 		break;
 	    case '1':
 	    case '2':
@@ -776,7 +887,7 @@ void load_country (void)
 	    case '5':
 	    case '6':
 		s.locchar = TEMPLE;
-		s.aux = sc - '0';
+		s.aux = sc - '1';
 		break;
 	    case char(PLAINS):
 		s.locchar = PLAINS;
@@ -1026,6 +1137,7 @@ void load_misle (int empty)
 // loads a temple into Level
 void load_temple (int deity)
 {
+    Level->SetTempleDeity (deity);
     const uint8_t roomid = deity - ODIN + RS_ODIN;
     level::load_map (E_TEMPLE, Level_Temple, [&](char sc, location& s, unsigned i, unsigned j) {
 	s.locchar = FLOOR;
@@ -1169,10 +1281,10 @@ void l_merc_guild (void)
 			Player.cash += 500;
 			Player.rank[LEGION] = LEGIONAIRE;
 			Player.guildxp[LEGION] = 1;
-			Player.str++;
-			Player.con++;
-			Player.maxstr++;
-			Player.maxcon++;
+			++Player.str;
+			++Player.con;
+			++Player.maxstr;
+			++Player.maxcon;
 		    }
 		}
 		break;
@@ -1233,10 +1345,10 @@ void l_merc_guild (void)
 		    mprint ("You have been taught the spell of heroism!");
 		    learn_spell (S_HERO);
 		    Player.rank[LEGION] = COLONEL;
-		    Player.maxstr++;
-		    Player.str++;
-		    Player.maxcon++;
-		    Player.con++;
+		    ++Player.maxstr;
+		    ++Player.str;
+		    ++Player.maxcon;
+		    ++Player.con;
 		    mprint ("You are given advanced training, and a raise.");
 		    Player.cash += 10000;
 		}
@@ -1268,8 +1380,8 @@ void l_merc_guild (void)
 		    clearmsg();
 		    mprint ("You get advanced training, and a higher salary.");
 		    Player.rank[LEGION] = CENTURION;
-		    Player.maxcon++;
-		    Player.con++;
+		    ++Player.maxcon;
+		    ++Player.con;
 		    Player.cash += 2000;
 		}
 		break;
@@ -1423,7 +1535,7 @@ void l_arena (void)
 	mprint ("Let the battle begin....");
 
 	time_clock (true);
-	while (Current_Environment == E_ARENA)
+	while (Level->environment == E_ARENA)
 	    time_clock (false);
 
 	if (!Arena_Victory) {
@@ -1484,7 +1596,7 @@ void l_thieves_guild (void)
     if (!nighttime())
 	mprint ("There aren't any thieves around in the daytime.");
     else {
-	if ((Player.rank[THIEVES] == TMASTER) && (Player.level > Shadowlordlevel) && find_and_remove_item (THING_JUSTICIAR_BADGE, -1)) {
+	if (Player.rank[THIEVES] == TMASTER && Player.level > Shadowlordlevel && find_and_remove_item(THING_JUSTICIAR_BADGE, -1)) {
 	    mprint ("You nicked the Justiciar's Badge!");
 	    morewait();
 	    mprint ("The Badge is put in a place of honor in the Guild Hall.");
@@ -1607,13 +1719,8 @@ void l_thieves_guild (void)
 		    }
 		}
 	    } else if (action == 'c') {
-		if (Player.rank[THIEVES] == NOT_A_THIEF) {
-		    mprint ("RTG, Inc, Appraisers. Identification Fee: 50Au/item.");
-		    fee = 50;
-		} else {
-		    fee = 5;
-		    mprint ("The fee is 5Au per item.");
-		}
+		fee = (Player.rank[THIEVES] == NOT_A_THIEF) ? 50 : 5;
+		mprintf ("RTG, Inc, Appraisers. Identification Fee: %uAu/item.", fee);
 		mprint ("Identify one item, or all possessions? [ip] ");
 		if ((char) mcigetc() == 'i') {
 		    if (Player.cash < fee)
@@ -2172,7 +2279,7 @@ void l_order (void)
 // loads the house level into Level
 void load_house (EEnvironment kind)
 {
-    initrand (Current_Environment, Player.x + Player.y + hour() * 10);
+    initrand (Level->environment, Player.x + Player.y + hour() * 10);
     const char* mapdata = Level_Hovel;
     uint8_t wallstrength = 10, stops = 0;
     if (kind == E_HOUSE) {
@@ -2288,9 +2395,9 @@ static void make_mansion_npc (int i, int j)
 }
 
 // loads the village level into Level
-void load_village (int villagenum)
+void load_village (uint8_t villagenum)
 {
-    initrand (Current_Environment, villagenum);
+    initrand (Level->environment, villagenum);
     location d;
     assign_village_function (d, 0, 0, true);
     static const char* _villages[] = {
@@ -2301,7 +2408,10 @@ void load_village (int villagenum)
 	L_LAWSTONE, L_BALANCESTONE, L_CHAOSTONE,
 	L_MINDSTONE, L_SACRIFICESTONE, L_VOIDSTONE
     };
-    level::load_map (E_VILLAGE, _villages[villagenum-1], [&](char sc, location& s, unsigned i, unsigned j) {
+    if (villagenum >= ArraySize(_villages))
+	throw runtime_error ("village not found");
+    Level->SetVillageId (villagenum);
+    level::load_map (E_VILLAGE, _villages[villagenum], [&](char sc, location& s, unsigned i, unsigned j) {
 	s.locchar = FLOOR;
 	s.lstatus |= SEEN;
 	s.p_locf = L_NO_OP;
@@ -2325,7 +2435,7 @@ void load_village (int villagenum)
 	    case '~': s.locchar = WATER; s.p_locf = L_WATER; break;
 	    case '+': s.locchar = WATER; s.p_locf = L_CHAOS; break;
 	    case '\'': s.locchar = HEDGE; s.p_locf = L_TRIFID; break;
-	    case '!': s.locchar = ALTAR; s.p_locf = _vstone[villagenum-1]; break;
+	    case '!': s.locchar = ALTAR; s.p_locf = _vstone[villagenum]; break;
 	    case '#': s.locchar = WALL; s.aux = 100; break;
 	    case '-': s.locchar = CLOSED_DOOR; break;
 	    case '1': s.locchar = STATUE; break;
@@ -2375,45 +2485,12 @@ static void assign_village_function (location& s, int x, int y, bool setup)
 // Functions dealing with dungeon and country levels aside from actual
 // level structure generation
 
-// monsters for tactical encounters
-void make_country_monsters (int terrain)
-{
-    static const int8_t plains[] = { BUNNY, BUNNY, HORNET, QUAIL, HAWK, DEER, WOLF, LION, BRIGAND, RANDOM };
-    static const int8_t forest[] = { BUNNY, QUAIL, HAWK, BADGER, DEER, DEER, WOLF, BEAR, BRIGAND, RANDOM };
-    static const int8_t jungle[] = { ANTEATER, PARROT, MAMBA, ANT, ANT, HYENA, HYENA, ELEPHANT, LION, RANDOM };
-    static const int8_t river[] = { QUAIL, TROUT, TROUT, MANOWAR, BASS, BASS, CROC, CROC, BRIGAND, RANDOM };
-    static const int8_t swamp[] = { BASS, BASS, CROC, CROC, BOGTHING, ANT, ANT, RANDOM, RANDOM, RANDOM };
-    static const int8_t desert[] = { HAWK, HAWK, CAMEL, CAMEL, HYENA, HYENA, LION, LION, RANDOM, RANDOM };
-    static const int8_t tundra[] = { WOLF, WOLF, BEAR, BEAR, DEER, DEER, RANDOM, RANDOM, RANDOM, RANDOM };
-    static const int8_t mountain[] = { BUNNY, SHEEP, WOLF, WOLF, HAWK, HAWK, HAWK, RANDOM, RANDOM, RANDOM };
-    const int8_t* monsters = mountain;
-    switch (terrain) {
-	case PLAINS: monsters = plains; break;
-	case FOREST: monsters = forest; break;
-	case JUNGLE: monsters = jungle; break;
-	case RIVER:  monsters = river;  break;
-	case SWAMP:  monsters = swamp;  break;
-	case DESERT: monsters = desert; break;
-	case TUNDRA: monsters = tundra; break;
-    }
-    const unsigned nummonsters = 1+random_range(8);
-    for (unsigned i = 0; i < nummonsters; i++) {
-	monster& m = make_site_monster (random_range(Level->width), random_range(Level->height), monsters[random_range(ArraySize(mountain))]);
-	m.sense = Level->width;
-	if (m_statusp (m, ONLYSWIM)) {
-	    Level->site(m.x,m.y).locchar = WATER;
-	    Level->site(m.x,m.y).p_locf = L_WATER;
-	    lset (m.x, m.y, CHANGED);
-	}
-    }
-}
-
-// monstertype is more or less Current_Dungeon
 // The caves and sewers get harder as you penetrate them; the castle
 // is completely random, but also gets harder as it is explored;
 // the astral and the volcano just stay hard...
-void populate_level (int monstertype)
+void populate_level (void)
 {
+    EEnvironment monstertype = Level->environment;
     int nummonsters = (random_range (difficulty() / 3) + 1) * 3 + 8;
     if (monstertype == E_CASTLE)
 	nummonsters += 10;
@@ -2428,6 +2505,7 @@ void populate_level (int monstertype)
 	findspace (&i, &j);
 
 	switch (monstertype) {
+	    default:
 	    case E_CAVES:
 		if (Level->depth * 10 + random_range(100) > 150)
 		    monsterid = GOBLIN_SHAMAN;
@@ -2505,7 +2583,7 @@ void populate_level (int monstertype)
 // Add a wandering monster possibly
 void wandercheck (void)
 {
-    if (random_range (MaxDungeonLevels) < difficulty()) {
+    if (random_range (Level->MaxDepth()) < difficulty()) {
 	int x, y;
 	findspace (&x, &y);
 	make_site_monster (x, y, RANDOM);
@@ -2558,12 +2636,12 @@ static void make_creature (monster& m, int mid)
     m = Monsters[mid];
     if (mid == ANGEL || mid == HIGH_ANGEL || mid == ARCHANGEL) {
 	// aux1 field of an angel is its deity
-	if (Current_Environment == E_TEMPLE)
-	    m.aux1 = Country->site(LastCountryLocX,LastCountryLocY).aux;
+	if (Level->environment == E_TEMPLE)
+	    m.aux1 = Level->TempleDeity();
 	else
-	    m.aux1 = random_range(6) + 1;
-	static const char _religion[][8] = { "Odin", "Set", "Hecate", "Athena", "Destiny", "Balance" };
-	snprintf (ArrayBlock(Str3), "%s of %s", Monsters[mid].monstring, _religion[m.aux1]);
+	    m.aux1 = ODIN+random_range(NUMRELIGIONS-ODIN);
+	static const char _religion[NUMRELIGIONS+1][8] = { "Atheism", "Nature", "Odin", "Set", "Hecate", "Athena", "Destiny", "Balance" };
+	snprintf (ArrayBlock(Str3), "%s of %s", Monsters[mid].monstring, _religion[m.aux1+1]);
 	m.monstring = strdup (Str3);
     } else if (mid == ZERO_NPC || mid == WEREHUMAN) {
 	// generic 0th level human, or a were-human
@@ -2795,7 +2873,7 @@ void stock_level (void)
 	} while (Level->site(i,j).locchar != FLOOR);
 	make_site_treasure (i, j, difficulty());
 	// caves have more random cash strewn around
-	const unsigned cashFactor = (Current_Dungeon == E_CAVES ? 3 : 1);
+	const unsigned cashFactor = (Level->environment == E_CAVES ? 3 : 1);
 	for (unsigned l = 0; l < cashFactor; ++l) {
 	    i = random_range (Level->width);
 	    j = random_range (Level->height);
@@ -2825,7 +2903,7 @@ static void make_specific_treasure (int i, int j, int iid)
 int difficulty (void)
 {
     const unsigned depth = Level ? Level->depth : 1;
-    switch (Current_Environment) {
+    switch (Level->environment) {
 	case E_COUNTRYSIDE:	return (7);
 	case E_CITY:		return (3);
 	case E_VILLAGE:		return (1);
@@ -3195,31 +3273,28 @@ void statue_random (int x, int y)
 	    p_damage (random_range (difficulty() * 5), UNSTOPPABLE, "a statue");
 	    break;
 	case 4:
+	    if (Level->IsDungeon() && Level->depth < Level->MaxDepth()) {
+		mprint ("You hear the whirr of some mechanism.");
+		mprint ("The statue glides smoothly into the floor!");
+		Level->site(x,y).locchar = STAIRS_DOWN;
+		Level->site(x,y).p_locf = L_NO_OP;
+		lset (x, y, CHANGED | STOPS);
+		break;
+	    }
+	case 5:
 	    mprint ("The statue looks slightly pained. It speaks:");
 	    morewait();
 	    clearmsg();
 	    hint();
 	    break;
-	case 5:
-	    if ((Current_Environment == Current_Dungeon) || (Current_Environment == E_CITY)) {
-		mprint ("You hear the whirr of some mechanism.");
-		mprint ("The statue glides smoothly into the floor!");
-		// WDT HACK: I shouldn't be making this choice on a level
-		// where no stairs can be (or perhaps I should, and I should
-		// implement a bonus level!).
-		Level->site(x,y).locchar = STAIRS_DOWN;
-		Level->site(x,y).p_locf = L_NO_OP;
-		lset (x, y, CHANGED | STOPS);
-	    }
-	    break;
 	case 6:
+	    mprint ("A strange radiation emanates from the statue!");
+	    dispel (-1);
+	    break;
+	case 7:
 	    mprint ("The statue was covered with contact cement!");
 	    mprint ("You can't move....");
 	    Player.status[IMMOBILE] += random_range (6) + 2;
-	    break;
-	case 7:
-	    mprint ("A strange radiation emanates from the statue!");
-	    dispel (-1);
 	    break;
 	case 8:		// I think this is particularly evil. Heh heh.
 	    if (Player.has_possession(O_WEAPON_HAND)) {
@@ -4076,13 +4151,13 @@ void pacify_guards (void)
 	    if (m->id == GUARD && m->hp > 0 && m->aux1 > 0) {
 		m->x = m->aux1;
 		m->y = m->aux2;
-	    } else if (m->id == HISCORE_NPC && m->hp > 0 && Current_Environment == E_CITY) {
+	    } else if (m->id == HISCORE_NPC && m->hp > 0 && Level->environment == E_CITY) {
 		m->x = 40;
 		m->y = 62;
 	    }
 	}
     }
-    if (Current_Environment == E_CITY)
+    if (Level->environment == E_CITY)
 	Level->site(40,60).p_locf = L_ORDER;	// undoes action in alert_guards
 }
 
@@ -4090,7 +4165,7 @@ void send_to_jail (void)
 {
     if (gamestatusp (DESTROYED_ORDER))
 	mprint ("The destruction of the Order of Paladins has negated the law!");
-    else if (Current_Environment != E_CITY && Last_Environment != E_CITY)
+    else if (Level->environment != E_CITY && World.LastEnvironment() != E_CITY)
 	mprint ("Fortunately, there is no jail around here, so you are freed!");
     else if (Player.rank[ORDER] >= GALLANT) {
 	mprint ("A member of the Order of Paladins sent to jail!");
@@ -4101,7 +4176,7 @@ void send_to_jail (void)
 	Player.rank[ORDER] = FORMER_PALADIN;
     } else {
 	pacify_guards();
-	if (Current_Environment != E_CITY) {
+	if (Level->environment != E_CITY) {
 	    setgamestatus (SUPPRESS_PRINTING);
 	    change_environment (E_CITY);
 	    resetgamestatus (SUPPRESS_PRINTING);
@@ -4721,7 +4796,7 @@ void l_safe (void)
 	if (attempt == -1) {
 	    mprint ("A siren goes off! You see flashing red lights everywhere!");
 	    morewait();
-	    if (Last_Environment == E_CITY) {
+	    if (World.LastEnvironment() == E_CITY) {
 		mprint ("The city guard shows up! They collar you in no time flat!");
 		change_environment (E_CITY);
 		morewait();
@@ -4759,7 +4834,6 @@ void l_safe (void)
 
 void l_cartographer (void)
 {
-    int i, j, x, y;
     mprint ("Ye Olde Mappe Shoppe.");
     mprint ("Map of the local area: 500Au. Buy it? [yn] ");
     if (ynq() == 'y') {
@@ -4769,23 +4843,21 @@ void l_cartographer (void)
 	    mprint ("You now have the local area mapped.");
 	    Player.cash -= 500;
 	    dataprint();
-	    switch (Villagenum) {
-		case 1: x = 56; y =  5; break;
+	    int x, y;
+	    switch (Level->VillageId()) {
+		case 0: x = 56; y =  5; break;
 		default:
-		case 2: x = 35; y = 11; break;
-		case 3: x = 10; y = 40; break;
-		case 4: x =  7; y =  6; break;
-		case 5: x = 40; y = 43; break;
-		case 6: x = 20; y = 41; break;
+		case 1: x = 35; y = 11; break;
+		case 2: x = 10; y = 40; break;
+		case 3: x =  7; y =  6; break;
+		case 4: x = 40; y = 43; break;
+		case 5: x = 20; y = 41; break;
 	    }
-	    for (i = x - 15; i <= x + 15; i++) {
-		for (j = y - 15; j <= y + 15; j++) {
-		    if (i >= 0 && i < Country->width && j >= 0 && j < Country->height) {
-			c_set (i, j, CHANGED);
-			c_set (i, j, SEEN);
-		    }
-		}
-	    }
+	    auto country = World.FindEnvironment (E_COUNTRYSIDE);
+	    for (int i = x - 15; i <= x + 15; ++i)
+		for (int j = y - 15; j <= y + 15; ++j)
+		    if (i >= 0 && i < country->width && j >= 0 && j < country->height)
+			country->site(i,j).lstatus |= SEEN;
 	}
     } else
 	mprint ("Don't blame me if you get lost....");

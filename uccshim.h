@@ -31,7 +31,6 @@ using namespace std;
 #define PURE			__attribute__((pure))
 #define WEAKSYM			__attribute__((weak))
 #define WEAKALIAS(sym)		__attribute__((weak,alias(sym)))
-#define ALIGNED(grain)		__attribute__((aligned(grain)))
 #define NONNULL(...)		__attribute__((nonnull(__VA_ARGS__)))
 #define UNUSED			__attribute__((unused))
 #define MALLOCLIKE		__attribute__((malloc))
@@ -146,6 +145,8 @@ inline constexpr T1 DivRU (T1 n1, T2 n2)
 
 inline constexpr uint32_t vpack (uint8_t a, uint8_t b, uint8_t c, uint8_t d)
     { return ((d<<24)|(c<<16)|(b<<8)|a); }
+inline constexpr uint32_t vpack (uint8_t a, uint8_t b, uint16_t c)
+    { return ((c<<16)|(b<<8)|a); }
 
 inline void srandrand (void)	{ srand (getpid()^time(nullptr)); }
 

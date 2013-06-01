@@ -26,7 +26,7 @@ static void fight_monster (monster *m);
 // check to see if too much tunneling has been done in this level
 void level::tunnelcheck (void)
 {
-    if ((!depth && Current_Environment != E_DLAIR) || Current_Environment == E_ASTRAL)
+    if ((!depth && Level->environment != E_DLAIR) || Level->environment == E_ASTRAL)
 	return;
     ++tunnelled;
     if (tunnelled > height / 4)
@@ -40,9 +40,9 @@ void level::tunnelcheck (void)
 	gain_experience (5000);
 	if (Player.status[SHADOWFORM]) {
 	    change_environment (E_COUNTRYSIDE);
-	    c_set (Player.x, Player.y, SEEN);
-	    c_set (Player.x, Player.y, SECRET);
-	    c_set (Player.x, Player.y, CHANGED);
+	    lset (Player.x, Player.y, SEEN);
+	    lset (Player.x, Player.y, SECRET);
+	    lset (Player.x, Player.y, CHANGED);
 	    mprint ("In your shadowy state, you float back up to the surface.");
 	    return;
 	}
@@ -56,33 +56,33 @@ void showroom (int i)
 {
     char namebuf [128];
     namebuf[0] = 0;
-    if (Current_Environment-E_CITY <= E_HOUSE-E_CITY) {
-	static const char enames[] = // E_CITY-E_HOUSE
+    if (Level->environment-E_CITY < E_ASTRAL-E_CITY+1) {
+	static const char enames[] = // E_CITY-E_ASTRAL
 	    "The City of Rampart\0"
 	    "The Village of \0"
 	    "The Tactical Map \0"
-	    "The Sewers: \0"
-	    "The Archmage's Castle: \0"
-	    "The Goblin Caves: \0"
-	    "The Volcano: \0"
-	    "The Astral Plane: \0"
 	    "The Rampart Arena\0"
 	    "A hovel: \0"
+	    "A house: \0"
 	    "A luxurious mansion: \0"
-	    "A house: ";
-	strcpy (namebuf, zstrn (enames, Current_Environment-E_CITY, E_HOUSE-E_CITY));
+	    "The Goblin Caves\0"
+	    "The Sewers\0"
+	    "The Archmage's Castle\0"
+	    "The Volcano\0"
+	    "The Astral Plane";
+	strcpy (namebuf, zstrn (enames, Level->environment-E_CITY, E_ASTRAL-E_CITY+1));
     }
-    if (Current_Environment == E_VILLAGE) {
+    if (Level->environment == E_VILLAGE) {
 	static const char villageNames[] =
 	    "Star View\0" "Woodmere\0" "Stormwatch\0"
 	    "Thaumaris\0" "Skorch\0" "Whorfen";
-	strcat (namebuf, zstrn(villageNames,Villagenum,6));
+	strcat (namebuf, zstrn(villageNames,Level->VillageId(),6));
     }
-    if (Current_Environment == Current_Dungeon) {
+    if (Level->environment-E_FIRST_DUNGEON <= E_LAST_DUNGEON) {
 	char lnamebuf[64];
-	snprintf (ArrayBlock(lnamebuf), "Level %hhd (%s)", Level->depth, roomname(i));
+	snprintf (ArrayBlock(lnamebuf), ": Level %hhd (%s)", Level->depth, roomname(i));
 	strcat (namebuf, lnamebuf);
-    } else if (!namebuf[0] || Current_Environment == E_HOVEL || Current_Environment == E_MANSION || Current_Environment == E_HOUSE)
+    } else if (!namebuf[0] || Level->environment == E_HOVEL || Level->environment == E_MANSION || Level->environment == E_HOUSE)
 	strcat (namebuf, roomname (i));
     locprint (namebuf);
 }
@@ -140,18 +140,6 @@ bool p_moveable (int x, int y)
 	}
     }
     resetgamestatus (SKIP_MONSTERS);
-    return (true);
-}
-
-// check a move attempt in the countryside
-bool p_country_moveable (int x, int y)
-{
-    if (!inbounds (x, y))
-	return (false);
-    else if (optionp(CONFIRM) &&
-		(Country->site(x,y).showchar() == CHAOS_SEA ||
-		 Country->site(x,y).showchar() == MOUNTAINS))
-	return (confirmation());
     return (true);
 }
 
@@ -287,7 +275,7 @@ int damage_item (pob o)
     // special case -- break star gem
     if (o->id == STAR_GEM) {
 	mprint ("The Star Gem shatters into a million glistening shards....");
-	if (Current_Environment == E_STARPEAK) {
+	if (Level->environment == E_STARPEAK) {
 	    if (!gamestatusp (KILLED_LAWBRINGER))
 		mprint ("You hear an agonizing scream of anguish and despair.");
 	    morewait();
@@ -1282,76 +1270,28 @@ void toggle_item_use (int on)
 // Switches context dungeon/countryside/city, etc
 void change_environment (EEnvironment new_environment)
 {
-    int i, emerging = false;
-
     resetgamestatus (LOST);	// in case the player gets lost _on_ a site
     resetgamestatus (FAST_MOVE);
 
-    Last_Environment = Current_Environment;
-    if (Last_Environment == E_COUNTRYSIDE) {
-	LastCountryLocX = Player.x;
-	LastCountryLocY = Player.y;
-    }
+    chtype locExtId = 0;
     if (Level) {
-	Level->lastx = Player.x;
-	Level->lasty = Player.y;
+	const auto& site = Level->site(Player.x,Player.y);
+	locExtId = site.showchar();
+	if (locExtId == VILLAGE || locExtId == TEMPLE)
+	    locExtId = site.aux;
+	if (new_environment >= E_FIRST_DUNGEON && new_environment <= E_LAST_DUNGEON)
+	    locExtId = 1;	// Used as level number
     }
 
-    // FIXME: Exiting from one level to another should use a level stack
-    if ((Last_Environment == E_CITY || Last_Environment == E_VILLAGE)
-	    && (new_environment == E_MANSION || new_environment == E_HOUSE
-		|| new_environment == E_HOVEL || new_environment == E_SEWERS
-		|| new_environment == E_ARENA)) {
-	LastTownLocX = Player.x;
-	LastTownLocY = Player.y;
-    } else if ((Last_Environment == E_MANSION || Last_Environment == E_HOUSE
-		|| Last_Environment == E_HOVEL || Last_Environment == E_SEWERS
-		|| Last_Environment == E_ARENA)
-	       && (new_environment == E_CITY || new_environment == E_VILLAGE)) {
-	Player.x = LastTownLocX;
-	Player.y = LastTownLocY;
-	emerging = true;
-    }
+    World.LoadEnvironment (new_environment, locExtId);
 
-    // Set environment and create new level
-    Current_Environment = new_environment;
-    if (new_environment == E_ARENA
-	    || new_environment == E_ABYSS
-	    || new_environment == E_CIRCLE
-	    || new_environment == E_COURT
-	    || new_environment == E_MANSION
-	    || new_environment == E_HOUSE
-	    || new_environment == E_HOVEL
-	    || new_environment == E_DLAIR
-	    || new_environment == E_STARPEAK
-	    || new_environment == E_MAGIC_ISLE
-	    || new_environment == E_TEMPLE
-	    || (new_environment == E_VILLAGE
-		&& (!emerging || !TempLevel || TempLevel->environment != E_VILLAGE))
-	    || new_environment == E_TACTICAL_MAP
-	    ) {
-	TempLevel = Level;
-	if (TempLevel->ok_to_free()) {
-	    free_level (TempLevel);
-	    TempLevel = NULL;
-	}
-	Level = new level;
-	clear_level (Level);
-    }
     ScreenOffset = 0;
-
     switch (new_environment) {
-	case E_ARENA:
-	    load_arena();
-	    setgamestatus (ARENA_MODE);
-	    break;
 	case E_ABYSS:
-	    load_abyss();
 	    displayfile (Data_AbyssIntro);
 	    lose_all_items();
 	    break;
 	case E_CIRCLE:
-	    load_circle();
 	    if (object_uniqueness(STAR_GEM) == UNIQUE_TAKEN) {
 		mprint ("A bemused voice says:");
 		mprint ("'Why are you here? You already have the Star Gem!'");
@@ -1383,34 +1323,18 @@ void change_environment (EEnvironment new_environment)
 		morewait();
 	    }
 	    break;
-	case E_COURT:		load_court(); break;
-	case E_MANSION:		load_house (E_MANSION); break;
-	case E_HOUSE:		load_house (E_HOUSE); break;
-	case E_HOVEL:		load_house (E_HOVEL); break;
-	case E_DLAIR:		load_dlair (gamestatusp (KILLED_DRAGONLORD)); break;
-	case E_STARPEAK:	load_speak (gamestatusp (KILLED_LAWBRINGER)); break;
-	case E_MAGIC_ISLE:	load_misle (gamestatusp (KILLED_EATER)); break;
-	case E_TEMPLE:		load_temple (Country->site(Player.x,Player.y).aux); break;
 	case E_CITY:
-	    if (emerging) {
-		mprint ("You emerge onto the street.");
-		emerging = false;
-	    } else
+	    if (World.LastEnvironment() == E_COUNTRYSIDE)
 		mprint ("You pass through the massive gates of Rampart, the city.");
-	    Level = City;
+	    else
+		mprint ("You emerge onto the street.");
 	    ScreenOffset = Level->lasty - (ScreenLength / 2);
 	    break;
 	case E_VILLAGE:
-	    if (!emerging || !TempLevel || TempLevel->environment != E_VILLAGE) {
-		Villagenum = Country->site(Player.x,Player.y).aux;
-		load_village (Villagenum);
-	    } else
-		Level = TempLevel;
-	    if (emerging) {
-		mprint ("You emerge onto the street.");
-		emerging = false;
-	    } else
+	    if (World.LastEnvironment() == E_COUNTRYSIDE)
 		mprint ("You enter a small rural village.");
+	    else
+		mprint ("You emerge onto the street.");
 	    break;
 	case E_CAVES:
 	    mprint ("You enter a dark cleft in a hillside;");
@@ -1459,81 +1383,32 @@ void change_environment (EEnvironment new_environment)
 	    break;
 	case E_COUNTRYSIDE:
 	    mprint ("You return to the fresh air of the open countryside.");
-	    Level = Country;
-	    if (Last_Environment == E_CITY) {
-		Player.x = 27;
-		Player.y = 19;
-	    } else {
-		Player.x = LastCountryLocX;
-		Player.y = LastCountryLocY;
-	    }
-	    for (i = 0; i < 9; i++)
-		c_set (Player.x + Dirs[0][i], Player.y + Dirs[1][i], SEEN);
 	    ScreenOffset = Player.y - (ScreenLength / 2);
 	    break;
 	case E_TACTICAL_MAP:
 	    mprint ("You are now on the tactical screen; exit off any side to leave");
-	    make_country_screen (Country->site(Player.x,Player.y).showchar());
-	    make_country_monsters (Country->site(Player.x,Player.y).showchar());
-	    Player.x = Level->width / 2;
-	    Player.y = Level->height / 2;
-	    while (Level->site(Player.x,Player.y).locchar == WATER) {
-		if (Player.y < Level->height / 2 + 5u)
-		    ++Player.y;
-		else if (Player.x > Level->width / 2 - 10u) {
-		    --Player.x;
-		    Player.y = Level->height / 2 - 5;
-		} else {
-		    Level->site(Player.x,Player.y).locchar = FLOOR;
-		    Level->site(Player.x,Player.y).p_locf = L_NO_OP;
-		}
-	    }
 	    break;
 	default:
-	    mprint ("There must be some mistake. You don't look like Peter Pan.");
-	    mprint ("(But here you are in Never-Never Land)");
-	    ScreenOffset = Player.y - (ScreenLength / 2);
 	    break;
-    }
-
-    // Not dungeon, restore last position
-    if (new_environment == E_ARENA
-	    || new_environment == E_ABYSS
-	    || new_environment == E_CIRCLE
-	    || new_environment == E_COURT
-	    || new_environment == E_MANSION
-	    || new_environment == E_HOUSE
-	    || new_environment == E_HOVEL
-	    || new_environment == E_DLAIR
-	    || new_environment == E_STARPEAK
-	    || new_environment == E_MAGIC_ISLE
-	    || new_environment == E_TEMPLE
-	    || new_environment == E_CITY
-	    || new_environment == E_VILLAGE) {
-	Player.x = Level->lastx;
-	Player.y = Level->lasty;
     }
 
     // Dungeon
-    if (new_environment >= E_FIRST_DUNGEON && new_environment <= E_LAST_DUNGEON) {
-	if (Current_Dungeon != new_environment) {
-	    free_dungeon();
-	    Dungeon = NULL;
-	    Level = NULL;
-	    Current_Dungeon = new_environment;
-	}
-	static const uint8_t c_DungeonDepth [E_NUMDUNGEONS] =
-	    { SEWERLEVELS, CASTLELEVELS, CAVELEVELS, VOLCANOLEVELS, ASTRALLEVELS };
-	MaxDungeonLevels = c_DungeonDepth [new_environment-E_FIRST_DUNGEON];
-	change_level (0, 1, false);
-    } else
-	show_screen();
+    if (Level->IsDungeon()) {
+	ScreenOffset = Player.y - (ScreenLength / 2);
+	screencheck (Player.y);
+	drawvision (Player.x, Player.y);
+	// synchronize with player on level change
+	Player.click = (Tick + 1) % 60;
+	roomcheck();
+    }
+    show_screen();
 
     setlastxy (Player.x, Player.y);
-    if (Current_Environment != E_COUNTRYSIDE)
+    if (Level->environment != E_COUNTRYSIDE)
 	showroom (Level->site(Player.x,Player.y).roomnumber);
     else
 	terrain_check (false);
+
 }
 
 // check every ten minutes
@@ -1541,13 +1416,13 @@ void tenminute_check (void)
 {
     if (!(Time % 60))
 	return (hourly_check());
-    if (Current_Environment == Current_Dungeon)
+    if (Level->IsDungeon())
 	wandercheck();
     minute_status_check();
     tenminute_status_check();
     if (Player.status[DISEASED] < 1 && Player.hp < Player.maxhp)
 	Player.hp = min<int16_t> (Player.maxhp, Player.hp + Player.level + 1);
-    if (Current_Environment != E_COUNTRYSIDE && Current_Environment != E_ABYSS)
+    if (Level->environment != E_COUNTRYSIDE && Level->environment != E_ABYSS)
 	indoors_random_event();
 }
 
@@ -1563,13 +1438,13 @@ void hourly_check (void)
 	++Date;
     }
     torch_check();
-    if (Current_Environment == Current_Dungeon)
+    if (Level->IsDungeon())
 	wandercheck();
     minute_status_check();
     tenminute_status_check();
     if (Player.status[DISEASED] == 0 && Player.hp < Player.maxhp)
 	Player.hp = min<int16_t> (Player.maxhp, Player.hp + Player.level + 1);
-    if (Current_Environment != E_COUNTRYSIDE && Current_Environment != E_ABYSS)
+    if (Level->environment != E_COUNTRYSIDE && Level->environment != E_ABYSS)
 	indoors_random_event();
 }
 
@@ -1641,7 +1516,7 @@ static void outdoors_random_event (void)
 {
     switch (random_range (300)) {
 	case 0:
-	    switch (Country->site(Player.x,Player.y).showchar()) {
+	    switch (Level->site(Player.x,Player.y).showchar()) {
 		case TUNDRA: mprint ("It begins to snow. Heavily."); break;
 		case DESERT: mprint ("A sandstorm swirls around you."); break;
 		default:
@@ -1811,8 +1686,8 @@ static void outdoors_random_event (void)
 	    for (unsigned i = Player.x - 5; i < Player.x + 6; ++i) {
 		for (unsigned j = Player.y - 5; j < Player.y + 6; ++j) {
 		    if (inbounds (i, j)) {
-			c_set (i, j, SEEN);
-			c_set (i, j, CHANGED);
+			lset (i, j, SEEN);
+			lset (i, j, CHANGED);
 		    }
 		}
 	    }
@@ -1919,9 +1794,9 @@ void terrain_check (bool takestime)
 	    case 1: mprint ("The road goes ever onward...."); break;
 	}
     }
-    switch (Country->site(Player.x,Player.y).showchar()) {
+    switch (Level->site(Player.x,Player.y).showchar()) {
 	case RIVER:
-	    if ((Player.y < 6) && (Player.x > 20))
+	    if (Player.y < 6 && Player.x > 20)
 		locprint ("Star Lake.");
 	    else if (Player.y < 41) {
 		if (Player.x < 10)
@@ -2090,6 +1965,14 @@ void terrain_check (bool takestime)
 	    }
 	    mprint ("The castle is hewn from solid granite. The drawbridge is down.");
 	    break;
+	case VOLCANO:
+	    locprint ("HellWell Volcano.");
+	    if (takestime) {
+		Time += 60;
+		hourly_check();
+	    }
+	    mprint ("A shimmer of heat lightning plays about the crater rim.");
+	    break;
 	case TEMPLE:
 	    static const char c_TempleDesc[] =
 		"\0A rough-hewn granite temple.\0"
@@ -2098,7 +1981,7 @@ void terrain_check (bool takestime)
 		"A temple of ebony adorned with ivory.\0"
 		"A temple formed of living trees.\0"
 		"A temple of some mysterious blue crystal.";
-	    locprint (zstrn (c_TempleDesc, Country->site(Player.x,Player.y).aux, DESTINY));
+	    locprint (zstrn (c_TempleDesc, Level->site(Player.x,Player.y).aux, DESTINY));
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
@@ -2129,14 +2012,6 @@ void terrain_check (bool takestime)
 	    }
 	    mprint ("You are at a cave entrance from which you see the glint of gold.");
 	    break;
-	case VOLCANO:
-	    locprint ("HellWell Volcano.");
-	    if (takestime) {
-		Time += 60;
-		hourly_check();
-	    }
-	    mprint ("A shimmer of heat lightning plays about the crater rim.");
-	    break;
 	default:
 	    locprint ("I haven't any idea where you are!!!");
 	    break;
@@ -2150,14 +2025,14 @@ void countrysearch (void)
     hourly_check();
     for (unsigned x = Player.x - 1; x < Player.x + 2; ++x) {
 	for (unsigned y = Player.y - 1; y < Player.y + 2; ++y) {
-	    if (!inbounds (x, y) || !c_statusp (x,y, SECRET))
+	    if (!inbounds (x, y) || !loc_statusp (x,y, SECRET))
 		continue;
 	    clearmsg();
 	    mprint ("Your search was fruitful!");
-	    c_reset (x, y, SECRET);
-	    c_set (x, y, CHANGED);
+	    lreset (x, y, SECRET);
+	    lset (x, y, CHANGED);
 	    mprint ("You discovered:");
-	    mprint (countryid (Country->site(x,y).locchar));
+	    mprint (countryid (Level->site(x,y).locchar));
 	}
     }
 }
@@ -2519,10 +2394,10 @@ void alert_guards (void)
     }
     if (foundguard) {
 	mprint ("You hear a whistle and the sound of running feet!");
-	if (Current_Environment == E_CITY)
+	if (Level->environment == E_CITY)
 	    Level->site(40,60).p_locf = L_NO_OP;	// pacify_guards restores this
     }
-    if (!foundguard && Current_Environment == E_CITY && !gamestatusp (DESTROYED_ORDER)) {
+    if (!foundguard && Level->environment == E_CITY && !gamestatusp (DESTROYED_ORDER)) {
 	bool suppress = gamestatusp (SUPPRESS_PRINTING);
 	resetgamestatus (SUPPRESS_PRINTING);
 	mprint ("The last member of the Order of Paladins dies....");

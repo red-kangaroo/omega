@@ -24,6 +24,7 @@ static void bash_location(void);
 static void closedoor(void);
 static void moveplayer(int dx, int dy);
 static void movepincountry(int dx, int dy);
+static bool p_country_moveable (int x, int y);
 static void examine(void);
 static void help(void);
 static void version(void);
@@ -205,7 +206,7 @@ void p_process (void)
 		break;
 	}
     }
-    if (Current_Environment != E_COUNTRYSIDE)
+    if (Level->environment != E_COUNTRYSIDE)
 	roomcheck();
     screencheck (Player.y);
 }
@@ -237,14 +238,14 @@ void p_country_process (void)
 	    case 's':	countrysearch(); break;
 	    case 'x':	examine(); break;
 	    case 'E':	dismount_steed(); break;
-	    case 'H':	hunt (Country->site(Player.x,Player.y).showchar()); break;
+	    case 'H':	hunt (Level->site(Player.x,Player.y).showchar()); break;
 	    case 'I':	do_inventory_control(); break;
 	    case 'O':	setoptions(); break;
 	    case 'Q':	quit(); break;
 	    case 'R':	rename_player(); break;
 	    case 'S':	save(); break;
 	    case 'V':	version(); break;
-	    case '>':	enter_site (Country->site(Player.x,Player.y).locchar); break;
+	    case '>':	enter_site (Level->site(Player.x,Player.y).locchar); break;
 	    case '?':	help(); no_op = true; break;
 	    case '4':
 	    case 'h':	movepincountry (-1, 0); break;
@@ -380,7 +381,7 @@ static void eat (void)
 		Player.food = max (0, Player.food + obj.aux);
 	    item_use (obj);
 	    Player.remove_possession (iidx, 1);
-	    if (Current_Dungeon == E_COUNTRYSIDE) {
+	    if (Level->environment == E_COUNTRYSIDE) {
 		Time += 100;
 		hourly_check();
 	    }
@@ -593,7 +594,7 @@ static void drop_money (void)
 {
     object money = detach_money();
     if (money.basevalue) {
-	if (Current_Environment == E_CITY) {
+	if (Level->environment == E_CITY) {
 	    mprint ("As soon as the money leaves your hand,");
 	    mprint ("a horde of scrofulous beggars snatch it up and are gone!");
 	} else
@@ -702,13 +703,13 @@ static void downstairs (void)
     else {
 	if (gamestatusp (MOUNTED))
 	    mprint ("You manage to get your horse downstairs.");
-	if (Current_Environment == Current_Dungeon) {
+	if (Level->IsDungeon()) {
 	    mprint ("You descend a level.");
 	    change_level (Level->depth, Level->depth + 1, false);
 	    roomcheck();
-	} else if (Current_Environment == E_CITY || Last_Environment == E_CITY)
+	} else if (Level->environment == E_CITY || World.LastEnvironment() == E_CITY)
 	    change_environment (E_SEWERS);
-	else if (Current_Environment != Current_Dungeon)
+	else if (!Level->IsDungeon())
 	    mprint ("This stairway is deviant. You can't use it.");
     }
     setgamestatus (SKIP_MONSTERS);
@@ -828,7 +829,7 @@ static void bash_location (void)
     else {
 	ox = Player.x + Dirs[0][dir];
 	oy = Player.y + Dirs[1][dir];
-	if ((Current_Environment == E_CITY) && (ox == 0) && (oy == 0)) {
+	if ((Level->environment == E_CITY) && (ox == 0) && (oy == 0)) {
 	    mprint ("Back Door WIZARD Mode!");
 	    mprint ("You will invalidate your score if you proceed.");
 	    morewait();
@@ -975,12 +976,8 @@ void bash_item (void)
 void save (void)
 {
     clearmsg();
-    if (gamestatusp (ARENA_MODE))
-	mprint ("Can't save the game in the arena!");
-    else if (Current_Environment == E_ABYSS)
-	mprint ("Can't save the game in the Adept's Challenge!");
-    else if (Current_Environment == E_TACTICAL_MAP)
-	mprint ("Can't save the game in the tactical map!");
+    if (Level->environment == E_ARENA || Level->environment == E_ABYSS || Level->environment == E_TACTICAL_MAP)
+	mprint ("You are not allowed to save the game here.");
     else {
 	mprint ("Confirm Save? [yn] ");
 	if (ynq() == 'y' && save_game())
@@ -1042,7 +1039,7 @@ static void moveplayer (int dx, int dy)
 
 	    // causes moves to take effectively 30 seconds in town without
 	    // monsters being sped up compared to player
-	    if ((Current_Environment == E_CITY) || (Current_Environment == E_VILLAGE)) {
+	    if (Level->environment == E_CITY || Level->environment == E_VILLAGE) {
 		twiddle = !twiddle;
 		if (twiddle) {
 		    Time++;
@@ -1055,7 +1052,7 @@ static void moveplayer (int dx, int dy)
 
 	    // this test protects against player entering countryside and still
 	    // having effects from being on the Level, a kluge, but hey,...
-	    if (Current_Environment != E_COUNTRYSIDE) {
+	    if (Level->environment != E_COUNTRYSIDE) {
 		if (gamestatusp (FAST_MOVE))
 		    if (Level->thing(Player.x,Player.y) || (optionp (RUNSTOP) && loc_statusp (Player.x, Player.y, STOPS)))
 			resetgamestatus (FAST_MOVE);
@@ -1067,6 +1064,18 @@ static void moveplayer (int dx, int dy)
 	drawvision (Player.x, Player.y);
 	resetgamestatus (FAST_MOVE);
     }
+}
+
+// check a move attempt in the countryside
+static bool p_country_moveable (int x, int y)
+{
+    if (!inbounds (x, y))
+	return (false);
+    else if (optionp(CONFIRM) &&
+		(Level->site(x,y).showchar() == CHAOS_SEA ||
+		 Level->site(x,y).showchar() == MOUNTAINS))
+	return (confirmation());
+    return (true);
 }
 
 // handle a h,j,k,l, etc.
@@ -1124,7 +1133,7 @@ static void movepincountry (int dx, int dy)
 			}
 		    }
 		}
-		if (gamestatusp (LOST) && (Precipitation < 1) && c_statusp (Player.x, Player.y, SEEN)) {
+		if (gamestatusp (LOST) && (Precipitation < 1) && loc_statusp (Player.x, Player.y, SEEN)) {
 		    mprint ("Ah! Now you know where you are!");
 		    morewait();
 		    resetgamestatus (LOST);
@@ -1134,7 +1143,7 @@ static void movepincountry (int dx, int dy)
 		}
 		if (Precipitation > 0)
 		    Precipitation--;
-		c_set (Player.x, Player.y, SEEN);
+		lset (Player.x, Player.y, SEEN);
 		terrain_check (takestime);
 	    }
 	}
@@ -1160,12 +1169,12 @@ static void examine (void)
     setspot (&x, &y);
     if (inbounds (x, y)) {
 	clearmsg();
-	if (Current_Environment == E_COUNTRYSIDE) {
-	    if (!c_statusp (x, y, SEEN))
+	if (Level->environment == E_COUNTRYSIDE) {
+	    if (!loc_statusp (x, y, SEEN))
 		mprint ("How should I know what that is?");
 	    else {
 		mprint ("That terrain is:");
-		mprint (countryid (Country->site(x,y).showchar()));
+		mprint (countryid (Level->site(x,y).showchar()));
 	    }
 	} else if (!view_los_p (Player.x, Player.y, x, y))
 	    mprint ("I refuse to examine something I can't see.");
@@ -1184,10 +1193,13 @@ static void examine (void)
 		    case PORTCULLIS:	mprint ("A heavy steel portcullis"); break;
 		    case ABYSS:		mprint ("An entrance to the infinite abyss"); break;
 		    case FLOOR:
-			if (Current_Dungeon == Current_Environment)
-			    mprint ("A dirty stone floor.");
-			else
+			if (Level->environment == E_COUNTRYSIDE
+			    || Level->environment == E_CITY
+			    || Level->environment == E_TACTICAL_MAP
+			    || Level->environment == E_VILLAGE)
 			    mprint ("The ground.");
+			else
+			    mprint ("The floor.");
 			break;
 		    case WALL:
 			if (Level->site(x,y).aux == 0)		mprint ("A totally impervious wall.");
@@ -1197,7 +1209,7 @@ static void examine (void)
 			else if (Level->site(x,y).aux < 70)	mprint ("A solid granite wall.");
 			else if (Level->site(x,y).aux < 90)	mprint ("A wall of steel.");
 			else if (Level->site(x,y).aux < 210) {
-			    if (Current_Environment == E_CITY)
+			    if (Level->environment == E_CITY)
 				mprint ("A thick wall of Rampart bluestone");
 			    else
 				mprint ("A magically reinforced wall.");
@@ -1454,7 +1466,7 @@ static void vault (void)
 		p_damage ((Player.itemweight / 250), UNSTOPPABLE, "clumsiness");
 	    }
 	    p_movefunction (Level->site(Player.x,Player.y).p_locf);
-	    if (Current_Environment != E_COUNTRYSIDE)
+	    if (Level->environment != E_COUNTRYSIDE)
 		if (Level->thing(Player.x,Player.y) && optionp (PICKUP))
 		    pickup();
 	}
@@ -1854,7 +1866,7 @@ void dismount_steed (void)
 {
     if (!gamestatusp (MOUNTED))
 	mprint ("You're on foot already!");
-    else if (Current_Environment == E_COUNTRYSIDE) {
+    else if (Level->environment == E_COUNTRYSIDE) {
 	mprint ("If you leave your steed here he will wander away!");
 	mprint ("Do it anyway? [yn] ");
 	if (ynq() == 'y')
@@ -1871,7 +1883,7 @@ static void city_move (void)
 {
     int site, x = Player.x, y = Player.y, toggle = false;
     clearmsg();
-    if (Current_Environment != E_CITY) {
+    if (Level->environment != E_CITY) {
 	mprint ("This command only works in the city!");
 	setgamestatus (SKIP_MONSTERS);
     } else if (Player.status[IMMOBILE] > 0)

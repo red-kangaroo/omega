@@ -33,7 +33,7 @@ void initplayer (void)
 {
     Player.itemweight = 0;
     Player.food = 36;
-    Player.options = RUNSTOP| CONFIRM;
+    Player.options = RUNSTOP| CONFIRM| COMPRESS;
     fill (Player.immunity, 0);
     fill (Player.status, 0);
     fill (Player.rank, 0);

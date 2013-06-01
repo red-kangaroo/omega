@@ -14,7 +14,7 @@ void l_trap_siren (void)
     mprint ("You have the feeling you have been discovered....");
     morewait();
     clearmsg();
-    if (Current_Environment == E_HOUSE || Current_Environment == E_MANSION) {
+    if (Level->environment == E_HOUSE || Level->environment == E_MANSION) {
 	if (gamestatusp (DESTROYED_ORDER))
 	    mprint ("Nobody answers the alarm.");
 	else {
@@ -23,10 +23,10 @@ void l_trap_siren (void)
 	    morewait();
 	    send_to_jail();
 	}
-    } else if (Current_Environment == E_HOVEL)
+    } else if (Level->environment == E_HOVEL)
 	mprint ("Nobody answers the alarm.");
     else {
-	if (Current_Environment == E_CIRCLE) {
+	if (Level->environment == E_CIRCLE) {
 	    summon (-1, DEMON_PRINCE);	// prime circle demon
 	    summon (-1, DEMON_PRINCE);
 	    summon (-1, DEMON_PRINCE);
@@ -34,7 +34,7 @@ void l_trap_siren (void)
 	foreach (m, Level->mlist) {
 	    m_status_reset (*m, ASLEEP);
 	    m->sense *= 2;
-	    if (Current_Environment == E_CIRCLE || (m->id == GUARD && (Current_Environment == E_VILLAGE || Current_Environment == E_CITY)))
+	    if (Level->environment == E_CIRCLE || (m->id == GUARD && (Level->environment == E_VILLAGE || Level->environment == E_CITY)))
 		m_status_set (*m, HOSTILE);
 	}
     }
@@ -86,7 +86,7 @@ void l_trap_pit (void)
 
 void l_trap_door (void)
 {
-    if (Current_Environment != Current_Dungeon)
+    if (!Level->IsDungeon())
 	mprint ("You feel oddly lucky.");
     else {
 	Level->site(Player.x,Player.y).locchar = TRAP;

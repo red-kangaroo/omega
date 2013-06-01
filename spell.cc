@@ -175,7 +175,7 @@ static void s_hero (void)
 static void s_return (void)
 {
     mprint ("You hear a whine as your spell begins to charge up.");
-    Player.status[RETURNING] = ((Current_Environment == Current_Dungeon) ? difficulty() : 1);
+    Player.status[RETURNING] = (Level->IsDungeon() ? difficulty() : 1);
 }
 
 static void s_desecrate (void)
@@ -252,7 +252,7 @@ static void s_ritual (void)
 	time_clock (false);
 	RitualHour = hour();
 	// set of random conditions for different ritual effects
-	if (Current_Environment == E_CITY) {
+	if (Level->environment == E_CITY) {
 	    mprint ("Flowing waves of mystical light congeal all around you.");
 	    mprint ("'Like wow, man! Colors!'");
 	    mprint ("Appreciative citizens throw you spare change.");

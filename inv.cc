@@ -32,13 +32,12 @@ bool object::operator== (const object& o) const
 	    o.aux == aux && o.blessing == blessing && o.usef == usef);
 }
 
-object::object (int nx, int ny, unsigned tid, unsigned n)
-: x(nx)
+object::object (int8_t nx, int8_t ny, unsigned tid, uint16_t n)
+: number (n == uint16_t(RANDOM) ? 0 : n)
+, x(nx)
 , y(ny)
 {
     operator= (Objects[tid]);
-    if (n != (unsigned) RANDOM)
-	number = n;
 }
 
 //----------------------------------------------------------------------
@@ -196,7 +195,7 @@ static bool aux_slottable (const object& o, int slot)
 // Not necessarily dropped by character; just dropped...
 void drop_at (int x, int y, const object& o)
 {
-    if (Current_Environment == E_COUNTRYSIDE)
+    if (Level->environment == E_COUNTRYSIDE)
 	return;
     if (Level->site(x,y).p_locf == L_VOID_STATION)
 	setgamestatus (PREPARED_VOID);
@@ -207,7 +206,7 @@ void drop_at (int x, int y, const object& o)
 // put n of o at x,y on Level->depth
 void p_drop_at (int x, int y, const object& o, unsigned n)
 {
-    if (Current_Environment == E_COUNTRYSIDE)
+    if (Level->environment == E_COUNTRYSIDE)
 	return;
     if (Level->site(x,y).locchar != VOID_CHAR && Level->site(x,y).locchar != ABYSS) {
 	Level->add_thing (x, y, o, n);

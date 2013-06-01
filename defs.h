@@ -31,34 +31,32 @@ enum {
 };
 
 // Overall Game Progress Vector Bits
-// Long had BETTER have at least 32 bits....
-enum {
-    SPOKE_TO_DRUID	= (1<<0),
-    COMPLETED_CAVES	= (1<<1),
-    COMPLETED_SEWERS	= (1<<2),
-    COMPLETED_CASTLE	= (1<<3),
-    COMPLETED_ASTRAL	= (1<<4),
-    COMPLETED_VOLCANO	= (1<<5),
-    KILLED_DRAGONLORD	= (1<<6),
-    KILLED_EATER	= (1<<7),
-    KILLED_LAWBRINGER	= (1<<8),
-    COMPLETED_CHALLENGE	= (1<<9),
-    SOLD_CONDO		= (1<<10),
-    FAST_MOVE		= (1<<11),
-    SKIP_PLAYER		= (1<<12),
-    SKIP_MONSTERS	= (1<<13),
-    MOUNTED		= (1<<14),
-    SUPPRESS_PRINTING	= (1<<15),
-    LOST		= (1<<16),
-    ARENA_MODE		= (1<<17),
-    CHEATED		= (1<<18),
-    BANK_BROKEN		= (1<<19),
-    CLUB_MEMBER		= (1<<20),
+enum EGameStatus {
+    SKIP_MONSTERS	= (1<<0),
+    SKIP_PLAYER		= (1<<1),
+    FAST_MOVE		= (1<<2),
+    MOUNTED		= (1<<3),
+    LOST		= (1<<4),
+    CHEATED		= (1<<5),
+    SUPPRESS_PRINTING	= (1<<6),
+    SPOKE_TO_DRUID	= (1<<7),
+    SPOKE_TO_ORACLE	= (1<<8),
+    COMPLETED_CAVES	= (1<<9),
+    COMPLETED_SEWERS	= (1<<10),
+    COMPLETED_CASTLE	= (1<<11),
+    COMPLETED_VOLCANO	= (1<<12),
+    COMPLETED_ASTRAL	= (1<<13),
+    COMPLETED_CHALLENGE	= (1<<14),
+    KILLED_DRAGONLORD	= (1<<15),
+    KILLED_EATER	= (1<<16),
+    KILLED_LAWBRINGER	= (1<<17),
+    GAVE_STARGEM	= (1<<18),
+    DESTROYED_ORDER	= (1<<19),
+    UNDEAD_GUARDS	= (1<<20),
     PREPARED_VOID	= (1<<21),
-    DESTROYED_ORDER	= (1<<22),
-    GAVE_STARGEM	= (1<<23),
-    SPOKE_TO_ORACLE	= (1<<24),
-    UNDEAD_GUARDS	= (1<<25),
+    SOLD_CONDO		= (1<<22),
+    BANK_BROKEN		= (1<<23),
+    CLUB_MEMBER		= (1<<24)
 };
 
 enum EEnvironment : int8_t {
@@ -71,15 +69,15 @@ enum EEnvironment : int8_t {
     E_CITY,
     E_VILLAGE,
     E_TACTICAL_MAP,
-    E_SEWERS,
-    E_CASTLE,
-    E_CAVES,
-    E_VOLCANO,
-    E_ASTRAL,
     E_ARENA,
     E_HOVEL,
-    E_MANSION,
     E_HOUSE,
+    E_MANSION,
+    E_CAVES,
+    E_SEWERS,
+    E_CASTLE,
+    E_VOLCANO,
+    E_ASTRAL,
     E_DLAIR,
     E_ABYSS,
     E_STARPEAK,
@@ -88,7 +86,7 @@ enum EEnvironment : int8_t {
     E_CIRCLE,
     E_COURT,
     E_MAX = E_COURT,
-    E_FIRST_DUNGEON = E_SEWERS,
+    E_FIRST_DUNGEON = E_CAVES,
     E_LAST_DUNGEON = E_ASTRAL,
     E_NUMDUNGEONS = E_LAST_DUNGEON-E_FIRST_DUNGEON+1
 };
@@ -160,20 +158,20 @@ enum {
 
 // MONSTER STATUS/ABILITY BITS
 enum {
-    ASLEEP	= (1<<0),
+    HOSTILE	= (1<<0),
     MOBILE 	= (1<<1),
-    HOSTILE	= (1<<2),
-    WANDERING	= (1<<4),
-    HUNGRY	= (1<<5),
+    ASLEEP	= (1<<2),
+    WANDERING	= (1<<3),
+    HUNGRY	= (1<<4),
+    NEEDY	= (1<<5),
     GREEDY	= (1<<6),
-    NEEDY	= (1<<7),
-    ONLYSWIM	= (1<<8),
-    FLYING	= (1<<9),
-    INTANGIBLE	= (1<<10),
-    M_INVISIBLE	= (1<<11),
-    SWIMMING	= (1<<12),
-    POISONOUS	= (1<<13),
-    EDIBLE	= (1<<14)
+    EDIBLE	= (1<<7),
+    FLYING	= (1<<8),
+    SWIMMING	= (1<<9),
+    ONLYSWIM	= (1<<10),
+    INTANGIBLE	= (1<<11),
+    M_INVISIBLE	= (1<<12),
+    POISONOUS	= (1<<13)
 };
 
 // PLAYER STATUS INDICES
@@ -776,26 +774,22 @@ struct object_data {
     const char* objstr;
     const char* truename;
     const char* cursestr;
-public:
-    void	read (bstri& is) noexcept;
-    template <typename Stm>
-    void	write (Stm& os) const noexcept;
 };
 STREAM_ALIGN (object_data, 2);
 
 struct object : public object_data {
 public:
     uint16_t number;
-    int16_t x;
-    int16_t y;
+    int8_t x;
+    int8_t y;
 public:
-    explicit	object (int nx = 0, int ny = 0, unsigned tid = 0, unsigned n = 1);
+    explicit	object (int8_t nx = 0, int8_t ny = 0, unsigned tid = 0, uint16_t n = 1);
 		object (const object_data& o)	: number(1), x(0), y(0) { operator= (o); }
     object&	operator= (const object_data& o){ *implicit_cast<object_data*>(this) = o; return (*this); }
     bool	operator== (const object& v) const;
-    inline void	read (bstri& is)	{ object_data::read (is); is >> number >> x >> y; }
+    void	read (bstri& is);
     template <typename Stm>
-    inline void	write (Stm& os) const	{ object_data::write (os); os << number << x << y; }
+    void	write (Stm& os) const;
 };
 typedef object* pob;
 STREAM_ALIGN (object, 2);
@@ -829,10 +823,6 @@ struct monster_data {
     const char* monstring;
     const char* corpsestr;
     const char* meleestr;
-public:
-    void	read (bstri& is) noexcept;
-    template <typename Stm>
-    void	write (Stm& os) const noexcept;
 };
 STREAM_ALIGN (monster_data, 4);
 
@@ -940,23 +930,28 @@ class level {
 public:
     vector<monster>	mlist;		// List of monsters on level
     vector<object>	things;		// List of objects on level
-    level*		next;		// pointer to next level in dungeon
     EEnvironment	environment;	// where kind of level is this?
     uint8_t		width;
     uint8_t		height;
     uint8_t		lastx;		// Last player position
     uint8_t		lasty;
-    char		depth;		// which level is this
-    char		generated;	// has the level been made (visited) yet?
-    char		numrooms;	// number of rooms on level
+    uint8_t		depth;		// which level is this
+    uint8_t		generated;	// has the level been made (visited) yet?
     uint8_t		tunnelled;	// amount of tunnelling done on this level
 public:
 			level (void);
     void		clear (void);
     void		resize (uint8_t x, uint8_t y)	{ width = x; height = y; }
     bool		ok_to_free (void) const;
+    bool		IsTransient (void) const;
+    uint8_t		MaxDepth (void) const;
+    void		read (bstri& is);
+    template <typename Stm>
+    void		write (Stm& os) const;
     template <typename SiteFunc>
     static inline void	load_map (EEnvironment e, const char* edata, SiteFunc sf);
+    void		Generate (EEnvironment e, uint8_t subeid);
+    inline void		Generate (void)	{ Generate (environment, IsDungeon() ? depth : generated); }
     monster*		creature (int x, int y);
     object*		thing (int x, int y);
     void		make_thing (int x, int y, unsigned tid, unsigned n = RANDOM);
@@ -965,5 +960,27 @@ public:
     void		tunnelcheck (void);
     inline location&	site (unsigned x, int y)	{ return (_site[y*MAXWIDTH+x]); }
     const location&	site (unsigned x, int y) const	{ return (const_cast<level*>(this)->site(x,y)); }
+    inline bool		IsDungeon (void) const		{ return (unsigned(environment-E_FIRST_DUNGEON) < E_NUMDUNGEONS); }
+    inline uint8_t	VillageId (void) const		{ return (generated); }
+    inline void		SetVillageId (uint8_t id)	{ generated = id; }
+    inline uint8_t	TempleDeity (void) const	{ return (generated); }
+    inline void		SetTempleDeity (uint8_t id)	{ generated = id; }
 };
 typedef level* plv;
+
+class CWorld {
+    enum { c_MaxLevels = 32 };
+    typedef vector<level> lvec_t;
+public:
+    inline		CWorld (void)			: _levels() {}
+    void		LoadEnvironment (EEnvironment e, uint8_t subeid = 0);
+    lvec_t::iterator	FindEnvironment (EEnvironment e, uint8_t subeid = 0);
+    EEnvironment	LastEnvironment (void) const;
+    void		DeleteLevel (EEnvironment e, uint8_t subeid);
+    void		MoveInCountry (uint8_t x, uint8_t y);
+    void		read (bstri& is)		{ is >> _levels; }
+    template <typename Stm>
+    void		write (Stm& os) const		{ os << _levels; }
+private:
+    lvec_t		_levels;
+};

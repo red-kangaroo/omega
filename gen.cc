@@ -7,9 +7,10 @@
 
 static void build_room(int x, int y, int l, char rsi, int baux);
 static void corridor_crawl(int *fx, int *fy, int sx, int sy, int n, chtype loc, char rsi);
-static void find_stairs(char fromlevel, char tolevel);
-static plv findlevel(struct level *dungeon, char levelnum);
-static void make_forest(void);
+static void find_stairs (void);
+static void make_forest (void);
+static void make_country_screen (char terrain);
+static void make_country_monsters (char terrain);
 static void make_general_map(const char* terrain);
 static void make_jungle(void);
 static void make_mountains(void);
@@ -25,22 +26,12 @@ static void straggle_corridor(int fx, int fy, int tx, int ty, chtype loc, char r
 static void cavern_level(void);
 static void install_specials(void);
 static void install_traps(void);
-static void make_stairs(int fromlevel);
+static void make_stairs(void);
 static void maze_level(void);
 static void room_level(void);
 static void sewer_level(void);
 
 //----------------------------------------------------------------------
-
-// Deallocate current dungeon
-void free_dungeon (void)
-{
-    while (Dungeon != NULL) {
-	plv tlv = Dungeon;
-	Dungeon = Dungeon->next;
-	free_level (tlv);
-    }
-}
 
 // erase the level w/o deallocating it
 void clear_level (struct level *dungeon_level)
@@ -49,21 +40,23 @@ void clear_level (struct level *dungeon_level)
 	dungeon_level->clear();
 }
 
-void generate_level (int fromlevel, int tolevel)
+void generate_level (int tolevel)
 {
-    initrand (Current_Environment, tolevel);
-    Level->environment = Current_Environment;
+    deepest[Level->environment] = max<int> (deepest[Level->environment], tolevel);
+    initrand (Level->environment, tolevel);
     Level->depth = tolevel;
     Level->generated = true;
-    switch (Current_Environment) {
+    Level->resize (64, 64);
+    switch (Level->environment) {
+	default:
 	case E_CAVES:
-	    if (!random_range(4) && tolevel < MaxDungeonLevels)
+	    if (!random_range(4) && tolevel < Level->MaxDepth())
 		room_level();
 	    else
 		cavern_level();
 	    break;
 	case E_SEWERS:
-	    if (!random_range (4) && tolevel < MaxDungeonLevels)
+	    if (!random_range(4) && tolevel < Level->MaxDepth())
 		room_level();
 	    else
 		sewer_level();
@@ -71,24 +64,23 @@ void generate_level (int fromlevel, int tolevel)
 	case E_CASTLE:
 	    room_level();
 	    break;
-	case E_ASTRAL:
-	    maze_level();
-	    break;
 	case E_VOLCANO:
-	    switch (random_range (3)) {
+	    switch (random_range(3)) {
 		case 0: cavern_level(); break;
 		case 1: room_level(); break;
 		case 2: maze_level(); break;
 	    }
 	    break;
-	default:
-	    mprint ("This dungeon not implemented!");
+	case E_ASTRAL:
+	    maze_level();
 	    break;
     }
     install_traps();
     install_specials();
-    make_stairs (fromlevel);
-    make_stairs (fromlevel);
+    make_stairs();
+    make_stairs();
+    if (!(Level->lastx|Level->lasty))
+	find_stairs();
     initrand (E_RESTORE, 0);
 }
 
@@ -97,25 +89,12 @@ void generate_level (int fromlevel, int tolevel)
 // is false, and the level has already been generated, nothing happens
 // beyond Level being set correctly. Otherwise the level is recreated
 // from scratch
-void change_level (int fromlevel, int tolevel, int rewrite_level)
+void change_level (int, int tolevel, int rewrite_level)
 {
-    struct level *thislevel = NULL;
-    thislevel = findlevel (Dungeon, tolevel);
-    deepest[Current_Environment] = max<int> (deepest[Current_Environment], tolevel);
-    if (!thislevel) {
-	thislevel = new level;
-	thislevel->resize (64, 64);
-	clear_level (thislevel);
-	thislevel->next = Dungeon;
-	Dungeon = thislevel;
-    }
-    Level = thislevel;
-    if (!Level->generated || rewrite_level) {
-	generate_level (fromlevel, tolevel);
-	populate_level (Current_Environment);
-	stock_level();
-    }
-    find_stairs (fromlevel, tolevel);
+    assert (Level);
+    if (rewrite_level)
+	World.DeleteLevel (Level->environment, tolevel);
+    World.LoadEnvironment (Level->environment, tolevel);
     ScreenOffset = Player.y - (ScreenLength / 2);
     show_screen();
     screencheck (Player.y);
@@ -123,19 +102,6 @@ void change_level (int fromlevel, int tolevel, int rewrite_level)
     // synchronize with player on level change
     Player.click = (Tick + 1) % 60;
     roomcheck();
-}
-
-// tries to find the level of depth levelnum in dungeon; if can't find it returns NULL
-static plv findlevel (struct level* dungeon, char levelnum)
-{
-    if (!dungeon)
-	return (NULL);
-    while (dungeon->next && dungeon->depth != levelnum)
-	dungeon = dungeon->next;
-    if (dungeon->depth == levelnum)
-	return (dungeon);
-    else
-	return (NULL);
 }
 
 // keep going in one orthogonal direction or another until we hit our destination
@@ -410,20 +376,15 @@ const char* roomname (int ri)
 
 // puts the player on the first set of stairs from the apt level
 // if can't find them, just drops player anywhere....
-static void find_stairs (char fromlevel, char tolevel)
+static void find_stairs (void)
 {
     bool found = false;
-    chtype sitechar;
-    if (fromlevel > tolevel)
-	sitechar = STAIRS_DOWN;
-    else
-	sitechar = STAIRS_UP;
-    for (unsigned i = 0; i < Level->width; i++) {
-	for (unsigned j = 0; j < Level->height; j++) {
-	    if ((Level->site(i,j).locchar == sitechar) && (!found)) {
-		found = true;
-		Player.x = i;
-		Player.y = j;
+    for (unsigned i = 0; i < Level->width; ++i) {
+	for (unsigned j = 0; j < Level->height; ++j) {
+	    if (Level->site(i,j).locchar == STAIRS_UP && !found) {
+		found = true;	// Always STAIRS_UP because when going up the levels always exist
+		Level->lastx = i;
+		Level->lasty = j;
 		break;
 	    }
 	}
@@ -431,11 +392,7 @@ static void find_stairs (char fromlevel, char tolevel)
     if (!found) {
 	int x,y;
 	findspace (&x, &y);
-	Player.x = x; Player.y = y;
-	if (Level->environment != E_ASTRAL) {
-	    Level->site(Player.x,Player.y).locchar = sitechar;
-	    lset (Player.x, Player.y, CHANGED);
-	}
+	Level->lastx = x; Level->lasty = y;
     }
 }
 
@@ -471,9 +428,7 @@ static void cavern_level (void)
     int i, fx, fy, tx, ty, t, l, e;
     char rsi;
 
-    Level->numrooms = 1;
-
-    if (Current_Dungeon == E_CAVES && Level->depth == CAVELEVELS)
+    if (Level->environment == E_CAVES && Level->depth == CAVELEVELS)
 	rsi = RS_GOBLINKING;
     else
 	rsi = RS_CAVERN;
@@ -494,12 +449,12 @@ static void cavern_level (void)
 	fy = random_range (Level->height - 2) + 1;
 	straggle_corridor (fx, fy, tx, ty, WATER, RS_PONDS);
     }
-    if (Current_Dungeon == E_CAVES) {
+    if (Level->environment == E_CAVES) {
 	if ((Level->depth == CAVELEVELS) && (!gamestatusp (COMPLETED_CAVES))) {
 	    findspace (&tx, &ty);
 	    make_site_monster (tx, ty, GOBLIN_KING);
 	}
-    } else if (Current_Environment == E_VOLCANO) {
+    } else if (Level->environment == E_VOLCANO) {
 	if (Level->depth == VOLCANOLEVELS) {
 	    findspace (&tx, &ty);
 	    make_site_monster (tx, ty, DEMON_EMP);
@@ -509,13 +464,12 @@ static void cavern_level (void)
 
 static void sewer_level (void)
 {
-    int i, tx, ty, t, l, e;
+    int tx, ty, t, l, e;
     char rsi;
     chtype lchar;
 
-    Level->numrooms = random_range (3) + 3;
     rsi = RS_DRAINED_SEWER;
-    for (i = 0; i < Level->numrooms; i++) {
+    for (unsigned i = 0, numrooms = random_range(3)+3; i < numrooms; ++i) {
 	do {
 	    t = random_range (Level->height - 10) + 1;
 	    l = random_range (Level->width - 10) + 1;
@@ -534,7 +488,7 @@ static void sewer_level (void)
 	sewer_corridor (l, t + e, -1, 1, lchar);
 	sewer_corridor (l + e, t + e, 1, 1, lchar);
     }
-    if (Current_Dungeon == E_SEWERS) {
+    if (Level->environment == E_SEWERS) {
 	if ((Level->depth == SEWERLEVELS) && (!gamestatusp (COMPLETED_SEWERS))) {
 	    findspace (&tx, &ty);
 	    make_site_monster (tx, ty, GREAT_WYRM);
@@ -588,10 +542,10 @@ static void install_specials (void)
 		} else if (i < 45) {
 		    Level->site(x,y).locchar = FIRE;
 		    Level->site(x,y).p_locf = L_FIRE;
-		} else if ((i < 50) && (Current_Environment != E_ASTRAL)) {
+		} else if (i < 50 && Level->environment != E_ASTRAL) {
 		    Level->site(x,y).locchar = LIFT;
 		    Level->site(x,y).p_locf = L_LIFT;
-		} else if ((i < 55) && (Current_Environment != E_VOLCANO)) {
+		} else if (i < 55 && Level->environment != E_VOLCANO) {
 		    Level->site(x,y).locchar = HEDGE;
 		    Level->site(x,y).p_locf = L_HEDGE;
 		} else if (i < 57) {
@@ -607,10 +561,10 @@ static void install_specials (void)
 			}
 		    }
 		} else {
-		    if (Current_Environment == E_VOLCANO) {
+		    if (Level->environment == E_VOLCANO) {
 			Level->site(x,y).locchar = LAVA;
 			Level->site(x,y).p_locf = L_LAVA;
-		    } else if (Current_Environment == E_ASTRAL) {
+		    } else if (Level->environment == E_ASTRAL) {
 			if (Level->depth == 1) {
 			    Level->site(x,y).locchar = RUBBLE;
 			    Level->site(x,y).p_locf = L_RUBBLE;
@@ -635,56 +589,98 @@ static void install_specials (void)
 }
 
 // For each level, there should be one stairway going up and one down. 
-// fromlevel determines whether the player is placed on the up or the down
-// staircase. The aux value is currently unused elsewhere, but is set 
-// to the destination level.
-static void make_stairs (int fromlevel)
+static void make_stairs (void)
 {
     int i, j;
     // no stairway out of astral
-    if (Current_Environment != E_ASTRAL) {
+    if (Level->environment != E_ASTRAL) {
 	findspace (&i, &j);
 	Level->site(i,j).locchar = STAIRS_UP;
 	Level->site(i,j).aux = Level->depth - 1;
 	lset (i, j, STOPS);
-	if (fromlevel >= 0 && fromlevel < Level->depth) {
-	    Player.x = i;
-	    Player.y = j;
-	}
     }
-    if (Level->depth < MaxDungeonLevels) {
+    if (Level->depth < Level->MaxDepth()) {
 	findspace (&i, &j);
 	Level->site(i,j).locchar = STAIRS_DOWN;
 	Level->site(i,j).aux = Level->depth + 1;
 	lset (i, j, STOPS);
-	if (fromlevel > Level->depth) {
-	    Player.x = i;
-	    Player.y = j;
-	}
     }
 }
 
+void load_encounter (char countryLocChar)
+{
+    make_country_screen (countryLocChar);
+    make_country_monsters (countryLocChar);
+    uint8_t x = Level->width / 2, y = Level->height / 2;
+    while (Level->site(x,y).locchar == WATER) {
+	if (y < Level->height / 2 + 5u)
+	    ++y;
+	else if (x > Level->width / 2 - 10u) {
+	    --x;
+	    y = Level->height / 2 - 5;
+	} else {
+	    Level->site(x,y).locchar = FLOOR;
+	    Level->site(x,y).p_locf = L_NO_OP;
+	}
+    }
+    Level->lastx = x; Level->lasty = y;
+}
+
 // tactical map generating functions
-void make_country_screen (int terrain)
+static void make_country_screen (char terrain)
 {
     Level->environment = E_TACTICAL_MAP;
     Level->resize (64, 16);
     Level->generated = true;
     switch (terrain) {
-	case FOREST:	make_forest(); break;
-	case JUNGLE:	make_jungle(); break;
-	case SWAMP:	make_swamp(); break;
-	case RIVER:	make_river(); break;
-	case MOUNTAINS:
-	case PASS:	make_mountains(); break;
-	case ROAD:	make_road(); break;
-	default:	make_plains(); break;
+	case char(FOREST):	make_forest(); break;
+	case char(JUNGLE):	make_jungle(); break;
+	case char(SWAMP):	make_swamp(); break;
+	case char(RIVER):	make_river(); break;
+	case char(MOUNTAINS):
+	case char(PASS):	make_mountains(); break;
+	case char(ROAD):	make_road(); break;
+	default:		make_plains(); break;
     }
     if (nighttime()) {
 	mprint ("Night's gloom shrouds your sight.");
 	for (unsigned i = 0; i < Level->width; ++i)
 	    for (unsigned j = 0; j < Level->height; ++j)
 		Level->site(i,j).lstatus = 0;
+    }
+}
+
+// monsters for tactical encounters
+static void make_country_monsters (char terrain)
+{
+    static const int8_t plains[] = { BUNNY, BUNNY, HORNET, QUAIL, HAWK, DEER, WOLF, LION, BRIGAND, RANDOM };
+    static const int8_t forest[] = { BUNNY, QUAIL, HAWK, BADGER, DEER, DEER, WOLF, BEAR, BRIGAND, RANDOM };
+    static const int8_t jungle[] = { ANTEATER, PARROT, MAMBA, ANT, ANT, HYENA, HYENA, ELEPHANT, LION, RANDOM };
+    static const int8_t river[] = { QUAIL, TROUT, TROUT, MANOWAR, BASS, BASS, CROC, CROC, BRIGAND, RANDOM };
+    static const int8_t swamp[] = { BASS, BASS, CROC, CROC, BOGTHING, ANT, ANT, RANDOM, RANDOM, RANDOM };
+    static const int8_t desert[] = { HAWK, HAWK, CAMEL, CAMEL, HYENA, HYENA, LION, LION, RANDOM, RANDOM };
+    static const int8_t tundra[] = { WOLF, WOLF, BEAR, BEAR, DEER, DEER, RANDOM, RANDOM, RANDOM, RANDOM };
+    static const int8_t mountain[] = { BUNNY, SHEEP, WOLF, WOLF, HAWK, HAWK, HAWK, RANDOM, RANDOM, RANDOM };
+    const int8_t* monsters = plains;
+    switch (terrain) {
+	case char(FOREST):	monsters = forest; break;
+	case char(JUNGLE):	monsters = jungle; break;
+	case char(RIVER):	monsters = river;  break;
+	case char(SWAMP):	monsters = swamp;  break;
+	case char(DESERT):	monsters = desert; break;
+	case char(TUNDRA):	monsters = tundra; break;
+	case char(MOUNTAINS):
+	case char(PASS):	monsters = mountain; break;
+    }
+    const unsigned nummonsters = 1+random_range(8);
+    for (unsigned i = 0; i < nummonsters; i++) {
+	monster& m = make_site_monster (random_range(Level->width), random_range(Level->height), monsters[random_range(ArraySize(mountain))]);
+	m.sense = Level->width;
+	if (m_statusp (m, ONLYSWIM)) {
+	    Level->site(m.x,m.y).locchar = WATER;
+	    Level->site(m.x,m.y).p_locf = L_WATER;
+	    lset (m.x, m.y, CHANGED);
+	}
     }
 }
 
@@ -797,9 +793,7 @@ static void make_swamp (void)
 // fully connected level.
 static void room_level (void)
 {
-    int i, fx, fy, tx, ty, t, l, e;
-
-    Level->numrooms = random_range (8) + 9;
+    int fx, fy, tx, ty, t, l, e;
 
     do {
 	t = random_range (Level->height - 10) + 1;
@@ -807,19 +801,19 @@ static void room_level (void)
 	e = 6 + random_range (5);
     } while (Level->site(l,t).roomnumber != RS_WALLSPACE || Level->site(l + e,t).roomnumber != RS_WALLSPACE || Level->site(l,t + e).roomnumber != RS_WALLSPACE || Level->site(l + e,t + e).roomnumber != RS_WALLSPACE);
     char rsi = RS_ROOMBASE + random_range (NUMROOMNAMES);
-    if (Current_Dungeon == E_SEWERS && random_range (2))
+    if (Level->environment == E_SEWERS && random_range (2))
 	rsi = RS_SEWER_CONTROL_ROOM;
     int buildaux = min<int> (UINT8_MAX,20*difficulty());
     build_room (l, t, e, rsi, buildaux+1);
 
-    for (i = 2; i <= Level->numrooms; i++) {
+    for (unsigned i = 2, numrooms = random_range(8)+9; i <= numrooms; i++) {
 	do {
 	    t = random_range (Level->height - 10) + 1;
 	    l = random_range (Level->width - 10) + 1;
 	    e = 6 + random_range (5);
 	} while (Level->site(l,t).roomnumber != RS_WALLSPACE || Level->site(l + e,t).roomnumber != RS_WALLSPACE || Level->site(l,t + e).roomnumber != RS_WALLSPACE || Level->site(l + e,t + e).roomnumber != RS_WALLSPACE);
 	rsi = RS_ROOMBASE + random_range (NUMROOMNAMES);
-	if (Current_Dungeon == E_SEWERS && random_range (2))
+	if (Level->environment == E_SEWERS && random_range (2))
 	    rsi = RS_SEWER_CONTROL_ROOM;
 	build_room (l, t, e, rsi, buildaux+i);
 
@@ -846,18 +840,18 @@ static void room_level (void)
 	}
     }
 
-    if (Current_Dungeon == E_SEWERS) {
+    if (Level->environment == E_SEWERS) {
 	if (Level->depth == SEWERLEVELS) {
 	    findspace (&tx, &ty);
 	    make_site_monster (tx, ty, GREAT_WYRM);
 	}
-    } else if (Current_Environment == E_CASTLE) {
+    } else if (Level->environment == E_CASTLE) {
 	if (Level->depth == CASTLELEVELS) {
 	    findspace (&tx, &ty);
 	    Level->site(tx,ty).locchar = STAIRS_DOWN;
 	    Level->site(tx,ty).p_locf = L_ENTER_COURT;
 	}
-    } else if (Current_Environment == E_VOLCANO) {
+    } else if (Level->environment == E_VOLCANO) {
 	if (Level->depth == VOLCANOLEVELS && !gamestatusp (COMPLETED_VOLCANO)) {
 	    findspace (&tx, &ty);
 	    make_site_monster (tx, ty, DEMON_EMP);
@@ -869,37 +863,37 @@ static void room_level (void)
 // have buildaux field == baux
 static void room_corridor (int fx, int fy, int tx, int ty, int baux)
 {
-    int dx = sign (tx - fx);
-    int dy = sign (ty - fy);
-
     makedoor (fx, fy);
 
-    fx += dx;
-    fy += dy;
-
-    do {
-	Level->site(fx,fy).locchar = FLOOR;
-	Level->site(fx,fy).roomnumber = RS_CORRIDOR;
-	Level->site(fx,fy).aux = baux;
+    int dx = sign(tx - fx), dy = sign(ty - fy);
+    location* psite;
+    for (;;) {
+	psite = &Level->site(fx+dx,fy+dy);
+	if (psite->locchar != WALL || (fx+dx == tx && fy+dy == ty))
+	    break;
+	fx += dx; fy += dy;
+	psite->locchar = FLOOR;
+	psite->roomnumber = RS_CORRIDOR;
+	psite->aux = baux;
 	dx = sign (tx - fx);
 	dy = sign (ty - fy);
-	if ((dx != 0) && (dy != 0)) {
-	    if (random_range (2))
+	if (dx && dy) {
+	    if (random_range(2))
 		dx = 0;
-	    else if (random_range (2))
+	    else if (random_range(2))
 		dy = 0;
 	}
-	fx += dx;
-	fy += dy;
-    } while ((fx != tx || fy != ty) && (!Level->site(fx,fy).aux || Level->site(fx,fy).aux == baux));
-    makedoor (fx, fy);
+
+    }
+    if (psite->locchar == WALL)
+	makedoor (fx, fy);
 }
 
 static void maze_level (void)
 {
     int tx, ty;
     char rsi = RS_VOLCANO;
-    if (Current_Environment == E_ASTRAL) {
+    if (Level->environment == E_ASTRAL) {
 	switch (Level->depth) {
 	    case 1:
 		rsi = RS_EARTHPLANE;
@@ -919,7 +913,7 @@ static void maze_level (void)
 	}
     }
     maze_corridor (random_range (Level->width - 1) + 1, random_range (Level->height - 1) + 1, random_range (Level->width - 1) + 1, random_range (Level->height - 1) + 1, rsi, 0);
-    if (Current_Dungeon == E_ASTRAL) {
+    if (Level->environment == E_ASTRAL) {
 	for (unsigned i = 0; i < Level->width; i++) {
 	    for (unsigned j = 0; j < Level->height; j++) {
 		if (Level->site(i,j).locchar == WALL) {
@@ -963,7 +957,7 @@ static void maze_level (void)
 	    findspace (&tx, &ty);
 	    make_site_monster (tx, ty, mid);
 	}
-    } else if (Current_Environment == E_VOLCANO) {
+    } else if (Level->environment == E_VOLCANO) {
 	if (Level->depth == VOLCANOLEVELS && !gamestatusp (COMPLETED_VOLCANO)) {
 	    findspace (&tx, &ty);
 	    make_site_monster (tx, ty, DEMON_EMP);

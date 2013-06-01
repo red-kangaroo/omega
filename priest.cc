@@ -19,7 +19,7 @@ void l_altar (void)
     int i, deity;
     char response;
 
-    if (Current_Environment == E_COUNTRYSIDE)
+    if (Level->environment == E_COUNTRYSIDE)
 	deity = DRUID;
     else
 	deity = Level->site(Player.x,Player.y).aux;

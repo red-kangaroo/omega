@@ -1095,21 +1095,20 @@ void knowledge (int blessing)
 void flux (int blessing UNUSED)
 {
     mprint ("The universe warps around you!");
-    if (Current_Environment == E_CITY) {
+    if (Level->environment == E_CITY) {
 	mprint ("Sensing dangerous high order magic, the Collegium Magii");
 	mprint ("and the Circle of Sorcerors join forces to negate the spell.");
 	mprint ("You are zapped by an antimagic ray!!!");
 	dispel (-1);
 	mprint ("The universe unwarps itself....");
-    } else if (Current_Environment != Current_Dungeon)
-	mprint ("Odd.... No effect!");
-    else {
+    } else if (Level->IsDungeon()) {
 	mprint ("You stagger as the very nature of reality warps!");
 	erase_level();
 	Level->generated = false;
 	mprint ("The fabric of spacetime reknits....");
 	change_level (Level->depth - 1, Level->depth, true);
-    }
+    } else
+	mprint ("Odd.... No effect!");
 }
 
 //Turns on displacement status for the player
@@ -1138,14 +1137,14 @@ void invisible (int blessing)
 void warp (int blessing)
 {
     int newlevel;
-    if (Current_Environment != Current_Dungeon)
+    if (!Level->IsDungeon())
 	mprint ("How strange! No effect....");
     else {
 	mprint ("Warp to which level? ");
 	newlevel = (int) parsenum();
-	if (newlevel >= MaxDungeonLevels || blessing < 0 || newlevel < 1) {
+	if (newlevel >= Level->MaxDepth() || blessing < 0 || newlevel < 1) {
 	    mprint ("You have been deflected!");
-	    newlevel = random_range (MaxDungeonLevels - 1) + 1;
+	    newlevel = random_range (Level->MaxDepth() - 1) + 1;
 	}
 	mprint ("You dematerialize...");
 	change_level (Level->depth, newlevel, false);
@@ -1511,7 +1510,7 @@ void annihilate (int blessing)
 	}
     }
     if (blessing > 0) {
-	if (Current_Environment == E_COUNTRYSIDE) {
+	if (Level->environment == E_COUNTRYSIDE) {
 	    clearmsg();
 	    mprint ("Bolts of lightning flash down for as far as you can see!!!");
 	    morewait();
@@ -1727,7 +1726,7 @@ void disintegrate (int x, int y)
 	    mprint ("But an angry deity retaliates....");
 	    disintegrate (Player.x, Player.y);
 	} else if (Level->site(x,y).p_locf == L_TRAP_PIT) {
-	    if (Current_Environment == Current_Dungeon) {
+	    if (Level->IsDungeon() && Level->depth < Level->MaxDepth()) {
 		mprint ("A hole is blasted in the base of the pit!");
 		Level->site(x,y).locchar = TRAP;
 		Level->site(x,y).p_locf = L_TRAP_DOOR;
@@ -1869,7 +1868,7 @@ void strategic_teleport (int blessing)
     // Hy Magic offers the Location wish, and some artifacts grant this
     // as well.  Seems to me that Hy Magic ought to allow it, and nothing
     // else (aside from the Star Gem, of course).
-    if ((Current_Environment == E_CIRCLE || Current_Environment == E_ASTRAL) && !gamestatusp (CHEATED)) {
+    if ((Level->environment == E_CIRCLE || Level->environment == E_ASTRAL) && !gamestatusp (CHEATED)) {
 	mprint ("Some property of this eerie place interferes with the magic!\n");
 	return;
     }
@@ -1881,7 +1880,7 @@ void strategic_teleport (int blessing)
 	do {
 	    Player.x = random_range (Level->width);
 	    Player.y = random_range (Level->height);
-	} while (Country->site(Player.x,Player.y).locchar == CHAOS_SEA);
+	} while (Level->site(Player.x,Player.y).locchar == CHAOS_SEA);
     } else {
 	mprint ("Below each portal is a caption. Enter which one:");
 	menuclear();
@@ -1990,7 +1989,7 @@ void strategic_teleport (int blessing)
     setlastxy (Player.x, Player.y);
     screencheck (Player.y);
     drawvision (Player.x, Player.y);
-    if (Current_Environment == E_COUNTRYSIDE)
+    if (Level->environment == E_COUNTRYSIDE)
 	terrain_check (false);
 }
 
@@ -2026,13 +2025,13 @@ void levitate (int blessing)
 // has effect of switching between 1st level and deepest level attained
 void level_return (void)
 {
-    if (Current_Environment == Current_Dungeon) {
+    if (Level->IsDungeon()) {
 	mprint ("The vortex of mana carries you off!");
 	if (Level->depth > 1)
 	    change_level (Level->depth, 1, false);
 	else
-	    change_level (Level->depth, deepest[Current_Environment], false);
-    } else if (Current_Environment == E_COUNTRYSIDE) {
+	    change_level (Level->depth, deepest[Level->environment], false);
+    } else if (Level->environment == E_COUNTRYSIDE) {
 	mprint ("A mysterious force wafts you back home!");
 	Player.x = 27;
 	Player.y = 19;

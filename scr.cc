@@ -49,7 +49,7 @@ void show_screen (void)
 	wmove (Levelw, screenmod (j), 0);
 	for (unsigned i = 0; i < Level->width; i++) {
 	    chtype c = SPACE;
-	    if (Current_Environment == E_COUNTRYSIDE)
+	    if (Level->environment == E_COUNTRYSIDE)
 		c = Level->site(i,j).showchar();
 	    else {
 		if (loc_statusp (i, j, SEEN))
@@ -218,7 +218,7 @@ static int lastx = -1, lasty = -1;
 
 static void drawplayer (void)
 {
-    if (Current_Environment == E_COUNTRYSIDE) {
+    if (Level->environment == E_COUNTRYSIDE) {
 	if (inbounds (lastx, lasty) && !offscreen (lasty)) {
 	    wmove (Levelw, screenmod (lasty), lastx);
 	    chtype c = Level->site(lastx,lasty).showchar();
@@ -252,7 +252,7 @@ void drawvision (int x, int y)
     static int oldx = -1, oldy = -1;
     int i, j, c;
 
-    if (Current_Environment != E_COUNTRYSIDE) {
+    if (Level->environment != E_COUNTRYSIDE) {
 	if (Player.status[BLINDED]) {
 	    drawspot (oldx, oldy);
 	    drawspot (x, y);
@@ -282,7 +282,7 @@ void drawvision (int x, int y)
 	for (i = -1; i < 2; i++) {
 	    for (j = -1; j < 2; j++) {
 		if (inbounds (x + i, y + j)) {
-		    c_set (x + i, y + j, SEEN);
+		    lset (x + i, y + j, SEEN);
 		    if (!offscreen (y + j)) {
 			wmove (Levelw, screenmod (y + j), x + i);
 			c = Level->site(x+i,y+j).showchar();
@@ -656,15 +656,10 @@ void locprint (const char* s)
 // draw everything whether visible or not
 void drawscreen (void)
 {
-    if (Current_Environment == E_COUNTRYSIDE)
-	for (unsigned i = 0; i < Level->width; i++)
-	    for (unsigned j = 0; j < Level->height; j++)
-		c_set (i, j, SEEN);
-    else
-	for (unsigned i = 0; i < Level->width; i++)
-	    for (unsigned j = 0; j < Level->height; j++)
-		lset (i, j, SEEN);
-    if (Current_Environment == E_CITY)
+    for (unsigned i = 0; i < Level->width; ++i)
+	for (unsigned j = 0; j < Level->height; ++j)
+	    lset (i, j, SEEN);
+    if (Level->environment == E_CITY)
 	for (unsigned i = 0; i < ArraySize(CitySiteList); i++)
 	    CitySiteList[i].known = true;
     show_screen();
@@ -920,7 +915,7 @@ void screencheck (int y)
     if (y - ScreenOffset < ScreenLength / 8 || y - ScreenOffset > 7 * ScreenLength / 8) {
 	ScreenOffset = y - ScreenLength / 2;
 	show_screen();
-	if (Current_Environment != E_COUNTRYSIDE)
+	if (Level->environment != E_COUNTRYSIDE)
 	    drawmonsters (true);
 	if (!offscreen (Player.y))
 	    drawplayer();

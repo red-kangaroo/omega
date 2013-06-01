@@ -179,8 +179,7 @@ static void l_fire (void)
 
 void l_abyss (void)
 {
-    int i;
-    if (Current_Environment != Current_Dungeon) {
+    if (!Level->IsDungeon()) {
 	mprint ("You fall through a dimensional portal!");
 	morewait();
 	strategic_teleport (-1);
@@ -204,7 +203,7 @@ void l_abyss (void)
 		Player.alignment -= 50;
 	    }
 	} else {
-	    i = 0;
+	    int i = 0;
 	    mprint ("You fall...");
 	    while (random_range (3) != 2) {
 		if (i % 6 == 0)
@@ -217,7 +216,7 @@ void l_abyss (void)
 	    i++;
 	    mprint ("Finally,you emerge through an interdimensional interstice...");
 	    morewait();
-	    if (Level->depth + i > MaxDungeonLevels) {
+	    if (Level->depth + i > Level->MaxDepth()) {
 		mprint ("You emerge high above the ground!!!!");
 		mprint ("Yaaaaaaaah........");
 		morewait();
@@ -225,7 +224,7 @@ void l_abyss (void)
 		do {
 		    Player.x = random_range (Level->width);
 		    Player.y = random_range (Level->height);
-		} while (Country->site(Player.x,Player.y).showchar() == CHAOS_SEA);
+		} while (Level->site(Player.x,Player.y).showchar() == CHAOS_SEA);
 		p_damage (i * 50, NORMAL_DAMAGE, "a fall from a great height");
 	    } else {
 		mprint ("You built up some velocity during your fall, though....");
@@ -275,9 +274,9 @@ static void l_lift (void)
 		p_damage (lDepth * 10, NORMAL_DAMAGE, "a fall from a great height");
 	    }
 	    return;
-	} else if (response == 'd' && Level->depth + levelnum > MaxDungeonLevels) {
+	} else if (response == 'd' && Level->depth + levelnum > Level->MaxDepth()) {
 	    too_far = 1;
-	    levelnum = MaxDungeonLevels - Level->depth;
+	    levelnum = Level->MaxDepth() - Level->depth;
 	}
 	if (levelnum == 0) {
 	    mprint ("Nothing happens.");
@@ -364,13 +363,7 @@ static void l_tactical_exit (void)
 	if (ynq() != 'y')
 	    return;
     }
-    // Free up monsters and items, and the level
-    free_level (Level);
-    Level = NULL;
-    if (Current_Environment == E_TEMPLE || Current_Environment == E_TACTICAL_MAP)
-	change_environment (E_COUNTRYSIDE);
-    else
-	change_environment (Last_Environment);
+    change_environment (World.LastEnvironment());
 }
 
 static void l_rubble (void)
@@ -460,9 +453,6 @@ void l_raise_portcullis (void)
 
 static void l_arena_exit (void)
 {
-    resetgamestatus (ARENA_MODE);
-    free_level (Level);
-    Level = NULL;
     change_environment (E_CITY);
 }
 
@@ -474,9 +464,7 @@ static void l_house_exit (void)
 	if (ynq() != 'y')
 	    return;
     }
-    free_level (Level);
-    Level = NULL;
-    change_environment (Last_Environment);
+    change_environment (World.LastEnvironment());
 }
 
 static void l_void (void)
@@ -982,7 +970,7 @@ static void l_balancestone (void)
 	    do {
 		Player.x = random_range (Level->width);
 		Player.y = random_range (Level->height);
-	    } while (Country->site(Player.x,Player.y).showchar() == CHAOS_SEA);
+	    } while (Level->site(Player.x,Player.y).showchar() == CHAOS_SEA);
 	    screencheck (Player.y);
 	    drawvision (Player.x, Player.y);
 	} else {

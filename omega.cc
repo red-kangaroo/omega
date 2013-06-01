@@ -38,17 +38,9 @@ citysite CitySiteList[NUMCITYSITES];
 uint32_t GameStatus = 0;	// Game Status bit vector
 uint8_t ScreenLength = 0;	// How large is level window
 struct player Player;		// the player
-struct level* Country = NULL;	// The countryside
-struct level* City = NULL;	// The city of Rampart
-struct level* TempLevel = NULL;	// Place holder
 struct level* Level = NULL;	// Pointer to current Level
-struct level* Dungeon = NULL;	// Pointer to current Dungeon
-uint8_t Villagenum = 0;		// Current Village number
 int8_t ScreenOffset = 0;	// Offset of displayed screen to level
-uint8_t MaxDungeonLevels = 0;	// Deepest level allowed in dungeon
-int8_t Current_Dungeon = -1;	// What is Dungeon now
-EEnvironment Current_Environment = E_CITY;	// Which environment are we in
-EEnvironment Last_Environment = E_COUNTRYSIDE;	// Which environment were we in
+CWorld World;			// Level container
 const int8_t Dirs[2][9] = {	// 9 xy directions
     { 1, 1, -1, -1, 1, -1, 0, 0, 0 },
     { 1, -1, 1, -1, 0, 0, 1, -1, 0 }
@@ -89,10 +81,6 @@ uint16_t HiMagicUse = 0;	// last date of high magic use
 uint8_t HiMagic = 0;		// current level for l_throne
 uint32_t Balance = 0;		// bank account
 uint32_t FixedPoints = 0;	// points are frozen after adepthood
-uint8_t LastTownLocX = 0;	// previous position in village or city
-uint8_t LastTownLocY = 0;	// previous position in village or city
-uint8_t LastCountryLocX = 0;	// previous position in countryside
-uint8_t LastCountryLocY = 0;	// previous position in countryside
 char Password[8];		// autoteller password
 char Str1[STRING_LEN], Str2[STRING_LEN], Str3[STRING_LEN], Str4[STRING_LEN]; // Some string space, random uses
 
@@ -122,8 +110,8 @@ uint8_t club_hinthour = 0;
 uint16_t winnings = 0;
 uint8_t tavern_hinthour;
 
-uint8_t deepest [E_MAX + 1];
-uint32_t level_seed [E_MAX + 1];	// random number seed that generated level
+uint8_t deepest [E_MAX+1];
+uint32_t level_seed [E_MAX+1];	// random number seed that generated level
 
 static void signalexit (int sig);
 
@@ -168,24 +156,30 @@ int main (void)
     } else
 	mprint ("Your adventure continues....");
 
-    timeprint();
-    calc_melee();
-    if (Current_Environment != E_COUNTRYSIDE)
-	showroom (Level->site(Player.x,Player.y).roomnumber);
-    else
-	terrain_check (false);
-
-    screencheck (Player.y);
-
-    // game cycle
-    if (!continuing)
-	time_clock (true);
-    while (true) {
-	if (Current_Environment == E_COUNTRYSIDE)
-	    p_country_process();
+    try {
+	timeprint();
+	calc_melee();
+	if (Level->environment != E_COUNTRYSIDE)
+	    showroom (Level->site(Player.x,Player.y).roomnumber);
 	else
-	    time_clock (false);
+	    terrain_check (false);
+
+	screencheck (Player.y);
+
+	// game cycle
+	if (!continuing)
+	    time_clock (true);
+	while (true) {
+	    if (Level->environment == E_COUNTRYSIDE)
+		p_country_process();
+	    else
+		time_clock (false);
+	}
+    } catch (exception& e) {
+	endgraf();
+	printf ("Error: %s\n", e.what());
     }
+    return (0);
 }
 
 static void signalexit (int sig)
@@ -200,24 +194,14 @@ static void signalexit (int sig)
 // Start up game with new dungeons; start with player in city
 static void init_world (void)
 {
-    TempLevel = Dungeon = NULL;
     for (int env = 0; env <= E_MAX; env++)
 	level_seed[env] = rand();
-    Level = Country = new level;
-    clear_level (Country);
-    load_country();
     for (unsigned i = 0; i < ArraySize(CitySiteList); i++)
 	CitySiteList[i].known = false;
     for (unsigned i = 0; i < ArraySize(ObjectAttrs); ++i)
 	ObjectAttrs[i] = Objects[i].uniqueness;
-    Level = City = new level;
-    clear_level (Level);
-    load_city();
-    Player.x = Level->lastx;
-    Player.y = Level->lasty;
-    Level = City;
-    Current_Environment = E_CITY;
-    mprint ("You pass through the massive gates of Rampart, the city.");
+    World.LoadEnvironment (E_COUNTRYSIDE);
+    change_environment (E_CITY);
 }
 
 // This function coordinates monsters and player actions, as well as
@@ -234,19 +218,19 @@ void time_clock (int reset)
     if (reset)
 	Tick = (Player.click = 0);
 
-    int env = Current_Environment;
-    while ((Tick == Player.click) && (Current_Environment != E_COUNTRYSIDE) && Current_Environment == env) {
+    EEnvironment env = Level->environment;
+    while ((Tick == Player.click) && (Level->environment != E_COUNTRYSIDE) && Level->environment == env) {
 	if (!gamestatusp (SKIP_PLAYER))
 	    do {
 		resetgamestatus (SKIP_MONSTERS);
-		if ((!Player.status[SLEPT]) && (Current_Environment != E_COUNTRYSIDE))
+		if ((!Player.status[SLEPT]) && (Level->environment != E_COUNTRYSIDE))
 		    p_process();
-	    } while (gamestatusp (SKIP_MONSTERS) && (Current_Environment != E_COUNTRYSIDE));
+	    } while (gamestatusp (SKIP_MONSTERS) && (Level->environment != E_COUNTRYSIDE));
 	else
 	    resetgamestatus (SKIP_PLAYER);
 	Player.click = (Player.click + Command_Duration) % 60;
     }
-    if (Current_Environment != E_COUNTRYSIDE) {
+    if (Level->environment != E_COUNTRYSIDE) {
 	foreach (m, Level->mlist) {
 	    if (m->hp <= 0)
 		--(m = Level->mlist.erase(m));

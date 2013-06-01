@@ -883,7 +883,7 @@ static void i_pick (pob o)
 	mprint ("You can't unlock that!");
 	resetgamestatus (SKIP_MONSTERS);
     } else if (Level->site(ox,oy).aux == LOCKED) {
-	if (Level->depth == MaxDungeonLevels - 1)
+	if (Level->depth == Level->MaxDepth() - 1)
 	    mprint ("The lock is too complicated for you!!!");
 	else if (Level->depth * 2 + random_range (50) < Player.dex + Player.level + Player.rank[THIEVES] * 10) {
 	    mprint ("You picked the lock!");
@@ -916,8 +916,7 @@ static void i_key (pob o)
 	    mprint ("The lock clicks open!");
 	    Level->site(ox,oy).aux = UNLOCKED;
 	    lset (ox, oy, CHANGED);
-	    o->blessing--;
-	    if ((o->blessing < 0) || (Level->depth == MaxDungeonLevels - 1)) {
+	    if (--o->blessing < 0 || Level->depth == Level->MaxDepth()-1) {
 		mprint ("The key disintegrates!");
 		Player.remove_possession (o, 1);
 	    } else
@@ -956,7 +955,7 @@ static void i_corpse (pob o)
 	    break;
 	case FNORD:		// fnord
 	    mprint ("You feel illuminated!");
-	    Player.iq++;
+	    ++Player.iq;
 	    break;
 	case DENEBIAN:		// denebian slime devil
 	    mprint ("I don't believe this. You ate Denebian Slime?");
@@ -997,7 +996,7 @@ static void i_corpse (pob o)
 	case JUBJUB:		// can't get here... i_usef changed to I_FOOD
 	case CATEAGLE:
 	    mprint ("Well, you forced it down. Not much nutrition, though.");
-	    Player.food++;
+	    ++Player.food;
 	    foodcheck();
 	    break;
 	case SEWER_RAT:
@@ -1693,7 +1692,7 @@ static void i_sceptre (pob o UNUSED)
 {
     if (HiMagicUse == Date)
 	mprint ("The Sceptre makes a sort of dull 'thut' noise.");
-    else if (Current_Environment == E_CIRCLE || Current_Environment == E_ASTRAL) {
+    else if (Level->environment == E_CIRCLE || Level->environment == E_ASTRAL) {
 	HiMagicUse = Date;	// WDT: this looks like it's a good place to use the batteries.
 	mprint ("The Sceptre warps strangely for a second, and then subsides.");
 	morewait();
@@ -1745,8 +1744,8 @@ static void i_stargem (pob o)
 	screencheck (3);
 	drawvision (Player.x, Player.y);
 	locprint ("Star Peak");
-	c_reset (Player.x, Player.y, SECRET);
-	c_set (Player.x, Player.y, CHANGED);
+	lreset (Player.x, Player.y, SECRET);
+	lset (Player.x, Player.y, CHANGED);
 	mprint ("The Star Gem's brilliance seems to fade.");
     }
 }

@@ -13,17 +13,9 @@ extern citysite CitySiteList[NUMCITYSITES];	// locations of city sites
 extern struct player Player;			// the player
 extern uint32_t GameStatus;			// Game Status bit vector
 extern uint8_t ScreenLength;			// How large is level window
-extern struct level* Country;			// The countryside
-extern struct level* City;			// The city of Rampart
-extern struct level* TempLevel;			// Place holder
-extern struct level* Dungeon;			// Pointer to current Dungeon
-extern struct level* Level;			// Pointer to current Level
-extern int8_t Current_Dungeon;			// What is Dungeon now (an E_ constant)
-extern uint8_t Villagenum;			// Current Village number
+extern CWorld World;				// Level container
+extern level* Level;				// Pointer to current Level
 extern int8_t ScreenOffset;			// Offset of displayed screen to level
-extern uint8_t MaxDungeonLevels;		// Deepest level allowed in dungeon
-extern EEnvironment Current_Environment;	// Which environment are we in (an E_ constant)
-extern EEnvironment Last_Environment;		// Which environment were we in last (an E_ constant)
 extern const int8_t Dirs[2][9];			// 9 xy directions
 extern chtype Cmd;				// last player command
 extern uint16_t Command_Duration;		// how long does current command take
@@ -59,10 +51,6 @@ extern uint16_t HiMagicUse;			// last date of high magic use
 extern uint8_t HiMagic;				// current level for l_throne
 extern uint32_t Balance;			// bank account
 extern uint32_t FixedPoints;			// points are frozen after adepthood
-extern uint8_t LastCountryLocX;			// previous position in countryside
-extern uint8_t LastCountryLocY;			// previous position in countryside
-extern uint8_t LastTownLocX;			// previous position in village or city
-extern uint8_t LastTownLocY;			// previous position in village or city
 extern char Password[8];			// autoteller password
 extern vector<object> Condoitems;		// items in condo
 extern char Str1[STRING_LEN], Str2[STRING_LEN], Str3[STRING_LEN], Str4[STRING_LEN];	// Some string space, random uses
@@ -160,10 +148,6 @@ static constexpr inline unsigned pow2 (unsigned n) { return (1u << n); }
 static inline bool loc_statusp (unsigned x, unsigned y, unsigned stat)	{ return (Level->site(x,y).lstatus & stat); }
 static inline void lset (unsigned x, unsigned y, unsigned stat)		{ Level->site(x,y).lstatus |= stat; }
 static inline void lreset (unsigned x, unsigned y, unsigned stat)	{ Level->site(x,y).lstatus &= ~stat; }
-
-static inline bool c_statusp (unsigned x, unsigned y, unsigned stat)	{ return (Country->site(x,y).lstatus & stat); }
-static inline void c_set (unsigned x, unsigned y, unsigned stat)	{ Country->site(x,y).lstatus |= stat; }
-static inline void c_reset(unsigned x, unsigned y, unsigned stat)	{ Country->site(x,y).lstatus &= ~stat; }
 
 static inline bool m_statusp (const monster_data* m,unsigned s)	{ return (m->status & s); }
 static inline void m_status_set (monster* m, unsigned s)	{ m->status |= s; }

@@ -510,7 +510,7 @@ static void m_talk_guard (struct monster *m)
 	mprint ("Do it? [yn] ");
 	if (ynq() == 'y') {
 	    Player.alignment++;
-	    if (Current_Environment == E_CITY) {
+	    if (Level->environment == E_CITY) {
 		mprint ("Go directly to jail. Do not pass go, do not collect 200Au.");
 		mprint ("You are taken to the city gaol.");
 		morewait();
@@ -775,7 +775,7 @@ static void m_talk_horse (struct monster *m)
 	mprint ("The horse noses curiously at your pack.");
     else if (gamestatusp (MOUNTED))
 	mprint ("The horse and your steed don't seem to get along.");
-    else if (Current_Environment == Current_Dungeon)
+    else if (Level->IsDungeon())
 	mprint ("The horse shies; maybe he doesn't like the dungeon air....");
     else {
 	mprint ("The horse lets you pat his nose. Want to ride him? [yn] ");
@@ -855,7 +855,7 @@ static void m_talk_archmage (struct monster *m)
     if (m_statusp (m, HOSTILE)) {
 	mprint ("The Archmage ignores your attempt at conversation");
 	mprint ("and concentrates on his spellcasting....");
-    } else if (Current_Environment == E_COURT) {
+    } else if (Level->environment == E_COURT) {
 	mprint ("The Archmage congratulates you on getting this far.");
 	mprint ("He invites you to attempt the Throne of High Magic");
 	mprint ("but warns you that it is important to wield the Sceptre");
@@ -875,7 +875,7 @@ static void m_talk_archmage (struct monster *m)
 static void m_talk_merchant (struct monster *m)
 {
     if (!m_statusp (m, HOSTILE)) {
-	if (Current_Environment == E_VILLAGE) {
+	if (Level->environment == E_VILLAGE) {
 	    mprint ("The merchant asks you if you want to buy a horse for 250GP.");
 	    mprint ("Pay the merchant? [yn] ");
 	    if (ynq() == 'y') {
@@ -906,7 +906,7 @@ static void m_talk_prime (struct monster *m)
 {
     if (m_statusp (m, HOSTILE))
 	return (m_talk_evil (m));
-    if (Current_Environment == E_CIRCLE) {
+    if (Level->environment == E_CIRCLE) {
 	mprint ("The Prime nods brusquely at you, removes a gem from his");
 	mprint ("sleeve, places it on the floor, and vanishes wordlessly.");
 	morewait();
@@ -1797,7 +1797,7 @@ static void m_aggravate (struct monster *m)
 
 static void m_sp_merchant (struct monster *m)
 {
-    if (!m_statusp (m, HOSTILE) || Current_Environment != E_VILLAGE)
+    if (!m_statusp (m, HOSTILE) || Level->environment != E_VILLAGE)
 	return;
     mprint ("The merchant screams: 'Help! Murder! Guards! Help!'");
     mprint ("You hear the sound of police whistles and running feet.");
@@ -1894,7 +1894,7 @@ void m_death (struct monster *m)
 	mprint (zstrn (_deathTaunts, random_range(10), 10));
 	strengthen_death (m);
     } else {
-	if (Current_Environment == E_ARENA && Level->mlist.size() <= 1)
+	if (Level->environment == E_ARENA && Level->mlist.size() <= 1)
 	    Arena_Victory = m->level+1;	// won this round of arena combat
 	if (random_range(2) || m->uniqueness != COMMON)
 	    drop_at (m->x, m->y, make_corpse(*m));
@@ -1989,7 +1989,7 @@ void m_death (struct monster *m)
 		break;
 	    case GUARD:
 		Player.alignment -= 10;
-		if (Current_Environment == E_CITY || Current_Environment == E_VILLAGE)
+		if (Level->environment == E_CITY || Level->environment == E_VILLAGE)
 		    alert_guards();
 		break;
 	    case GOBLIN_KING:
