@@ -288,6 +288,8 @@ public:
     enum { is_sizing = true };
 private:
     inline size_type	wrstrlen (const char* s) const	{ return (s?strlen(s):0); }
+    template <typename T, bool pod> struct type_writer { static inline void write (bstrs& os, const T& v) { v.write (os); } };
+    template <typename T> struct type_writer<T,true> { static inline void write (bstrs& os, const T& v) { os.iwrite (v); } };
 public:
     inline explicit	bstrs (size_type sz =0)	:_sz(sz) { }
     template <typename T>
@@ -305,9 +307,9 @@ public:
     template <typename T>
     inline void		uiwrite (const T& v)			{ write (&v, sizeof(v)); }
     template <typename T>
-    inline bstrs&	operator<< (const T& v)			{ skip(sizeof(v)); return (*this); }
+    inline bstrs&	operator<< (const T& v)			{ type_writer<T,is_pod<T>::value>::write (*this, v); return (*this); }
     inline bstrs&	operator<< (const char* s);
-    inline bstrs&	operator<< (const string& s)		{ iwrite(uint32_t(s.size())); write(s.c_str(),s.size()); align(4); return(*this); }
+    inline bstrs&	operator<< (const string& s)		{ iwrite(uint32_t(s.size()+1)); write(s.c_str(),s.size()+1); align(4); return(*this); }
     template <typename T, size_t N>
     inline bstrs&	operator<< (const array<T,N>& v)	{ foreach (i,v) *this << *i; return(*this); }
     template <typename T>
