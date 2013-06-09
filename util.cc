@@ -18,7 +18,7 @@ int inbounds (int x, int y)
 
 unsigned urandom_range (unsigned k)
 {
-    return (k ? rand() % k : 0);
+    return (k ? xrand() % k : 0);
 }
 
 // modify absolute y coord relative to which part of level we are on

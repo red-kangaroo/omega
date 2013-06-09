@@ -120,7 +120,7 @@ void initrand (int environment, int level)
     if (environment == E_RESTORE)
 	srandrand();
     else if (environment >= 0)
-	srand (level_seed[environment] + level);
+	sxrand (level_seed[environment] + level);
 }
 
 int main (void)
@@ -195,7 +195,7 @@ static void signalexit (int sig)
 static void init_world (void)
 {
     for (int env = 0; env <= E_MAX; env++)
-	level_seed[env] = rand();
+	level_seed[env] = xrand();
     for (unsigned i = 0; i < ArraySize(CitySiteList); i++)
 	CitySiteList[i].known = false;
     for (unsigned i = 0; i < ArraySize(ObjectAttrs); ++i)

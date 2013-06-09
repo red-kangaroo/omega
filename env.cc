@@ -481,7 +481,7 @@ void load_city (void)
     initrand (E_CITY, 0);
     Level->depth = 0;
     static const char* _mazes[] = { Level_Maze1, Level_Maze2, Level_Maze3, Level_Maze4 };
-    const char* mazed = _mazes[rand()%ArraySize(_mazes)];
+    const char* mazed = _mazes[xrand()%ArraySize(_mazes)];
 
     level::load_map (E_CITY, Level_City, [&](char sc, location& s, unsigned i, unsigned j) {
 	s.locchar = FLOOR;
@@ -704,9 +704,9 @@ static void assign_city_function (location& s, int x, int y)
     unsigned loc;
     if (next >= ArraySize(permutation) || ArraySize(_citylocs) <= (loc = permutation[next++])) {
 	s.locchar = CLOSED_DOOR;
-	unsigned ht = rand() % 8;
+	unsigned ht = xrand() % 8;
 	s.p_locf = (ht < 2 ? L_HOVEL : (ht > 6 ? L_MANSION : L_HOUSE));
-	if (rand()%4)
+	if (xrand()%4)
 	    s.aux = LOCKED;
     } else {
 	uint8_t sitef = _citylocs[loc];
@@ -776,7 +776,7 @@ static void mazesite (char c, location& s, int i, int j)
 	    CitySiteList[L_ORACLE - CITYSITEBASE].y = j;
 	    break;
 	case 's':
-	    switch (rand()%4) {
+	    switch (xrand()%4) {
 		case 0: s.p_locf = TRAP_BASE + random_range (NUMTRAPS); break;
 		case 1: make_site_monster (i, j, RANDOM); break;
 		case 2: make_site_treasure (i, j, 5); break;
@@ -2474,8 +2474,8 @@ static void assign_village_function (location& s, int x, int y, bool setup)
     unsigned loc;
     if (next >= ArraySize(permutation) || ArraySize(_villageloc) <= (loc = permutation[next++])) {
 	s.locchar = CLOSED_DOOR;
-	s.aux = rand()%1 ? LOCKED : 0;
-	s.p_locf = rand()%1 ? L_HOVEL : L_HOUSE;
+	s.aux = xrand()%1 ? LOCKED : 0;
+	s.p_locf = xrand()%1 ? L_HOVEL : L_HOUSE;
     } else {
 	s.locchar = OPEN_DOOR;
 	s.p_locf = _villageloc[loc];
@@ -4436,7 +4436,7 @@ void l_brothel (void)
 				"you spend the evening discussing philosophy with\0"
 				"you spend the evening playing chess against\0"
 				"you spend the evening telling your adventures to";
-			    mprint (zstrn(_nopref, rand()%4, 4));
+			    mprint (zstrn(_nopref, xrand()%4, 4));
 			    mprint ("various employees of the House of the Eclipse.");
 			} else {
 			    mprint ("you spend an enjoyable and educational evening with");
@@ -4446,14 +4446,14 @@ void l_brothel (void)
 				    "Dryden the Defanged, an incubus.\0"
 				    "Gorgar the Equipped, a centaur.\0"
 				    "Hieronymus, the mendicant priest of Eros.";
-				mprint (zstrn(_mpref, rand()%4, 4));
+				mprint (zstrn(_mpref, xrand()%4, 4));
 			    } else {
 				static const char _fpref[] =
 				    "Noreen the Nymph (omaniac)\0"
 				    "Angelface, a recanted succubus.\0"
 				    "Corporal Sue of the City Guard (moonlighting).\0"
 				    "Sheena the Queena the Jungle, a wereleopard.";
-				mprint (zstrn(_fpref, rand()%4, 4));
+				mprint (zstrn(_fpref, xrand()%4, 4));
 			    }
 			}
 			morewait();

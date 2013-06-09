@@ -36,6 +36,8 @@
     typedef ostream bstro;
     typedef sizestream bstrs;
     template <typename Ctr> inline typename Ctr::iterator p2i (Ctr&, typename Ctr::pointer p) { return (p); }
+    static inline unsigned xrand (void)		{ return (rand()); }
+    static inline void sxrand (unsigned seed)	{ srand (seed); }
 #else
     #include "uccshim.h"
 #endif

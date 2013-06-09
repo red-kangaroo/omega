@@ -912,6 +912,7 @@ public:
     template <typename Stm>
     void		write (Stm& os) const;
 };
+STREAM_ALIGN (player, 4);
 
 // dungeon locations
 struct location {
@@ -967,6 +968,7 @@ public:
     inline void		SetTempleDeity (uint8_t id)	{ generated = id; }
 };
 typedef level* plv;
+STREAM_ALIGN (level, 4);
 
 class CWorld {
     enum { c_MaxLevels = 32 };
@@ -984,3 +986,4 @@ public:
 private:
     lvec_t		_levels;
 };
+STREAM_ALIGN (CWorld, 4);

@@ -218,6 +218,8 @@ void level::read (bstri& is)
     do {
 	uint8_t i, j;
 	is >> i >> j >> iend;
+	if (iend >= width || j >= height)
+	    throw runtime_error ("saved game corrupt");
 	for (; i < iend; ++i)
 	    is >> site(i,j);
     } while (iend);

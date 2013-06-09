@@ -149,6 +149,8 @@ inline constexpr uint32_t vpack (uint8_t a, uint8_t b, uint16_t c)
     { return ((c<<16)|(b<<8)|a); }
 
 inline void srandrand (void)	{ srand (getpid()^time(nullptr)); }
+unsigned xrand (void);
+void sxrand (unsigned seed);
 
 //}}}----------------------------------------------------------------------
 //{{{ Container algos
