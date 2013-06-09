@@ -22,4 +22,13 @@ void memblock::write_file (const char* filename)
 	throw runtime_error ("failed to write file");
 }
 
+void bstri::verify_remaining (const char* f, size_type sz) const
+{
+    if (remaining() >= sz)
+	return;
+    char szbuf[64];
+    snprintf(ArrayBlock(szbuf), "%s: insufficient data at %u", f, sz);
+    throw runtime_error (szbuf);
+}
+
 #endif	// if !USE_UCC

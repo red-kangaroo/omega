@@ -388,7 +388,7 @@ public:
     inline void		skip (int n)		{ iseek (ipos()+n); }
     inline void		align (size_type g)	{ skip (align_size(ipos(),g)); }
     inline void		skipalign (size_type g)	{ align (g); }
-    void		verify_remaining (const char* f, size_type sz)	{ char szbuf[64]; snprintf(ArrayBlock(szbuf), "%s: insufficient data at %u", f, sz); throw runtime_error (szbuf); }
+    void		verify_remaining (const char* f, size_type sz) const;
     inline void		read (void* v, size_type sz)	{ assert(remaining()>=sz && "read overflow"); memcpy (v,ipos(),sz); skip(sz); }
     inline const char*	read_strz (void)		{ const char* v = iptr<char>(); skip(strlen(v)+1); return (ipos() <= end() ? v : nullptr); }
     template <typename T>
