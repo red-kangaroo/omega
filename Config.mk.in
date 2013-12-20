@@ -27,7 +27,7 @@ WARNOPTS	:= -Wall -Wextra -Wpointer-arith -Woverloaded-virtual\
 CXXFLAGS	:= ${WARNOPTS} -std=c++11 @CUSTOMINCDIR@
 LDFLAGS		:= @CUSTOMLIBDIR@
 ifndef USE_UCC
-    LIBS	:=@libncurses@
+    LIBS	:=@libncurses@ @libz@
 endif
 ifdef DEBUG
     CXXFLAGS	+= -O0 -g

@@ -21,6 +21,9 @@
 #define OMEGA_PLAYER_FORMAT	0
 #define OMEGA_SAVE_FORMAT	0
 
+// Define to 1 if you have zlib
+#undef HAVE_ZLIB_H
+
 // Define to 1 to use ucc
 #undef USE_UCC
 #if USE_UCC

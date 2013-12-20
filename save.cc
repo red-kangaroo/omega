@@ -3,11 +3,14 @@
 #include "glob.h"
 #include <unistd.h>
 #include <stdlib.h>
+#if HAVE_ZLIB_H
+    #include <zlib.h>
+#endif
 
 //----------------------------------------------------------------------
 
 static memblock compress (const cmemlink& buf);
-static memblock decompress (const cmemlink& buf);
+static memblock decompress (const cmemlink& buf, uint32_t size);
 
 //----------------------------------------------------------------------
 
@@ -16,6 +19,7 @@ struct SGHeader {
     uint8_t	format;
     bool	compressed;
     uint16_t	gamever;
+    uint32_t	size;
 };
 
 //----------------------------------------------------------------------
@@ -39,9 +43,10 @@ bool save_game (void)
     mprint ("Saving Game....");
     bool writeok = false;
     try {
-	const SGHeader h = {'o','m','e','g',OMEGA_SAVE_FORMAT,optionp(COMPRESS),OMEGA_VERSION};
+	SGHeader h = {'o','m','e','g',OMEGA_SAVE_FORMAT,optionp(COMPRESS),OMEGA_VERSION,0};
 	bstrs ss;
 	ss << h << Player << World;
+	h.size = ss.pos();
 	memblock buf (ss.pos());
 	bstro os (buf);
 	os << h << Player << World;
@@ -79,7 +84,7 @@ bool restore_game (void)
 	if (header.format != OMEGA_SAVE_FORMAT)
 	    throw runtime_error ("incorrect saved game file format");
 	if (header.compressed) {
-	    buf.swap (decompress (buf));
+	    buf.swap (decompress (buf, header.size+512));
 	    is.link (buf);
 	    is.skip (stream_size_of(header));
 	}
@@ -350,9 +355,26 @@ enum : uint8_t { RUN_CODE = 0xCD };
 static memblock compress (const cmemlink& buf)
 {
     memblock obuf (buf.size());
+#if HAVE_ZLIB_H
+    z_stream s;
+    memset (&s, 0, sizeof(s));
+    deflateInit (&s, Z_DEFAULT_COMPRESSION);
+    s.next_in = const_cast<uint8_t*>((const uint8_t*)buf.begin()) + sizeof(SGHeader);
+    s.avail_in = buf.size() - sizeof(SGHeader);
+    memcpy (obuf.begin(), buf.begin(), sizeof(SGHeader));
+    s.next_out = (uint8_t*) obuf.begin() + sizeof(SGHeader);
+    s.avail_out = obuf.size() - sizeof(SGHeader);
+    int r;
+    while (Z_OK == (r = deflate (&s, Z_FINISH))) {}
+    if (r != Z_STREAM_END)	// Fallback to uncompressed
+	obuf.link (const_cast<uint8_t*>((const uint8_t*)buf.begin()), buf.size());
+    else
+	obuf.resize (obuf.size()-s.avail_out);
+    deflateEnd (&s);
+#else
     bstro os (obuf);
     const uint8_t *i = (const uint8_t*) buf.begin();
-    os << *(const SGHeader*)i << memblock::size_type(buf.size()-sizeof(SGHeader));
+    os << *(const SGHeader*)i;
     for (streamsize io = sizeof(SGHeader), ileft; (ileft = buf.size()-io); ++io) {
 	unsigned mm = 0, mdm = 0, dml = min<unsigned>(255,min(io,ileft));
 	for (unsigned m = 0, dm = 1; dm <= dml; ++dm) {
@@ -372,16 +394,34 @@ static memblock compress (const cmemlink& buf)
 	    os << i[io];
     }
     obuf.memlink::resize (os.pos());
+#endif
     return (obuf);
 }
 
-static memblock decompress (const cmemlink& buf)
+static memblock decompress (const cmemlink& buf, uint32_t size)
 {
+#if HAVE_ZLIB_H
+    z_stream s;
+    memset (&s, 0, sizeof(s));
+    inflateInit (&s);
+    s.next_in = const_cast<uint8_t*>((const uint8_t*)buf.begin()) + sizeof(SGHeader);
+    s.avail_in = buf.size() - sizeof(SGHeader);
+    memblock obuf (size);
+    memcpy (obuf.begin(), buf.begin(), sizeof(SGHeader));
+    s.next_out = (uint8_t*) obuf.begin() + sizeof(SGHeader);
+    s.avail_out = obuf.size() - sizeof(SGHeader);
+    int r;
+    while (Z_OK == (r = inflate (&s, Z_FINISH))) {}
+    if (r != Z_STREAM_END)	// Fallback to uncompressed
+	obuf.link (const_cast<uint8_t*>((const uint8_t*)buf.begin()), buf.size());
+    else
+	obuf.resize (obuf.size()-s.avail_out);
+    inflateEnd (&s);
+#else
     bstri is (buf.begin(), buf.size());
     sized_type<sizeof(SGHeader)>::type h;
-    memblock::size_type ucsz;
-    is >> h >> ucsz;
-    memblock obuf (ucsz+sizeof(SGHeader));
+    is >> h;
+    memblock obuf (h.size);
     bstro os (obuf);
     os << h;
     for (uint8_t b,o,l; os.remaining();) {
@@ -397,5 +437,6 @@ static memblock decompress (const cmemlink& buf)
 	}
     }
     obuf.memlink::resize (os.pos());
+#endif
     return (obuf);
 }

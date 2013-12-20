@@ -27,10 +27,10 @@ seds=[s/^#\(USE_UCC\)/\1\t/;s/#undef \(USE_UCC\)/#define \1 1/;s/@CXX@/ucc/]
 }';
 
 # Header files
-HEADERS="stl.h"
+HEADERS="stl.h zlib.h"
 
 # Libraries
-LIBS="ncurses"
+LIBS="ncurses z"
 
 # First pair is used if nothing matches
 PROGS="CC=gcc CXX=g++ INSTALL=install"
@@ -269,7 +269,7 @@ fi
 
 SubHeadLibsProgs() {
 local INCPATH LIBPATH LIBSUFFIX found pname pcall esciv
-INCPATH="$ac_var_includedir $ac_var_gccincludedir $ac_var_customincdir"
+INCPATH="$ac_var_includedir $ac_var_gccincludedir $ac_var_customincdir /usr/include"
 INCPATH=`echo $INCPATH | sed 's/\\\\//g'`
 for i in $HEADERS; do
     for p in $INCPATH; do
