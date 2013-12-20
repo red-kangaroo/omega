@@ -110,7 +110,7 @@ monster* level::creature (int x, int y)
     foreach (m, mlist)
 	if (m->x == x && m->y == y)
 	    return (&*m);
-    return (NULL);
+    return (nullptr);
 }
 
 object* level::thing (int x, int y)
@@ -118,7 +118,7 @@ object* level::thing (int x, int y)
     foreach (i, things)
 	if (i->x == x && i->y == y)
 	    return (&*i);
-    return (NULL);
+    return (nullptr);
 }
 
 void level::make_thing (int x, int y, unsigned tid, unsigned n)
@@ -3476,7 +3476,7 @@ void l_commandant (void)
     if (ynq() == 'y') {
 	clearmsg();
 	mprint ("How many? ");
-	int num = (int) parsenum();
+	int num = parsenum();
 	if (num < 1)
 	    mprint ("Cute. Real cute.");
 	else if (num * 5U > Player.cash)
@@ -4865,17 +4865,16 @@ void l_cartographer (void)
 
 void l_charity (void)
 {
-    long donation;
     mprint ("'Greetings, friend. Do you wish to make a donation?' [yn] ");
     if (ynq() != 'y')
 	mprint ("'Pinchpurse!'");
     else {
 	clearmsg();
 	mprint ("How much can you give? ");
-	donation = parsenum();
+	int donation = parsenum();
 	if (donation < 1)
 	    mprint ("'Go stick your head in a pig.'");
-	else if (donation > Player.cash)
+	else if (donation > (int) Player.cash)
 	    mprint ("'I'm afraid you're charity is bigger than your purse!'");
 	else if (donation < max (100, Player.level * Player.level * 100)) {
 	    mprint ("'Oh, can't you do better than that?'");

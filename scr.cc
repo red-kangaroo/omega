@@ -7,14 +7,13 @@
 
 static void blankoutspot(int i, int j);
 static void blotspot(int i, int j);
-static void buffermsg (const char* s);
-static void dobackspace(void);
 static void drawplayer(void);
 static void lightspot(int x, int y);
 
 //----------------------------------------------------------------------
 
 static constexpr inline attr_t CHARATTR (chtype c) { return (c & ~A_CHARTEXT); }
+static constexpr inline char CHARCHAR (chtype c) { return (c & A_CHARTEXT); }
 
 static WINDOW *Levelw, *Dataw, *Flagw, *Timew, *Menuw, *Locw, *Morew, *Phasew;
 static WINDOW *Comwin, *Msgw;
@@ -43,20 +42,17 @@ void phaseprint (void)
 void show_screen (void)
 {
     werase (Levelw);
-    int top = max<int> (0, ScreenOffset);
-    int bottom = min<int> (Level->height, ScreenOffset + ScreenLength);
-    for (int j = top; j < bottom; j++) {
-	wmove (Levelw, screenmod (j), 0);
-	for (unsigned i = 0; i < Level->width; i++) {
+    unsigned bottom = min<int> (Level->height, ScreenOffset + ScreenLength);
+    for (unsigned j = max<int> (0, ScreenOffset); j < bottom; ++j) {
+	wmove (Levelw, screenmod(j), 0);
+	for (unsigned i = 0; i < Level->width; ++i) {
 	    chtype c = SPACE;
 	    if (Level->environment == E_COUNTRYSIDE)
 		c = Level->site(i,j).showchar();
-	    else {
-		if (loc_statusp (i, j, SEEN))
-		    c = getspot (i, j, false);
-	    }
+	    else if (loc_statusp (i, j, SEEN))
+		c = getspot (i, j, false);
 	    wattrset (Levelw, CHARATTR(c));
-	    waddch (Levelw, c & 0xff);
+	    waddch (Levelw, char(c));
 	}
     }
     wrefresh (Levelw);
@@ -70,7 +66,7 @@ wchar_t mgetc (void)
 // case insensitive mgetc -- sends uppercase to lowercase
 wchar_t mcigetc (void)
 {
-    return (tolower (wgetch (Msgw)));
+    return (tolower (mgetc()));
 }
 
 wchar_t menugetc (void)
@@ -85,30 +81,19 @@ wchar_t lgetc (void)
 
 wchar_t ynq (void)
 {
-    char p = '*';		// the user's choice; start with something impossible
-				// to prevent a loop.
-    while ((p != 'n') && (p != 'y') && (p != 'q') && (p != KEY_ESCAPE) && (p != EOF) && (p != ' '))
-	p = wgetch (Msgw);
-    switch (p) {
-	case 'y':
-	    wprintw (Msgw, "yes. ");
-	    break;
-	case 'n':
-	    wprintw (Msgw, "no. ");
-	    break;
-
-	case KEY_ESCAPE:
-	    p = 'q';		// fall through to 'q'
-	case ' ':
-	    p = 'q';		// fall through to 'q'
-	case 'q':
-	    wprintw (Msgw, "quit. ");
-	    break;
-	default:
-	    assert (p == EOF);
-    }
-    wrefresh (Msgw);
-    return (p);
+    const char* rmsg = nullptr;
+    do {
+	switch (mgetc()) {
+	    case KEY_ESCAPE:
+	    case ' ':
+	    case EOF:
+	    case 'q':	rmsg = "quit"; break;
+	    case 'y':	rmsg = "yes"; break;
+	    case 'n':	rmsg = "no"; break;
+	}
+    } while (!rmsg);
+    mappend (rmsg);
+    return (rmsg[0]);
 }
 
 void erase_level (void)
@@ -535,8 +520,8 @@ void morewait (void)
 	    wprintw (Morew, "+++  MORE  +++");
 	display = !display;
 	wrefresh (Morew);
-	c = wgetch (Msgw);
-    } while ((c != ' ') && (c != KEY_ENTER) && (c != EOF));
+	c = wgetch (Morew);
+    } while (c != ' ' && c != KEY_ENTER && c != EOF);
     werase (Morew);
     wrefresh (Morew);
 }
@@ -553,7 +538,7 @@ int stillonblock (void)
 	    wprintw (Morew, ">>>STAY?<<<");
 	display = !display;
 	wrefresh (Morew);
-	c = wgetch (Msgw);
+	c = wgetch (Morew);
     } while ((c != ' ') && (c != KEY_ESCAPE) && (c != EOF));
     werase (Morew);
     wrefresh (Morew);
@@ -618,31 +603,31 @@ void draw_explosion (chtype pyx, int x, int y)
     wrefresh (Levelw);
 }
 
-const char* msgscanstring (void)
+const char* msgscanstring (char crf, char crl)
 {
-    static char instring[80], byte = 'x';
-    int i = 0;
-
+    static char instring[80];
+    int x, y, i = 0;
     instring[0] = 0;
-    curs_set (1);
-    byte = mgetc();
-    while (byte != '\n') {
-	if ((byte == 8) || (byte == 127)) {	// ^h or delete
-	    if (i > 0) {
-		i--;
-		dobackspace();
-	    }
-	    instring[i] = 0;
-	} else {
-	    instring[i] = byte;
-	    waddch (Msgw, byte);
-	    wrefresh (Msgw);
-	    i++;
-	    instring[i] = 0;
-	}
-	byte = mgetc();
+    getyx (Msgw, y, x);
+    curs_set (true);
+    for (char c;;) {
+	c = mgetc();
+	if (c == KEY_ESCAPE || c == EOF) {
+	    instring[0] = 0;
+	    break;
+	} else if (c == KEY_ENTER)
+	    break;
+	else if (c == KEY_BACKSPACE && i > 0)
+	    --i;
+	else if (c >= crf && c <= crl)
+	    instring[i++] = c;
+	instring[i] = 0;
+	mvwaddstr (Msgw, y,x, instring);
+	wclrtoeol (Msgw);
+	wrefresh (Msgw);
     }
-    curs_set (0);
+    curs_set (false);
+    mappend (instring);
     return (instring);
 }
 
@@ -665,73 +650,20 @@ void drawscreen (void)
     show_screen();
 }
 
-//selects a number up to range
-
+// selects a number up to range
 int getnumber (int range)
 {
-    int done = false, value = 1;
-    int atom;
-
-    if (range == 1)
-	return (1);
-    else {
-	while (!done) {
-	    clearmsg();
-	    mprintf ("How many? Change with < or >, ESCAPE to select: %d", value);
-	    do
-		atom = mcigetc();
-	    while (atom != '<' && atom != '>' && atom != KEY_ESCAPE);
-	    if ((atom == '>') && (value < range))
-		value++;
-	    else if ((atom == '<') && (value > 1))
-		value--;
-	    else if (atom == KEY_ESCAPE)
-		done = true;
-	}
-    }
-    return (value);
+    mprint ("How many? ");
+    return (max (1, min (range, parsenum())));
 }
 
 // reads a positive number up to 999999
-long parsenum (void)
+int parsenum (void)
 {
-    int number[8];
-    int place = -1;
-    int i, x, y, mult = 1;
-    long num = 0;
-    char byte = ' ';
-
-    curs_set (1);
-    while ((byte != KEY_ESCAPE) && (byte != '\n')) {
-	byte = mgetc();
-	if (byte == KEY_BACKSPACE) {
-	    if (place > -1) {
-		number[place] = 0;
-		place--;
-		getyx (Msgw, y, x);
-		wmove (Msgw, y, x - 1);
-		waddch (Msgw, ' ');
-		wmove (Msgw, y, x - 1);
-		wrefresh (Msgw);
-	    }
-	} else if ((byte <= '9') && (byte >= '0') && (place < 7)) {
-	    place++;
-	    number[place] = byte;
-	    waddch (Msgw, byte);
-	    wrefresh (Msgw);
-	}
-    }
-    curs_set (0);
-    waddch (Msgw, ' ');
-    if (byte == KEY_ESCAPE)
+    const char* numstr = msgscanstring ('0','9');
+    if (!numstr[0])
 	return (ABORT);
-    else {
-	for (i = place; i >= 0; i--) {
-	    num += mult * (number[i] - '0');
-	    mult *= 10;
-	}
-	return (num);
-    }
+    return (atoi (numstr));
 }
 
 void display_death (const char* source)
@@ -788,19 +720,6 @@ void menulongprint (long n)
 	touchwin (Menuw);
     }
     wprintw (Menuw, "%ld", n);
-}
-
-static void dobackspace (void)
-{
-    int x, y;
-    getyx (Msgw, y, x);
-    if (x > 0) {
-	waddch (Msgw, ' ');
-	wmove (Msgw, y, x - 1);
-	waddch (Msgw, ' ');
-	wmove (Msgw, y, x - 1);
-    }
-    wrefresh (Msgw);
 }
 
 void showflags (void)
@@ -1046,31 +965,27 @@ static char _msgbuf [4096];
 static unsigned _nextmsg = 0;
 static unsigned _visiblemsg[3];
 
-static void buffermsg (const char* s)
+static void MakeMsgBufferSpace (unsigned slen)
 {
-    unsigned slen = strlen(s)+1, spaceleft = ArraySize(_msgbuf)-_nextmsg;
-    if (spaceleft < slen) {
-	unsigned bte = ArraySize(_msgbuf)/4;
-	bte += strlen(_msgbuf+bte)+1;
-	memmove (_msgbuf, _msgbuf+bte, _nextmsg-bte);
-	_nextmsg -= bte;
-	for (unsigned i = 0; i < ArraySize(_visiblemsg); ++i)
-	    _visiblemsg[i] -= bte;
-    }
-    memcpy (_msgbuf+_nextmsg, s, slen);
-    while (ArrayEnd(_visiblemsg)[-1] != _nextmsg)
-	msglist_down();
-    _nextmsg += slen;
+    unsigned spaceleft = ArraySize(_msgbuf)-_nextmsg;
+    if (spaceleft >= slen)
+	return;
+    unsigned bte = ArraySize(_msgbuf)/4;	// Make space in quarter chunks
+    bte += strlen(_msgbuf+bte)+1;		// Align to end of a message
+    memmove (_msgbuf, _msgbuf+bte, _nextmsg-bte);	// Erase from start
+    _nextmsg -= bte;				// Adjust indexes
+    for (unsigned i = 0; i < ArraySize(_visiblemsg); ++i)
+	_visiblemsg[i] -= bte;
 }
 
 void display_messages (void)
 {
     werase (Msgw);
-    unsigned i = 0;
+    unsigned i = 0, l = 0;
     for (i = 0; i < ArraySize(_visiblemsg)-1 && _visiblemsg[i] == _visiblemsg[i+1]; ++i) {}
     for (; i < ArraySize(_visiblemsg); ++i)
 	if (_visiblemsg[i] != _nextmsg)
-	    wprintw (Msgw, "%s\n", _msgbuf+_visiblemsg[i]);
+	    mvwprintw (Msgw, l++,0, "%s", _msgbuf+_visiblemsg[i]);
     wrefresh (Msgw);
 }
 
@@ -1100,11 +1015,27 @@ void msglist_up (void)
     _visiblemsg[0] = curtop;
 }
 
+void mappend (const char* s)
+{
+    if (gamestatusp (SUPPRESS_PRINTING))
+	return;
+    unsigned slen = strlen(s);
+    MakeMsgBufferSpace (slen);
+    memcpy (_msgbuf+_nextmsg-1, s, slen+1);
+    _nextmsg += slen;
+    display_messages();
+}
+
 void mprint (const char* s)
 {
     if (gamestatusp (SUPPRESS_PRINTING))
 	return;
-    buffermsg (s);
+    unsigned slen = strlen(s)+1;
+    MakeMsgBufferSpace (slen);
+    memcpy (_msgbuf+_nextmsg, s, slen);
+    while (ArrayEnd(_visiblemsg)[-1] != _nextmsg)
+	msglist_down();
+    _nextmsg += slen;
     display_messages();
 }
 

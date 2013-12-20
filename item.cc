@@ -1793,11 +1793,11 @@ static void i_juggernaut (pob o)
 	    }
 	    lreset (x, y, SECRET);
 	    lset (x, y, CHANGED);
-	    if (Level->creature(x,y) != NULL) {
+	    if (Level->creature(x,y)) {
 		if (seen)
 		    mprint ("Splat! ");
 		else
-		    not_seen++;
+		    ++not_seen;
 		setgamestatus (SUPPRESS_PRINTING);
 		m_death (Level->creature(x,y));
 		resetgamestatus (SUPPRESS_PRINTING);
@@ -1891,7 +1891,7 @@ static void i_antioch (pob o)
 	mprint ("Ok, you pull the pin.....");
 	morewait();
 	mprint ("What do you count up to? ");
-	count = (int) parsenum();
+	count = parsenum();
 	if (count < 3 && Level->creature(x,y)) {
 	    mprint ("`Three shall be the number of thy counting....");
 	    mprint ("And the number of thy counting shall be three.'");

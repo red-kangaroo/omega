@@ -1141,7 +1141,7 @@ void warp (int blessing)
 	mprint ("How strange! No effect....");
     else {
 	mprint ("Warp to which level? ");
-	newlevel = (int) parsenum();
+	newlevel = parsenum();
 	if (newlevel >= Level->MaxDepth() || blessing < 0 || newlevel < 1) {
 	    mprint ("You have been deflected!");
 	    newlevel = random_range (Level->MaxDepth() - 1) + 1;
@@ -1433,7 +1433,7 @@ static int itemlist (int itemindex, int num)
 	showmenu();
     }
     mprint ("Item ID? ");
-    itemno = (int) parsenum() - 1;
+    itemno = parsenum() - 1;
     if ((itemno >= num) || (itemno < 0))
 	itemno = ABORT;
     return (itemno);
@@ -1455,7 +1455,7 @@ static int selectmonster (void)
 		menuprint ("\n");
 	    }
 	    showmenu();
-	    itemno = (int) parsenum() - 1;
+	    itemno = parsenum() - 1;
 	    if ((itemno < 0) || (itemno > NUMMONSTERS - 1)) {
 		mprint ("How about trying a real monster?");
 		morewait();
@@ -1464,7 +1464,7 @@ static int selectmonster (void)
     else
 	do {
 	    mprint ("Summon monster: ");
-	    itemno = (int) parsenum() - 1;
+	    itemno = parsenum() - 1;
 	} while ((itemno < 0) || (itemno > NUMMONSTERS - 1));
     return (itemno);
 }
@@ -1546,8 +1546,7 @@ void sleep_monster (int blessing)
 	    m->wakeup = 0;
 	}
     } else {
-	target = Level->creature(x,y);
-	if (target != NULL) {
+	if ((target = Level->creature(x,y))) {
 	    if (target->uniqueness == COMMON) {
 		strcpy (Str1, "The ");
 		strcat (Str1, target->monstring);
@@ -1676,8 +1675,7 @@ void disrupt (int x, int y, int amount)
 	mprint ("You feel disrupted!");
 	p_damage (amount, NORMAL_DAMAGE, "magical disruption");
     } else {
-	target = Level->creature(x,y);
-	if (target != NULL) {
+	if ((target = Level->creature(x,y))) {
 	    if (target->uniqueness == COMMON) {
 		strcpy (Str1, "The ");
 		strcat (Str1, target->monstring);
@@ -2185,7 +2183,7 @@ void polymorph (int blessing)
 	mprint (Monsters[random_range (NUMMONSTERS)].monstring);
 	mprint ("But your game is over....");
 	p_death ("polymorphing oneself");
-    } else if ((m = Level->creature(x,y)) == NULL)
+    } else if (!(m = Level->creature(x,y)))
 	mprint ("Nothing happens.");
     else {
 	if (m_immunityp (m, OTHER_MAGIC) || (m->level > random_range (12))) {
@@ -2243,7 +2241,7 @@ void hellfire (int x, int y, int blessing)
     if (x == (int) Player.x && y == (int) Player.y) {
 	mprint ("You have been completely annihilated. Congratulations.");
 	p_death ("hellfire");
-    } else if ((m = Level->creature(x,y)) == NULL) {
+    } else if (!(m = Level->creature(x,y))) {
 	mprint ("The gods are angry over your waste of power...");
 	level_drain (5, "indiscriminate use of hellfire");
     } else {
@@ -2279,8 +2277,8 @@ void drain (int blessing)
 	mprint ("You drain your own energy....");
 	mprint ("Uh, oh, positive feedback....");
 	level_drain (Player.level, "self-vampirism");
-    } else if ((m = Level->creature(x,y)) != NULL) {
-	if ((blessing > -1) && (!m_immunityp (m, NEGENERGY))) {
+    } else if ((m = Level->creature(x,y))) {
+	if (blessing > -1 && !m_immunityp (m, NEGENERGY)) {
 	    mprint ("The monster seems weaker...");
 	    m_damage (m, m->level * m->level, NEGENERGY);
 	    m->hit = max (m->hit - m->level, 1);
@@ -2424,7 +2422,7 @@ void inflict_fear (int x, int y)
 	    mprint ("You panic!");
 	    Player.status[AFRAID] += 10;
 	}
-    } else if ((m = Level->creature(x,y)) != NULL) {
+    } else if ((m = Level->creature(x,y))) {
 	if (m->uniqueness == COMMON) {
 	    strcpy (Str2, "The ");
 	    strcat (Str2, m->monstring);

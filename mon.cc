@@ -1961,7 +1961,7 @@ void m_death (struct monster *m)
 				    ibadge = &*i;
 			    mprint ("In the distance you hear a trumpet. A Servant of Law");
 			    // promote one of the city guards to be justiciar
-			    monster* guard = NULL;
+			    monster* guard = nullptr;
 			    foreach (g, Level->mlist)
 				if (g->id == GUARD && g->hp > 0)
 				    guard = &*g;

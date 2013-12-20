@@ -257,7 +257,7 @@ static void l_lift (void)
     while (response != 'u' && response != 'd' && response != KEY_ESCAPE);
     if (response != KEY_ESCAPE) {
 	mprint ("How many levels?");
-	levelnum = (int) parsenum();
+	levelnum = parsenum();
 	if (levelnum > 6) {
 	    too_far = 1;
 	    levelnum = 6;

@@ -49,6 +49,7 @@ endif
 
 clean:
 	@[ ! -d ./$O ] || rm -rf ./$O
+	@rm -f ${EXE}
 
 distclean:	clean
 	@rm -f Config.mk config.h config.status

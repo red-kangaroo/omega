@@ -219,7 +219,7 @@ inline const char* zstrn (const char* strs, unsigned n, unsigned nstrs)
 //{{{ Curses shims
 
 #define KEY_ESCAPE	0x1b
-struct KEY_CTRL_MOD {	inline constexpr int operator| (char c) { return (c-'a'); } };
+struct KEY_CTRL_MOD {	inline constexpr int operator| (char c) { return (c-'a'+1); } };
 #define KEY_CTRL	KEY_CTRL_MOD()
 
 #define COLOR_DEFAULT	-1

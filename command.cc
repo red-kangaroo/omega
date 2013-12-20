@@ -610,6 +610,7 @@ static object detach_money (void)
     object money = make_cash (difficulty());
     int c = get_money (Player.cash);
     money.basevalue = (c == ABORT ? 0 : c);
+    Player.cash -= money.basevalue;
     return (money);
 }
 
@@ -1403,7 +1404,7 @@ static void nap (void)
     } else {
 	clearmsg();
 	mprint ("Rest for how long? (in minutes) ");
-	naptime = (int) parsenum();
+	naptime = parsenum();
 	if (naptime > 600) {
 	    mprint ("You can only sleep up to 10 hours (600 minutes)");
 	    naptime = 3600;
@@ -1927,14 +1928,13 @@ static void city_move (void)
 static void frobgamestatus (void)
 {
     char response;
-    long num;
     mprint ("Set or Reset or Forget it [s,r,ESCAPE]:");
     do
 	response = (char) mcigetc();
     while ((response != 'r') && (response != 's') && (response != KEY_ESCAPE));
     if (response != KEY_ESCAPE) {
 	mprint ("Enter log2 of flag:");
-	num = (int) parsenum();
+	int num = parsenum();
 	if (num > -1) {
 	    num = pow2 (num);
 	    if (num == CHEATED) {

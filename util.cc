@@ -68,7 +68,7 @@ int m_unblocked (struct monster *m, int x, int y)
 {
     if (!inbounds(x, y) || (x == (int)Player.x && y == (int)Player.y))
 	return (false);
-    else if ((Level->creature(x,y) != NULL) || (Level->site(x,y).locchar == SPACE))
+    else if (Level->creature(x,y) || (Level->site(x,y).locchar == SPACE))
 	return (false);
     else if (m_statusp (m, ONLYSWIM))
 	return (Level->site(x,y).locchar == WATER);

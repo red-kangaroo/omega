@@ -6,7 +6,7 @@
 //----------------------------------------------------------------------
 //{{{ Objects
 
-const object_data NullObject = { NO_THING, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, COMMON, I_NO_OP, NULL_ITEM, NULL, NULL, NULL };
+const object_data NullObject = { NO_THING, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, COMMON, I_NO_OP, NULL_ITEM, nullptr, nullptr, nullptr };
 
 const struct object_data Objects[TOTALITEMS] = {
 //     lev    plus frg   dmg    aux     frag     used  type  unique             	    objstr              cursestr

@@ -38,7 +38,7 @@ citysite CitySiteList[NUMCITYSITES];
 uint32_t GameStatus = 0;	// Game Status bit vector
 uint8_t ScreenLength = 0;	// How large is level window
 struct player Player;		// the player
-struct level* Level = NULL;	// Pointer to current Level
+struct level* Level = nullptr;	// Pointer to current Level
 int8_t ScreenOffset = 0;	// Offset of displayed screen to level
 CWorld World;			// Level container
 const int8_t Dirs[2][9] = {	// 9 xy directions

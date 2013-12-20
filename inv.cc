@@ -125,9 +125,8 @@ void player::remove_all_possessions (void)
 // gets a legal amount of money or ABORT
 long get_money (long limit)
 {
-    long c;
     mprint ("How much? ");
-    c = parsenum();
+    int c = parsenum();
     if (c > limit) {
 	mprint ("Forget it, buddy.");
 	return (ABORT);
@@ -853,7 +852,7 @@ object* find_item (int id)
     for (unsigned i = 0; i < Player.pack.size(); i++)
 	if (Player.pack[i].id == id)
 	    return (&Player.pack[i]);
-    return (NULL);
+    return (nullptr);
 }
 
 // returns true if item with id and charge is found in pack or in
