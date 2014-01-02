@@ -5,10 +5,11 @@
 EXE	:= ${NAME}
 SRCS	:= $(wildcard *.cc)
 OBJS	:= $(addprefix $O,$(SRCS:.cc=.o))
+DEPS	:= ${OBJS:.o=.d}
 
 ################ Compilation ###########################################
 
-.PHONY: all clean dist distclean maintainer-clean
+.PHONY: all clean distclean maintainer-clean
 
 all:	Config.mk config.h ${EXE}
 
@@ -41,16 +42,19 @@ ${EXEI}:	${EXE}
 	@${INSTALLEXE} $< $@
 
 uninstall:
-	@echo "Removing ${EXEI} ..."
-	@rm -f ${EXEI}
+	@if [ -f ${EXEI} ]; then\
+	    echo "Removing ${EXEI} ...";\
+	    rm -f ${EXEI};\
+	fi
 endif
 
 ################ Maintenance ###########################################
 
 clean:
-	@[ ! -d ./$O ] || rm -rf ./$O
-	@rm -f ${EXE}
-
+	@if [ -d $O ]; then\
+	    rm -f ${EXE} ${OBJS} ${DEPS};\
+	    rmdir $O;\
+	fi
 distclean:	clean
 	@rm -f Config.mk config.h config.status
 
@@ -63,4 +67,4 @@ Config.mk config.h:	configure
 	@if [ -x config.status ]; then echo "Reconfiguring ..."; ./config.status; \
 	else echo "Running configure ..."; ./configure; fi
 
--include ${OBJS:.o=.d}
+-include ${DEPS}
