@@ -449,96 +449,96 @@ int getspell (void)
 	mprint ("Cast Spell: [type spell abbrev, ?, or ESCAPE]: ");
 	spell = spellparse();
     } while (spell < ABORT);
-    return (spell);
+    return spell;
 }
 
 const char* spellid (int id)
 {
     switch (id) {
 	case S_MON_DET:
-	    return ("monster detection");
+	    return "monster detection";
 	case S_OBJ_DET:
-	    return ("object detection");
+	    return "object detection";
 	case S_IDENTIFY:
-	    return ("identification");
+	    return "identification";
 	case S_FIREBOLT:
-	    return ("firebolt");
+	    return "firebolt";
 	case S_LBALL:
-	    return ("ball lightning");
+	    return "ball lightning";
 	case S_SLEEP:
-	    return ("sleep");
+	    return "sleep";
 	case S_DISRUPT:
-	    return ("disrupt");
+	    return "disrupt";
 	case S_DISINTEGRATE:
-	    return ("disintegrate");
+	    return "disintegrate";
 	case S_TELEPORT:
-	    return ("teleport");
+	    return "teleport";
 	case S_MISSILE:
-	    return ("magic missile");
+	    return "magic missile";
 	case S_HEAL:
-	    return ("healing");
+	    return "healing";
 	case S_DISPEL:
-	    return ("dispelling");
+	    return "dispelling";
 	case S_BREATHE:
-	    return ("breathing");
+	    return "breathing";
 	case S_INVISIBLE:
-	    return ("invisibility");
+	    return "invisibility";
 	case S_WARP:
-	    return ("the warp");
+	    return "the warp";
 	case S_ENCHANT:
-	    return ("enchantment");
+	    return "enchantment";
 	case S_BLESS:
-	    return ("blessing");
+	    return "blessing";
 	case S_RESTORE:
-	    return ("restoration");
+	    return "restoration";
 	case S_CURE:
-	    return ("curing");
+	    return "curing";
 	case S_TRUESIGHT:
-	    return ("true sight");
+	    return "true sight";
 	case S_HELLFIRE:
-	    return ("hellfire");
+	    return "hellfire";
 	case S_KNOWLEDGE:
-	    return ("self knowledge");
+	    return "self knowledge";
 	case S_HERO:
-	    return ("heroism");
+	    return "heroism";
 	case S_RETURN:
-	    return ("return");
+	    return "return";
 	case S_DESECRATE:
-	    return ("desecration");
+	    return "desecration";
 	case S_HASTE:
-	    return ("haste");
+	    return "haste";
 	case S_SUMMON:
-	    return ("summoning");
+	    return "summoning";
 	case S_SANCTUARY:
-	    return ("sanctuary");
+	    return "sanctuary";
 	case S_ACCURACY:
-	    return ("accuracy");
+	    return "accuracy";
 	case S_RITUAL:
-	    return ("ritual magic");
+	    return "ritual magic";
 	case S_APPORT:
-	    return ("apportation");
+	    return "apportation";
 	case S_SHADOWFORM:
-	    return ("shadow form");
+	    return "shadow form";
 	case S_ALERT:
-	    return ("alertness");
+	    return "alertness";
 	case S_REGENERATE:
-	    return ("regeneration");
+	    return "regeneration";
 	case S_SANCTIFY:
-	    return ("sanctification");
+	    return "sanctification";
 	case S_CLAIRVOYANCE:
-	    return ("clairvoyance");
+	    return "clairvoyance";
 	case S_DRAIN:
-	    return ("energy drain");
+	    return "energy drain";
 	case S_LEVITATE:
-	    return ("levitate");
+	    return "levitate";
 	case S_POLYMORPH:
-	    return ("polymorph");
+	    return "polymorph";
 	case S_FEAR:
-	    return ("fear");
+	    return "fear";
 	case S_WISH:
-	    return ("wishing");
+	    return "wishing";
 	default:
-	    return ("???");
+	    return "???";
     }
 }
 

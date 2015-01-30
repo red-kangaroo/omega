@@ -60,7 +60,7 @@ bool save_game (void)
 	morewait();
 	clearmsg();
     }
-    return (writeok);
+    return writeok;
 }
 
 // read player data, city level, dungeon level,
@@ -71,7 +71,7 @@ bool restore_game (void)
     char savestr [128];
     snprintf (ArrayBlock(savestr), OMEGA_SAVED_GAME, getenv("HOME"));
     if (0 != access (savestr, R_OK))
-	return (false);
+	return false;
 
     memblock buf;
     try {
@@ -98,17 +98,27 @@ bool restore_game (void)
 	snprintf (ArrayBlock(errbuf), "Error restoring %s: %s", savestr, e.what());
 	mprint (errbuf);
 	morewait();
-	return (false);
+	return false;
     }
-    return (true);
+    return true;
 }
 
 //----------------------------------------------------------------------
+//{{{ long4 - serialize a uint64_t as two uint32_ts.
+struct long4 {
+    uint64_t& _v;
+    inline long4 (uint64_t& v):_v(v){}
+    inline void read (bstri& is) { uint32_t v1,v2; is >> v1 >> v2; _v = (uint64_t(v2)<<32)|v1; }
+    inline void write (bstro& os) const { os << uint32_t(_v) << uint32_t(_v>>32); }
+    inline void write (bstrs& ss) const { ss.write (&_v, sizeof(_v)); }
+};
+//}}}
 
 template <typename Stm>
 static inline void globals_serialize (Stm& stm)
 {
-    stm & GameStatus & Time & Balance & SpellKnown & FixedPoints & Gymcredit 	// 4
+    long4 lSpellKnown (SpellKnown);
+    stm & GameStatus & Time & Balance & lSpellKnown & FixedPoints & Gymcredit 	// 4
 	& Date & Command_Duration & HiMagicUse & LastDay			// 2
 	& Pawndate & StarGemUse & winnings
 	& Searchnum & Verbosity							// 1
@@ -395,7 +405,7 @@ static memblock compress (const cmemlink& buf)
     }
     obuf.memlink::resize (os.pos());
 #endif
-    return (obuf);
+    return obuf;
 }
 
 static memblock decompress (const cmemlink& buf, uint32_t size)
@@ -438,5 +448,5 @@ static memblock decompress (const cmemlink& buf, uint32_t size)
     }
     obuf.memlink::resize (os.pos());
 #endif
-    return (obuf);
+    return obuf;
 }

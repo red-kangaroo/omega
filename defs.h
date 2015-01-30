@@ -785,13 +785,13 @@ public:
 public:
     explicit	object (int8_t nx = 0, int8_t ny = 0, unsigned tid = 0, uint16_t n = 1);
 		object (const object_data& o)	: number(1), x(0), y(0) { operator= (o); }
-    object&	operator= (const object_data& o){ *implicit_cast<object_data*>(this) = o; return (*this); }
+    object&	operator= (const object_data& o){ *implicit_cast<object_data*>(this) = o; return *this; }
     bool	operator== (const object& v) const;
     void	read (bstri& is);
     template <typename Stm>
     void	write (Stm& os) const;
 };
-typedef object* pob;
+using pob = object*;
 STREAM_ALIGN (object, 2);
 
 struct monster_data {
@@ -835,13 +835,13 @@ struct monster : public monster_data {
     uint8_t		x;
     uint8_t		y;
 public:
-    inline monster&	operator= (const monster_data& v)	{ *implicit_cast<monster_data*>(this) = v; possessions.clear(); return (*this); }
+    inline monster&	operator= (const monster_data& v)	{ *implicit_cast<monster_data*>(this) = v; possessions.clear(); return *this; }
     void		read (bstri& is);
     template <typename Stm>
     void		write (Stm& os) const;
     const char*		name (void) const PURE;
     const char*		by_name (void) const PURE;
-    inline const char*	definite_article (void) const PURE	{ return (uniqueness == COMMON ? "the " : ""); }
+    inline const char*	definite_article (void) const PURE	{ return uniqueness == COMMON ? "the " : ""; }
     inline void		pickup (const object& o)		{ possessions.push_back(o); }
 };
 STREAM_ALIGN (monster, 4);
@@ -903,9 +903,9 @@ public:
     void		remove_possession (unsigned slot, unsigned number = -1);
     void		remove_possession (object* o, unsigned number = -1);
     void		remove_all_possessions (void);
-    inline bool		has_possession (unsigned slot) const	{ return (possessions[slot].id != NO_THING); }
-    inline bool		immune_to (EDamageType dtype) const	{ return (immunity[dtype] > 0); }
-    inline uint16_t	calcmana (void) const			{ return (pow*(level+1)); }
+    inline bool		has_possession (unsigned slot) const	{ return possessions[slot].id != NO_THING; }
+    inline bool		immune_to (EDamageType dtype) const	{ return immunity[dtype] > 0; }
+    inline uint16_t	calcmana (void) const			{ return pow*(level+1); }
     bool		on_sanctuary (void) const;
     void		calc_melee (void);
     void		read (bstri& is);
@@ -922,7 +922,7 @@ struct location {
     uint8_t	lstatus;	// seen,stopsrun,lit,secret,
     uint8_t	roomnumber;	// so room can be named
 public:
-    inline bool	operator== (const location& l) const	{ return (locchar == l.locchar); }
+    inline bool	operator== (const location& l) const	{ return locchar == l.locchar; }
     chtype	showchar (void) const noexcept PURE;
 };
 
@@ -959,20 +959,20 @@ public:
     void		remove_things (int x, int y);
     void		add_thing (int x, int y, const object& o, unsigned n = RANDOM);
     void		tunnelcheck (void);
-    inline location&	site (unsigned x, int y)	{ return (_site[y*MAXWIDTH+x]); }
-    const location&	site (unsigned x, int y) const	{ return (const_cast<level*>(this)->site(x,y)); }
-    inline bool		IsDungeon (void) const		{ return (unsigned(environment-E_FIRST_DUNGEON) < E_NUMDUNGEONS); }
-    inline uint8_t	VillageId (void) const		{ return (generated); }
+    inline location&	site (unsigned x, int y)	{ return _site[y*MAXWIDTH+x]; }
+    const location&	site (unsigned x, int y) const	{ return const_cast<level*>(this)->site(x,y); }
+    inline bool		IsDungeon (void) const		{ return unsigned(environment-E_FIRST_DUNGEON) < E_NUMDUNGEONS; }
+    inline uint8_t	VillageId (void) const		{ return generated; }
     inline void		SetVillageId (uint8_t id)	{ generated = id; }
-    inline uint8_t	TempleDeity (void) const	{ return (generated); }
+    inline uint8_t	TempleDeity (void) const	{ return generated; }
     inline void		SetTempleDeity (uint8_t id)	{ generated = id; }
 };
-typedef level* plv;
+using plv = level*;
 STREAM_ALIGN (level, 4);
 
 class CWorld {
     enum { c_MaxLevels = 32 };
-    typedef vector<level> lvec_t;
+    using lvec_t = vector<level>;
 public:
     inline		CWorld (void)			: _levels() {}
     void		LoadEnvironment (EEnvironment e, uint8_t subeid = 0);

@@ -24,7 +24,7 @@ BINDIR		:= @bindir@
 
 WARNOPTS	:= -Wall -Wextra -Wpointer-arith -Woverloaded-virtual\
 		-Wshadow -Wredundant-decls -Wcast-qual @SYSWARNS@
-CXXFLAGS	:= ${WARNOPTS} -std=c++11 @CUSTOMINCDIR@
+CXXFLAGS	:= ${WARNOPTS} -std=c++14 @CUSTOMINCDIR@
 LDFLAGS		:= @CUSTOMLIBDIR@
 ifndef USE_UCC
     LIBS	:=@libncurses@ @libz@

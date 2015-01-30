@@ -148,9 +148,9 @@ static void load_omegarc (const char* filename)
 }
 
 static bool personal_question_yn (const char* q)
-    { mprint (q); return (ynq() == 'y'); }
+    { mprint (q); return ynq() == 'y'; }
 static unsigned personal_question_num (const char* q)
-    { mprint (q); return (parsenum()); }
+    { mprint (q); return parsenum(); }
 
 static void user_character_stats (void)
 {

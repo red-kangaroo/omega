@@ -530,7 +530,7 @@ int random_item (void)
 		item = tries;
 	}
     }
-    return (item);
+    return item;
 }
 
 // various kinds of wishes
@@ -1436,7 +1436,7 @@ static int itemlist (int itemindex, int num)
     itemno = parsenum() - 1;
     if ((itemno >= num) || (itemno < 0))
 	itemno = ABORT;
-    return (itemno);
+    return itemno;
 }
 
 static int selectmonster (void)
@@ -1466,7 +1466,7 @@ static int selectmonster (void)
 	    mprint ("Summon monster: ");
 	    itemno = parsenum() - 1;
 	} while ((itemno < 0) || (itemno > NUMMONSTERS - 1));
-    return (itemno);
+    return itemno;
 }
 
 // uncurse all items, cure diseases, and neutralize poison

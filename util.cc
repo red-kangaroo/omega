@@ -13,23 +13,23 @@
 // x and y on level?
 int inbounds (int x, int y)
 {
-    return (x >= 0 && y >= 0 && x < (int)Level->width && y < (int)Level->height);
+    return x >= 0 && y >= 0 && x < (int)Level->width && y < (int)Level->height;
 }
 
 unsigned urandom_range (unsigned k)
 {
-    return (k ? xrand() % k : 0);
+    return k ? xrand() % k : 0;
 }
 
 // modify absolute y coord relative to which part of level we are on
 int screenmod (int y)
 {
-    return (y - ScreenOffset);
+    return y - ScreenOffset;
 }
 
 int offscreen (int y)
 {
-    return (y < 0 || y < ScreenOffset || y > ScreenOffset + ScreenLength - 1 || y > (int)Level->height);
+    return y < 0 || y < ScreenOffset || y > ScreenOffset + ScreenLength - 1 || y > (int)Level->height;
 }
 
 // always hit on a natural 0; never hit on a natural 19
@@ -37,41 +37,41 @@ int hitp (int hit, int ac)
 {
     int roll = random_range (20);
     if (roll == 0)
-	return (true);
+	return true;
     else if (roll == 19)
-	return (false);
+	return false;
     else
-	return (roll < (hit - ac));
+	return roll < (hit - ac);
 }
 
 // number of moves from x1,y1 to x2,y2
 int distance (int x1, int y1, int x2, int y2)
 {
-    return (max (absv (x2 - x1), absv (y2 - y1)));
+    return max (absv (x2 - x1), absv (y2 - y1));
 }
 
 // can you shoot, or move monsters through a spot?
 int unblocked (int x, int y)
 {
-    return (inbounds (x, y) &&
+    return inbounds (x, y) &&
 	!Level->creature(x,y) &&
 	Level->site(x,y).locchar != WALL &&
 	Level->site(x,y).locchar != PORTCULLIS &&
 	Level->site(x,y).locchar != STATUE &&
 	Level->site(x,y).locchar != HEDGE &&
 	Level->site(x,y).locchar != CLOSED_DOOR &&
-	!loc_statusp (x, y, SECRET) && (x != (int)Player.x || y != (int)Player.y));
+	!loc_statusp (x, y, SECRET) && (x != (int)Player.x || y != (int)Player.y);
 }
 
 // do monsters want to move through a spot
 int m_unblocked (struct monster *m, int x, int y)
 {
     if (!inbounds(x, y) || (x == (int)Player.x && y == (int)Player.y))
-	return (false);
+	return false;
     else if (Level->creature(x,y) || (Level->site(x,y).locchar == SPACE))
-	return (false);
+	return false;
     else if (m_statusp (m, ONLYSWIM))
-	return (Level->site(x,y).locchar == WATER);
+	return Level->site(x,y).locchar == WATER;
     else if (loc_statusp (x, y, SECRET)) {
 	if (m->movef == M_MOVE_SMART) {
 	    if (los_p (x, y, Player.x, Player.y)) {
@@ -82,47 +82,47 @@ int m_unblocked (struct monster *m, int x, int y)
 		mprint ("You hear a door creak open, and then close again.");
 	    // smart monsters would close secret doors behind them if the
 	    // player didn't see them using it
-	    return (true);
+	    return true;
 	} else
-	    return (m_statusp (m, INTANGIBLE));
+	    return m_statusp (m, INTANGIBLE);
     } else if ((Level->site(x,y).locchar == FLOOR) || (Level->site(x,y).locchar == OPEN_DOOR))
-	return (true);
+	return true;
     else if ((Level->site(x,y).locchar == PORTCULLIS) || (Level->site(x,y).locchar == WALL) || (Level->site(x,y).locchar == STATUE))
-	return (m_statusp (m, INTANGIBLE));
+	return m_statusp (m, INTANGIBLE);
     else if (Level->site(x,y).locchar == WATER)
-	return (m_statusp (m, SWIMMING) || m_statusp (m, ONLYSWIM) || m_statusp (m, INTANGIBLE) || m_statusp (m, FLYING));
+	return m_statusp (m, SWIMMING) || m_statusp (m, ONLYSWIM) || m_statusp (m, INTANGIBLE) || m_statusp (m, FLYING);
     else if (Level->site(x,y).locchar == CLOSED_DOOR) {
 	if (m->movef == M_MOVE_SMART) {
 	    mprint ("You hear a door creak open.");
 	    Level->site(x,y).locchar = OPEN_DOOR;
 	    lset (x, y, CHANGED);
-	    return (true);
+	    return true;
 	} else if (random_range (m->dmg) > random_range (100)) {
 	    mprint ("You hear a door shattering.");
 	    Level->site(x,y).locchar = RUBBLE;
 	    lset (x, y, CHANGED);
-	    return (true);
+	    return true;
 	} else
-	    return (m_statusp (m, INTANGIBLE));
+	    return m_statusp (m, INTANGIBLE);
     } else if (Level->site(x,y).locchar == LAVA)
-	return ((m_immunityp (m, FLAME) && m_statusp (m, SWIMMING)) || m_statusp (m, INTANGIBLE) || m_statusp (m, FLYING));
+	return (m_immunityp (m, FLAME) && m_statusp (m, SWIMMING)) || m_statusp (m, INTANGIBLE) || m_statusp (m, FLYING);
     else if (Level->site(x,y).locchar == FIRE)
-	return (m_statusp (m, INTANGIBLE) || m_immunityp (m, FLAME));
+	return m_statusp (m, INTANGIBLE) || m_immunityp (m, FLAME);
     else if ((Level->site(x,y).locchar == TRAP) || (Level->site(x,y).locchar == HEDGE) || (Level->site(x,y).locchar == ABYSS))
-	return ((m->movef == M_MOVE_CONFUSED) || m_statusp (m, INTANGIBLE) || m_statusp (m, FLYING));
+	return (m->movef == M_MOVE_CONFUSED) || m_statusp (m, INTANGIBLE) || m_statusp (m, FLYING);
     else
-	return (true);
+	return true;
 }
 
 // can you see through a spot?
 int view_unblocked (int x, int y)
 {
     if (!inbounds (x, y))
-	return (false);
+	return false;
     else if ((Level->site(x,y).locchar == WALL) || (Level->site(x,y).locchar == STATUE) || (Level->site(x,y).locchar == HEDGE) || (Level->site(x,y).locchar == FIRE) || (Level->site(x,y).locchar == CLOSED_DOOR) || loc_statusp (x, y, SECRET))
-	return (false);
+	return false;
     else
-	return (true);
+	return true;
 }
 
 // do_los moves pyx along a lineofsight from x1 to x2
@@ -304,7 +304,7 @@ int los_p (int x1, int y1, int x2, int y2)
 	    blocked = !unblocked (x1, y1);
 	}
     } while ((x1 != x2 || y1 != y2) && !blocked);
-    return ((x1 == x2) && (y1 == y2));
+    return (x1 == x2) && (y1 == y2);
 }
 
 // view_los_p sees through monsters
@@ -358,7 +358,7 @@ int view_los_p (int x1, int y1, int x2, int y2)
 	    blocked = !view_unblocked (x1, y1);
 	}
     } while ((x1 != x2 || y1 != y2) && !blocked);
-    return ((x1 == x2) && (y1 == y2));
+    return (x1 == x2) && (y1 == y2);
 }
 
 long calc_points (void)
@@ -407,19 +407,19 @@ long calc_points (void)
     else if (Player.rank[ADEPT])
 	points *= 10;
 
-    return (points);
+    return points;
 }
 
 // returns the 24 hour clock hour
 int hour (void)
 {
-    return ((int) (((Time + 720) / 60) % 24));
+    return (int) (((Time + 720) / 60) % 24);
 }
 
 // returns 0, 10, 20, 30, 40, or 50
 int showminute (void)
 {
-    return ((int) ((Time % 60) / 10) * 10);
+    return (int) ((Time % 60) / 10) * 10;
 }
 
 // returns the 12 hour clock hour
@@ -430,30 +430,30 @@ int showhour (void)
 	showtime = 12;
     else
 	showtime = (hour() % 12);
-    return (showtime);
+    return showtime;
 }
 
 // nighttime is defined from 9 PM to 6AM
 int nighttime (void)
 {
-    return ((hour() > 20) || (hour() < 7));
+    return (hour() > 20) || (hour() < 7);
 }
 
 const char* getarticle (const char* str)
 {
     static const char _ans[] = "aAeEiIoOuUhH";
-    return (strchr(_ans, str[0]) ? "an " : "a ");
+    return strchr(_ans, str[0]) ? "an " : "a ";
 }
 
 int day (void)
 {
-    return ((Date % 30) + 1);
+    return (Date % 30) + 1;
 }
 
 const char* ordinal (int number)
 {
     static const char _ends[4][3] = {"st","nd","rd","th"};
-    return (_ends[min(3,(number >= 11 && number <= 13)?3:number%10)]);
+    return _ends[min(3,(number >= 11 && number <= 13)?3:number%10)];
 }
 
 const char* month (void)
@@ -462,7 +462,7 @@ const char* month (void)
 	"Freeze\0" "Ice\0" "Mud\0" "Storm\0" "Breeze\0"
 	"Light\0" "Flame\0" "Broil\0" "Cool\0" "Haunt\0"
 	"Chill\0" "Dark\0" "Twixt\0";
-    return (zstrn (_months, (Date % 360) / 30, 13));
+    return zstrn (_months, (Date % 360) / 30, 13);
 }
 
 void findspace (int* x, int* y)
@@ -483,7 +483,7 @@ int confirmation (void)
 	"Do you really mean it? [yn] \0"
 	"Confirm that, would you? [yn] \0";
     mprint (zstrn (_areyousure, random_range(4), 4));
-    return (ynq() == 'y');
+    return ynq() == 'y';
 }
 
 // is character c a member of string s
@@ -491,8 +491,8 @@ bool strmem (int c, const char* s)
 {
     for (unsigned i = 0; i < strlen(s); ++i)
 	if (s[i] == c)
-	    return (true);
-    return (false);
+	    return true;
+    return false;
 }
 
 int mkpath (const char* path)
@@ -506,7 +506,7 @@ int mkpath (const char* path)
 	}
 	*pbe++ = *path;
     }
-    return (rv);
+    return rv;
 }
 
 void calc_weight (void)
@@ -726,7 +726,7 @@ const char* slotstr (int num)
     static const char _slots[] =
 	"<Slime Mold>\0" "<Lemon>\0" "<Copper>\0" "<Nymph>\0" "<Sword>\0"
 	"<Shield>\0" "<Chest>\0" "<Bar>\0" "<Orb>\0" "<Mithril Nugget>\0";
-    return (zstrn (_slots, num, 10));
+    return zstrn (_slots, num, 10);
 }
 
 // random names for various uses
@@ -741,7 +741,7 @@ const char* nameprint (void)
 	"Eleskir Eremar\0" "Tyron\0" "Morgon\0" "Achmed\0" "Chin\0"
 	"Fujimoto\0" "Dos Santos\0" "Federico\0" "Jaime\0" "Siobhan\0"
 	"Hans\0" "Gurkov\0" "Krilos the Slayer\0" "Oxxblud\0" "Dorian\0";
-    return (zstrn (_names, random_range(40), 40));
+    return zstrn (_names, random_range(40), 40);
 }
 
 // returns english string equivalent of number
@@ -751,5 +751,5 @@ const char* wordnum (int num)
 	"zero \0" "one \0" "two \0" "three \0" "four \0"
 	"five \0" "six \0" "seven \0" "eight \0" "nine \0"
 	"ten \0";
-    return (zstrn (_numnames, num, 11));
+    return zstrn (_numnames, num, 11);
 }

@@ -27,9 +27,9 @@ static void inventory_control(void);
 // are two objects equal except for their number field?
 bool object::operator== (const object& o) const
 {
-    return (o.id == id && o.plus == plus && o.charge == 0 &&
+    return o.id == id && o.plus == plus && o.charge == 0 &&
 	    charge == 0 && o.dmg == dmg && o.hit == hit &&
-	    o.aux == aux && o.blessing == blessing && o.usef == usef);
+	    o.aux == aux && o.blessing == blessing && o.usef == usef;
 }
 
 object::object (int8_t nx, int8_t ny, unsigned tid, uint16_t n)
@@ -129,9 +129,9 @@ long get_money (long limit)
     int c = parsenum();
     if (c > limit) {
 	mprint ("Forget it, buddy.");
-	return (ABORT);
+	return ABORT;
     } else
-	return (c);
+	return c;
 }
 
 // pick up from some location x,y
@@ -171,23 +171,23 @@ static unsigned key_to_index (unsigned key)
 {
     for (unsigned i = 0; i < ArraySize(inventory_keymap); i++)
 	if (key == (unsigned) inventory_keymap[i])
-	    return (i);
-    return (O_UP_IN_AIR);
+	    return i;
+    return O_UP_IN_AIR;
 }
 char index_to_key (unsigned i)
 {
-    return (i < ArraySize(inventory_keymap) ? inventory_keymap[i] : '-');
+    return i < ArraySize(inventory_keymap) ? inventory_keymap[i] : '-';
 }
 
 // criteria for being able to put some item in some slot
 static bool aux_slottable (const object& o, int slot)
 {
-    return (o.id != NO_THING &&
+    return o.id != NO_THING &&
 	    (slot != O_ARMOR || o.objchar == ARMOR) &&
 	    (slot != O_SHIELD || o.objchar == SHIELD) &&
 	    (slot != O_BOOTS || o.objchar == BOOTS) &&
 	    (slot != O_CLOAK || o.objchar == CLOAK) &&
-	    (slot < O_RING1 || o.objchar == RING));
+	    (slot < O_RING1 || o.objchar == RING);
 }
 
 // put all of o at x,y on Level->depth
@@ -219,12 +219,12 @@ const char* itemid (pob obj)
 {
     char tstr[80];
     if (obj->objchar == CASH)
-	return (obj->truename);
+	return obj->truename;
     setnumstr (obj, tstr);
     strcpy (Str4, tstr);
     if (!object_is_known(obj)) {
 	strcat (Str4, obj->objstr);
-	return (Str4);
+	return Str4;
     }
     if (obj->id == AMULET_OF_YENDOR || obj->id == JUGGERNAUT_OF_KARNAK || obj->id == STAR_GEM)
 	strcat (Str4, "the ");
@@ -254,7 +254,7 @@ const char* itemid (pob obj)
 	    strcat (Str4, tstr);
 	    break;
     }
-    return (Str4);
+    return Str4;
 }
 
 // return an object's plus as a string
@@ -410,7 +410,7 @@ int getitem (chtype itype)
     }
     if (!found) {
 	mprint ("Nothing appropriate.");
-	return (ABORT);
+	return ABORT;
     }
     mprintf ("Select an item [%s,?] ", invstr);
     while (!ok) {
@@ -435,9 +435,9 @@ int getitem (chtype itype)
     if (drewmenu)
 	xredraw();
     if (key == KEY_ESCAPE)
-	return (ABORT);
+	return ABORT;
     else if (key == (CASH & 0xff))
-	return (CASHVALUE);
+	return CASHVALUE;
     else
 	return key_to_index (key);
 }
@@ -473,17 +473,17 @@ static int get_to_pack (const object& o)
     if (Player.pack.size() >= MAXPACK) {
 	mprint ("Your pack is full.");
 	morewait();
-	return (false);
+	return false;
     } else {
 	push_pack (o);
 	mprint ("Putting item in pack.");
-	return (true);
+	return true;
     }
 }
 
 static int pack_item_cost (int ii)
 {
-    return (ii > 20 ? 17 : (ii > 15 ? 7 : 2));
+    return ii > 20 ? 17 : (ii > 15 ? 7 : 2);
 }
 
 // WDT -- 'response' must be an index into the pack.
@@ -738,7 +738,7 @@ static int get_item_number (pob o)
     } while (n > o->number);
     if (n < 1)
 	n = 0;
-    return (n);
+    return n;
 }
 
 static void drop_from_slot (int slot)
@@ -786,31 +786,31 @@ object split_item (const object& item, unsigned n)
     object nitem = item;
     nitem.number = n;
     nitem.used = false;
-    return (nitem);
+    return nitem;
 }
 
 // criteria for being able to put some item in some slot
 static bool slottable (const object& o, int slot)
 {
     if (o.id == NO_THING) {
-	return (false);
+	return false;
     } else if (slot == O_ARMOR && o.objchar != ARMOR) {
 	mprint ("Only armor can go in the armor slot!");
-	return (false);
+	return false;
     } else if (slot == O_SHIELD && o.objchar != SHIELD) {
 	mprint ("Only a shield can go in the shield slot!");
-	return (false);
+	return false;
     } else if (slot == O_BOOTS && o.objchar != BOOTS) {
 	mprint ("Only boots can go in the boots slot!");
-	return (false);
+	return false;
     } else if (slot == O_CLOAK && o.objchar != CLOAK) {
 	mprint ("Only a cloak can go in the cloak slot!");
-	return (false);
+	return false;
     } else if (slot >= O_RING1 && o.objchar != RING) {
 	mprint ("Only a ring can go in a ring slot!");
-	return (false);
+	return false;
     }
-    return (true);
+    return true;
 }
 
 // ->;WDT HACK: this is bad factoring.  I want to use this, but it's
@@ -821,24 +821,24 @@ static bool item_useable (const object& o, int slot)
     // don't have to check the object in the first if since only armor
     // can go in armor slot, cloak in cloak slot, etc
     if (slot == O_ARMOR || slot == O_CLOAK || slot == O_SHIELD || slot == O_BOOTS || slot >= O_RING1)
-	return (true);
+	return true;
     // weapon is useable if it is put in weapon hand or if it is two-handed
     // and put in either hand when the other also holds the weapon
     else if (o.objchar == WEAPON || o.objchar == MISSILEWEAPON) {
 	if (twohandedp (o.id) && (slot == O_READY_HAND || slot == O_WEAPON_HAND)) {
 	    mprint ("You heft the weapon and find you must use both hands.");
 	    morewait();
-	    return (true);
+	    return true;
 	} else
-	    return (slot == O_WEAPON_HAND);
+	    return slot == O_WEAPON_HAND;
     } else
-	return (false);
+	return false;
 }
 
 // returns false if not cursed, true if cursed but not used, true + true if cursed and used
 int cursed (const object& o)
 {
-    return (o.blessing < 0 ? (o.used == true) + true : false);
+    return o.blessing < 0 ? (o.used == true) + true : false;
 }
 
 // returns true if item with id and charge is found in pack or in
@@ -848,11 +848,11 @@ object* find_item (int id)
 {
     for (unsigned i = 1; i < MAXITEMS; i++)
 	if (Player.possessions[i].id == id)
-	    return (&Player.possessions[i]);
+	    return &Player.possessions[i];
     for (unsigned i = 0; i < Player.pack.size(); i++)
 	if (Player.pack[i].id == id)
-	    return (&Player.pack[i]);
-    return (nullptr);
+	    return &Player.pack[i];
+    return nullptr;
 }
 
 // returns true if item with id and charge is found in pack or in
@@ -863,7 +863,7 @@ int find_and_remove_item (int id, int chargeval)
     for (unsigned i = 1; i < MAXITEMS; i++) {
 	if (Player.possessions[i].id == id && (chargeval == -1 || Player.possessions[i].charge == chargeval)) {
 	    Player.remove_possession (i);
-	    return (true);
+	    return true;
 	}
     }
     foreach (i, Player.pack) {
@@ -871,9 +871,9 @@ int find_and_remove_item (int id, int chargeval)
 	    continue;
 	if (--i->number == 0)
 	    Player.pack.erase (i);
-	return (true);
+	return true;
     }
-    return (false);
+    return false;
 }
 
 void lose_all_items (void)

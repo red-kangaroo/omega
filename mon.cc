@@ -107,14 +107,14 @@ const char* monster::name (void) const
 {
     static char namebuf[32] = "The ";
     strcpy (namebuf+strlen("The "), monstring);
-    return (uniqueness == COMMON ? namebuf : namebuf+strlen("The "));
+    return uniqueness == COMMON ? namebuf : namebuf+strlen("The ");
 }
 
 const char* monster::by_name (void) const
 {
     static char namebuf[32] = "a ";
     strcpy (namebuf+strlen("a "), monstring);
-    return (uniqueness == COMMON ? namebuf : namebuf+strlen("a "));
+    return uniqueness == COMMON ? namebuf : namebuf+strlen("a ");
 }
 
 //----------------------------------------------------------------------
@@ -905,7 +905,7 @@ static void m_talk_merchant (struct monster *m)
 static void m_talk_prime (struct monster *m)
 {
     if (m_statusp (m, HOSTILE))
-	return (m_talk_evil (m));
+	return m_talk_evil (m);
     if (Level->environment == E_CIRCLE) {
 	mprint ("The Prime nods brusquely at you, removes a gem from his");
 	mprint ("sleeve, places it on the floor, and vanishes wordlessly.");
@@ -1121,7 +1121,7 @@ static int monster_hit (struct monster *m, int hitloc, int bonus)
 	    }
 	}
     }
-    return (hit);
+    return hit;
 }
 
 // decide monster actions in tactical combat mode
@@ -1201,7 +1201,7 @@ void transcribe_monster_actions (struct monster *m)
 
 char random_loc (void)
 {
-    return ("HCL"[random_range(strlen("HCL"))]);
+    return "HCL"[random_range(strlen("HCL"))];
 }
 
 static void m_firebolt (struct monster *m)
@@ -2380,7 +2380,7 @@ const char* mantype (void)
 	"lawyer\0" "indian chief\0" "tinker\0" "tailor\0" "soldier\0"
 	"spy\0" "doctor\0" "miner\0" "noble\0" "serf\0"
 	"neer-do-well\0" "vendor\0" "dilettante\0" "surveyor\0" "jongleur";
-    return (zstrn (_typestr, random_range(20), 20));
+    return zstrn (_typestr, random_range(20), 20);
 }
 
 static void strengthen_death (struct monster *m)
@@ -2402,5 +2402,5 @@ void m_no_op (struct monster *m UNUSED)
 const char* m_melee_str (unsigned level)
 {
     static const char SkilledMeleeStr[33] = "L?R?L?R?L?R?L?R?L?R?L?R?L?R?L?R?";
-    return (SkilledMeleeStr+strlen(SkilledMeleeStr)-4*min(level,8U));
+    return SkilledMeleeStr+strlen(SkilledMeleeStr)-4*min(level,8U);
 }

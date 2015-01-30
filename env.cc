@@ -35,20 +35,20 @@ static void make_log_npc (monster& npc);
 chtype location::showchar (void) const noexcept
 {
     if (!(lstatus & SEEN))
-	return (' ');
+	return ' ';
     if (lstatus & SECRET) {
 	switch (locchar) {
 	    case CASTLE:
 	    case CAVES:
 	    case PASS:
 	    case STARPEAK:
-	    case VOLCANO:	return (MOUNTAINS);
-	    case DRAGONLAIR:	return (DESERT);
-	    case MAGIC_ISLE:	return (CHAOS_SEA);
-	    default:		return (WALL);
+	    case VOLCANO:	return MOUNTAINS;
+	    case DRAGONLAIR:	return DESERT;
+	    case MAGIC_ISLE:	return CHAOS_SEA;
+	    default:		return WALL;
 	}
     }
-    return (locchar);
+    return locchar;
 }
 
 //----------------------------------------------------------------------
@@ -81,44 +81,44 @@ void level::clear (void)
 // returns true if its ok to get rid of a level
 bool level::ok_to_free (void) const
 {
-    return (this
+    return this
 	    && environment != E_COUNTRYSIDE
 	    && environment != E_CITY
 	    && environment != E_VILLAGE
-	    && !IsDungeon());
+	    && !IsDungeon();
 }
 
 // Returns true if the level should not be preserved
 bool level::IsTransient (void) const
 {
-    return (environment == E_TACTICAL_MAP ||
+    return environment == E_TACTICAL_MAP ||
 	    environment == E_ARENA ||
 	    environment == E_HOUSE ||
 	    environment == E_HOVEL ||
-	    environment == E_MANSION);
+	    environment == E_MANSION;
 }
 
 uint8_t level::MaxDepth (void) const
 {
     static const uint8_t c_DungeonDepth [E_NUMDUNGEONS+1] =
 	{ CAVELEVELS, SEWERLEVELS, CASTLELEVELS, VOLCANOLEVELS, ASTRALLEVELS, 0 };
-    return (c_DungeonDepth [min<unsigned>(environment-E_FIRST_DUNGEON,ArraySize(c_DungeonDepth)-1)]);
+    return c_DungeonDepth [min<unsigned>(environment-E_FIRST_DUNGEON,ArraySize(c_DungeonDepth)-1)];
 }
 
 monster* level::creature (int x, int y)
 {
     foreach (m, mlist)
 	if (m->x == x && m->y == y)
-	    return (&*m);
-    return (nullptr);
+	    return &*m;
+    return nullptr;
 }
 
 object* level::thing (int x, int y)
 {
     foreach (i, things)
 	if (i->x == x && i->y == y)
-	    return (&*i);
-    return (nullptr);
+	    return &*i;
+    return nullptr;
 }
 
 void level::make_thing (int x, int y, unsigned tid, unsigned n)
@@ -201,7 +201,7 @@ void level::Generate (EEnvironment e, uint8_t subeid)
 
 EEnvironment CWorld::LastEnvironment (void) const
 {
-    return (_levels.size() > 1 ? _levels[_levels.size()-2].environment : E_NEVER_NEVER_LAND);
+    return _levels.size() > 1 ? _levels[_levels.size()-2].environment : E_NEVER_NEVER_LAND;
 }
 
 vector<level>::iterator CWorld::FindEnvironment (EEnvironment e, uint8_t subeid)
@@ -211,8 +211,8 @@ vector<level>::iterator CWorld::FindEnvironment (EEnvironment e, uint8_t subeid)
 	    && (!l->IsDungeon() || l->depth == subeid)
 	    && (e != E_VILLAGE || l->VillageId() == subeid)
 	    && (e != E_TEMPLE || l->TempleDeity() == subeid))
-	    return (l);
-    return (_levels.end());
+	    return l;
+    return _levels.end();
 }
 
 void CWorld::MoveInCountry (uint8_t x, uint8_t y)
@@ -399,7 +399,7 @@ static monster& make_prime (int i, int j)
     make_hiscore_npc (m, NPC_PRIME);
     if (object_uniqueness(STAR_GEM) != UNIQUE_TAKEN)
 	m.possessions.emplace_back (Objects[STAR_GEM]);
-    return (m);
+    return m;
 }
 
 // loads the court of the archmage into Level
@@ -739,7 +739,7 @@ void resurrect_guards (void)
 		m.meleef = M_MELEE_SPIRIT;
 		m.movef = M_MOVE_SPIRIT;
 		m.strikef = M_STRIKE_MISSILE;
-		m.immunity = EVERYTHING - pow2 (NORMAL_DAMAGE);
+		m.immunity = (uint16_t) EVERYTHING - pow2 (NORMAL_DAMAGE);
 		m.hp *= 2;
 		m.hit *= 2;
 		m.dmg *= 2;
@@ -2604,7 +2604,7 @@ monster& make_site_monster (int i, int j, int mid, int wandering, int dlevel)
 	m_create (m, i, j, wandering, difficulty()+dlevel);
     m.x = i;
     m.y = j;
-    return (m);
+    return m;
 }
 
 // make and return an appropriate monster for the level and depth
@@ -2904,26 +2904,26 @@ int difficulty (void)
 {
     const unsigned depth = Level ? Level->depth : 1;
     switch (Level->environment) {
-	case E_COUNTRYSIDE:	return (7);
-	case E_CITY:		return (3);
-	case E_VILLAGE:		return (1);
-	case E_TACTICAL_MAP:	return (4);
-	case E_SEWERS:		return (depth / 6) + 3;
-	case E_CASTLE:		return (depth / 4) + 4;
-	case E_CAVES:		return (depth / 3) + 1;
-	case E_VOLCANO:		return (depth / 4) + 5;
-	case E_ASTRAL:		return (8);
-	case E_ARENA:		return (5);
-	case E_HOVEL:		return (3);
-	case E_MANSION:		return (7);
-	case E_HOUSE:		return (5);
-	case E_DLAIR:		return (9);
-	case E_ABYSS:		return (10);
-	case E_STARPEAK:	return (9);
-	case E_CIRCLE:		return (8);
-	case E_MAGIC_ISLE:	return (8);
-	case E_TEMPLE:		return (8);
-	default:		return (3);
+	case E_COUNTRYSIDE:	return 7;
+	case E_CITY:		return 3;
+	case E_VILLAGE:		return 1;
+	case E_TACTICAL_MAP:	return 4;
+	case E_SEWERS:		return depth / 6 + 3;
+	case E_CASTLE:		return depth / 4 + 4;
+	case E_CAVES:		return depth / 3 + 1;
+	case E_VOLCANO:		return depth / 4 + 5;
+	case E_ASTRAL:		return 8;
+	case E_ARENA:		return 5;
+	case E_HOVEL:		return 3;
+	case E_MANSION:		return 7;
+	case E_HOUSE:		return 5;
+	case E_DLAIR:		return 9;
+	case E_ABYSS:		return 10;
+	case E_STARPEAK:	return 9;
+	case E_CIRCLE:		return 8;
+	case E_MAGIC_ISLE:	return 8;
+	case E_TEMPLE:		return 8;
+	default:		return 3;
     }
 }
 

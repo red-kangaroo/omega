@@ -44,7 +44,7 @@ unsigned xrand (void)
 {
     unsigned t = s_RandState[1] ^ (s_RandState[1] << 11);
     s_RandState[1] = s_RandState[2]; s_RandState[2] = s_RandState[3]; s_RandState[3] = s_RandState[0];
-    return (s_RandState[0] = s_RandState[0] ^ (s_RandState[0] >> 19) ^ t ^ (t >> 8));
+    return s_RandState[0] = s_RandState[0] ^ (s_RandState[0] >> 19) ^ t ^ (t >> 8);
 }
 
 /// Initializes random number generator with \p seed

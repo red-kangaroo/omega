@@ -28,9 +28,9 @@ void moon_check (void);
 void torch_check (void);
 void tenminute_status_check (void);
 unsigned item_value (const object* item);
-inline unsigned item_value (const object& o) { return (item_value (&o)); }
+inline unsigned item_value (const object& o) { return item_value (&o); }
 unsigned true_item_value (const object* item);
-inline unsigned true_item_value (const object& o) { return (true_item_value (&o)); }
+inline unsigned true_item_value (const object& o) { return true_item_value (&o); }
 void p_drown (void);
 void weapon_use (int dmgmod, pob weapon, struct monster *m);
 const char* actionlocstr (char dir);
@@ -192,7 +192,6 @@ void change_level (int fromlevel, int tolevel, int rewrite_level);
 void clear_level (struct level *dungeon_level);
 void generate_level (int tolevel);
 void load_encounter (char countryLocChar);
-const char* roomname (int ri);
 // inv.c
 int cursed (const object& o);
 void do_inventory_control (void);
@@ -206,7 +205,7 @@ int getitem (chtype itype);
 void givemonster (monster& m, const object& o);
 char index_to_key (unsigned i);
 const char* itemid (pob obj);
-inline const char* itemid (object& obj) { return (itemid (&obj)); }
+inline const char* itemid (object& obj) { return itemid (&obj); }
 void lose_all_items (void);
 void pickup_at (int x, int y);
 object split_item (const object& item, unsigned n);
@@ -396,7 +395,7 @@ int nighttime (void);
 int offscreen (int y);
 const char* ordinal (int number);
 unsigned urandom_range (unsigned k);
-static inline int random_range (unsigned k) { return (urandom_range (k)); }
+static inline int random_range (unsigned k) { return urandom_range (k); }
 int screenmod (int y);
 int showhour (void);
 int showminute (void);

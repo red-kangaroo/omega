@@ -12,8 +12,8 @@ static void lightspot(int x, int y);
 
 //----------------------------------------------------------------------
 
-static constexpr inline attr_t CHARATTR (chtype c) { return (c & ~A_CHARTEXT); }
-static constexpr inline char CHARCHAR (chtype c) { return (c & A_CHARTEXT); }
+static constexpr inline attr_t CHARATTR (chtype c) { return c & ~A_CHARTEXT; }
+static constexpr inline char CHARCHAR (chtype c) { return c & A_CHARTEXT; }
 
 static WINDOW *Levelw, *Dataw, *Flagw, *Timew, *Menuw, *Locw, *Morew, *Phasew;
 static WINDOW *Comwin, *Msgw;
@@ -60,23 +60,23 @@ void show_screen (void)
 
 wchar_t mgetc (void)
 {
-    return (wgetch (Msgw));
+    return wgetch (Msgw);
 }
 
 // case insensitive mgetc -- sends uppercase to lowercase
 wchar_t mcigetc (void)
 {
-    return (tolower (mgetc()));
+    return tolower (mgetc());
 }
 
 wchar_t menugetc (void)
 {
-    return (wgetch (Menuw));
+    return wgetch (Menuw);
 }
 
 wchar_t lgetc (void)
 {
-    return (wgetch (Levelw));
+    return wgetch (Levelw);
 }
 
 wchar_t ynq (void)
@@ -93,7 +93,7 @@ wchar_t ynq (void)
 	}
     } while (!rmsg);
     mappend (rmsg);
-    return (rmsg[0]);
+    return rmsg[0];
 }
 
 void erase_level (void)
@@ -399,30 +399,30 @@ void erase_monster (struct monster *m)
 chtype getspot (int x, int y, int showmonster)
 {
     if (loc_statusp (x, y, SECRET))
-	return (WALL);
+	return WALL;
     const monster* m = Level->creature(x,y);
     switch (Level->site(x,y).locchar) {
 	case WATER:
 	    if (m && !m_statusp (*m, SWIMMING) && showmonster)
-		return (m->monchar);
+		return m->monchar;
 	    else
-		return (WATER);
+		return WATER;
 	    // these sites never show anything but their location char's
 	case CLOSED_DOOR:
 	case LAVA:
 	case FIRE:
 	case ABYSS:
-	    return (Level->site(x,y).locchar);
+	    return Level->site(x,y).locchar;
 	    // rubble and hedge don't show items on their location
 	case RUBBLE:
 	case HEDGE:
 	    if (showmonster && m) {
 		if (m_statusp (*m, M_INVISIBLE) && !Player.status[TRUESIGHT])
-		    return (getspot (x, y, false));
+		    return getspot (x, y, false);
 		else
-		    return (m->monchar);
+		    return m->monchar;
 	    } else
-		return (Level->site(x,y).locchar);
+		return Level->site(x,y).locchar;
 	    // everywhere else, first try to show monster, next show items, next show location char
 	default: {
 	    unsigned nThings = 0;
@@ -430,15 +430,15 @@ chtype getspot (int x, int y, int showmonster)
 		nThings += (o->x == x && o->y == y);
 	    if (showmonster && m) {
 		if (m_statusp (*m, M_INVISIBLE) && !Player.status[TRUESIGHT])
-		    return (getspot (x, y, false));
+		    return getspot (x, y, false);
 		else
-		    return (m->monchar);
+		    return m->monchar;
 	    } else if (nThings == 1)
-		return (Level->thing(x,y)->objchar);
+		return Level->thing(x,y)->objchar;
 	    else if (nThings > 1)
-		return (PILE);
+		return PILE;
 	    else
-		return (Level->site(x,y).locchar);
+		return Level->site(x,y).locchar;
 	}
     }
 }
@@ -542,7 +542,7 @@ int stillonblock (void)
     } while ((c != ' ') && (c != KEY_ESCAPE) && (c != EOF));
     werase (Morew);
     wrefresh (Morew);
-    return (c == ' ');
+    return c == ' ';
 }
 
 void menuclear (void)
@@ -628,7 +628,7 @@ const char* msgscanstring (char crf, char crl)
     }
     curs_set (false);
     mappend (instring);
-    return (instring);
+    return instring;
 }
 
 void locprint (const char* s)
@@ -654,7 +654,7 @@ void drawscreen (void)
 int getnumber (int range)
 {
     mprint ("How many? ");
-    return (max (1, min (range, parsenum())));
+    return max (1, min (range, parsenum()));
 }
 
 // reads a positive number up to 999999
@@ -662,8 +662,8 @@ int parsenum (void)
 {
     const char* numstr = msgscanstring ('0','9');
     if (!numstr[0])
-	return (ABORT);
-    return (atoi (numstr));
+	return ABORT;
+    return atoi (numstr);
 }
 
 void display_death (const char* source)
@@ -769,8 +769,8 @@ void drawomega (void)
     clear();
     touchwin (stdscr);
     for (i = 0; i < 7; i++) {
-	move (1, 1);
-	wattrset (stdscr, CHARATTR (CLR_LIGHT_BLUE_BLACK));
+	wmove (stdscr, 1, 1);
+	attrset (CHARATTR (CLR_LIGHT_BLUE_BLACK));
 	printw ("\n\n\n");
 	printw ("\n                                    *****");
 	printw ("\n                               ******   ******");
@@ -787,8 +787,8 @@ void drawomega (void)
 	printw ("\n                        ****                    ****");
 	refresh();
 	napms (200);
-	move (1, 1);
-	wattrset (stdscr, CHARATTR (CLR_CYAN_BLACK));
+	wmove (stdscr, 1, 1);
+	attrset (CHARATTR (CLR_CYAN_BLACK));
 	printw ("\n\n\n");
 	printw ("\n                                    +++++");
 	printw ("\n                               ++++++   ++++++");
@@ -805,8 +805,8 @@ void drawomega (void)
 	printw ("\n                        ++++                    ++++");
 	refresh();
 	napms (200);
-	move (1, 1);
-	wattrset (stdscr, CHARATTR (CLR_BLUE_BLACK));
+	wmove (stdscr, 1, 1);
+	attrset (CHARATTR (CLR_BLUE_BLACK));
 	printw ("\n\n\n");
 	printw ("\n                                    .....");
 	printw ("\n                               ......   ......");

@@ -222,7 +222,7 @@ static int check_sacrilege (int deity)
 	    Player.rank[PRIESTHOOD] = NOT_A_BELIEVER;
 	}
     }
-    return (sacrilege);
+    return sacrilege;
 }
 
 static int increase_priest_rank (int deity)

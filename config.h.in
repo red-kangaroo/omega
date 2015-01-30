@@ -25,7 +25,7 @@
 #undef HAVE_ZLIB_H
 
 // Define to 1 to use ucc
-#undef USE_UCC
+#define USE_UCC 1
 #if USE_UCC
     // Define to 1 if have ucc
     #define HAVE_STL_H 1
@@ -35,11 +35,11 @@
     #if UC_VERSION < 0x100
 	#error "ucc version 1.0 or later required to compile this package"
     #endif
-    typedef istream bstri;
-    typedef ostream bstro;
-    typedef sizestream bstrs;
-    template <typename Ctr> inline typename Ctr::iterator p2i (Ctr&, typename Ctr::pointer p) { return (p); }
-    static inline unsigned xrand (void)		{ return (rand()); }
+    using bstri = istream;
+    using bstro = ostream;
+    using bstrs = sizestream;
+    template <typename Ctr> inline typename Ctr::iterator p2i (Ctr&, typename Ctr::pointer p) { return p; }
+    static inline unsigned xrand (void)		{ return rand(); }
     static inline void sxrand (unsigned seed)	{ srand (seed); }
 #else
     #include "uccshim.h"

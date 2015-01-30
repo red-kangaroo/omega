@@ -179,13 +179,13 @@ int main (void)
 	endgraf();
 	printf ("Error: %s\n", e.what());
     }
-    return (0);
+    return 0;
 }
 
 static void signalexit (int sig)
 {
     if (sig == SIGINT)
-	return (quit());
+	return quit();
     endgraf();
     psignal (sig, "[S] Fatal error");
     exit (-(char)sig);

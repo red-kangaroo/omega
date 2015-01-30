@@ -143,51 +143,51 @@ extern const char Level_Village6[];
 
 namespace {
 
-static constexpr inline unsigned pow2 (unsigned n) { return (1u << n); }
+static constexpr inline unsigned pow2 (unsigned n) { return 1u << n; }
 
-static inline bool loc_statusp (unsigned x, unsigned y, unsigned stat)	{ return (Level->site(x,y).lstatus & stat); }
+static inline bool loc_statusp (unsigned x, unsigned y, unsigned stat)	{ return Level->site(x,y).lstatus & stat; }
 static inline void lset (unsigned x, unsigned y, unsigned stat)		{ Level->site(x,y).lstatus |= stat; }
 static inline void lreset (unsigned x, unsigned y, unsigned stat)	{ Level->site(x,y).lstatus &= ~stat; }
 
-static inline bool m_statusp (const monster_data* m,unsigned s)	{ return (m->status & s); }
+static inline bool m_statusp (const monster_data* m,unsigned s)	{ return m->status & s; }
 static inline void m_status_set (monster* m, unsigned s)	{ m->status |= s; }
 static inline void m_status_reset (monster* m, unsigned s)	{ m->status &= ~s; }
-static inline bool m_immunityp (const monster* m, unsigned s)	{ return (m->immunity & pow2(s)); }
-static inline bool m_statusp (const monster_data& m,unsigned s)	{ return (m.status & s); }
+static inline bool m_immunityp (const monster* m, unsigned s)	{ return m->immunity & pow2(s); }
+static inline bool m_statusp (const monster_data& m,unsigned s)	{ return m.status & s; }
 static inline void m_status_set (monster& m, unsigned s)	{ m.status |= s; }
 static inline void m_status_reset (monster& m, unsigned s)	{ m.status &= ~s; }
-static inline bool m_immunityp (const monster& m, unsigned s)	{ return (m.immunity & pow2(s)); }
+static inline bool m_immunityp (const monster& m, unsigned s)	{ return m.immunity & pow2(s); }
 
-static inline bool gamestatusp (unsigned flag)			{ return (GameStatus & flag); }
+static inline bool gamestatusp (unsigned flag)			{ return GameStatus & flag; }
 static inline void setgamestatus (unsigned flag)		{ GameStatus |= flag; }
 static inline void resetgamestatus (unsigned flag)		{ GameStatus &= ~flag; }
 
-static inline bool optionp (unsigned o)				{ return (Player.options & o); }
+static inline bool optionp (unsigned o)				{ return Player.options & o; }
 static inline void optionset (unsigned o)			{ Player.options |= o; }
 static inline void optionreset (unsigned o)			{ Player.options &= ~o; }
 
-static inline bool spell_is_known (ESpell sp)			{ return (SpellKnown & (UINT64_C(1) << sp)); }
+static inline bool spell_is_known (ESpell sp)			{ return SpellKnown & (UINT64_C(1) << sp); }
 static inline void learn_spell (ESpell sp)			{ SpellKnown |= (UINT64_C(1) << sp); }
 static inline void forget_spell (ESpell sp)			{ SpellKnown &= ~(UINT64_C(1) << sp); }
 static inline void learn_all_spells (void)			{ SpellKnown = UINT64_MAX; }
 static inline void forget_all_spells (void)			{ SpellKnown = 0; }
 
-static inline bool object_is_known (unsigned o)			{ return (ObjectAttrs[o] & OBJECT_KNOWN); }
+static inline bool object_is_known (unsigned o)			{ return ObjectAttrs[o] & OBJECT_KNOWN; }
 static inline void learn_object (unsigned o)			{ ObjectAttrs[o] |= OBJECT_KNOWN; }
 static inline void forget_object (unsigned o)			{ ObjectAttrs[o] &= ~OBJECT_KNOWN; }
-static inline uint8_t object_uniqueness (unsigned o)		{ return (EUniqueness(ObjectAttrs[o] & OBJECT_UNIQUENESS)); }
+static inline uint8_t object_uniqueness (unsigned o)		{ return EUniqueness(ObjectAttrs[o] & OBJECT_UNIQUENESS); }
 static inline void set_object_uniqueness (unsigned o, EUniqueness u)	{ ObjectAttrs[o] = (ObjectAttrs[o]&OBJECT_KNOWN)|u; }
 
-static inline bool object_is_known (const object* o)		{ return (object_is_known(o->id)); }
+static inline bool object_is_known (const object* o)		{ return object_is_known(o->id); }
 static inline void learn_object (const object* o)		{ learn_object (o->id); }
 static inline void forget_object (const object* o)		{ forget_object (o->id); }
-static inline uint8_t object_uniqueness (const object* o)	{ return (object_uniqueness (o->id)); }
+static inline uint8_t object_uniqueness (const object* o)	{ return object_uniqueness (o->id); }
 static inline void set_object_uniqueness (const object* o, EUniqueness u) { set_object_uniqueness (o->id, u); }
 
-static inline bool object_is_known (const object& o)		{ return (object_is_known(o.id)); }
+static inline bool object_is_known (const object& o)		{ return object_is_known(o.id); }
 static inline void learn_object (const object& o)		{ learn_object (o.id); }
 static inline void forget_object (const object& o)		{ forget_object (o.id); }
-static inline uint8_t object_uniqueness (const object& o)	{ return (object_uniqueness (o.id)); }
+static inline uint8_t object_uniqueness (const object& o)	{ return object_uniqueness (o.id); }
 static inline void set_object_uniqueness (const object& o,EUniqueness u) { set_object_uniqueness (o.id, u); }
 
 } // namespace

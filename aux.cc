@@ -20,6 +20,7 @@ static void showknownsites(unsigned first, unsigned last);
 static void destroy_order(void);
 static void default_maneuvers(void);
 static void fight_monster (monster *m);
+static const char* roomname (unsigned ri);
 
 //----------------------------------------------------------------------
 
@@ -89,7 +90,7 @@ void showroom (int i)
 
 bool player::on_sanctuary (void) const
 {
-    return (Level->site(x,y).locchar == ALTAR && Level->site(x,y).aux == patron);
+    return Level->site(x,y).locchar == ALTAR && Level->site(x,y).aux == patron;
 }
 
 // check a move attempt, maybe attack something, return true if ok to move.
@@ -99,20 +100,20 @@ bool p_moveable (int x, int y)
     setgamestatus (SKIP_MONSTERS);
     const auto& l = Level->site(x,y);
     if (!inbounds (x, y))
-	return (false);
+	return false;
     else if (Player.status[SHADOWFORM]) {
 	if (l.p_locf == L_CHAOS || l.p_locf == L_ABYSS || l.p_locf == L_VOID)
 	    return confirmation();
     } else if (loc_statusp (x, y, SECRET)) {
 	if (!gamestatusp (FAST_MOVE))
 	    mprint ("Ouch!");
-	return (false);
+	return false;
     } else if (Level->creature(x,y)) {
 	if (!gamestatusp (FAST_MOVE)) {
 	    fight_monster (Level->creature(x,y));
 	    resetgamestatus (SKIP_MONSTERS);
 	}
-	return (false);
+	return false;
     } else if (l.locchar == WALL || l.locchar == STATUE || l.locchar == PORTCULLIS || l.locchar == CLOSED_DOOR
 	       || (gamestatusp (FAST_MOVE)
 		   && (l.locchar == HEDGE || l.locchar == LAVA || l.locchar == ABYSS
@@ -120,7 +121,7 @@ bool p_moveable (int x, int y)
 		       || l.locchar == WATER || l.locchar == LIFT || l.locchar == TRAP))) {
 	if (!gamestatusp (FAST_MOVE))
 	    mprint ("Ouch!");
-	return (false);
+	return false;
     } else if (optionp (CONFIRM)) {
 	if (l.locchar == HEDGE || l.locchar == LAVA || l.locchar == FIRE || l.locchar == WHIRLWIND
 	    || l.locchar == ABYSS || l.locchar == VOID_CHAR || l.locchar == WATER
@@ -130,17 +131,17 @@ bool p_moveable (int x, int y)
 		if (l.locchar != WATER || l.p_locf != L_WATER) {
 		    mprint ("You can't convince your steed to continue.");
 		    setgamestatus (SKIP_MONSTERS);
-		    return (false);
+		    return false;
 		}
-		return (true);
+		return true;
 	    } else if (!confirmation()) {
 		setgamestatus (SKIP_MONSTERS);
-		return (false);
+		return false;
 	    }
 	}
     }
     resetgamestatus (SKIP_MONSTERS);
-    return (true);
+    return true;
 }
 
 // search once particular spot
@@ -434,11 +435,11 @@ int getdir (void)
 	mprint ("Select direction [hjklyubn, ESCAPE to quit]: ");
 	char c = mgetc();
 	if (c == KEY_ESCAPE)
-	    return (ABORT);
+	    return ABORT;
 	static const char c_dirkey[] = "3nN9uU1bB7yY6lL4hH2jJ8kK";
 	const char* ikey = strchr (c_dirkey, c);
 	if (ikey)
-	    return ((unsigned)distance(c_dirkey,ikey)/3);
+	    return (unsigned)distance(c_dirkey,ikey)/3;
 	mprint ("That's not a direction! ");
     }
 }
@@ -468,7 +469,7 @@ const char* mstatus_string (struct monster *m)
 	articlestr = "";
     const char* levelstr = wordnum (m->level + 1 - mstd.level);
     snprintf (ArrayBlock(Str2), fmtstr, articlestr, healthstr, m->monstring, levelstr);
-    return (Str2);
+    return Str2;
 }
 
 // for the examine function
@@ -535,7 +536,7 @@ bool goberserk (void)
     #else
 	swap (Player.meleestr, meleestr);
     #endif
-    return (wentberserk);
+    return wentberserk;
 }
 
 // checks current food status of player, every hour, and when food is eaten
@@ -704,6 +705,82 @@ void threaten (struct monster *m)
     }
 }
 
+static const char* roomname (unsigned room)
+{
+    static const char c_RoomNames[] =
+	"A vast emptiness.\0"
+	"A niche hollowed out of the wall.\0"
+	"A dimly lit corridor.\0"
+	"A vast natural cavern.\0"
+	"The Caves of the Goblins.\0"
+	"The Lair of the DragonLord.\0"
+	"A series of subterranean pools and streams.\0"
+	"The Underground Ocean.\0"
+	"The Sunken Cavern of the Great Wyrm.\0"
+	"The Adept's Challenge\0"
+	"The Shrine of the Noose\0"
+	"The Temple of the Black Hand\0"
+	"The Parthenon\0"
+	"The Church of the Far Side\0"
+	"The Great Henge\0"
+	"The Halls of Fate\0"
+	"The Great Outdoors\0"
+	"The Rampart Arena\0"
+	"A winding sewer duct\0"
+	"An unused sewer node\0"
+	"A water-filled sewer node\0"
+	"A kitchen\0"
+	"A bedroom\0"
+	"A bathroom\0"
+	"A dining room\0"
+	"A secret passage\0"
+	"A stuffy closet\0"
+	"The Low Astral Plane\0"
+	"The Plane of Earth\0"
+	"The Plane of Water\0"
+	"The Plane of Air\0"
+	"The Plane of Fire\0"
+	"The High Astral Plane\0"
+	"Deep within the bowels of the earth\0"
+	"Near the oddly glowing peak of a mountain\0"
+	"An island positively reeking of magic\0"
+	"The Astral Demesne of the Circle of Sorcerors\0"
+	"A place zorched by powerful magic.\0"
+	"The Court of the ArchMage.\0"
+	"An abandoned garderobe.\0"
+	"A dungeon cell.\0"
+	"A tiled chamber.\0"
+	"A crystal cavern.\0"
+	"Someone's bedroom.\0"
+	"An old storeroom.\0"
+	"A room with charred walls.\0"
+	"A marble hall.\0"
+	"An eerie cave.\0"
+	"A ransacked treasure-chamber.\0"
+	"A smoke-filled room.\0"
+	"A well-appointed apartment.\0"
+	"An antechamber.\0"
+	"An unoccupied harem.\0"
+	"A multi-purpose room.\0"
+	"A room filled with stalactites.\0"
+	"An underground greenhouse.\0"
+	"A water closet.\0"
+	"A study.\0"
+	"A living room.\0"
+	"A comfortable den.\0"
+	"An abatoir.\0"
+	"A boudoir.\0"
+	"A star chamber.\0"
+	"A manmade cavern.\0"
+	"A sewer control room\0"
+	"A shrine to High Magic\0"
+	"A magic laboratory\0"
+	"A room with inscribed pentagram\0"
+	"A chamber with a blue crystal omega dais\0"
+	"A room of mystery and allure.";
+    return zstrn (c_RoomNames, room, 70);
+}
+
 // name of the player's experience level
 static const char* levelname (unsigned level)
 {
@@ -732,20 +809,20 @@ static const char* levelname (unsigned level)
 	    "hero\0"
 	    "superhero\0"
 	    "demigod";
-	return (zstrn (c_Levels, level, 23));
+	return zstrn (c_Levels, level, 23);
     }
     if (level < 100)
 	snprintf (ArrayBlock(Str3), "Order %u Master of Omega", level/10-2);
     else
 	snprintf (ArrayBlock(Str3), "Ultimate Master of Omega");
-    return (Str3);
+    return Str3;
 }
 
 // Player stats like str, agi, etc give modifications to various abilities
 // chances to do things, etc. Positive is good, negative bad.
 int statmod (int stat)
 {
-    return ((stat - 10) / 2);
+    return (stat - 10) / 2;
 }
 
 // effects of hitting
@@ -1042,7 +1119,7 @@ static unsigned expval (unsigned l)
 {
     static const unsigned c_LevelXP[] = { 0, 20, 50, 200, 500, 1000, 2000, 3000, 5000, 7000, 10000 };
     constexpr unsigned multbase = ArraySize(c_LevelXP)-2;	// So level 11 is 10000*2, etc
-    return (l < ArraySize(c_LevelXP) ? c_LevelXP[l] : 10000*(l-multbase));
+    return l < ArraySize(c_LevelXP) ? c_LevelXP[l] : 10000*(l-multbase);
 }
 
 // If an item is unidentified, it isn't worth much to those who would buy it
@@ -1053,7 +1130,7 @@ unsigned item_value (const object* item)
 	value /= 10;
     if (item->objchar == THING)
 	value = 1;
-    return (value);
+    return value;
 }
 
 // figures value based on item base-value, charge, plus, and blessing
@@ -1070,7 +1147,7 @@ unsigned true_item_value (const object* item)
 	if (item->blessing > 0)
 	    value *= 2;
     }
-    return (value);
+    return value;
 }
 
 // kill off player if he isn't got the "breathing" status
@@ -1125,7 +1202,7 @@ void p_drown (void)
 void weapon_use (int dmgmod, pob weapon, struct monster *m)
 {
     if (!weapon)
-	return (weapon_bare_hands (dmgmod, m));
+	return weapon_bare_hands (dmgmod, m);
     switch (weapon->aux) {
 	default:
 	case I_NO_OP:		weapon_normal_hit (dmgmod, weapon, m); break;
@@ -1148,10 +1225,10 @@ void weapon_use (int dmgmod, pob weapon, struct monster *m)
 // for printing actions in printactions above
 const char* actionlocstr (char dir)
 {
-	 if (dir=='L')	return ("low.");
-    else if (dir=='C')	return ("center.");
-    else if (dir=='H')	return ("high.");
-    else		return ("wildly.");
+	 if (dir=='L')	return "low.";
+    else if (dir=='C')	return "center.";
+    else if (dir=='H')	return "high.";
+    else		return "wildly.";
 }
 
 // execute player combat actions versus monster m
@@ -1206,7 +1283,7 @@ static int player_hit (int hitmod, int hitloc, struct monster *m)
 {
     if (m->hp < 1) {
 	mprint ("Unfortunately, your opponent is already dead!");
-	return (0);
+	return 0;
     }
     if (hitloc == 'X')
 	hitloc = random_loc();
@@ -1233,7 +1310,7 @@ static int player_hit (int hitmod, int hitloc, struct monster *m)
 	strcat (Str1, " blocks it!");
 	mprint (Str1);
     }
-    return (hit);
+    return hit;
 }
 
 // This function is used to undo all items temporarily, should
@@ -1415,7 +1492,7 @@ void change_environment (EEnvironment new_environment)
 void tenminute_check (void)
 {
     if (!(Time % 60))
-	return (hourly_check());
+	return hourly_check();
     if (Level->IsDungeon())
 	wandercheck();
     minute_status_check();
@@ -1735,7 +1812,7 @@ char getlocation (void)
 	}
     }
     showmenu();
-    return (c-'a'+'A');
+    return c-'a'+'A';
 }
 
 // chance for player to resist magic somehow
@@ -1747,14 +1824,14 @@ bool magic_resist (unsigned hostile_magic)
 	    mprint ("Thinking fast, you defend youself with a counterspell!");
 	    Player.mana -= hostile_magic * hostile_magic;
 	    dataprint();
-	    return (true);
+	    return true;
 	}
     }
     if (Player.level / 4 + Player.status[PROTECTION] + urandom_range (20) > hostile_magic + urandom_range (30)) {
 	mprint ("You resist the spell!");
-	return (true);
+	return true;
     } else
-	return (false);
+	return false;
 }
 
 void terrain_check (bool takestime)
@@ -2072,7 +2149,7 @@ const char* countryid (int terrain)
     for (i = 0; i < ArraySize(_terrains); ++i)
 	if (_terrains[i] == tval)
 	    break;
-    return (zstrn (_terrain_names, i, ArraySize(_terrains)+1));
+    return zstrn (_terrain_names, i, ArraySize(_terrains)+1);
 }
 
 static const char* sitenames[NUMCITYSITES] = {	// alphabetical listing
@@ -2191,8 +2268,8 @@ bool hostilemonstersnear (void)
 {
     for (const monster& m : Level->mlist)
 	if (m_statusp(m, HOSTILE) && absv(Player.x-m.x) < 3 && absv(Player.y-m.y) < 3)
-	    return (true);
-    return (false);
+	    return true;
+    return false;
 }
 
 // random effects from some of stones in villages
@@ -2379,7 +2456,7 @@ int stonecheck (int alignment)
 	    break;
     }
     calc_melee();
-    return (cycle);
+    return cycle;
 }
 
 void alert_guards (void)
@@ -2466,7 +2543,7 @@ unsigned maneuvers (void)
     if (Player.rank[ARENA])	++m;
     if (Player.status[HASTED])	m *= 2;
     if (Player.status[SLOWED])	m /= 2;
-    return (min (8U, max (1U, m)));
+    return min (8U, max (1U, m));
 }
 
 // for when haste runs out, etc.

@@ -147,19 +147,19 @@ object create_object (int itemlevel)
     } while (object_uniqueness(o) >= UNIQUE_MADE && (o.level >= itemlevel + random_range(3) || random_range(100)));
     if (object_uniqueness(o) == UNIQUE_UNMADE)
 	set_object_uniqueness (o, UNIQUE_MADE);
-    return (o);
+    return o;
 }
 
 object make_cash (int level)
 {
     object o = Objects[CASHID];
     o.basevalue = random_range (level * level + 10) + 1;	// aux is AU value
-    return (o);
+    return o;
 }
 
 object make_food (int id)
 {
-    return (Objects[FOODID + (id == RANDOM ? random_range(NUMFOODS) : id)]);
+    return Objects[FOODID + (id == RANDOM ? random_range(NUMFOODS) : id)];
 }
 
 object make_corpse (const monster& m)
@@ -193,7 +193,7 @@ object make_corpse (const monster& m)
 	    case COMA:		o.usef = I_ALERT; break;
 	}
     }
-    return (o);
+    return o;
 }
 
 object make_ring (int id)
@@ -205,7 +205,7 @@ object make_ring (int id)
 	o.plus = itemplus() + 1;
     if (o.blessing < 0)
 	o.plus = RANDOM - absv (o.plus);
-    return (o);
+    return o;
 }
 
 object make_thing (int id)
@@ -213,7 +213,7 @@ object make_thing (int id)
     object o = Objects[THINGID + (id == RANDOM ? random_range(NUMTHINGS) : id)];
     if (strcmp (o.objstr, "grot") == 0)
 	o.truename = o.cursestr = o.objstr = grotname();
-    return (o);
+    return o;
 }
 
 object make_scroll (int id)
@@ -221,7 +221,7 @@ object make_scroll (int id)
     object o = Objects[SCROLLID + (id == RANDOM ? random_range(NUMSCROLLS) : id)];
     if (o.id == SCROLL_SPELLS) // if a scroll of spells, aux is the spell id in Spells
 	o.aux = random_range (NUMSPELLS);
-    return (o);
+    return o;
 }
 
 object make_potion (int id)
@@ -229,7 +229,7 @@ object make_potion (int id)
     object o = Objects[POTIONID + (id == RANDOM ? random_range(NUMPOTIONS) : id)];
     if (o.plus == 0)
 	o.plus = itemplus();
-    return (o);
+    return o;
 }
 
 object make_weapon (int id)
@@ -246,7 +246,7 @@ object make_weapon (int id)
 	else if (o.blessing > 0)
 	    o.plus = 1 + absv (o.plus);
     }
-    return (o);
+    return o;
 }
 
 object make_shield (int id)
@@ -260,7 +260,7 @@ object make_shield (int id)
 	o.plus = RANDOM - absv (o.plus);
     else if (o.blessing > 0)
 	o.plus = 1 + absv (o.plus);
-    return (o);
+    return o;
 }
 
 object make_armor (int id)
@@ -274,7 +274,7 @@ object make_armor (int id)
 	o.plus = RANDOM - absv (o.plus);
     else if (o.blessing > 0)
 	o.plus = 1 + absv (o.plus);
-    return (o);
+    return o;
 }
 
 object make_cloak (int id)
@@ -282,7 +282,7 @@ object make_cloak (int id)
     object o = Objects[CLOAKID + (id == RANDOM ? random_range(NUMCLOAKS) : id)];
     if (o.blessing == 0)
 	o.blessing = itemblessing();
-    return (o);
+    return o;
 }
 
 object make_boots (int id)
@@ -290,7 +290,7 @@ object make_boots (int id)
     object o = Objects[BOOTID + (id == RANDOM ? random_range(NUMBOOTS) : id)];
     if (o.blessing == 0)
 	o.blessing = itemblessing();
-    return (o);
+    return o;
 }
 
 object make_stick (int id)
@@ -299,14 +299,14 @@ object make_stick (int id)
     o.charge = itemcharge();
     if (o.blessing == 0)
 	o.blessing = itemblessing();
-    return (o);
+    return o;
 }
 
 object make_artifact (int id)
 {
     if (id == RANDOM)
 	do { id = random_range (NUMARTIFACTS); } while (object_uniqueness(id) >= UNIQUE_MADE);
-    return (Objects[ARTIFACTID + id]);
+    return Objects[ARTIFACTID + id];
 }
 
 static const char* grotname (void)
@@ -332,7 +332,7 @@ static const char* grotname (void)
 	"water pistol\0"
 	"shattered skull\0"
 	"jawbone of an ass";
-    return (zstrn (_grots, random_range(20), 20));
+    return zstrn (_grots, random_range(20), 20);
 }
 
 static int itemplus (void)
@@ -340,32 +340,32 @@ static int itemplus (void)
     int p = 0;
     while (random_range (2) == 0)
 	p++;
-    return (p);
+    return p;
 }
 
 static int itemcharge (void)
 {
-    return (random_range (20) + 1);
+    return random_range (20) + 1;
 }
 
 static int itemblessing (void)
 {
     switch (random_range (10)) {
 	case 0:
-	case 1: return (-1 - random_range (10));
+	case 1: return -1 - random_range (10);
 	case 8:
-	case 9: return (1 + random_range (10));
-	default: return (0);
+	case 9: return 1 + random_range (10);
+	default: return 0;
     }
 }
 
 bool twohandedp (int id)
 {
-    return (id == WEAPON_GREAT_SWORD || id == WEAPON_GREAT_AXE ||
+    return id == WEAPON_GREAT_SWORD || id == WEAPON_GREAT_AXE ||
 	    id == WEAPON_QUARTERSTAFF || id == WEAPON_HALBERD ||
 	    id == WEAPON_LONGBOW || id == WEAPON_CROSSBOW ||
 	    id == WEAPON_DESECRATOR || id == WEAPON_GOBLIN_HEWER ||
-	    id == WEAPON_GIANT_CLUB || id == WEAPON_SCYTHE_OF_DEATH);
+	    id == WEAPON_GIANT_CLUB || id == WEAPON_SCYTHE_OF_DEATH;
 }
 
 // general item functions
@@ -2008,7 +2008,7 @@ static int orbcheck (int element)
 	mprint ("Which one [f,w,e,a,m] ");
 	response = (char) mcigetc();
     } while ((response != 'f') && (response != 'w') && (response != 'e') && (response != 'a') && (response != 'm'));
-    return (response == element);
+    return response == element;
 }
 
 // orb functions

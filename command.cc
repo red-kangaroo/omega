@@ -611,7 +611,7 @@ static object detach_money (void)
     int c = get_money (Player.cash);
     money.basevalue = (c == ABORT ? 0 : c);
     Player.cash -= money.basevalue;
-    return (money);
+    return money;
 }
 
 // zap a wand, of course
@@ -1071,12 +1071,12 @@ static void moveplayer (int dx, int dy)
 static bool p_country_moveable (int x, int y)
 {
     if (!inbounds (x, y))
-	return (false);
+	return false;
     else if (optionp(CONFIRM) &&
 		(Level->site(x,y).showchar() == CHAOS_SEA ||
 		 Level->site(x,y).showchar() == MOUNTAINS))
-	return (confirmation());
-    return (true);
+	return confirmation();
+    return true;
 }
 
 // handle a h,j,k,l, etc.
@@ -1968,7 +1968,7 @@ static const char* trapid (unsigned trapno)
 	"A concealed entrance to the abyss\0"
 	"A siren trap\0"
 	"A completely inoperative trap";
-    return (zstrn (c_TrapNames, trapno-L_TRAP_DART, L_TRAP_SIREN-L_TRAP_DART+1));
+    return zstrn (c_TrapNames, trapno-L_TRAP_DART, L_TRAP_SIREN-L_TRAP_DART+1);
 }
 
 static void enter_site (chtype site)
@@ -1979,6 +1979,6 @@ static void enter_site (chtype site)
 	{ E_CITY, E_VILLAGE, E_CAVES, E_CASTLE, E_VOLCANO, E_TEMPLE, E_DLAIR, E_STARPEAK, E_MAGIC_ISLE };
     for (unsigned i = 0; i < ArraySize(c_Sitechar); ++i)
 	if (c_Sitechar[i] == site)
-	    return (change_environment ((EEnvironment) c_DestEnv[i]));
+	    return change_environment ((EEnvironment) c_DestEnv[i]);
     mprint ("There's nothing to enter here!");
 }
