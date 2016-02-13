@@ -14,6 +14,7 @@ INSTALL		:= @INSTALL@
 
 INSTALLEXE	:= ${INSTALL} -D -p -m 755 -s
 INSTALLDATA	:= ${INSTALL} -D -p -m 644
+RMPATH		:= rmdir -p --ignore-fail-on-non-empty
 
 ################ Destination #########################################
 
@@ -23,7 +24,7 @@ BINDIR		:= @bindir@
 ################ Compiler options ####################################
 
 WARNOPTS	:= -Wall -Wextra -Wpointer-arith -Woverloaded-virtual\
-		-Wshadow -Wredundant-decls -Wcast-qual @SYSWARNS@
+		-Wshadow -Wredundant-decls -Wcast-qual
 CXXFLAGS	:= ${WARNOPTS} -std=c++14 @CUSTOMINCDIR@
 LDFLAGS		:= @CUSTOMLIBDIR@
 ifndef USE_UCC
@@ -35,4 +36,5 @@ else
     CXXFLAGS	+= -Os -g0 -DNDEBUG=1 -fno-rtti
     LDFLAGS	+= -s
 endif
+BUILDDIR	:= @builddir@/${NAME}
 O		:= .o/
