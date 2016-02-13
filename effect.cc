@@ -1838,9 +1838,9 @@ void p_poison (int toxicity)
 
 void apport (int blessing)
 {
-    int i, idx, x = Player.x, y = Player.y;
     if (blessing > -1) {
 	mprint ("Apport from:");
+	int x = Player.x, y = Player.y;
 	setspot (&x, &y);
 	if (Level->thing(x,y)) {
 	    pickup_at (x, y);
@@ -1849,10 +1849,10 @@ void apport (int blessing)
 	    mprint ("There's nothing there to apport!");
     } else {
 	mprint ("You have a sense of loss.");
-	for (i = 0; i < absv (blessing); i++) {
-	    idx = random_item();
+	for (auto i = 0u; i < absv (blessing); i++) {
+	    auto idx = random_item();
 	    if (idx != ABORT) {
-		drop_at (x, y, Player.possessions[idx]);
+		drop_at (Player.x, Player.y, Player.possessions[idx]);
 		Player.remove_possession (idx);
 	    }
 	}

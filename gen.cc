@@ -110,7 +110,7 @@ static void straggle_corridor (int fx, int fy, int tx, int ty, chtype loc, char 
     while (fx != tx || fy != ty) {
 	int dx = tx - fx;
 	int dy = ty - fy;
-	if (random_range (absv(dx) + absv(dy)) < absv(dx))
+	if (urandom_range (absv(dx) + absv(dy)) < absv(dx))
 	    corridor_crawl (&fx, &fy, sign (dx), 0, random_range (absv (dx)) + 1, loc, rsi);
 	else
 	    corridor_crawl (&fx, &fy, 0, sign (dy), random_range (absv (dy)) + 1, loc, rsi);
