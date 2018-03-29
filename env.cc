@@ -81,8 +81,7 @@ void level::clear (void)
 // returns true if its ok to get rid of a level
 bool level::ok_to_free (void) const
 {
-    return this
-	    && environment != E_COUNTRYSIDE
+    return environment != E_COUNTRYSIDE
 	    && environment != E_CITY
 	    && environment != E_VILLAGE
 	    && !IsDungeon();
@@ -1210,6 +1209,7 @@ static void random_temple_site (int i, int j, int deity UNUSED)
 	case 1:
 	    Level->site(i,j).locchar = WATER;
 	    Level->site(i,j).p_locf = L_MAGIC_POOL;
+	    // fallthrough
 	case 2:
 	    make_site_monster (i, j, INNER_DEMON);
 	    break;
@@ -2326,7 +2326,7 @@ void load_house (EEnvironment kind)
 		s.p_locf = L_SAFE;
 		break;
 	    case '^': s.p_locf = TRAP_BASE + random_range (NUMTRAPS); break;
-	    case 'P': s.locchar = PORTCULLIS;
+	    case 'P': s.locchar = PORTCULLIS; // fallthrough
 	    case 'p': s.p_locf = L_PORTCULLIS; break;
 	    case 'R': s.p_locf = L_RAISE_PORTCULLIS; break;
 	    case 'T': s.p_locf = L_PORTCULLIS_TRAP; break;
@@ -3281,6 +3281,7 @@ void statue_random (int x, int y)
 		lset (x, y, CHANGED | STOPS);
 		break;
 	    }
+	    // fallthrough
 	case 5:
 	    mprint ("The statue looks slightly pained. It speaks:");
 	    morewait();

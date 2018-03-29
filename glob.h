@@ -190,4 +190,11 @@ static inline void forget_object (const object& o)		{ forget_object (o.id); }
 static inline uint8_t object_uniqueness (const object& o)	{ return object_uniqueness (o.id); }
 static inline void set_object_uniqueness (const object& o,EUniqueness u) { set_object_uniqueness (o.id, u); }
 
+static inline PURE const char* zstrn (const char* strs, unsigned n, unsigned nstrs)
+{
+    for (unsigned i = min(n,nstrs-1)+1,sz=-1; --i;)
+	strs = strnext_r(strs,&sz);
+    return strs;
+}
+
 } // namespace

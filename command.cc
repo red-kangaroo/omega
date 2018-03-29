@@ -75,7 +75,7 @@ void p_process (void)
 	    case KEY_CTRL|'g':	wizard(); break;
 	    case KEY_CTRL|'i':	display_pack(); morewait(); xredraw(); break;
 	    case KEY_CTRL|'k':	if (gamestatusp (CHEATED)) frobgamestatus();	// fallthrough
-	    case KEY_CTRL|'l':	xredraw();
+	    case KEY_CTRL|'l':	xredraw(); // fallthrough
 	    case ' ':
 	    case KEY_ENTER:	setgamestatus (SKIP_MONSTERS); break;
 	    case KEY_CTRL|'p':	msglist_up(); display_messages(); setgamestatus (SKIP_MONSTERS); break;
@@ -738,7 +738,7 @@ void setoptions (void)
 		if (slot < NUMTFOPTIONS) {
 		    Player.options ^= (1<<slot);
 		    break;
-		}
+		} // fallthrough
 	    case 'l':
 	    case KEY_ENTER:
 	    case KEY_RIGHT:

@@ -194,7 +194,7 @@ template <typename T> static inline unsigned scasv (const T*& p, unsigned n, T v
     return n;
 }
 
-inline const char* strnext (const char* s, unsigned& n)
+static inline const char* strnext_r (const char* s, unsigned& n)
 {
 #if __x86__
     if (!compile_constant(strlen(s)))
@@ -204,16 +204,8 @@ inline const char* strnext (const char* s, unsigned& n)
 	s+=strlen(s)+1;
     return s;
 }
-inline const char* strnext (const char* s) PURE;
-inline const char* strnext (const char* s) { unsigned n = -1; return strnext(s,n); }
-
-inline const char* zstrn (const char* strs, unsigned n, unsigned nstrs) PURE;
-inline const char* zstrn (const char* strs, unsigned n, unsigned nstrs)
-{
-    for (unsigned i = min(n,nstrs-1)+1,sz=-1; --i;)
-	strs = strnext(strs,sz);
-    return strs;
-}
+static inline const char* strnext (const char* s) PURE;
+static inline const char* strnext (const char* s) { unsigned n = -1; return strnext(s,n); }
 
 //}}}----------------------------------------------------------------------
 //{{{ Curses shims

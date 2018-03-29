@@ -1010,7 +1010,7 @@ static void i_corpse (pob o)
 	case EATER:
 	    mprint ("Oh, yuck. The 'food' seems to be tainted.");
 	    mprint ("You feel very sick. You throw up.");
-	    Player.food = min<int16_t> (Player.food, 4);
+	    Player.food = min<int16_t> (Player.food, 4); // fallthrough
 	default:
 	    mprint ("It proved completely inedible, but you tried anyhow.");
     }
