@@ -68,7 +68,7 @@ bool save_game (void)
 // return true if game restored, false otherwise
 bool restore_game (void)
 {
-    char savestr [128];
+    char savestr [PATH_MAX];
     snprintf (ArrayBlock(savestr), OMEGA_SAVED_GAME, getenv("HOME"));
     if (0 != access (savestr, R_OK))
 	return false;
@@ -95,7 +95,7 @@ bool restore_game (void)
 	setgamestatus (SKIP_MONSTERS);
     } catch (const exception& e) {
 	char errbuf[80];
-	snprintf (ArrayBlock(errbuf), "Error restoring %s: %s", savestr, e.what());
+	snprintf (ArrayBlock(errbuf), "Error restoring %.32s: %s", savestr, e.what());
 	mprint (errbuf);
 	morewait();
 	return false;
