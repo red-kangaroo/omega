@@ -881,7 +881,12 @@ struct player_pod {
     uint8_t	click;
     char	preference;
 public:
-    inline	player_pod (void)	{ itzero (this); }
+    inline	player_pod (void)
+		    :x(0),y(0),xp(0),options(0),cash(0),absorption(0),alignment(0)
+		    ,defense(0),dmg(0),food(0),hit(0),hp(0),level(0),itemweight(0)
+		    ,mana(0),maxhp(0),maxmana(0),maxweight(0),agi(0),con(0),dex(0)
+		    ,iq(0),pow(0),str(0),maxagi(0),maxcon(0),maxdex(0),maxiq(0)
+		    ,maxpow(0),maxstr(0),patron(0),speed(0),click(0),preference(0) {}
     inline void	read (bstri& is)	{ is.read (this, sizeof(*this)); }
     template <typename Stm>
     inline void	write (Stm& os) const	{ os.write (this, sizeof(*this)); }

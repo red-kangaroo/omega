@@ -25,7 +25,7 @@
 #undef HAVE_ZLIB_H
 
 // Define to 1 to use ucc
-#define USE_UCC 1
+#undef USE_UCC
 #if USE_UCC
     // Define to 1 if have ucc
     #define HAVE_STL_H 1

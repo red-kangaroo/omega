@@ -963,7 +963,7 @@ static void l_balancestone (void)
     mprint ("Touch it? [yn] ");
     if (ynq() == 'y') {
 	mprint ("A vortex of mana spins about you!");
-	if (absv (Player.alignment) > random_range (50)) {
+	if (absv (Player.alignment) > urandom_range (50)) {
 	    mprint ("The cyclone whirls you off to a strange place!");
 	    morewait();
 	    change_environment (E_COUNTRYSIDE);

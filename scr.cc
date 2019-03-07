@@ -610,7 +610,7 @@ const char* msgscanstring (char crf, char crl)
     instring[0] = 0;
     getyx (Msgw, y, x);
     curs_set (true);
-    for (char c;;) {
+    for (wchar_t c;;) {
 	c = mgetc();
 	if (c == KEY_ESCAPE || c == EOF) {
 	    instring[0] = 0;

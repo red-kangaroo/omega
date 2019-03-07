@@ -76,8 +76,6 @@ template <typename T> inline void SetBit (T& v, int i, bool b=true) { T m(T(1)<<
 /// Shorthand for container reverse iteration.
 #define eachfor(i,ctr)	for (auto i = (ctr).end(); i-- > (ctr).begin();)
 
-template <typename T> void itzero (T* v) { memset (v, 0, sizeof(T)); }
-
 //}}}----------------------------------------------------------------------
 //{{{ size_cast and sized_type
 
@@ -115,9 +113,14 @@ inline constexpr bool is_negative (const T& v)
 
 /// \brief Returns the absolute value of \p v
 /// Unlike the stdlib functions, this is inline and works with all types.
-template <typename T>
-inline constexpr T absv (T v)
+inline constexpr unsigned absv (int v)
     { return is_negative(v) ? -v : v; }
+inline constexpr unsigned long absv (long v)
+    { return is_negative(v) ? -v : v; }
+inline constexpr unsigned absv (unsigned v)
+    { return v; }
+inline constexpr unsigned long absv (unsigned long v)
+    { return v; }
 
 /// \brief Returns -1 for negative values, 1 for positive, and 0 for 0
 template <typename T>
@@ -194,18 +197,18 @@ template <typename T> static inline unsigned scasv (const T*& p, unsigned n, T v
     return n;
 }
 
-static inline const char* strnext_r (const char* s, unsigned& n)
+static inline const char* strnext_r (const char* s, unsigned* n)
 {
 #if __x86__
     if (!compile_constant(strlen(s)))
-	n = scasv (s, n, '\0');
+	*n = scasv (s, *n, '\0');
     else
 #endif
 	s+=strlen(s)+1;
     return s;
 }
 static inline const char* strnext (const char* s) PURE;
-static inline const char* strnext (const char* s) { unsigned n = -1; return strnext(s,n); }
+static inline const char* strnext (const char* s) { unsigned n = -1; return strnext_r(s,&n); }
 
 //}}}----------------------------------------------------------------------
 //{{{ Curses shims

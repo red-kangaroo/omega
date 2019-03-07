@@ -2190,7 +2190,8 @@ static void showknownsites (unsigned first, unsigned last)
 int parsecitysite (void)
 {
     int first, last, pos;
-    char byte, prefix[80];
+    char prefix[80];
+    wchar_t byte;
     int found = 0;
     int f, l;
 
