@@ -2,22 +2,23 @@
 
 #pragma once
 #define __STDC_LIMIT_MACROS	// Global macros turning on library features
-#include <stdint.h>		// Standard includes
-#include <limits.h>
-#include <string.h>
+#include <algorithm>
+#include <array>		// C++ STL includes
 #include <assert.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <sys/stat.h>
-#include <string.h>
-#include <array>		// C++ STL includes
-#include <vector>
+#include <limits.h>
 #include <limits>
 #include <numeric>
-#include <algorithm>
+#include <stdint.h>		// Standard includes
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <string>
+#include <sys/stat.h>
+#include <time.h>
+#include <unistd.h>
+#include <vector>
 using namespace std;
 
 //{{{ gcc attribute macros ------------------------------------------------
@@ -387,7 +388,6 @@ public:
     inline void		skip (int n)		{ iseek (ipos()+n); }
     inline void		align (size_type g)	{ skip (align_size(ipos(),g)); }
     inline void		skipalign (size_type g)	{ align (g); }
-    void		verify_remaining (const char* f, size_type sz) const;
     inline void		read (void* v, size_type sz)	{ assert(remaining()>=sz && "read overflow"); memcpy (v,ipos(),sz); skip(sz); }
     inline const char*	read_strz (void)		{ const char* v = iptr<char>(); skip(strlen(v)+1); return ipos() <= end() ? v : nullptr; }
     template <typename T>

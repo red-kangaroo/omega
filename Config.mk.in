@@ -1,40 +1,33 @@
-################ Build options #######################################
-
-NAME		:= @PKG_NAME@
-MAJOR		:= @PKG_MAJOR@
-MINOR		:= @PKG_MINOR@
-
-#DEBUG		:= 1
-#USE_UCC	:= 1
+name		:= @pkg_name@
 
 ################ Programs ############################################
 
+CC		:= @CXX@
 CXX		:= @CXX@
 INSTALL		:= @INSTALL@
-
-INSTALLEXE	:= ${INSTALL} -D -p -m 755 -s
-INSTALLDATA	:= ${INSTALL} -D -p -m 644
-RMPATH		:= rmdir -p --ignore-fail-on-non-empty
+INSTALL_DATA	:= ${INSTALL} -m 644
+INSTALL_PROGRAM	:= ${INSTALL} -m 755 -s
 
 ################ Destination #########################################
 
 prefix		:= @prefix@
-BINDIR		:= @bindir@
+bindir		:= @bindir@
+TMPDIR		:= @TMPDIR@
+builddir	:= @builddir@/${name}
+O		:= .o/
 
 ################ Compiler options ####################################
 
-WARNOPTS	:= -Wall -Wextra -Wpointer-arith -Woverloaded-virtual\
-		-Wshadow -Wredundant-decls -Wcast-qual
-CXXFLAGS	:= ${WARNOPTS} -std=c++14 @CUSTOMINCDIR@
-LDFLAGS		:= @CUSTOMLIBDIR@
-ifndef USE_UCC
-    LIBS	:= @libncurses@ @libz@
-endif
-ifdef DEBUG
-    CXXFLAGS	+= -O0 -g
+#debug		:= 1
+libs		:= @pkg_libs@
+ifdef debug
+    cxxflags	:= -O0 -ggdb3
+    ldflags	:= -g -rdynamic
+    libs	:= $(subst lcwiclo,lcwiclo_d,${libs})
 else
-    CXXFLAGS	+= -Os -g0 -DNDEBUG=1 -fno-rtti
-    LDFLAGS	+= -s
+    cxxflags	:= -Os -g0 -DNDEBUG=1
+    ldflags	:= -s
 endif
-BUILDDIR	:= @builddir@/${NAME}
-O		:= .o/
+CXXFLAGS	:= -Wall -Wextra -Wredundant-decls -Wshadow
+cxxflags	+= -std=c++17 @pkg_cflags@ ${CXXFLAGS}
+ldflags		+= @pkg_ldflags@ ${LDFLAGS}

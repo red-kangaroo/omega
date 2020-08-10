@@ -2408,8 +2408,7 @@ void load_village (uint8_t villagenum)
 	L_LAWSTONE, L_BALANCESTONE, L_CHAOSTONE,
 	L_MINDSTONE, L_SACRIFICESTONE, L_VOIDSTONE
     };
-    if (villagenum >= ArraySize(_villages))
-	throw runtime_error ("village not found");
+    assert (villagenum < ArraySize(_villages) && "village not found");
     Level->SetVillageId (villagenum);
     level::load_map (E_VILLAGE, _villages[villagenum], [&](char sc, location& s, unsigned i, unsigned j) {
 	s.locchar = FLOOR;

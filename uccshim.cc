@@ -13,7 +13,7 @@ void memblock::read_file (const char* filename)
     ssize_t br = read (fd, begin(), size());
     close (fd);
     if (br != size())
-	throw runtime_error ("failed to read file");
+	resize (0);
 }
 void memblock::write_file (const char* filename)
 {
@@ -21,18 +21,7 @@ void memblock::write_file (const char* filename)
     ssize_t bw = write (fd, begin(), size());
     close (fd);
     if (bw != size())
-	throw runtime_error ("failed to write file");
-}
-
-//----------------------------------------------------------------------
-
-void bstri::verify_remaining (const char* f, size_type sz) const
-{
-    if (remaining() >= sz)
-	return;
-    char szbuf[64];
-    snprintf(ArrayBlock(szbuf), "%s: insufficient data at %u", f, sz);
-    throw runtime_error (szbuf);
+	perror ("failed to write file");
 }
 
 //----------------------------------------------------------------------

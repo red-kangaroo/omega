@@ -3,7 +3,7 @@
 #include "glob.h"
 #include <unistd.h>
 #include <stdlib.h>
-#if HAVE_ZLIB_H
+#if __has_include(<zlib.h>)
     #include <zlib.h>
 #endif
 
@@ -42,24 +42,18 @@ bool save_game (void)
 
     mprint ("Saving Game....");
     bool writeok = false;
-    try {
-	SGHeader h = {'o','m','e','g',OMEGA_SAVE_FORMAT,optionp(COMPRESS),OMEGA_VERSION,0};
-	bstrs ss;
-	ss << h << Player << World;
-	h.size = ss.pos();
-	memblock buf (ss.pos());
-	bstro os (buf);
-	os << h << Player << World;
-	if (h.compressed)
-	    buf.swap (compress (buf));
-	buf.write_file (savestr);
-	mprint ("Game Saved.");
-	writeok = true;
-    } catch (...) {
-	mprint ("Something didn't work... save aborted.");
-	morewait();
-	clearmsg();
-    }
+    SGHeader h = {'o','m','e','g',OMEGA_SAVE_FORMAT,optionp(COMPRESS),OMEGA_VERSION,0};
+    bstrs ss;
+    ss << h << Player << World;
+    h.size = ss.pos();
+    memblock buf (ss.pos());
+    bstro os (buf);
+    os << h << Player << World;
+    if (h.compressed)
+	buf.swap (compress (buf));
+    buf.write_file (savestr);
+    mprint ("Game Saved.");
+    writeok = true;
     return writeok;
 }
 
@@ -74,32 +68,26 @@ bool restore_game (void)
 	return false;
 
     memblock buf;
-    try {
-	buf.read_file (savestr);
-	bstri is (buf);
-	mprint ("Restoring...");
+    buf.read_file (savestr);
+    bstri is (buf);
+    mprint ("Restoring...");
 
-	SGHeader header;
-	is >> header;
-	if (header.format != OMEGA_SAVE_FORMAT)
-	    throw runtime_error ("incorrect saved game file format");
-	if (header.compressed) {
-	    buf.swap (decompress (buf, header.size+512));
-	    is.link (buf);
-	    is.skip (stream_size_of(header));
-	}
-	is >> Player >> World;
-
-	mprint ("Restoration complete.");
-	ScreenOffset = -100;	// to force a redraw
-	setgamestatus (SKIP_MONSTERS);
-    } catch (const exception& e) {
-	char errbuf[80];
-	snprintf (ArrayBlock(errbuf), "Error restoring %.32s: %s", savestr, e.what());
-	mprint (errbuf);
-	morewait();
+    SGHeader header;
+    if (is.remaining() < stream_size_of(header))
 	return false;
+    is >> header;
+    if (header.format != OMEGA_SAVE_FORMAT)
+	return false;
+    if (header.compressed) {
+	buf.swap (decompress (buf, header.size+512));
+	is.link (buf);
+	is.skip (stream_size_of(header));
     }
+    is >> Player >> World;
+
+    mprint ("Restoration complete.");
+    ScreenOffset = -100;	// to force a redraw
+    setgamestatus (SKIP_MONSTERS);
     return true;
 }
 
@@ -234,7 +222,7 @@ void level::read (bstri& is)
 	uint8_t i, j;
 	is >> i >> j >> iend;
 	if (iend >= width || j >= height)
-	    throw runtime_error ("saved game corrupt");
+	    return;
 	for (; i < iend; ++i)
 	    is >> site(i,j);
     } while (iend);
@@ -365,7 +353,7 @@ enum : uint8_t { RUN_CODE = 0xCD };
 static memblock compress (const cmemlink& buf)
 {
     memblock obuf (buf.size());
-#if HAVE_ZLIB_H
+#if __has_include(<zlib.h>)
     z_stream s;
     memset (&s, 0, sizeof(s));
     deflateInit (&s, Z_DEFAULT_COMPRESSION);
@@ -410,7 +398,7 @@ static memblock compress (const cmemlink& buf)
 
 static memblock decompress (const cmemlink& buf, uint32_t size)
 {
-#if HAVE_ZLIB_H
+#if __has_include(<zlib.h>)
     z_stream s;
     memset (&s, 0, sizeof(s));
     inflateInit (&s);
@@ -429,9 +417,9 @@ static memblock decompress (const cmemlink& buf, uint32_t size)
     inflateEnd (&s);
 #else
     bstri is (buf.begin(), buf.size());
-    sized_type<sizeof(SGHeader)>::type h;
+    SGHeader h;
     is >> h;
-    memblock obuf (h.size);
+    memblock obuf (max (h.size, size));
     bstro os (obuf);
     os << h;
     for (uint8_t b,o,l; os.remaining();) {

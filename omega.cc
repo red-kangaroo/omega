@@ -156,28 +156,23 @@ int main (void)
     } else
 	mprint ("Your adventure continues....");
 
-    try {
-	timeprint();
-	calc_melee();
-	if (Level->environment != E_COUNTRYSIDE)
-	    showroom (Level->site(Player.x,Player.y).roomnumber);
+    timeprint();
+    calc_melee();
+    if (Level->environment != E_COUNTRYSIDE)
+	showroom (Level->site(Player.x,Player.y).roomnumber);
+    else
+	terrain_check (false);
+
+    screencheck (Player.y);
+
+    // game cycle
+    if (!continuing)
+	time_clock (true);
+    while (true) {
+	if (Level->environment == E_COUNTRYSIDE)
+	    p_country_process();
 	else
-	    terrain_check (false);
-
-	screencheck (Player.y);
-
-	// game cycle
-	if (!continuing)
-	    time_clock (true);
-	while (true) {
-	    if (Level->environment == E_COUNTRYSIDE)
-		p_country_process();
-	    else
-		time_clock (false);
-	}
-    } catch (exception& e) {
-	endgraf();
-	printf ("Error: %s\n", e.what());
+	    time_clock (false);
     }
     return 0;
 }

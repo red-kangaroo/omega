@@ -8,7 +8,7 @@
 
 static void initstats(void);
 static void save_omegarc(void);
-static void load_omegarc (const char* filename);
+static bool load_omegarc (const char* filename);
 static void user_character_stats(void);
 static void omegan_character_stats(void);
 static bool personal_question_yn (const char* q);
@@ -49,13 +49,8 @@ void initplayer (void)
     snprintf (ArrayBlock(Str1), OMEGA_PLAYER_FILE, getenv("HOME"));
     if (0 == access (Str1, R_OK) && personal_question_yn ("Use saved character? [yn] ")) {
 	clearmsg();
-	try {
-	    load_omegarc (Str1);
+	if (load_omegarc (Str1))
 	    oldchar = true;
-	} catch (exception& e) {
-	    mprint (e.what());
-	    morewait();
-	}
     }
     if (!oldchar)
 	initstats();
@@ -81,12 +76,7 @@ static void initstats (void)
 	    if (ynq() == 'y') {
 		mprint ("First, set options.");
 		setoptions();
-		try {
-		    save_omegarc();
-		} catch (exception& e) {
-		    mprint (e.what());
-		    morewait();
-		}
+		save_omegarc();
 	    }
 	    displayfile (Data_Intro);
 	} else
@@ -129,22 +119,25 @@ static void save_omegarc (void)
     buf.write_file (Str1);
 }
 
-static void load_omegarc (const char* filename)
+static bool load_omegarc (const char* filename)
 {
     memblock buf;
     buf.read_file (filename);
     bstri is (buf);
 
     uint8_t fmt, savefmt;
-    is.verify_remaining ("load_omegarc", stream_size_of(fmt)+stream_size_of(savefmt)+stream_size_of(Searchnum)+stream_size_of(Verbosity));
+    if (is.remaining() < stream_size_of(fmt)+stream_size_of(savefmt)+stream_size_of(Searchnum)+stream_size_of(Verbosity))
+	return false;
     is >> fmt >> savefmt >> Searchnum >> Verbosity;
     if (fmt != OMEGA_PLAYER_FORMAT)
-	throw runtime_error ("omegarc format is not readable");
+	return false;
     is >> Player.name;
     bstrs ss;
     omegarc_serialize_player_static (ss);
-    is.verify_remaining ("load_omegarc", ss.pos());
+    if (is.remaining() < ss.pos())
+	return false;
     omegarc_serialize_player_static (is);
+    return true;
 }
 
 static bool personal_question_yn (const char* q)
