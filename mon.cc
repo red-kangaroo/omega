@@ -1,4 +1,4 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #include "glob.h"
 
@@ -348,7 +348,7 @@ static void m_random_move (struct monster *m)
 void m_vanish (struct monster *m)
 {
     mprintf ("%s vanishes in the twinkling of an eye!", m->name());
-    Level->mlist.erase (p2i(Level->mlist,m));
+    Level->mlist.erase (m);
     levelrefresh();
 }
 
@@ -532,7 +532,7 @@ static void m_talk_guard (struct monster *m)
 	mprint ("Move it right along, stranger!");
 }
 
-static void m_talk_mp (struct monster *m UNUSED)
+static void m_talk_mp (struct monster *m [[maybe_unused]])
 {
     mprint ("The mendicant priest asks you to spare some treasure for the needy");
 }
@@ -543,7 +543,7 @@ static void m_talk_titter (struct monster *m)
     mprint (Str2);
 }
 
-static void m_talk_ninja (struct monster *m UNUSED)
+static void m_talk_ninja (struct monster *m [[maybe_unused]])
 {
     mprint ("The black-garbed figure says apologetically:");
     mprint ("'Situree simasita, wakarimasen.'");
@@ -642,12 +642,12 @@ static void m_talk_robot (struct monster *m)
     mprintf ("%s says: %s", m->name(), zstrn(_robot_replies,random_range(4),4));
 }
 
-static void m_talk_slithy (struct monster *m UNUSED)
+static void m_talk_slithy (struct monster *m [[maybe_unused]])
 {
     mprint ("It can't talk -- it's too slithy!");
 }
 
-static void m_talk_mimsy (struct monster *m UNUSED)
+static void m_talk_mimsy (struct monster *m [[maybe_unused]])
 {
     mprint ("It can't talk -- it's too mimsy!");
 }
@@ -780,7 +780,7 @@ static void m_talk_horse (struct monster *m)
     else {
 	mprint ("The horse lets you pat his nose. Want to ride him? [yn] ");
 	if (ynq() == 'y') {
-	    Level->mlist.erase (p2i(Level->mlist,m));
+	    Level->mlist.erase (m);
 	    setgamestatus (MOUNTED);
 	    calc_melee();
 	    mprint ("You are now equitating!");
@@ -788,12 +788,12 @@ static void m_talk_horse (struct monster *m)
     }
 }
 
-static void m_talk_hyena (struct monster *m UNUSED)
+static void m_talk_hyena (struct monster *m [[maybe_unused]])
 {
     mprint ("The hyena only laughs at you...");
 }
 
-static void m_talk_parrot (struct monster *m UNUSED)
+static void m_talk_parrot (struct monster *m [[maybe_unused]])
 {
     mprint ("Polly wanna cracker?");
 }
@@ -1313,7 +1313,7 @@ static void m_sp_demon (struct monster *m)
 	    NIGHT_GAUNT, NIGHT_GAUNT, NIGHT_GAUNT, NIGHT_GAUNT, L_FDEMON,
 	    L_FDEMON, FROST_DEMON, OUTER_DEMON, DEMON_SERP, INNER_DEMON
 	};
-	int mid = _demons[min<unsigned>(ArraySize(_demons),m->level)];
+	int mid = _demons[min<unsigned>(size(_demons),m->level)];
 	summon (-1, mid);
 	summon (-1, mid);
     }
@@ -1974,7 +1974,7 @@ void m_death (struct monster *m)
 				else {
 				    mprint ("materializes, sheds a tear, picks up the badge, and leaves.");
 				    guard->pickup (*ibadge);
-				    Level->things.erase (p2i(Level->things,ibadge));
+				    Level->things.erase (ibadge);
 				}
 				mprint ("A new justiciar has been promoted!");
 				make_hiscore_npc (*guard, NPC_JUSTICIAR);
@@ -2037,7 +2037,7 @@ void m_death (struct monster *m)
 		m_status_set (m, HOSTILE);
 		monster_action (m, m->specialf);
 	}
-	Level->mlist.erase (p2i(Level->mlist,m));
+	Level->mlist.erase (m);
     }
 }
 
@@ -2395,7 +2395,7 @@ static void strengthen_death (struct monster *m)
     m->possessions.push_back (Objects[WEAPON_SCYTHE_OF_DEATH]);
 }
 
-void m_no_op (struct monster *m UNUSED)
+void m_no_op (struct monster *m [[maybe_unused]])
 {
 }
 

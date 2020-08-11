@@ -1,7 +1,8 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #include "glob.h"
 #include <unistd.h>
+#include <ctype.h>
 
 //----------------------------------------------------------------------
 
@@ -645,7 +646,7 @@ void drawscreen (void)
 	for (unsigned j = 0; j < Level->height; ++j)
 	    lset (i, j, SEEN);
     if (Level->environment == E_CITY)
-	for (unsigned i = 0; i < ArraySize(CitySiteList); i++)
+	for (unsigned i = 0; i < size(CitySiteList); i++)
 	    CitySiteList[i].known = true;
     show_screen();
 }
@@ -670,7 +671,7 @@ void display_death (const char* source)
 {
     clear();
     touchwin (stdscr);
-    snprintf (ArrayBlock(Str4),
+    snprintf (ARRAY_BLOCK(Str4),
 	"\n\n\n\nRequiescat In Pace, %s (%ld points)\n"
 	"Killed by %s."
 	"\n\n\n\n\nHit any key to quit."
@@ -917,7 +918,7 @@ void display_possessions (unsigned selection)
 	wprintw (Menuw, slotstr, idchar, usechar, o->id != NO_THING ? itemid(o) : "(slot vacant)");
 	if (slot == selection) wstandend(Menuw);
 	++slot;
-	slotstr = strnext(slotstr);
+	slotstr = zstr::next (slotstr);
     }
     wrefresh (Menuw);
 }
@@ -967,14 +968,14 @@ static unsigned _visiblemsg[3];
 
 static void MakeMsgBufferSpace (unsigned slen)
 {
-    unsigned spaceleft = ArraySize(_msgbuf)-_nextmsg;
+    unsigned spaceleft = size(_msgbuf)-_nextmsg;
     if (spaceleft >= slen)
 	return;
-    unsigned bte = ArraySize(_msgbuf)/4;	// Make space in quarter chunks
+    unsigned bte = size(_msgbuf)/4;	// Make space in quarter chunks
     bte += strlen(_msgbuf+bte)+1;		// Align to end of a message
     memmove (_msgbuf, _msgbuf+bte, _nextmsg-bte);	// Erase from start
     _nextmsg -= bte;				// Adjust indexes
-    for (unsigned i = 0; i < ArraySize(_visiblemsg); ++i)
+    for (unsigned i = 0; i < size(_visiblemsg); ++i)
 	_visiblemsg[i] -= bte;
 }
 
@@ -982,8 +983,8 @@ void display_messages (void)
 {
     werase (Msgw);
     unsigned i = 0, l = 0;
-    for (i = 0; i < ArraySize(_visiblemsg)-1 && _visiblemsg[i] == _visiblemsg[i+1]; ++i) {}
-    for (; i < ArraySize(_visiblemsg); ++i)
+    for (i = 0; i < size(_visiblemsg)-1 && _visiblemsg[i] == _visiblemsg[i+1]; ++i) {}
+    for (; i < size(_visiblemsg); ++i)
 	if (_visiblemsg[i] != _nextmsg)
 	    mvwprintw (Msgw, l++,0, "%s", _msgbuf+_visiblemsg[i]);
     wrefresh (Msgw);
@@ -991,17 +992,17 @@ void display_messages (void)
 
 void clearmsg (void)
 {
-    fill_n (ArrayBlock(_visiblemsg), _nextmsg);
+    fill_n (ARRAY_BLOCK(_visiblemsg), _nextmsg);
     display_messages();
 }
 
 void msglist_down (void)
 {
-    if (_visiblemsg[ArraySize(_visiblemsg)-1] == _nextmsg)
+    if (_visiblemsg[size(_visiblemsg)-1] == _nextmsg)
 	return;
-    for (unsigned i = 1; i < ArraySize(_visiblemsg); ++i)
+    for (unsigned i = 1; i < size(_visiblemsg); ++i)
 	_visiblemsg[i-1] = _visiblemsg[i];
-    _visiblemsg[ArraySize(_visiblemsg)-1] += strlen(_msgbuf+_visiblemsg[ArraySize(_visiblemsg)-1])+1;
+    _visiblemsg[size(_visiblemsg)-1] += strlen(_msgbuf+_visiblemsg[size(_visiblemsg)-1])+1;
 }
 
 void msglist_up (void)
@@ -1009,7 +1010,7 @@ void msglist_up (void)
     unsigned curtop = _visiblemsg[0];
     if (!curtop)
 	return;
-    for (unsigned i = ArraySize(_visiblemsg)-1; i; --i)
+    for (unsigned i = size(_visiblemsg)-1; i; --i)
 	_visiblemsg[i] = _visiblemsg[i-1];
     while (--curtop && _msgbuf[curtop-1]) {}
     _visiblemsg[0] = curtop;
@@ -1033,7 +1034,7 @@ void mprint (const char* s)
     unsigned slen = strlen(s)+1;
     MakeMsgBufferSpace (slen);
     memcpy (_msgbuf+_nextmsg, s, slen);
-    while (ArrayEnd(_visiblemsg)[-1] != _nextmsg)
+    while (end(_visiblemsg)[-1] != _nextmsg)
 	msglist_down();
     _nextmsg += slen;
     display_messages();
@@ -1044,8 +1045,8 @@ void mprintf (const char* fmt, ...)
     char buf [128];
     va_list args;
     va_start (args, fmt);
-    vsnprintf (ArrayBlock(buf), fmt, args);
-    buf[ArraySize(buf)-1] = 0;
+    vsnprintf (ARRAY_BLOCK(buf), fmt, args);
+    buf[size(buf)-1] = 0;
     mprint (buf);
     va_end (args);
 }

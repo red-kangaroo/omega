@@ -1,8 +1,9 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #include "glob.h"
 #include <sys/types.h>
 #include <unistd.h>
+#include <ctype.h>
 
 //----------------------------------------------------------------------
 
@@ -18,15 +19,16 @@ static bool personal_question_yn (const char* q);
 // set player to begin with
 player::player (void)
 : player_pod()
-, rank()
-, immunity()
-, status()
-, guildxp()
+, rank{}
+, immunity{}
+, status{}
+, guildxp{}
 , name("Player")
-, meleestr(64,'\0')
-, possessions()
+, meleestr()
+, possessions{}
 , pack()
 {
+    meleestr.append ('\0', 64);
 }
 
 void initplayer (void)
@@ -46,7 +48,7 @@ void initplayer (void)
     Player.cash = 250;
 
     bool oldchar = false;
-    snprintf (ArrayBlock(Str1), OMEGA_PLAYER_FILE, getenv("HOME"));
+    snprintf (ARRAY_BLOCK(Str1), OMEGA_PLAYER_FILE, getenv("HOME"));
     if (0 == access (Str1, R_OK) && personal_question_yn ("Use saved character? [yn] ")) {
 	clearmsg();
 	if (load_omegarc (Str1))
@@ -85,17 +87,29 @@ static void initstats (void)
     xredraw();
 }
 
-template <typename Stm>
-static inline void omegarc_serialize_player_static (Stm& stm)
+static inline void omegarc_read_player_static (istream& stm)
 {
-    stm & Player.iq & Player.maxiq
-	& Player.pow & Player.maxpow
-	& Player.dex & Player.maxdex
-	& Player.agi & Player.maxagi
-	& Player.str & Player.maxstr
-	& Player.con & Player.maxcon
-	& Player.cash & Player.options
-	& Player.preference;
+    stm >> Player.iq >> Player.maxiq
+	>> Player.pow >> Player.maxpow
+	>> Player.dex >> Player.maxdex
+	>> Player.agi >> Player.maxagi
+	>> Player.str >> Player.maxstr
+	>> Player.con >> Player.maxcon
+	>> Player.cash >> Player.options
+	>> Player.preference;
+}
+
+template <typename Stm>
+static inline void omegarc_write_player_static (Stm& stm)
+{
+    stm << Player.iq << Player.maxiq
+	<< Player.pow << Player.maxpow
+	<< Player.dex << Player.maxdex
+	<< Player.agi << Player.maxagi
+	<< Player.str << Player.maxstr
+	<< Player.con << Player.maxcon
+	<< Player.cash << Player.options
+	<< Player.preference;
 }
 
 template <typename Stm>
@@ -104,17 +118,17 @@ static inline void omegarc_write (Stm& stm)
     const uint8_t fmt = OMEGA_PLAYER_FORMAT;
     const uint8_t savefmt = OMEGA_SAVE_FORMAT;
     stm << fmt << savefmt << Searchnum << Verbosity << Player.name;
-    omegarc_serialize_player_static (stm);
+    omegarc_write_player_static (stm);
 }
 
 static void save_omegarc (void)
 {
-    snprintf (ArrayBlock(Str1), OMEGA_PLAYER_FILE, getenv("HOME"));
+    snprintf (ARRAY_BLOCK(Str1), OMEGA_PLAYER_FILE, getenv("HOME"));
     mkpath (Str1);
-    bstrs ss;
+    sstream ss;
     omegarc_write (ss);
-    memblock buf (ss.pos());
-    bstro os (buf);
+    memblock buf (ss.size());
+    ostream os (buf);
     omegarc_write (os);
     buf.write_file (Str1);
 }
@@ -123,7 +137,7 @@ static bool load_omegarc (const char* filename)
 {
     memblock buf;
     buf.read_file (filename);
-    bstri is (buf);
+    istream is (buf);
 
     uint8_t fmt, savefmt;
     if (is.remaining() < stream_size_of(fmt)+stream_size_of(savefmt)+stream_size_of(Searchnum)+stream_size_of(Verbosity))
@@ -132,11 +146,11 @@ static bool load_omegarc (const char* filename)
     if (fmt != OMEGA_PLAYER_FORMAT)
 	return false;
     is >> Player.name;
-    bstrs ss;
-    omegarc_serialize_player_static (ss);
-    if (is.remaining() < ss.pos())
+    sstream ss;
+    omegarc_write_player_static (ss);
+    if (is.remaining() < ss.size())
 	return false;
-    omegarc_serialize_player_static (is);
+    omegarc_read_player_static (is);
     return true;
 }
 

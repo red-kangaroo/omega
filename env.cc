@@ -1,4 +1,4 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #include "glob.h"
 #include <unistd.h>
@@ -101,7 +101,7 @@ uint8_t level::MaxDepth (void) const
 {
     static const uint8_t c_DungeonDepth [E_NUMDUNGEONS+1] =
 	{ CAVELEVELS, SEWERLEVELS, CASTLELEVELS, VOLCANOLEVELS, ASTRALLEVELS, 0 };
-    return c_DungeonDepth [min<unsigned>(environment-E_FIRST_DUNGEON,ArraySize(c_DungeonDepth)-1)];
+    return c_DungeonDepth [min<unsigned>(environment-E_FIRST_DUNGEON,size(c_DungeonDepth)-1)];
 }
 
 monster* level::creature (int x, int y)
@@ -283,7 +283,7 @@ void load_arena (void)
 	GEEK, HORNET, HYENA, GOBLIN, GRUNT, TOVE, APPR_NINJA, SALAMANDER, ANT, MANTICORE,
 	SPECTRE, BANDERSNATCH, LICHE, AUTO_MAJOR, JABBERWOCK, JOTUN, HISCORE_NPC
     };
-    monster& m = make_site_monster (60, 7, _opponents[min<unsigned>(Arena_Opponent,ArraySize(_opponents))]);
+    monster& m = make_site_monster (60, 7, _opponents[min<unsigned>(Arena_Opponent,size(_opponents))]);
     Arena_Victory = false;
 
     if (m.id == HISCORE_NPC) {
@@ -315,7 +315,7 @@ void load_arena (void)
     }
     if (m.level != 20) {
 	char buf[128];
-	snprintf (ArrayBlock(buf), "The corpse of %s the %s", nameprint(), m.monstring);
+	snprintf (ARRAY_BLOCK(buf), "The corpse of %s the %s", nameprint(), m.monstring);
 	m.corpsestr = strdup (buf);
 	m.monstring = strdup (buf+strlen("The corpse of "));
     }
@@ -480,7 +480,7 @@ void load_city (void)
     initrand (E_CITY, 0);
     Level->depth = 0;
     static const char* _mazes[] = { Level_Maze1, Level_Maze2, Level_Maze3, Level_Maze4 };
-    const char* mazed = _mazes[xrand()%ArraySize(_mazes)];
+    const char* mazed = _mazes[rand()%size(_mazes)];
 
     level::load_map (E_CITY, Level_City, [&](char sc, location& s, unsigned i, unsigned j) {
 	s.locchar = FLOOR;
@@ -680,8 +680,8 @@ static void assign_city_function (location& s, int x, int y)
     static unsigned next = 0;
     static bool setup = false;
     if (!setup) {
-	iota (ArrayRange(permutation), 0);
-	random_shuffle (ArrayRange(permutation));
+	iota (ARRAY_RANGE(permutation), 0);
+	random_shuffle (ARRAY_RANGE(permutation));
 	setup = true;
     }
 
@@ -701,11 +701,11 @@ static void assign_city_function (location& s, int x, int y)
 	L_PAWN_SHOP, L_CONDO, L_BROTHEL
     };
     unsigned loc;
-    if (next >= ArraySize(permutation) || ArraySize(_citylocs) <= (loc = permutation[next++])) {
+    if (next >= size(permutation) || size(_citylocs) <= (loc = permutation[next++])) {
 	s.locchar = CLOSED_DOOR;
-	unsigned ht = xrand() % 8;
+	unsigned ht = rand() % 8;
 	s.p_locf = (ht < 2 ? L_HOVEL : (ht > 6 ? L_MANSION : L_HOUSE));
-	if (xrand()%4)
+	if (rand()%4)
 	    s.aux = LOCKED;
     } else {
 	uint8_t sitef = _citylocs[loc];
@@ -775,7 +775,7 @@ static void mazesite (char c, location& s, int i, int j)
 	    CitySiteList[L_ORACLE - CITYSITEBASE].y = j;
 	    break;
 	case 's':
-	    switch (xrand()%4) {
+	    switch (rand()%4) {
 		case 0: s.p_locf = TRAP_BASE + random_range (NUMTRAPS); break;
 		case 1: make_site_monster (i, j, RANDOM); break;
 		case 2: make_site_treasure (i, j, 5); break;
@@ -811,8 +811,8 @@ static void repair_jail (void)
 	"##7#7#7#7##",
 	"##R#R#R#R##"
     };
-    for (unsigned j = 0; j < ArraySize(jail); ++j) {
-	for (unsigned i = 0; i < ArraySize(jail[0]); ++i) {
+    for (unsigned j = 0; j < size(jail); ++j) {
+	for (unsigned i = 0; i < size(jail[0]); ++i) {
 	    chtype locchar = FLOOR;
 	    char p_locf = L_NO_OP;
 	    int aux = NOCITYMOVE;
@@ -1200,7 +1200,7 @@ void load_temple (int deity)
 	    m_status_reset (*m, HOSTILE);
 }
 
-static void random_temple_site (int i, int j, int deity UNUSED)
+static void random_temple_site (int i, int j, int deity [[maybe_unused]])
 {
     switch (random_range (12)) {
 	case 0:
@@ -2408,7 +2408,7 @@ void load_village (uint8_t villagenum)
 	L_LAWSTONE, L_BALANCESTONE, L_CHAOSTONE,
 	L_MINDSTONE, L_SACRIFICESTONE, L_VOIDSTONE
     };
-    assert (villagenum < ArraySize(_villages) && "village not found");
+    assert (villagenum < size(_villages) && "village not found");
     Level->SetVillageId (villagenum);
     level::load_map (E_VILLAGE, _villages[villagenum], [&](char sc, location& s, unsigned i, unsigned j) {
 	s.locchar = FLOOR;
@@ -2456,8 +2456,8 @@ static void assign_village_function (location& s, int x, int y, bool setup)
 
     if (setup) {
 	next = 0;
-	iota (ArrayRange(permutation), 0);
-	random_shuffle (ArrayRange(permutation));
+	iota (ARRAY_RANGE(permutation), 0);
+	random_shuffle (ARRAY_RANGE(permutation));
 	return;
     }
 
@@ -2471,10 +2471,10 @@ static void assign_village_function (location& s, int x, int y, bool setup)
 	L_ARMORER, L_HEALER, L_TAVERN, L_COMMANDANT, L_CARTOGRAPHER
     };
     unsigned loc;
-    if (next >= ArraySize(permutation) || ArraySize(_villageloc) <= (loc = permutation[next++])) {
+    if (next >= size(permutation) || size(_villageloc) <= (loc = permutation[next++])) {
 	s.locchar = CLOSED_DOOR;
-	s.aux = xrand()%1 ? LOCKED : 0;
-	s.p_locf = xrand()%1 ? L_HOVEL : L_HOUSE;
+	s.aux = rand()%1 ? LOCKED : 0;
+	s.p_locf = rand()%1 ? L_HOVEL : L_HOUSE;
     } else {
 	s.locchar = OPEN_DOOR;
 	s.p_locf = _villageloc[loc];
@@ -2519,7 +2519,7 @@ void populate_level (void)
 			SEWER_RAT, AGGRAVATOR, BLIPPER, NIGHT_GAUNT, NASTY, MURK, CATOBLEPAS, ACID_CLOUD,
 			DENEBIAN, CROC, TESLA, SHADOW, BOGTHING, WATER_ELEM, TRITON, ROUS
 		    };
-		    monsterid = _sewerMonsters[min<unsigned>(ArraySize(_sewerMonsters),random_range(Level->depth+3))];
+		    monsterid = _sewerMonsters[min<unsigned>(size(_sewerMonsters),random_range(Level->depth+3))];
 		}
 		break;
 	    case E_ASTRAL:
@@ -2528,7 +2528,7 @@ void populate_level (void)
 			THOUGHTFORM, FUZZY, BAN_SIDHE, GRUE, SHADOW, ASTRAL_VAMP,
 			MANABURST, RAKSHASA, ILL_FIEND, MIRRORMAST, ELDER_GRUE, SHADOW_SLAY
 		    };
-		    monsterid = _astralMonsters[random_range(ArraySize(_astralMonsters))];
+		    monsterid = _astralMonsters[random_range(size(_astralMonsters))];
 		} else if (random_range (2) && (Level->depth == 1))	// plane of earth
 		    monsterid = EARTH_ELEM;
 		else if (random_range (2) && (Level->depth == 2))	// plane of air
@@ -2542,7 +2542,7 @@ void populate_level (void)
 			NIGHT_GAUNT, SERV_LAW, SERV_CHAOS, FROST_DEMON, OUTER_DEMON, DEMON_SERP,
 			ANGEL, INNER_DEMON, FDEMON_L, HIGH_ANGEL, DEMON_PRINCE, ARCHANGEL
 		    };
-		    monsterid = _deepAstralMonsters[random_range(ArraySize(_deepAstralMonsters))];
+		    monsterid = _deepAstralMonsters[random_range(size(_deepAstralMonsters))];
 		}
 		break;
 	    case E_VOLCANO:
@@ -2558,7 +2558,7 @@ void populate_level (void)
 			BAD_FAIRY, DRAGON, FDEMON_L, SHADOW_SLAY, DEATHSTAR,
 			VAMP_LORD, DEMON_PRINCE
 		    };
-		    monsterid = _volcanoMonsters[random_range(min<unsigned>(Level->depth/2+2,ArraySize(_volcanoMonsters)))];
+		    monsterid = _volcanoMonsters[random_range(min<unsigned>(Level->depth/2+2,size(_volcanoMonsters)))];
 		}
 		break;
 	    case E_CASTLE:
@@ -2612,7 +2612,7 @@ monster& make_site_monster (int i, int j, int mid, int wandering, int dlevel)
 static void m_create (monster& m, int x, int y, int kind, unsigned level)
 {
     static const uint8_t _ranges[] = { ML1, ML2, ML3, ML4, ML5, ML6, ML7, ML8, ML9, ML10, NUMMONSTERS };
-    unsigned monster_range = _ranges[min<unsigned>(level,ArraySize(_ranges)-1)];
+    unsigned monster_range = _ranges[min<unsigned>(level,size(_ranges)-1)];
     unsigned mid;
     do
 	mid = random_range (monster_range);
@@ -2640,12 +2640,12 @@ static void make_creature (monster& m, int mid)
 	else
 	    m.aux1 = ODIN+random_range(NUMRELIGIONS-ODIN);
 	static const char _religion[NUMRELIGIONS+1][8] = { "Atheism", "Nature", "Odin", "Set", "Hecate", "Athena", "Destiny", "Balance" };
-	snprintf (ArrayBlock(Str3), "%s of %s", Monsters[mid].monstring, _religion[m.aux1+1]);
+	snprintf (ARRAY_BLOCK(Str3), "%s of %s", Monsters[mid].monstring, _religion[m.aux1+1]);
 	m.monstring = strdup (Str3);
     } else if (mid == ZERO_NPC || mid == WEREHUMAN) {
 	// generic 0th level human, or a were-human
 	m.monstring = mantype();
-	snprintf (ArrayBlock(Str1), "dead %s", m.monstring);
+	snprintf (ARRAY_BLOCK(Str1), "dead %s", m.monstring);
 	m.corpsestr = strdup (Str1);
     } else if ((m.monchar & 0xff) == '!') {
 	// the nymph/satyr and incubus/succubus
@@ -2777,7 +2777,7 @@ void make_hiscore_npc (monster& npc, int npcid)
     if (st > -1 && object_uniqueness(st) == UNIQUE_MADE)
 	npc.pickup (Objects[st]);
     char buf[80];
-    snprintf (ArrayBlock(buf), "The body of %s", npc.monstring);
+    snprintf (ARRAY_BLOCK(buf), "The body of %s", npc.monstring);
     npc.corpsestr = strdup (buf);
 }
 
@@ -2961,9 +2961,9 @@ void l_bank (void)
 	    } else if (response == 'P' && Password[0]) {
 		clearmsg();
 		mprint ("Password: ");
-		char passwd [ArraySize(Password)];
+		char passwd [size(Password)];
 		strncpy (passwd, msgscanstring(), sizeof(passwd));
-		ArrayEnd(passwd)[-1] = 0;
+		end(passwd)[-1] = 0;
 		valid = (strcmp (passwd, Password) == 0);
 		if (!valid) {
 		    done = true;
@@ -3049,7 +3049,7 @@ void l_bank (void)
 		clearmsg();
 		mprint ("Opening new account. Please enter new password: ");
 		strncpy (Password, msgscanstring(), sizeof(Password));
-		ArrayEnd(Password)[-1] = 0;
+		end(Password)[-1] = 0;
 		if (!Password[0]) {
 		    mprint ("Illegal to use null password -- aborted.");
 		    done = true;
@@ -4436,7 +4436,7 @@ void l_brothel (void)
 				"you spend the evening discussing philosophy with\0"
 				"you spend the evening playing chess against\0"
 				"you spend the evening telling your adventures to";
-			    mprint (zstrn(_nopref, xrand()%4, 4));
+			    mprint (zstrn(_nopref, rand()%4, 4));
 			    mprint ("various employees of the House of the Eclipse.");
 			} else {
 			    mprint ("you spend an enjoyable and educational evening with");
@@ -4446,14 +4446,14 @@ void l_brothel (void)
 				    "Dryden the Defanged, an incubus.\0"
 				    "Gorgar the Equipped, a centaur.\0"
 				    "Hieronymus, the mendicant priest of Eros.";
-				mprint (zstrn(_mpref, xrand()%4, 4));
+				mprint (zstrn(_mpref, rand()%4, 4));
 			    } else {
 				static const char _fpref[] =
 				    "Noreen the Nymph (omaniac)\0"
 				    "Angelface, a recanted succubus.\0"
 				    "Corporal Sue of the City Guard (moonlighting).\0"
 				    "Sheena the Queena the Jungle, a wereleopard.";
-				mprint (zstrn(_fpref, xrand()%4, 4));
+				mprint (zstrn(_fpref, rand()%4, 4));
 			    }
 			}
 			morewait();

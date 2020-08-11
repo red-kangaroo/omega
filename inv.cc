@@ -1,4 +1,4 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #include <curses.h>
 #include "glob.h"
@@ -108,14 +108,14 @@ void player::remove_possession (unsigned slot, unsigned number)
 
 void player::remove_possession (object* o, unsigned number)
 {
-    for (unsigned i = 0; i < possessions.size(); ++i)
+    for (unsigned i = 0; i < size(possessions); ++i)
 	if (&possessions[i] == o)
 	    remove_possession (i, number);
 }
 
 void player::remove_all_possessions (void)
 {
-    for (unsigned i = 0; i < possessions.size(); ++i)
+    for (unsigned i = 0; i < size(possessions); ++i)
 	if (has_possession(i))
 	    remove_possession(i);
 }
@@ -169,14 +169,14 @@ void pickup_at (int x, int y)
 static const char inventory_keymap[] = "-abcfghimnoqruvwyz";
 static unsigned key_to_index (unsigned key)
 {
-    for (unsigned i = 0; i < ArraySize(inventory_keymap); i++)
+    for (unsigned i = 0; i < size(inventory_keymap); i++)
 	if (key == (unsigned) inventory_keymap[i])
 	    return i;
     return O_UP_IN_AIR;
 }
 char index_to_key (unsigned i)
 {
-    return i < ArraySize(inventory_keymap) ? inventory_keymap[i] : '-';
+    return i < size(inventory_keymap) ? inventory_keymap[i] : '-';
 }
 
 // criteria for being able to put some item in some slot
@@ -400,7 +400,7 @@ int getitem (chtype itype)
 	if (o->id == NO_THING) continue;
 	if (itype == NULL_ITEM || itype == CASH || o->objchar == itype || (itype == FOOD && o->objchar == CORPSE)) {
 	    found = true;
-	    invstr[k++] = index_to_key (distance(Player.possessions.begin(),o));
+	    invstr[k++] = index_to_key (distance(begin(Player.possessions),o));
 	    invstr[k] = 0;
 	}
     }

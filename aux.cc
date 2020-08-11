@@ -1,6 +1,7 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #include "glob.h"
+#include <ctype.h>
 
 //----------------------------------------------------------------------
 
@@ -81,7 +82,7 @@ void showroom (int i)
     }
     if (Level->environment-E_FIRST_DUNGEON <= E_LAST_DUNGEON) {
 	char lnamebuf[64];
-	snprintf (ArrayBlock(lnamebuf), ": Level %hhd (%s)", Level->depth, roomname(i));
+	snprintf (ARRAY_BLOCK(lnamebuf), ": Level %hhd (%s)", Level->depth, roomname(i));
 	strcat (namebuf, lnamebuf);
     } else if (!namebuf[0] || Level->environment == E_HOVEL || Level->environment == E_MANSION || Level->environment == E_HOUSE)
 	strcat (namebuf, roomname (i));
@@ -308,7 +309,7 @@ int damage_item (pob o)
     } else {
 	if (o->fragility < random_range (30)) {
 	    if (o->objchar == STICK) {
-		snprintf (ArrayBlock(Str1), "Your %s explodes!", (o->blessing >= 0 ? o->truename : o->cursestr));
+		snprintf (ARRAY_BLOCK(Str1), "Your %s explodes!", (o->blessing >= 0 ? o->truename : o->cursestr));
 		if (o->charge < 1) {
 		    strcat (Str1, " Fzzz... Out of Power... Oh well...");
 		    mprint (Str1);
@@ -323,15 +324,15 @@ int damage_item (pob o)
 		}
 		return 1;
 	    } else if ((o->blessing > 0) && (o->level > random_range (10))) {
-		snprintf (ArrayBlock(Str1), "Your %s glows strongly", itemid(o));
+		snprintf (ARRAY_BLOCK(Str1), "Your %s glows strongly", itemid(o));
 		mprint (Str1);
 		return 0;
 	    } else if ((o->blessing < -1) && (o->level > random_range (10))) {
-		snprintf (ArrayBlock(Str1), "You hear an evil giggle from your %s", itemid(o));
+		snprintf (ARRAY_BLOCK(Str1), "You hear an evil giggle from your %s", itemid(o));
 		mprint (Str1);
 		return 0;
 	    } else if (o->plus > 0) {
-		snprintf (ArrayBlock(Str1), "Your %s glows and then fades", itemid(o));
+		snprintf (ARRAY_BLOCK(Str1), "Your %s glows and then fades", itemid(o));
 		mprint (Str1);
 		o->plus--;
 		return 0;
@@ -340,7 +341,7 @@ int damage_item (pob o)
 		    mprint ("You hear a faint despairing cry!");
 		else if (o->blessing < 0)
 		    mprint ("You hear an agonized scream!");
-		snprintf (ArrayBlock(Str1), "Your %s shatters in a thousand lost fragments!", itemid(o));
+		snprintf (ARRAY_BLOCK(Str1), "Your %s shatters in a thousand lost fragments!", itemid(o));
 		mprint (Str1);
 		morewait();
 		Player.remove_possession (o, 1);
@@ -420,7 +421,7 @@ void setspot (int *x, int *y)
 	    { 'y','7', -1,-1 },
 	    { 'u','9',  1,-1 }
 	};
-	for (unsigned i = 0; i < ArraySize(c_targkeymap); ++i)
+	for (unsigned i = 0; i < size(c_targkeymap); ++i)
 	    if (c_targkeymap[i].k1 == c || c_targkeymap[i].k2 == c)
 		movecursor (x, y, c_targkeymap[i].dx, c_targkeymap[i].dy);
     }
@@ -468,7 +469,7 @@ const char* mstatus_string (struct monster *m)
     else
 	articlestr = "";
     const char* levelstr = wordnum (m->level + 1 - mstd.level);
-    snprintf (ArrayBlock(Str2), fmtstr, articlestr, healthstr, m->monstring, levelstr);
+    snprintf (ARRAY_BLOCK(Str2), fmtstr, articlestr, healthstr, m->monstring, levelstr);
     return Str2;
 }
 
@@ -517,10 +518,10 @@ bool goberserk (void)
 {
     bool wentberserk = false;
     #if USE_UCC
-	lstring meleestr (ArrayBlock("lLlClH"));
+	lstring meleestr (ARRAY_BLOCK("lLlClH"));
 	Player.meleestr.swap (raw_cast<string>(meleestr));
     #else
-	string meleestr; meleestr.swap (Player.meleestr);
+	string meleestr (move (Player.meleestr));
 	Player.meleestr = "lLlClH";
     #endif
     for (unsigned i = 0; i < 8; i++) {
@@ -686,7 +687,7 @@ void threaten (struct monster *m)
 		Player.alignment -= 2;
 		mprint ("It drops its treasure and flees.");
 		m_dropstuff (m);
-		Level->mlist.erase (p2i(Level->mlist,m));
+		Level->mlist.erase (m);
 		putspot (m->x, m->y, getspot (m->x, m->y, false));
 		break;
 	    } else if (response == 'f') {
@@ -697,7 +698,7 @@ void threaten (struct monster *m)
 		    mprint ("'...If it doesn't come back, hunt it down and kill it.'");
 		}
 		mprint ("It departs with a renewed sense of its own mortality.");
-		Level->mlist.erase (p2i(Level->mlist,m));
+		Level->mlist.erase (m);
 		putspot (m->x, m->y, getspot (m->x, m->y, false));
 		break;
 	    }
@@ -812,9 +813,9 @@ static const char* levelname (unsigned level)
 	return zstrn (c_Levels, level, 23);
     }
     if (level < 100)
-	snprintf (ArrayBlock(Str3), "Order %u Master of Omega", level/10-2);
+	snprintf (ARRAY_BLOCK(Str3), "Order %u Master of Omega", level/10-2);
     else
-	snprintf (ArrayBlock(Str3), "Ultimate Master of Omega");
+	snprintf (ARRAY_BLOCK(Str3), "Ultimate Master of Omega");
     return Str3;
 }
 
@@ -860,7 +861,7 @@ void p_hit (struct monster *m, int dmg, int dtype)
 	dmult *= 2;
     else if (Lunarity == -1)
 	dmult /= 2;
-    snprintf (ArrayBlock(Str3), "You %s %s%s.", hitdesc, m->definite_article(), m->monstring);
+    snprintf (ARRAY_BLOCK(Str3), "You %s %s%s.", hitdesc, m->definite_article(), m->monstring);
     if (Verbosity != TERSE)
 	mprint (Str3);
     else
@@ -884,7 +885,7 @@ static void player_miss (struct monster *m, EDamageType dtype)
 	    "fail to even come close to\0"
 	    "totally avoid contact with\0"
 	    "miss";
-	snprintf (ArrayBlock(Str3), "You %s %s%s.", zstrn(c_MissDesc,random_range(14),5), m->definite_article(), m->monstring);
+	snprintf (ARRAY_BLOCK(Str3), "You %s %s%s.", zstrn(c_MissDesc,random_range(14),5), m->definite_article(), m->monstring);
 	mprint (Str3);
     }
 }
@@ -933,7 +934,7 @@ static void drop_weapon (void)
 static void break_weapon (void)
 {
     if (Player.has_possession(O_WEAPON_HAND)) {
-	snprintf (ArrayBlock(Str1), "Your %s vibrates in your hand....", itemid (Player.possessions[O_WEAPON_HAND]));
+	snprintf (ARRAY_BLOCK(Str1), "Your %s vibrates in your hand....", itemid (Player.possessions[O_WEAPON_HAND]));
 	mprint (Str1);
 	damage_item (&Player.possessions[O_WEAPON_HAND]);
 	morewait();
@@ -1081,7 +1082,7 @@ void tenminute_status_check (void)
 	"You feel less than super.\0"
 	"You feel better now.";
     const char* stopmsg = statStopMsg;
-    for (unsigned i = 0; i < ArraySize(stati); ++i, stopmsg=strnext(stopmsg))
+    for (unsigned i = 0; i < size(stati); ++i, stopmsg=zstr::next(stopmsg))
 	if (Player.status[stati[i]] > 0 && Player.status[stati[i]] < 1000 && !--Player.status[stati[i]])
 	    mprint (stopmsg);
     calc_melee();
@@ -1118,8 +1119,8 @@ static void gain_level (void)
 static unsigned expval (unsigned l)
 {
     static const unsigned c_LevelXP[] = { 0, 20, 50, 200, 500, 1000, 2000, 3000, 5000, 7000, 10000 };
-    constexpr unsigned multbase = ArraySize(c_LevelXP)-2;	// So level 11 is 10000*2, etc
-    return l < ArraySize(c_LevelXP) ? c_LevelXP[l] : 10000*(l-multbase);
+    constexpr unsigned multbase = size(c_LevelXP)-2;	// So level 11 is 10000*2, etc
+    return l < size(c_LevelXP) ? c_LevelXP[l] : 10000*(l-multbase);
 }
 
 // If an item is unidentified, it isn't worth much to those who would buy it
@@ -2146,10 +2147,10 @@ const char* countryid (int terrain)
 	"I have no idea.\0";
 
     unsigned i; const uint8_t tval = terrain & 0xff;
-    for (i = 0; i < ArraySize(_terrains); ++i)
+    for (i = 0; i < size(_terrains); ++i)
 	if (_terrains[i] == tval)
 	    break;
-    return zstrn (_terrain_names, i, ArraySize(_terrains)+1);
+    return zstrn (_terrain_names, i, size(_terrains)+1);
 }
 
 static const char* sitenames[NUMCITYSITES] = {	// alphabetical listing
@@ -2161,7 +2162,7 @@ static const char* sitenames[NUMCITYSITES] = {	// alphabetical listing
     "tavern", "temple", "thieves' guild"
 };
 
-static int sitenums[ArraySize(sitenames)] = {	// the order matches sitenames[]
+static int sitenums[size(sitenames)] = {	// the order matches sitenames[]
     L_ALCHEMIST, L_ARENA, L_ARMORER, L_BANK, L_BROTHEL,
     L_CASINO, L_CASTLE, L_COUNTRYSIDE, L_COLLEGE, L_CONDO,
     L_DPW, L_DINER, L_CLUB, L_COMMANDANT, L_GYM,
@@ -2555,7 +2556,9 @@ static void default_maneuvers (void)
     mprint ("Warning, resetting your combat options to the default.");
     mprint ("Use the 'F' command to select which options you prefer.");
     morewait();
-    const unsigned nManeuvers = maneuvers();
-    fill_n ((uint32_t*) &Player.meleestr[0], DivRU(nManeuvers,2), vpack('A','C','B','C'));
-    Player.meleestr[nManeuvers*2] = '\0';
+    Player.meleestr.clear();
+    for (auto i = 0u, iend = maneuvers(); i < iend; ++i) {
+	Player.meleestr += char('A'+i%2);
+	Player.meleestr += 'C';
+    }
 }

@@ -1,4 +1,4 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #include "glob.h"
 #include <sys/types.h>
@@ -18,7 +18,7 @@ int inbounds (int x, int y)
 
 unsigned urandom_range (unsigned k)
 {
-    return k ? xrand() % k : 0;
+    return k ? rand() % k : 0;
 }
 
 // modify absolute y coord relative to which part of level we are on

@@ -1,4 +1,4 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #pragma once
 

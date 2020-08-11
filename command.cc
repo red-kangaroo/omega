@@ -1,4 +1,4 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #include <unistd.h>
 #include <ctype.h>
@@ -400,7 +400,7 @@ static void search (int *searchval)
 	    setgamestatus (FAST_MOVE);
 	    *searchval = Searchnum;
 	}
-	for (unsigned i = 0; i < ArraySize(Dirs[0]); i++)
+	for (unsigned i = 0; i < size(Dirs[0]); i++)
 	    searchat (Player.x + Dirs[0][i], Player.y + Dirs[1][i]);
 	drawvision (Player.x, Player.y);
     }
@@ -1975,9 +1975,9 @@ static void enter_site (chtype site)
 {
     static const EObjchar c_Sitechar[] =
 	{ CITY, VILLAGE, CAVES, CASTLE, VOLCANO, TEMPLE, DRAGONLAIR, STARPEAK, MAGIC_ISLE };
-    static const uint8_t c_DestEnv [ArraySize(c_Sitechar)] =
+    static const uint8_t c_DestEnv [size(c_Sitechar)] =
 	{ E_CITY, E_VILLAGE, E_CAVES, E_CASTLE, E_VOLCANO, E_TEMPLE, E_DLAIR, E_STARPEAK, E_MAGIC_ISLE };
-    for (unsigned i = 0; i < ArraySize(c_Sitechar); ++i)
+    for (unsigned i = 0; i < size(c_Sitechar); ++i)
 	if (c_Sitechar[i] == site)
 	    return change_environment ((EEnvironment) c_DestEnv[i]);
     mprint ("There's nothing to enter here!");

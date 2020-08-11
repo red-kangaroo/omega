@@ -2,7 +2,7 @@ name		:= @pkg_name@
 
 ################ Programs ############################################
 
-CC		:= @CXX@
+CC		:= @CC@
 CXX		:= @CXX@
 INSTALL		:= @INSTALL@
 INSTALL_DATA	:= ${INSTALL} -m 644

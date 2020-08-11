@@ -1,4 +1,4 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #pragma once
 #include "config.h"
@@ -743,6 +743,12 @@ enum {
     O_BOOTS, O_CLOAK, O_RING1, O_RING2, O_RING3, O_RING4
 };
 
+// Curses defs
+enum { COLOR_DEFAULT = -1 };
+enum { KEY_ESCAPE = 0x1b };
+struct KEY_CTRL_MOD {	inline constexpr int operator| (char c) { return c-'a'+1; } };
+#define KEY_CTRL	KEY_CTRL_MOD()
+
 // structure definitions
 
 struct citysite {
@@ -783,11 +789,12 @@ public:
     int8_t x;
     int8_t y;
 public:
-    explicit	object (int8_t nx = 0, int8_t ny = 0, unsigned tid = 0, uint16_t n = 1);
-		object (const object_data& o)	: number(1), x(0), y(0) { operator= (o); }
-    object&	operator= (const object_data& o){ *implicit_cast<object_data*>(this) = o; return *this; }
+    constexpr	object (void) : object_data(),number(1),x(0),y(0) {}
+		object (int8_t nx, int8_t ny, unsigned tid, uint16_t n = 1);
+		object (const object_data& o)	: object_data(o), number(1), x(0), y(0) {}
+    object&	operator= (const object_data& o){ *static_cast<object_data*>(this) = o; return *this; }
     bool	operator== (const object& v) const;
-    void	read (bstri& is);
+    void	read (istream& is);
     template <typename Stm>
     void	write (Stm& os) const;
 };
@@ -835,8 +842,8 @@ struct monster : public monster_data {
     uint8_t		x;
     uint8_t		y;
 public:
-    inline monster&	operator= (const monster_data& v)	{ *implicit_cast<monster_data*>(this) = v; possessions.clear(); return *this; }
-    void		read (bstri& is);
+    inline monster&	operator= (const monster_data& v)	{ *static_cast<monster_data*>(this) = v; possessions.clear(); return *this; }
+    void		read (istream& is);
     template <typename Stm>
     void		write (Stm& os) const;
     const char*		name (void) const PURE;
@@ -887,20 +894,20 @@ public:
 		    ,mana(0),maxhp(0),maxmana(0),maxweight(0),agi(0),con(0),dex(0)
 		    ,iq(0),pow(0),str(0),maxagi(0),maxcon(0),maxdex(0),maxiq(0)
 		    ,maxpow(0),maxstr(0),patron(0),speed(0),click(0),preference(0) {}
-    inline void	read (bstri& is)	{ is.read (this, sizeof(*this)); }
+    inline void	read (istream& is)	{ is.read (this, sizeof(*this)); }
     template <typename Stm>
     inline void	write (Stm& os) const	{ os.write (this, sizeof(*this)); }
 };
 
 struct player : public player_pod {
-    array<int8_t,NUMGUILDS>		rank;
-    array<uint16_t,NUMIMMUNITIES>	immunity;
-    array<uint16_t,NUMSTATI>		status;
-    array<uint16_t,NUMGUILDS>		guildxp;
-    string				name;
-    string				meleestr;
-    array<object,MAXITEMS>		possessions;
-    vector<object>			pack;
+    int8_t		rank [NUMGUILDS];
+    uint16_t		immunity [NUMIMMUNITIES];
+    uint16_t		status [NUMSTATI];
+    uint16_t		guildxp [NUMGUILDS];
+    string		name;
+    string		meleestr;
+    object		possessions [MAXITEMS];
+    vector<object>	pack;
 public:
 			player (void);
     void		add_possession (unsigned slot, const object& o);
@@ -913,7 +920,7 @@ public:
     inline uint16_t	calcmana (void) const			{ return pow*(level+1); }
     bool		on_sanctuary (void) const;
     void		calc_melee (void);
-    void		read (bstri& is);
+    void		read (istream& is);
     template <typename Stm>
     void		write (Stm& os) const;
 };
@@ -951,7 +958,7 @@ public:
     bool		ok_to_free (void) const;
     bool		IsTransient (void) const;
     uint8_t		MaxDepth (void) const;
-    void		read (bstri& is);
+    void		read (istream& is);
     template <typename Stm>
     void		write (Stm& os) const;
     template <typename SiteFunc>
@@ -985,7 +992,7 @@ public:
     EEnvironment	LastEnvironment (void) const;
     void		DeleteLevel (EEnvironment e, uint8_t subeid);
     void		MoveInCountry (uint8_t x, uint8_t y);
-    void		read (bstri& is)		{ is >> _levels; }
+    void		read (istream& is)		{ is >> _levels; }
     template <typename Stm>
     void		write (Stm& os) const		{ os << _levels; }
 private:

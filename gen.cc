@@ -1,4 +1,4 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #include "glob.h"
 #include <time.h>
@@ -465,7 +465,7 @@ static void make_country_monsters (char terrain)
     }
     const unsigned nummonsters = 1+random_range(8);
     for (unsigned i = 0; i < nummonsters; i++) {
-	monster& m = make_site_monster (random_range(Level->width), random_range(Level->height), monsters[random_range(ArraySize(mountain))]);
+	monster& m = make_site_monster (random_range(Level->width), random_range(Level->height), monsters[random_range(size(mountain))]);
 	m.sense = Level->width;
 	if (m_statusp (m, ONLYSWIM)) {
 	    Level->site(m.x,m.y).locchar = WATER;

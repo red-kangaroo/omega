@@ -1,4 +1,4 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #include "glob.h"
 
@@ -369,11 +369,11 @@ bool twohandedp (int id)
 }
 
 // general item functions
-static void i_no_op (pob o UNUSED)
+static void i_no_op (pob o [[maybe_unused]])
 {
 }
 
-static void i_nothing (pob o UNUSED)
+static void i_nothing (pob o [[maybe_unused]])
 {
 }
 
@@ -684,7 +684,7 @@ static void i_perm_negimmune (pob o)
 
 // food functions
 
-static void i_food (pob o UNUSED)
+static void i_food (pob o [[maybe_unused]])
 {
     switch (random_range (5)) {
 	case 0:
@@ -714,19 +714,19 @@ static void i_stim (pob o)
     calc_melee();
 }
 
-static void i_pow (pob o UNUSED)
+static void i_pow (pob o [[maybe_unused]])
 {
     mprint ("You feel a surge of mystic power!");
     Player.mana = 2 * Player.calcmana();
 }
 
-static void i_poison_food (pob o UNUSED)
+static void i_poison_food (pob o [[maybe_unused]])
 {
     mprint ("This food was contaminated with cyanide!");
     p_poison (random_range (20) + 5);
 }
 
-static void i_pepper_food (pob o UNUSED)
+static void i_pepper_food (pob o [[maybe_unused]])
 {
     mprint ("You innocently start to chew the szechuan pepper.....");
     morewait();
@@ -745,7 +745,7 @@ static void i_pepper_food (pob o UNUSED)
     Player.immunity[SLEEP]++;
 }
 
-static void i_lembas (pob o UNUSED)
+static void i_lembas (pob o [[maybe_unused]])
 {
     heal (10);
     cleanse (0);
@@ -1366,7 +1366,7 @@ static void i_perm_breathing (pob o)
 
 // weapons functions
 
-void weapon_acidwhip (int dmgmod, pob o UNUSED, struct monster *m)
+void weapon_acidwhip (int dmgmod, pob o [[maybe_unused]], struct monster *m)
 {
     if ((random_range (2) == 1) && (!m_immunityp (m, NORMAL_DAMAGE))) {
 	mprint ("You entangle the monster!");
@@ -1375,7 +1375,7 @@ void weapon_acidwhip (int dmgmod, pob o UNUSED, struct monster *m)
     p_hit (m, Player.dmg + dmgmod, ACID);
 }
 
-void weapon_scythe (int dmgmod UNUSED, pob o UNUSED, struct monster *m)
+void weapon_scythe (int dmgmod [[maybe_unused]], pob o [[maybe_unused]], struct monster *m)
 {
     mprint ("Slice!");
     m_death (m);
@@ -1426,7 +1426,7 @@ void weapon_demonblade (int dmgmod, pob o, struct monster *m)
     }
 }
 
-void weapon_lightsabre (int dmgmod UNUSED, pob o, struct monster *m)
+void weapon_lightsabre (int dmgmod [[maybe_unused]], pob o, struct monster *m)
 {
     if (!object_is_known(o)) {
 	mprint ("Fumbling with the cylinder, you press the wrong stud....");
@@ -1445,7 +1445,7 @@ void weapon_lightsabre (int dmgmod UNUSED, pob o, struct monster *m)
     }
 }
 
-void weapon_tangle (int dmgmod, pob o UNUSED, struct monster *m)
+void weapon_tangle (int dmgmod, pob o [[maybe_unused]], struct monster *m)
 {
     if ((random_range (2) == 1) && (!m_immunityp (m, NORMAL_DAMAGE))) {
 	mprint ("You entangle the monster!");
@@ -1474,7 +1474,7 @@ void weapon_bolt (int dmgmod, pob o, struct monster *m)
 	p_hit (m, o->plus + o->dmg, NORMAL_DAMAGE);
 }
 
-void weapon_mace_disrupt (int dmgmod, pob o UNUSED, struct monster *m)
+void weapon_mace_disrupt (int dmgmod, pob o [[maybe_unused]], struct monster *m)
 {
     if (m->meleef == M_MELEE_SPIRIT) {
 	mprint ("The monster crumbles away to dust!");
@@ -1483,7 +1483,7 @@ void weapon_mace_disrupt (int dmgmod, pob o UNUSED, struct monster *m)
 	p_hit (m, Player.dmg + dmgmod, UNSTOPPABLE);
 }
 
-void weapon_normal_hit (int dmgmod, pob o UNUSED, struct monster *m)
+void weapon_normal_hit (int dmgmod, pob o [[maybe_unused]], struct monster *m)
 {
     p_hit (m, Player.dmg + dmgmod, NORMAL_DAMAGE);
 }
@@ -1523,7 +1523,7 @@ static void i_lightsabre (pob o)
 	mprint ("You feel out of touch with the Force.");
 }
 
-static void i_mace_disrupt (pob o UNUSED)
+static void i_mace_disrupt (pob o [[maybe_unused]])
 {
     mprint ("That's a damned heavy mace!");
 }
@@ -1674,7 +1674,7 @@ static void i_perm_deflect (pob o)
 }
 
 // amulet of the planes
-static void i_planes (pob o UNUSED)
+static void i_planes (pob o [[maybe_unused]])
 {
     if (Player.mana < 1)
 	mprint ("The amulet spits some multicolored sparks.");
@@ -1688,7 +1688,7 @@ static void i_planes (pob o UNUSED)
 }
 
 // the sceptre of high magic
-static void i_sceptre (pob o UNUSED)
+static void i_sceptre (pob o [[maybe_unused]])
 {
     if (HiMagicUse == Date)
 	mprint ("The Sceptre makes a sort of dull 'thut' noise.");
@@ -1975,7 +1975,7 @@ static void i_helm (pob o)
     }
 }
 
-static void i_death (pob o UNUSED)
+static void i_death (pob o [[maybe_unused]])
 {
     clearmsg();
     mprint ("Bad move...");
@@ -2134,7 +2134,7 @@ static void i_orbmastery (pob o)
     }
 }
 
-static void i_orbdead (pob o UNUSED)
+static void i_orbdead (pob o [[maybe_unused]])
 {
     int i;
     mprint ("The burnt-out orb drains all your energy!");

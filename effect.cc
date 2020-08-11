@@ -1,4 +1,4 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #include "glob.h"
 
@@ -1092,7 +1092,7 @@ void knowledge (int blessing)
 }
 
 // Recreates the current level
-void flux (int blessing UNUSED)
+void flux (int blessing [[maybe_unused]])
 {
     mprint ("The universe warps around you!");
     if (Level->environment == E_CITY) {
@@ -1296,7 +1296,7 @@ void breathe (int blessing)
     }
 }
 
-void i_chaos (pob o UNUSED)
+void i_chaos (pob o [[maybe_unused]])
 {
     if (Player.alignment < 0) {
 	Player.alignment -= random_range (20);
@@ -1308,7 +1308,7 @@ void i_chaos (pob o UNUSED)
     }
 }
 
-void i_law (pob o UNUSED)
+void i_law (pob o [[maybe_unused]])
 {
     if (Player.alignment > 0) {
 	Player.alignment += random_range (20);

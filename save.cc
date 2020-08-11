@@ -1,11 +1,9 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #include "glob.h"
 #include <unistd.h>
 #include <stdlib.h>
-#if __has_include(<zlib.h>)
-    #include <zlib.h>
-#endif
+#include <zlib.h>
 
 //----------------------------------------------------------------------
 
@@ -37,20 +35,20 @@ struct SGHeader {
 bool save_game (void)
 {
     char savestr [128];
-    snprintf (ArrayBlock(savestr), OMEGA_SAVED_GAME, getenv("HOME"));
+    snprintf (ARRAY_BLOCK(savestr), OMEGA_SAVED_GAME, getenv("HOME"));
     mkpath (savestr);
 
     mprint ("Saving Game....");
     bool writeok = false;
     SGHeader h = {'o','m','e','g',OMEGA_SAVE_FORMAT,optionp(COMPRESS),OMEGA_VERSION,0};
-    bstrs ss;
+    sstream ss;
     ss << h << Player << World;
-    h.size = ss.pos();
-    memblock buf (ss.pos());
-    bstro os (buf);
+    h.size = ss.size();
+    memblock buf (ss.size());
+    ostream os (buf);
     os << h << Player << World;
     if (h.compressed)
-	buf.swap (compress (buf));
+	buf.replace (buf.iat (stream_size_of(h)), buf.size()-stream_size_of(h), compress(buf));
     buf.write_file (savestr);
     mprint ("Game Saved.");
     writeok = true;
@@ -63,27 +61,27 @@ bool save_game (void)
 bool restore_game (void)
 {
     char savestr [PATH_MAX];
-    snprintf (ArrayBlock(savestr), OMEGA_SAVED_GAME, getenv("HOME"));
+    snprintf (ARRAY_BLOCK(savestr), OMEGA_SAVED_GAME, getenv("HOME"));
     if (0 != access (savestr, R_OK))
 	return false;
 
     memblock buf;
     buf.read_file (savestr);
-    bstri is (buf);
-    mprint ("Restoring...");
-
     SGHeader header;
-    if (is.remaining() < stream_size_of(header))
+    if (buf.size() < stream_size_of(header))
 	return false;
+
+    mprint ("Restoring...");
+    istream is (buf);
     is >> header;
+    if (header.compressed)
+	buf = decompress (buf, header.size);
+
+    istream gdis (buf);
+    gdis >> header;
     if (header.format != OMEGA_SAVE_FORMAT)
 	return false;
-    if (header.compressed) {
-	buf.swap (decompress (buf, header.size+512));
-	is.link (buf);
-	is.skip (stream_size_of(header));
-    }
-    is >> Player >> World;
+    gdis >> Player >> World;
 
     mprint ("Restoration complete.");
     ScreenOffset = -100;	// to force a redraw
@@ -96,49 +94,81 @@ bool restore_game (void)
 struct long4 {
     uint64_t& _v;
     inline long4 (uint64_t& v):_v(v){}
-    inline void read (bstri& is) { uint32_t v1,v2; is >> v1 >> v2; _v = (uint64_t(v2)<<32)|v1; }
-    inline void write (bstro& os) const { os << uint32_t(_v) << uint32_t(_v>>32); }
-    inline void write (bstrs& ss) const { ss.write (&_v, sizeof(_v)); }
+    inline void read (istream& is) { uint32_t v1,v2; is >> v1 >> v2; _v = (uint64_t(v2)<<32)|v1; }
+    inline void write (ostream& os) const { os << uint32_t(_v) << uint32_t(_v>>32); }
+    inline void write (sstream& ss) const { ss.write (&_v, sizeof(_v)); }
 };
 //}}}
 
-template <typename Stm>
-static inline void globals_serialize (Stm& stm)
+template <typename T, unsigned N>
+static inline void read_array (istream& is, T (&a)[N])
+{
+    is.align (stream_align<T>::value);
+    for (auto i : a)
+	is >> i;
+}
+
+template <typename Stm, typename T, unsigned N>
+static inline void write_array (Stm& os, const T (&a)[N])
+{
+    os.align (stream_align<T>::value);
+    for (auto i : a)
+	os << i;
+}
+
+static inline void globals_read (istream& stm)
 {
     long4 lSpellKnown (SpellKnown);
-    stm & GameStatus & Time & Balance & lSpellKnown & FixedPoints & Gymcredit 	// 4
-	& Date & Command_Duration & HiMagicUse & LastDay			// 2
-	& Pawndate & StarGemUse & winnings
-	& Searchnum & Verbosity							// 1
-	& Tick & twiddle & Lunarity & Phase
-	& Precipitation & Imprisonment & Arena_Opponent & Spellsleft
-	& Constriction & onewithchaos & saved & RitualRoom
-	& Lawstone & Mindstone & Chaostone & Blessing
-	& HiMagic & tavern_hinthour & club_hinthour & HelmHour
-	& RitualHour & SymbolUseHour & ViewHour & ZapHour;
+    stm >> GameStatus >> Time >> Balance >> lSpellKnown >> FixedPoints >> Gymcredit 	// 4
+	>> Date >> Command_Duration >> HiMagicUse >> LastDay				// 2
+	>> Pawndate >> StarGemUse >> winnings
+	>> Searchnum >> Verbosity							// 1
+	>> Tick >> twiddle >> Lunarity >> Phase
+	>> Precipitation >> Imprisonment >> Arena_Opponent >> Spellsleft
+	>> Constriction >> onewithchaos >> saved >> RitualRoom
+	>> Lawstone >> Mindstone >> Chaostone >> Blessing
+	>> HiMagic >> tavern_hinthour >> club_hinthour >> HelmHour
+	>> RitualHour >> SymbolUseHour >> ViewHour >> ZapHour;
+}
+
+template <typename Stm>
+static inline void globals_write (Stm& stm)
+{
+    long4 lSpellKnown (SpellKnown);
+    stm << GameStatus << Time << Balance << lSpellKnown << FixedPoints << Gymcredit 	// 4
+	<< Date << Command_Duration << HiMagicUse << LastDay				// 2
+	<< Pawndate << StarGemUse << winnings
+	<< Searchnum << Verbosity							// 1
+	<< Tick << twiddle << Lunarity << Phase
+	<< Precipitation << Imprisonment << Arena_Opponent << Spellsleft
+	<< Constriction << onewithchaos << saved << RitualRoom
+	<< Lawstone << Mindstone << Chaostone << Blessing
+	<< HiMagic << tavern_hinthour << club_hinthour << HelmHour
+	<< RitualHour << SymbolUseHour << ViewHour << ZapHour;
 }
 
 //----------------------------------------------------------------------
 
-void player::read (bstri& is)
+void player::read (istream& is)
 {
     player_pod::read (is);
-    is >> rank;
-    is.align (stream_align_of(immunity));
-    is >> immunity >> status >> guildxp;
-    is.align (stream_align_of(name));
+    read_array (is, rank);
+    read_array (is, immunity);
+    read_array (is, status);
+    read_array (is, guildxp);
+    is.align (stream_align_of (name));
     is >> name >> meleestr;
 
     // Restore globals
-    globals_serialize (is);
+    globals_read (is);
     is.read (Password, sizeof(Password));
     is.read (CitySiteList, sizeof(CitySiteList));
     is.read (deepest, sizeof(deepest));
     is.read (level_seed, sizeof(level_seed));
     is.read (Spells, sizeof(Spells));
     is.read (ObjectAttrs, sizeof(ObjectAttrs));
-    is.align (stream_align_of (possessions));
-    is >> possessions >> pack;
+    read_array (is, possessions);
+    is >> pack;
     is >> Pawnitems >> Condoitems;
 }
 
@@ -147,14 +177,15 @@ template <typename Stm>
 void player::write (Stm& os) const
 {
     player_pod::write (os);
-    os << rank;
-    os.skipalign (stream_align_of(immunity));
-    os << immunity << status << guildxp;
-    os.skipalign (stream_align_of(name));
+    write_array (os, rank);
+    write_array (os, immunity);
+    write_array (os, status);
+    write_array (os, guildxp);
+    os.align (stream_align_of (name));
     os << name << meleestr;
 
     // Save globals
-    globals_serialize (os);
+    globals_write (os);
     os.write (Password, sizeof(Password));
     os.write (CitySiteList, sizeof (CitySiteList));
     os.write (deepest, sizeof(deepest));
@@ -163,8 +194,8 @@ void player::write (Stm& os) const
     os.write (ObjectAttrs, sizeof(ObjectAttrs));
 
     // Save player possessions
-    os.skipalign (stream_align_of (possessions));
-    os << possessions << pack;
+    write_array (os, possessions);
+    os << pack;
     os << Pawnitems << Condoitems;
 }
 
@@ -204,12 +235,12 @@ void level::write (Stm& os) const
 	}
     }
     os << run;
-    os.skipalign(4);
+    os.align(4);
 
     os << things << mlist;
 }
 
-void level::read (bstri& is)
+void level::read (istream& is)
 {
     is >> environment >> width >> height >> lastx
 	>> lasty >> depth >> generated >> tunnelled;
@@ -240,7 +271,7 @@ void level::read (bstri& is)
 		site(i,j).lstatus |= SEEN;
 	}
     }
-    is.skipalign(4);
+    is.align(4);
 
     is >> things >> mlist;
 }
@@ -251,11 +282,11 @@ enum { MONSTERCHANGEABLESIZE = offsetof(monster_data,monstring) };
 
 //----------------------------------------------------------------------
 
-void monster::read (bstri& is)
+void monster::read (istream& is)
 {
     uint8_t components;
     is >> id >> components >> x >> y;
-    if (id >= ArraySize(Monsters))
+    if (id >= size(Monsters))
 	id = DEATH;	// To make the error obvious
     *this = Monsters[id];
     if (components & 1)
@@ -268,7 +299,7 @@ void monster::read (bstri& is)
 	monstring = strdup (is.read_strz());
 	corpsestr = strdup (is.read_strz());
     }
-    is.skipalign(4);
+    is.align(4);
     if (components & 16)
 	is >> possessions;
 }
@@ -277,7 +308,7 @@ template <typename Stm>
 void monster::write (Stm& os) const
 {
     uint8_t components = 0;
-    if (id < ArraySize(Monsters)) {
+    if (id < size(Monsters)) {
 	if (0 != memcmp(this, &Monsters[id], MONSTERCHANGEABLESIZE))
 	    components |= 1;
 	if (aux1 || aux2)
@@ -300,7 +331,7 @@ void monster::write (Stm& os) const
 	os.write_strz (monstring);
 	os.write_strz (corpsestr);
     }
-    os.skipalign(4);
+    os.align(4);
     if (components & 16)
 	os << possessions;
 }
@@ -309,11 +340,11 @@ void monster::write (Stm& os) const
 
 enum { OBJECTCHANGEABLESIZE = offsetof(object_data,objchar)-offsetof(object_data,weight) };
 
-void object::read (bstri& is)
+void object::read (istream& is)
 {
     uint8_t components;
     is >> id >> components >> number >> x >> y;
-    if (id < ArraySize(Objects))
+    if (id < size(Objects))
 	*this = Objects[id];
     if (components & 1)
 	is.read (&weight, OBJECTCHANGEABLESIZE);
@@ -329,7 +360,7 @@ template <typename Stm>
 void object::write (Stm& os) const
 {
     uint8_t components = 0;
-    if (id < ArraySize(Objects)) {
+    if (id < size(Objects)) {
 	if (0 != memcmp(&weight, &Objects[id].weight, OBJECTCHANGEABLESIZE))
 	    components |= 1;
 	if ((objstr && objstr != Objects[id].objstr) || (truename && truename != Objects[id].truename) || (cursestr && cursestr != Objects[id].cursestr))
@@ -342,18 +373,15 @@ void object::write (Stm& os) const
 	os.write_strz (objstr);
 	os.write_strz (truename);
 	os.write_strz (cursestr);
-	os.skipalign(2);
+	os.align(2);
     }
 }
 
 //----------------------------------------------------------------------
 
-enum : uint8_t { RUN_CODE = 0xCD };
-
 static memblock compress (const cmemlink& buf)
 {
     memblock obuf (buf.size());
-#if __has_include(<zlib.h>)
     z_stream s;
     memset (&s, 0, sizeof(s));
     deflateInit (&s, Z_DEFAULT_COMPRESSION);
@@ -369,36 +397,11 @@ static memblock compress (const cmemlink& buf)
     else
 	obuf.resize (obuf.size()-s.avail_out);
     deflateEnd (&s);
-#else
-    bstro os (obuf);
-    const uint8_t *i = (const uint8_t*) buf.begin();
-    os << *(const SGHeader*)i;
-    for (streamsize io = sizeof(SGHeader), ileft; (ileft = buf.size()-io); ++io) {
-	unsigned mm = 0, mdm = 0, dml = min<unsigned>(255,min(io,ileft));
-	for (unsigned m = 0, dm = 1; dm <= dml; ++dm) {
-	    for (m = 0; m < dml && i[io+m-dm] == i[io+m]; ++m) {}
-	    if (m > mm) {
-		mm = m;
-		mdm = dm;
-	    }
-	}
-	if (mm > 3) {
-	    os << RUN_CODE << uint8_t(mdm) << uint8_t(mm);
-	    io += mm-1;
-	} else if (i[io] == RUN_CODE) {
-	    os.uiwrite (vpack(RUN_CODE,uint8_t(0),uint8_t(1),uint8_t(0)));
-	    os.skip (-1);
-	} else
-	    os << i[io];
-    }
-    obuf.memlink::resize (os.pos());
-#endif
     return obuf;
 }
 
 static memblock decompress (const cmemlink& buf, uint32_t size)
 {
-#if __has_include(<zlib.h>)
     z_stream s;
     memset (&s, 0, sizeof(s));
     inflateInit (&s);
@@ -415,26 +418,5 @@ static memblock decompress (const cmemlink& buf, uint32_t size)
     else
 	obuf.resize (obuf.size()-s.avail_out);
     inflateEnd (&s);
-#else
-    bstri is (buf.begin(), buf.size());
-    SGHeader h;
-    is >> h;
-    memblock obuf (max (h.size, size));
-    bstro os (obuf);
-    os << h;
-    for (uint8_t b,o,l; os.remaining();) {
-	is >> b; os << b;
-	if (b == RUN_CODE) {
-	    is >> o >> l;
-	    os.skip (-1);
-	    if (os.remaining() < l) break;
-	    bstro::pointer rd = os.ipos();
-	    bstro::const_pointer rs = rd-o;
-	    movsv (rs, l, rd);
-	    os.iseek (rd);
-	}
-    }
-    obuf.memlink::resize (os.pos());
-#endif
     return obuf;
 }

@@ -74,15 +74,16 @@ distclean:	clean
 
 maintainer-clean: distclean
 
-$O.d:	${builddir}/.d
-	@[ -h ${oname} ] || ln -sf ${builddir} ${oname}
 ${builddir}/.d:
 	@[ -d $(dir $@) ] || mkdir -p $(dir $@)
 	@touch $@
+$O.d:	| ${builddir}/.d
+	@[ -h ${oname} ] || ln -sf ${builddir} ${oname}
 
 ${objs}:	Makefile ${confs} | $O.d
-config.h:	config.h.in configure | Config.mk
-Config.mk:	Config.mk.in configure
+Config.mk:	Config.mk.in
+config.h:	config.h.in | Config.mk
+${confs}:	configure
 	@if [ -x config.status ]; then echo "Reconfiguring ...";\
 	    ./config.status;\
 	else echo "Running configure ...";\

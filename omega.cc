@@ -1,4 +1,4 @@
-// Omega is free software, distributed under the MIT license
+// Omega is free software, distributed under the ISC license
 
 #include "glob.h"
 #include <signal.h>
@@ -115,12 +115,25 @@ uint32_t level_seed [E_MAX+1];	// random number seed that generated level
 
 static void signalexit (int sig);
 
+// Randomly initializes the random number generator
+static void srandrand (void)
+{
+    struct timespec now;
+    clock_gettime (CLOCK_REALTIME, &now);
+    uint32_t seed = now.tv_sec;
+    seed ^= getppid();
+    seed = bit_ror (seed, 16);
+    seed ^= getpid();
+    seed ^= now.tv_nsec;
+    srand (seed);
+}
+
 void initrand (int environment, int level)
 {
     if (environment == E_RESTORE)
 	srandrand();
     else if (environment >= 0)
-	sxrand (level_seed[environment] + level);
+	srand (level_seed[environment] + level);
 }
 
 int main (void)
@@ -133,7 +146,7 @@ int main (void)
 	S(SIGSYS)|S(SIGSEGV)|S(SIGALRM)|S(SIGXCPU);
     #undef S
     for (unsigned i = NSIG; --i;)
-	if (GetBit(sigset_Quit,i))
+	if (get_bit (sigset_Quit, i))
 	    signal (i, signalexit);
 
     // all kinds of initialization
@@ -190,10 +203,10 @@ static void signalexit (int sig)
 static void init_world (void)
 {
     for (int env = 0; env <= E_MAX; env++)
-	level_seed[env] = xrand();
-    for (unsigned i = 0; i < ArraySize(CitySiteList); i++)
+	level_seed[env] = rand();
+    for (unsigned i = 0; i < size(CitySiteList); i++)
 	CitySiteList[i].known = false;
-    for (unsigned i = 0; i < ArraySize(ObjectAttrs); ++i)
+    for (unsigned i = 0; i < size(ObjectAttrs); ++i)
 	ObjectAttrs[i] = Objects[i].uniqueness;
     World.LoadEnvironment (E_COUNTRYSIDE);
     change_environment (E_CITY);
