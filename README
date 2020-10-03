@@ -1,5 +1,5 @@
 	+=============+
-	|    OMEGA    |
+	|   Omega++   |
 	+=============+
 
 This is a roguelike game written by Laurence Brothers in 1987. It is, perhaps
@@ -12,4 +12,4 @@ entertainment. Code changes so far include general cleanup, const correctness
 and other things now essential that were unheard of in 1987, using stl mostly
 to replace homegrown linked list containers, and few UI improvements. No, the
 old saved games and omegarc are not compatible. After getting the source code
-do the standard "configure && make install" and run the game omega. Have fun!
+do the standard "./configure && sudo make install" and run the game. Have fun!

@@ -1107,26 +1107,26 @@ const char Data_Intro[] =
 //}}}2------------------------------------------------------------------
 //{{{2 Title message
 const char Data_Title[] =
-"                                    *******\n"
-"                                 *****   *****\n"
-"                              *****         *****\n"
-"                             ****   welcome   ****\n"
-"                            ***       t o       ***\n"
-"                             ***     omega     ***\n"
-"                              ****           ****\n"
-"                                 ****    ****\n"
-"                              *    **    **    *\n"
-"                               *****      *****\n"
+" red_kangaroo presents:                    T~~ \n"
+"                                           | \n"
+"                                          /\"\\ \n"
+"                                  T~~     |'| T~~ \n"
+"                              T~~ |    T~ WWWW| \n"
+"                              |  /\"\\   |  |  |/\\T~~ \n"
+"                             /\"\\ WWW  /\"\\ |' |WW| \n"
+"                            WWWWW/\\| /   \\|'/\\|/\"\\ \n"
+"                            |   /__\\/]WWW[\\/__\\WWWW \n"
+"                            |\"  WWWW'|I_I|'WWWW'  | \n"
+"                            |   |' |/  -  \\|' |'  | \n"
+"                            |'  |  |OM+E+GA|' |   | \n"
+"                            |   |' | |[_]| |  |'  | \n"
+"                            |   |  |_|###|_|  |   | \n"
+"                            '---'--'-/___\\-'--'---' \n"
 "\n"
-"            omega version 0.90-pa2 is copyright (C) 1987,1988,1989 by:\n"
+"                  Omega is copyright (C) 1987, 1988, 1989 by:\n"
 "                             Laurence R. Brothers\n"
-"              Maintained by: William Tanksley (wtanksle@ucsd.edu).\n"
-"             Send suggestions and complaints about this prealpha to\n"
-"                 William Tanksley (wtanksle@ucsd.edu), or visit\n"
-"                http://dolphin.openprojects.net/~wtanksle/omega/.\n"
-"\n"
 "          This product includes software developed by the University\n"
-"               of California, Berkeley and its contributors";
+"                of California, Berkeley and its contributors.";
 //}}}2------------------------------------------------------------------
 //{{{2 Religion scroll
 const char Data_ScrollReligion[] =
