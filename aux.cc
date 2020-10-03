@@ -79,7 +79,8 @@ void showroom (int i)
 	    "Thaumaris\0" "Skorch\0" "Whorfen";
 	strcat (namebuf, zstrn(villageNames,Level->VillageId(),6));
     }
-    if (Level->environment-E_FIRST_DUNGEON <= E_LAST_DUNGEON) {
+    if (Level->environment >= E_FIRST_DUNGEON &&
+        Level->environment <= E_LAST_DUNGEON) {
 	char lnamebuf[64];
 	snprintf (ArrayBlock(lnamebuf), ": Level %hhd (%s)", Level->depth, roomname(i));
 	strcat (namebuf, lnamebuf);
@@ -123,6 +124,7 @@ bool p_moveable (int x, int y)
 	    mprint ("Ouch!");
 	return false;
     } else if (optionp (CONFIRM)) {
+    chtype p_loc = Level->site(Player.x,Player.y).locchar;
 	if (l.locchar == HEDGE || l.locchar == LAVA || l.locchar == FIRE || l.locchar == WHIRLWIND
 	    || l.locchar == ABYSS || l.locchar == VOID_CHAR || l.locchar == WATER
 	    || l.locchar == RUBBLE || l.locchar == LIFT || l.locchar == TRAP) {
@@ -134,6 +136,10 @@ bool p_moveable (int x, int y)
 		    return false;
 		}
 		return true;
+        } else if (p_loc == HEDGE || p_loc == LAVA || p_loc == FIRE || p_loc == WHIRLWIND ||
+                   p_loc == ABYSS || p_loc == VOID_CHAR || p_loc == WATER ||
+                   p_loc == RUBBLE || p_loc == LIFT || p_loc == TRAP) {
+            // Do nothing to skip confirmation if already on dangerous terrain.
 	    } else if (!confirmation()) {
 		setgamestatus (SKIP_MONSTERS);
 		return false;
@@ -784,37 +790,46 @@ static const char* roomname (unsigned room)
 // name of the player's experience level
 static const char* levelname (unsigned level)
 {
-    if (level < 23) {
+    if (level < 101) {
 	static const char c_Levels[] =
-	    "neophyte\0"
-	    "beginner\0"
-	    "tourist\0"
-	    "traveller\0"
-	    "wayfarer\0"
-	    "peregrinator\0"
-	    "wanderer\0"
-	    "hunter\0"
-	    "scout\0"
-	    "trailblazer\0"
-	    "discoverer\0"
-	    "explorer\0"
-	    "senior explorer\0"
-	    "ranger\0"
-	    "ranger captain\0"
-	    "ranger knight\0"
-	    "adventurer\0"
-	    "experienced adventurer\0"
-	    "skilled adventurer\0"
-	    "master adventurer\0"
-	    "hero\0"
-	    "superhero\0"
-	    "demigod";
-	return zstrn (c_Levels, level, 23);
+    "neophyte\0"  // Zeroth level player.
+    "rogue\0"             "wanderer\0"            "traveller\0"         /*  -3 */
+    "delver\0"            "spelunker\0"           "explorer\0"          /*  -6 */
+    "peregrinator\0"      "scout\0"               "ranger\0"            /*  -9 */
+    "adventurer\0"        "brawler\0"             "pugilist\0"          /* -12 */
+    "gladiator\0"         "bounty hunter\0"       "mercenary\0"         /* -15 */
+    "soldier\0"           "skirmisher\0"          "fighter\0"           /* -18 */
+    "man-at-arms\0"       "warrior\0"             "veteran\0"           /* -21 */
+    "swashbuckler\0"      "duelist\0"             "gallant\0"           /* -24 */
+    "knight\0"            "cavalier\0"            "crusader\0"          /* -27 */
+    "myrmidon\0"          "templar\0"             "defender\0"          /* -30 */
+    "protector\0"         "paladin\0"             "commander\0"         /* -33 */
+    "marshal\0"           "champion\0"            "conqueror\0"         /* -36 */
+    "warlord\0"           "warlock\0"             "occultist\0"         /* -39 */
+    "arcanist\0"          "illusionist\0"         "conjurer\0"          /* -42 */
+    "evoker\0"            "convoker\0"            "channeler\0"         /* -45 */
+    "enchanter\0"         "pyromancer\0"          "geomancer\0"         /* -48 */
+    "white necromancer\0" "thaumaturge\0"         "shaman\0"            /* -51 */
+    "druid\0"             "elementalist\0"        "magician\0"          /* -54 */
+    "magus\0"             "mystic\0"              "wizard\0"            /* -57 */
+    "sorcerer\0"          "hexblade\0"            "undead hunter\0"     /* -60 */
+    "demon slayer\0"      "inquisitor\0"          "battlemage\0"        /* -63 */
+    "high mage\0"         "grand mage\0"          "archmage\0"          /* -66 */
+    "runelord\0"          "witch-king\0"          "high king\0"         /* -69 */
+    "holy king\0"         "priest-king\0"         "guardian of chaos\0" /* -72 */
+    "guardian of order\0" "guardian of balance\0" "ecclesiarch\0"       /* -75 */
+    "prophet\0"           "saint\0"               "messiah\0"           /* -78 */
+    "lord of time\0"      "lord of creation\0"    "empyrean adept\0"    /* -81 */
+    "cherub\0"            "seraph\0"              "sword archon\0"      /* -84 */
+    "shield archon\0"     "throne archon\0"       "movanic daeva\0"     /* -87 */
+    "monadic daeva\0"     "archangel\0"           "demigod\0"           /* -90 */
+    "abyssal god\0"       "chthonic god\0"        "terrestrial god\0"   /* -93 */
+    "celestial god\0"     "astral god\0"          "sidereal god\0"      /* -96 */
+    "lunar god\0"         "solar god\0"           "god-emperor\0"       /* -99 */
+    "Master of Alpha";
+        return zstrn (c_Levels, level, 101);
     }
-    if (level < 100)
-	snprintf (ArrayBlock(Str3), "Order %u Master of Omega", level/10-2);
-    else
-	snprintf (ArrayBlock(Str3), "Ultimate Master of Omega");
+    snprintf (ArrayBlock(Str3), "Master of Omega");
     return Str3;
 }
 
@@ -1219,6 +1234,7 @@ void weapon_use (int dmgmod, pob weapon, struct monster *m)
 	case I_DEFEND:		weapon_defend (dmgmod, weapon, m); break;
 	case I_VICTRIX:		weapon_victrix (dmgmod, weapon, m); break;
 	case I_SCYTHE:		weapon_scythe (dmgmod, weapon, m); break;
+    //TODO: case I_EMPIRE
     }
 }
 
@@ -1848,16 +1864,16 @@ void terrain_check (bool takestime)
 	switch (urandom_range (32)) {
 	    case 0:
 	    case 1: mprint ("Clippity Clop."); break;
-	    case 2: mprint ("....my spurs go jingle jangle jingle...."); break;
-	    case 3: mprint ("....as I go riding merrily along...."); break;
+	    case 2: mprint ("...my spurs go jingle jangle jingle..."); break;
+	    case 3: mprint ("...as I go riding merrily along..."); break;
 	}
     } else if (Player.has_possession(O_BOOTS) && Player.possessions[O_BOOTS].usef == I_BOOTS_7LEAGUE) {
 	takestime = false;
 	switch (urandom_range (32)) {
 	    case 0: mprint ("Boingg!"); break;
 	    case 1: mprint ("Whooosh!"); break;
-	    case 2: mprint ("Over hill, over dale...."); break;
-	    case 3: mprint ("...able to leap over 7 leagues in a single bound...."); break;
+	    case 2: mprint ("Over hill, over dale..."); break;
+	    case 3: mprint ("...able to leap over 7 leagues in a single bound..."); break;
 	}
     } else if (Player.status[SHADOWFORM]) {
 	faster = true;
@@ -1868,7 +1884,7 @@ void terrain_check (bool takestime)
     } else {
 	switch (urandom_range (32)) {
 	    case 0: mprint ("Trudge. Trudge."); break;
-	    case 1: mprint ("The road goes ever onward...."); break;
+	    case 1: mprint ("The road goes ever onward..."); break;
 	}
     }
     switch (Level->site(Player.x,Player.y).showchar()) {
@@ -2015,7 +2031,7 @@ void terrain_check (bool takestime)
 	case CITY:
 	    if (gamestatusp (LOST)) {
 		resetgamestatus (LOST);
-		mprint ("Well, I guess you know where you are now....");
+		mprint ("Well, I guess you know where you are now...");
 	    }
 	    locprint ("Outside Rampart, the city.");
 	    break;
@@ -2090,7 +2106,7 @@ void terrain_check (bool takestime)
 	    mprint ("You are at a cave entrance from which you see the glint of gold.");
 	    break;
 	default:
-	    locprint ("I haven't any idea where you are!!!");
+	    locprint ("You have no idea where you are...");
 	    break;
     }
     outdoors_random_event();
@@ -2232,7 +2248,7 @@ int parsecitysite (void)
 	    return ABORT;
 	} else if (byte == '?')
 	    showknownsites (first, last);
-	else if (byte != KEY_ENTER) {
+	else if (byte != KEY_ENTER && byte != '\n') {
 	    byte = tolower (byte);
 	    if (found)
 		continue;
@@ -2254,7 +2270,7 @@ int parsecitysite (void)
 		mprint (sitenames[first] + pos);
 	    }
 	}
-    } while (byte != KEY_ENTER);
+    } while (byte != KEY_ENTER && byte != '\n');
     xredraw();
     if (found)
 	return sitenums[first] - CITYSITEBASE;

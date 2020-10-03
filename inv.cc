@@ -543,7 +543,7 @@ static int aux_display_pack (unsigned start_item, unsigned slot)
     return i;
 }
 
-// takes something from pack, puts to slot, 
+// takes something from pack, puts to slot,
 // or to 'up-in-air', one of which at least must be empty
 static int take_from_pack (int slot)
 {
@@ -646,6 +646,7 @@ static void inventory_control (void)
 		break;
 	    case 't':
 		take_from_pack (slot);
+        display_possessions (slot);
 		Command_Duration += 5;
 		break;
 	    case 'e':
@@ -654,6 +655,7 @@ static void inventory_control (void)
 		display_possessions (slot);
 		Command_Duration += 2;
 		break;
+        case '\n':
 	    case KEY_ENTER:
 	    case 'x':
 		if (slot != O_UP_IN_AIR)

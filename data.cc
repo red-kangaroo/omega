@@ -12,13 +12,13 @@ const struct object_data Objects[TOTALITEMS] = {
 //     lev    plus frg   dmg    aux     frag     used  type  unique             	    objstr              cursestr
 //   id  weight      chrg   hit     value bless             usef         objchar          truename
     { 0, 2,  10, 0, 10, 0, 0, 0,  0,   50, 0, 0, 0, COMMON, I_RAISE_PORTCULLIS, THING, "small grey box with red button", "disposeable garage door opener", "disposeable garage door opener"},
-    { 1, 4,  20, 0, 20, 0, 0, 0,  0, 2000, 0, 0, 0, COMMON, I_NO_OP, THING, "some rocks", "uncut diamonds", "uncut diamonds"},
-    { 2, 2,  15, 0, 10, 0, 0, 0,  0,   50, 0, 0, 0, COMMON, I_PICK, THING, "twisted piece of metal", "thieve's pick", "thieve's pick"},
-    { 3, 1,  10, 0, 15, 0, 0, 0,  0, 1500, 0, 0, 0, COMMON, I_NO_OP, THING, "large green gem", "humongous emerald", "humongous emerald"},
-    { 4, 4, 200, 0, 18, 0, 0, 0,  0, 1750, 0, 0, 0, COMMON, I_NO_OP, THING, "gold ingot", "gold ingot", "gold ingot"},
+    { 1, 4,  20, 0, 20, 0, 0, 0,  0, 2000, 0, 0, 0, COMMON, I_NO_OP, THING, "handful of small rocks", "uncut diamonds", "uncut diamonds"},
+    { 2, 2,  15, 0, 10, 0, 0, 0,  0,   50, 0, 0, 0, COMMON, I_PICK, THING, "twisted piece of metal", "lock pick", "lock pick"},
+    { 3, 1,  10, 0, 15, 0, 0, 0,  0, 1500, 0, 0, 0, COMMON, I_NO_OP, THING, "big rock", "humongous emerald", "humongous emerald"},
+    { 4, 4, 200, 0, 18, 0, 0, 0,  0, 1750, 0, 0, 0, COMMON, I_NO_OP, THING, "golden brick", "gold ingot", "gilded lead ingot"},
     { 5, 5,   5, 0,  1, 0, 0, 0,  0, 3000, 0, 0, 0, COMMON, I_NO_OP, THING, "old illegible documents", "bearer bonds", "bearer bonds"},
-    { 6, 0, 100, 0,  1, 0, 0, 0,  0,    1, 0, 0, 0, COMMON, I_NO_OP, THING, "bucket of salt water", "bucket of salt water", "bucket of salt water"},
-    { 7, 2,   3, 0, 10, 0, 0, 0,  0,   20, 0, 0, 0, COMMON, I_KEY, THING, "key", "magic key", "magic key"},
+    { 6, 0, 100, 0,  1, 0, 0, 0,  0,    1, 0, 0, 0, COMMON, I_NO_OP, THING, "bucket of water", "bucket of salt water", "bucket of salt water"},
+    { 7, 2,   3, 0, 10, 0, 0, 0,  0,   20, 0, 0, 0, COMMON, I_KEY, THING, "key", "magic key", "broken key"},
     { 8, 0,  30, 0,  8, 0, 0, 0,  6,   10, 0, 0, 0, COMMON, I_PERM_ILLUMINATE, THING, "torch", "torch", "torch"},
     { 9, 0,  10, 0, 12, 0, 0, 0,  0,    0, 0, 0, 0, COMMON, I_NO_OP, THING, "grot", "grot", "grot"},
     {10, 0,  10, 0, 12, 0, 0, 0,  0,    0, 0, 0, 0, COMMON, I_NO_OP, THING, "grot", "grot", "grot"},
@@ -40,15 +40,15 @@ const struct object_data Objects[TOTALITEMS] = {
     {26, 0,  20, 0,  0, 0, 0, 0,  8,    2, 0, 0, 0, COMMON, I_FOOD, FOOD, "red and white striped bucket", "food ration", "food ration"},
     {27, 2,  10, 0,  0, 0, 0, 0, 48,  200, 0, 0, 0, COMMON, I_LEMBAS, FOOD, "wafer of lembas", "wafer of lembas", "wafer of lembas"},
     {28, 3,   1, 0,  0, 0, 0, 0,  1,   50, 0, 0, 0, COMMON, I_STIM, FOOD, "small gray tablet", "stimtab", "stimtab"},
-    {29, 3,   1, 0,  0, 0, 0, 0,  1,  100, 0, 0, 0, COMMON, I_POW, FOOD, "small gray tablet", "powtab", "powtab"},
+    {29, 3,   1, 0,  0, 0, 0, 0,  1,  100, 0, 0, 0, COMMON, I_POW, FOOD, "small gray tablet", "power pill", "power pill"},
     {30, 3,   1, 0,  0, 0, 0, 0, 36,   20, 0, 0, 0, COMMON, I_FOOD, FOOD, "small gray tablet", "nutritab", "nutritab"},
     {31, 3,   1, 0,  0, 0, 0, 0,  1,  500, 0, 0, 0, COMMON, I_IMMUNE, FOOD, "small gray tablet", "immunotab", "immunotab"},
     {32, 0,   1, 0,  0, 0, 0, 0,  2,    1, 0, 0, 0, COMMON, I_FOOD, FOOD, "jelly baby", "jelly baby", "jelly baby"},
-    {33, 1,  20, 0,  0, 0, 0, 0, -1,   25, 0, 0, 0, COMMON, I_POISON_FOOD, FOOD, "red and white striped bucket", "poisoned ration", "poisoned ration"},
+    {33, 1,  20, 0,  0, 0, 0, 0, -1,   25, 0, 0, 0, COMMON, I_POISON_FOOD, FOOD, "red and white striped bucket", "rotten ration", "poisoned ration"},
     {34, 2,   2, 0,  0, 0, 0, 0,  1,  100, 0, 0, 0, COMMON, I_PEPPER_FOOD, FOOD, "withered reddish stringy vegetable", "szechuan pepper", "szechuan pepper"},
     {35, 2,   2, 0,  0, 0, 0, 0,  8,    5, 0, 0, 0, COMMON, I_FOOD, FOOD, "messy red and white disk", "pepperoni pizza pie", "pepperoni pizza pie"},
     {36, 2,   2, 0,  0, 0, 0, 0,  6,    7, 0, 0, 0, COMMON, I_FOOD, FOOD, "brown bag with strange ideograms", "hunan take-out", "hunan take-out"},
-    {37, 2,   2, 0,  0, 0, 0, 0,  2,    5, 0, 0, 0, COMMON, I_FOOD, FOOD, "strange foamy cylinders", "twinkies", "twinkies"},
+    {37, 2,   2, 0,  0, 0, 0, 0,  2,    5, 0, 0, 0, COMMON, I_FOOD, FOOD, "strange foamy cylinders", "twinkies", "ancient twinkies"},
     {38, 2,   2, 0,  0, 0, 0, 0,  3,    3, 0, 0, 0, COMMON, I_FOOD, FOOD, "squiggly orange spirals", "cheese-doodles", "cheese-doodles"},
     {39, 2,   2, 0,  0, 0, 0, 0,  4,    3, 0, 0, 0, COMMON, I_FOOD, FOOD, "sweet nutty-smelling disks", "pecan twirls", "pecan_twirls"},
     {40, 2,   2, 0,  0, 0, 0, 0, 10,   75, 0, 0, 0, COMMON, I_FOOD, FOOD, "pale white strips with green dots", "veal piccata with capers", "veal piccata with capers"},
@@ -71,7 +71,7 @@ const struct object_data Objects[TOTALITEMS] = {
     {57, 3,   5, 0,  1, 0, 0, 0,  0,  100, 0, 0, 0, COMMON, I_WARP, SCROLL, "scroll", "scroll of the warp", "scroll of the warp"},
     {58, 1,   5, 0,  1, 0, 0, 0,  0,   10, 0, 0, 0, COMMON, I_KNOWLEDGE, SCROLL, "scroll", "scroll of self-knowledge", "scroll of delusion"},
     {59, 2,   5, 0,  1, 0, 0, 0,  0,  100, 0, 0, 0, COMMON, I_LAW, SCROLL, "scroll", "scroll of law", "scroll of law"},
-    {60, 5,   5, 0,  1, 0, 0, 0,  0,  200, 0, 0, 0, COMMON, I_HERO, SCROLL, "scroll", "scroll of heroism", "scroll of cowardliness"},
+    {60, 5,   5, 0,  1, 0, 0, 0,  0,  200, 0, 0, 0, COMMON, I_HERO, SCROLL, "scroll", "scroll of heroism", "scroll of cowardice"},
     {61, 2,   5, 0,  1, 0, 0, 0,  0,   50, 0, 0, 0, COMMON, I_TRUESIGHT, SCROLL, "scroll", "scroll of true sight", "scroll of blindness"},
     {62, 3,   5, 0,  1, 0, 0, 0,  0,  250, 0, 0, 0, COMMON, I_DISPEL, SCROLL, "scroll", "scroll of dispelling", "scroll of self-dispelling"},
     {63, 2,   5, 0,  1, 0, 0, 0,  0,  300, 0, 0, 0, COMMON, I_SUMMON, SCROLL, "scroll", "scroll of summoning", "scroll of summoning"},
@@ -99,8 +99,8 @@ const struct object_data Objects[TOTALITEMS] = {
     {85, 1,  25, 0, 15, 0, 8,11,  0,   40, 0, 0, CUTTING, COMMON, I_NORMAL_WEAPON, WEAPON, "short sword", "short sword", "short sword"},
     {86, 2,  40, 0, 15, 0,12, 9,  0,   90, 0, 0, CUTTING, COMMON, I_NORMAL_WEAPON, WEAPON, "broad sword", "broad sword", "broad sword"},
     {87, 3,  50, 0, 15, 0,16, 8,  0,  250, 0, 0, CUTTING, COMMON, I_NORMAL_WEAPON, WEAPON, "bastard sword", "bastard sword", "bastard sword"},
-    {88, 4,  50, 0, 15, 0,16,10,  0,  500, 0, 0, CUTTING, COMMON, I_NORMAL_WEAPON, WEAPON, "katana", "katana", "katana"},
-    {89, 5,  75, 0, 15, 0,20, 7,  0,  400, 0, 0, CUTTING, COMMON, I_NORMAL_WEAPON, WEAPON, "great-sword", "great-sword", "great-sword"},
+    {88, 4,  50, 0, 15, 0,16,10,  0,  500, 0, 0, CUTTING, COMMON, I_NORMAL_WEAPON, WEAPON, "foreign sword", "katana", "katana"},
+    {89, 5,  75, 0, 15, 0,20, 7,  0,  400, 0, 0, CUTTING, COMMON, I_NORMAL_WEAPON, WEAPON, "two-handed sword", "great sword", "great sword"},
     {90, 2,  15, 0, 15, 0, 6,15,  0,   50, 0, 0, THRUSTING, COMMON, I_NORMAL_WEAPON, WEAPON, "epee", "epee", "epee"},
     {91, 3,  20, 0, 15, 0, 8,13,  0,  250, 0, 0, THRUSTING, COMMON, I_NORMAL_WEAPON, WEAPON, "rapier", "rapier", "rapier"},
     {92, 5,  25, 0, 15, 0,11,12,  0,  500, 0, 0, THRUSTING, COMMON, I_NORMAL_WEAPON, WEAPON, "estoc", "estoc", "estoc"},
@@ -123,44 +123,44 @@ const struct object_data Objects[TOTALITEMS] = {
     {109, 7,250, 7, 15, 0,17,10,1004,3000, 0, 7, STRIKING, COMMON, I_MACE_DISRUPT, WEAPON, "mace", "mace of disruption", "mace"},
     {110, 2,100, 0, 15, 0,12,15,  0,  300, 0, 0, MISSILE, COMMON, I_NORMAL_WEAPON, MISSILEWEAPON, "longbow", "longbow", "longbow"},
     {111, 3,150, 0, 15, 0,20,15,  0,  500, 0, 0, MISSILE, COMMON, I_NORMAL_WEAPON, MISSILEWEAPON, "crossbow", "crossbow", "crossbow"},
-    {112, 1,  2, 0, 15, 0, 3, 3,1006,   2, 0, 0, MISSILE, COMMON, I_NORMAL_WEAPON, MISSILEWEAPON, "arrow", "arrow", "arrow"},
-    {113, 1,  2, 0, 15, 0, 3, 0,1007,   5, 0, 0, MISSILE, COMMON, I_NORMAL_WEAPON, MISSILEWEAPON, "bolt", "bolt", "bolt"},
-    {114, 2, 50, 0, 15, 0, 3,10,1005,  50, 0, 0, MISSILE, COMMON, I_NORMAL_WEAPON, MISSILEWEAPON, "bola", "bola", "bola"},
-    {115, 7, 40, 5, 15, 0,12, 9,1008,3000, 0, 0, CUTTING, COMMON, I_NORMAL_WEAPON, WEAPON, "broad sword", "vorpal sword", "sword of self-mutilation"},
-    {116, 9,100, 7, 15, 0,20, 7,1009,5000, 0, -7, CUTTING, COMMON, I_DESECRATE, WEAPON, "great-sword", "Desecrator", "Desecrator"},
-    {117, 6, 60, 7, 15, 0,16, 7,1010,2000, 0, 0, STRIKING, COMMON, I_PERM_FIRE_RESIST, WEAPON, "morning-star", "firestar", "firestar"},
-    {118, 7, 50, 7, 15, 0,10,12,1011,3000, 0, 7, THRUSTING, COMMON, I_DEFEND, WEAPON, "estoc", "Defender", "Defender"},
+    {112, 1,  2, 0, 15, 0, 3, 3,1006,   2, 0, 0, MISSILE, COMMON, I_ARROW, MISSILEWEAPON, "arrow", "arrow", "arrow"},
+    {113, 1,  2, 0, 15, 0, 3, 0,1007,   5, 0, 0, MISSILE, COMMON, I_BOLT, MISSILEWEAPON, "bolt", "bolt", "bolt"},
+    {114, 2, 50, 0, 15, 0, 3,10,1005,  50, 0, 0, MISSILE, COMMON, I_TANGLE, MISSILEWEAPON, "bola", "bola", "bola"},
+    {115, 7, 40, 5, 15, 0,12, 9,1008,3000, 0, 0, CUTTING, COMMON, I_VORPAL, WEAPON, "broad sword", "vorpal sword", "sword of self-mutilation"},
+    {116, 9,100, 7, 15, 0,20, 7,1009,5000, 0, -7, CUTTING, COMMON, I_DESECRATE, WEAPON, "two-handed sword", "Desecrator", "Desecrator"},
+    {117, 6, 60, 7, 15, 0,16, 7,1010,2000, 0, 0, STRIKING, COMMON, I_FIRESTAR, WEAPON, "morning-star", "firestar", "firestar"},
+    {118, 7, 50, 7, 15, 0,10,12,1011,3000, 0, 7, THRUSTING, COMMON, I_DEFEND, WEAPON, "estoc", "Holy Defender", "Defender"},
     {119,10, 50,10, 15,0,100,10,1012,5000, 0, 10, THRUSTING, UNIQUE_MADE, I_VICTRIX, WEAPON, "ivory spear", "Victrix", "Victrix"},
     {120, 7,500, 6, 15, 0,32, 6,  0, 2000, 0, 0, CUTTING, UNIQUE_MADE, I_NORMAL_WEAPON, WEAPON, "great-axe", "Goblins' Hewer", "Goblins' Hewer"},
     {121, 6,100,20, 15, 0,30, 10, 0,  500, 0, -10, CUTTING, COMMON, I_NORMAL_WEAPON, WEAPON, "scythe", "scythe of slicing", "scythe of slicing"},
     {122, 5,250, 0, 15, 0,50,10,  0,  100, 0, 0, STRIKING, COMMON, I_NORMAL_WEAPON, WEAPON, "giant club", "giant club", "giant club"},
-    {123,10,500,0,0,15,255,255,1014, 1000, 0, 0, CUTTING, UNIQUE_MADE, I_NORMAL_WEAPON, WEAPON, "Scythe of Death", "Scythe of Death", "Scythe of Death"},
-    {124, 4, 30, 0, 15, 0,16,16,1015,1000, 0, 0, STRIKING, COMMON, I_NORMAL_WEAPON, WEAPON, "whip", "acid whip", "acid whip"},
+    {123,10,500,0,0,15,255,255,1014, 1000, 0, 0, CUTTING, UNIQUE_MADE, I_SCYTHE, WEAPON, "Scythe of Death", "Scythe of Death", "Scythe of Death"},
+    {124, 4, 30, 0, 15, 0,16,16,1015,1000, 0, 0, STRIKING, COMMON, I_ACIDWHIP, WEAPON, "whip", "acid whip", "acid whip"},
     {125, 0,100, 0, 20, 0, 1, 0,  0,    5, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "flak jacket", "flak jacket", "flak jacket"},
-    {126, 1,200, 0, 20, 0, 2, 0,  1,   10, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "soft leather armor", "soft leather armor", "soft leather armor"},
-    {127, 1,200, 0, 20, 0, 2, 0,  1,   30, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "cuirbouilli", "cuirbouilli", "cuirbouilli"},
+    {126, 1,200, 0, 20, 0, 2, 0,  1,   10, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "leather armor", "soft leather armor", "soft leather armor"},
+    {127, 1,200, 0, 20, 0, 2, 0,  1,   30, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "leather armor", "cuirbouilli", "cuirbouilli"},
     {128, 2,300, 0, 20, 0, 3, 0,  2,  100, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "ring mail", "ring mail", "ring mail"},
     {129, 3,400, 0, 20, 0, 4, 0,  3,  200, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "chain mail", "chain mail", "chain mail"},
     {130, 4,400, 0, 20, 0, 4, 0,  2,  300, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "scale mail", "scale mail", "scale mail"},
-    {131, 5,400, 0, 20, 0, 5, 0,  3,  450, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "partial plate mail", "partial plate mail", "partial plate mail"},
-    {132, 6,600, 0, 20, 0, 6, 0,  4,  750, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "full plate mail", "full plate mail", "full plate mail"},
-    {133, 6,500, 0, 20, 0, 7, 0,  4, 1500, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "plate armor", "plate armor", "plate armor"},
+    {131, 5,400, 0, 20, 0, 5, 0,  3,  450, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "plate mail", "partial plate mail", "partial plate mail"},
+    {132, 6,600, 0, 20, 0, 6, 0,  4,  750, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "plate mail", "full plate mail", "full plate mail"},
+    {133, 6,500, 0, 20, 0, 7, 0,  4, 1500, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "plate mail", "plasteel plate mail", "plasteel plate mail"},
     {134, 6,200, 0, 20, 0, 5, 0,  2, 1500, 0, 0, 0, COMMON, I_NORMAL_ARMOR, ARMOR, "lamellar armor", "lamellar armor", "lamellar armor"},
-    {135, 7,200, 0, 20, 0, 5, 0,  2, 2000, 0, 0, 0, COMMON, I_PERM_FEAR_RESIST, ARMOR, "mithril chain mail", "mithril chain mail", "mithril chain mail"},
-    {136, 7,300, 0, 20, 0, 8, 0,  3, 3000, 0, 0, 0, COMMON, I_PERM_FEAR_RESIST, ARMOR, "mithril plate armor", "mithril plate armor", "mithril plate armor"},
-    {137, 7,500, 0, 20, 0, 6, 0,  3, 3000, 0, 0, 0, COMMON, I_PERM_FIRE_RESIST, ARMOR, "dragonscale armor", "dragonscale armor", "dragonscale armor"},
-    {138, 8,100, 9, 20, 0, 7, 0,  2, 1000, 0, 0, 0, COMMON, I_PERM_ENERGY_RESIST, ARMOR, "prismatrix armor", "prismatrix armor", "prismatrix armor"},
-    {139, 9,  0, 0, 20, 0,20, 0,  0, 5000, 0, 0, 0, COMMON, I_PERM_BREATHING, ARMOR, "powered combat armor", "powered combat armor", "powered combat armor"},
-    {140, 7,  0, 0, 20, 0,10, 0,  0, 3000, 0, 0, 0, COMMON, I_PERM_BREATHING, ARMOR, "powered scout armor", "powered scout armor", "powered scout armor"},
-    {141, 3,100, 5, 20, 0, 5, 0,  0, 2000, 0, -9, 0, COMMON, I_PERM_ENERGY_RESIST, ARMOR, "demonhide armor", "demonhide armor", "demonhide armor"},
+    {135, 7,200, 0, 20, 0, 5, 0,  2, 2000, 0, 0, 0, COMMON, I_PERM_FEAR_RESIST, ARMOR, "chain mail", "mithril chain mail", "mithril chain mail"},
+    {136, 7,300, 0, 20, 0, 8, 0,  3, 3000, 0, 0, 0, COMMON, I_PERM_FEAR_RESIST, ARMOR, "plate mail", "mithril plate mail", "mithril plate mail"},
+    {137, 7,500, 0, 20, 0, 6, 0,  3, 3000, 0, 0, 0, COMMON, I_PERM_FIRE_RESIST, ARMOR, "scale mail", "dragon scale mail", "dragon scale mail"},
+    {138, 8,100, 9, 20, 0, 7, 0,  2, 1000, 0, 0, 0, COMMON, I_PERM_ENERGY_RESIST, ARMOR, "crystal armor", "prismatrix armor", "prismatrix armor"},
+    {139, 9,  0, 0, 20, 0,20, 0,  0, 5000, 0, 0, 0, COMMON, I_PERM_BREATHING, ARMOR, "mechanical suit", "powered combat armor", "powered combat armor"},
+    {140, 7,  0, 0, 20, 0,10, 0,  0, 3000, 0, 0, 0, COMMON, I_PERM_BREATHING, ARMOR, "mechanical suit", "powered scout armor", "powered scout armor"},
+    {141, 3,100, 5, 20, 0, 5, 0,  0, 2000, 0, -9, 0, COMMON, I_PERM_ENERGY_RESIST, ARMOR, "leather armor", "demonhide armor", "demonhide armor"},
     {142, 0, 20, 0, 15, 0, 0, 0,  1,   10, 0, 0, 0, COMMON, I_NORMAL_SHIELD, SHIELD, "buckler", "buckler", "buckler"},
-    {143, 1, 40, 0, 15, 0, 0, 0,  2,   20, 0, 0, 0, COMMON, I_NORMAL_SHIELD, SHIELD, "small round shield", "small round shield", "small round shield"},
-    {144, 2,100, 0, 15, 0, 0, 0,  3,   50, 0, 0, 0, COMMON, I_NORMAL_SHIELD, SHIELD, "large round shield", "large round shield", "large round shield"},
+    {143, 1, 40, 0, 15, 0, 0, 0,  2,   20, 0, 0, 0, COMMON, I_NORMAL_SHIELD, SHIELD, "round shield", "small round shield", "small round shield"},
+    {144, 2,100, 0, 15, 0, 0, 0,  3,   50, 0, 0, 0, COMMON, I_NORMAL_SHIELD, SHIELD, "round shield", "large round shield", "large round shield"},
     {145, 2,200, 0, 15, 0, 0, 0,  4,   75, 0, 0, 0, COMMON, I_NORMAL_SHIELD, SHIELD, "heater shield", "heater shield", "heater shield"},
     {146, 3,300, 0, 15, 0, 0, 0,  5,  150, 0, 0, 0, COMMON, I_NORMAL_SHIELD, SHIELD, "hoplon", "hoplon", "hoplon"},
     {147, 4,500, 0, 15, 0, 0, 0,  6,  200, 0, 0, 0, COMMON, I_NORMAL_SHIELD, SHIELD, "tower shield", "tower shield", "tower shield"},
-    {148, 6, 20, 0, 15, 0, 0, 0,  7, 1000, 0, 0, 0, COMMON, I_NORMAL_SHIELD, SHIELD, "plasteel shield", "plasteel shield", "plasteel shield"},
-    {149, 7,200, 6, 15, 0, 0, 0,  6, 2000, 0, 0, 0, COMMON, I_PERM_DEFLECT, SHIELD, "shield of deflection", "shield of deflection", "shield of deflection"},
+    {148, 6, 20, 0, 15, 0, 0, 0,  7, 1000, 0, 0, 0, COMMON, I_NORMAL_SHIELD, SHIELD, "steel shield", "plasteel shield", "plasteel shield"},
+    {149, 7,200, 6, 15, 0, 0, 0,  6, 2000, 0, 0, 0, COMMON, I_PERM_DEFLECT, SHIELD, "steel shield", "shield of deflection", "shield of deflection"},
     {150, 0, 30, 0,  4, 0, 0, 0,  0,   15, 0, 0, 0, COMMON, I_NO_OP, CLOAK, "cloak", "cloak of wool", "cloak of wool"},
     {151, 3, 30, 0,  4, 0, 0, 0,  0,  500, 0, 0, 0, COMMON, I_PERM_NEGIMMUNE, CLOAK, "cloak", "cloak of negimmunity", "cloak of level drain"},
     {152, 5, 30, 0,  4, 0, 0, 0,  0,  500, 0, 0, 0, COMMON, I_PERM_INVISIBLE, CLOAK, "cloak", "cloak of invisibility", "cloak of invisibility"},
@@ -169,13 +169,13 @@ const struct object_data Objects[TOTALITEMS] = {
     {155, 6, 30, 0,  4, 0, 0, 0,  0, 2000, 0, 0, 0, COMMON, I_PERM_DISPLACE, CLOAK, "cloak", "cloak of displacement", "cloak of vulnerability"},
     {156, 3, 30, 0,  4, 0, 0, 0,  0,  500, 0, 0, 0, COMMON, I_PERM_TRUESIGHT, CLOAK, "cloak", "cloak of true sight", "cloak of blindness"},
     {157, 4, 30, 0,  6, 0, 0, 0,  0, 1000, 0, 0, 0, COMMON, I_PERM_SPEED, BOOTS, "boots", "boots of speed", "boots of slowness"},
-    {158, 6, 30, 0,  6, 0, 0, 0,  0, 1000, 0, 0, 0, COMMON, I_PERM_HERO, BOOTS, "boots", "boots of heroism", "boots of cowardliness"},
+    {158, 6, 30, 0,  6, 0, 0, 0,  0, 1000, 0, 0, 0, COMMON, I_PERM_HERO, BOOTS, "boots", "boots of heroism", "boots of cowardice"},
     {159, 3, 30, 0,  6, 0, 0, 0,  0,  500, 0, 0, 0, COMMON, I_PERM_LEVITATE, BOOTS, "boots", "boots of levitation", "boots of levitation"},
     {160, 3, 30, 0,  6, 0, 0, 0,  0,  250, 0, 0, 0, COMMON, I_PERM_AGILITY, BOOTS, "boots", "boots of agility", "boots of clumsiness"},
     {161, 2, 30, 0,  6, 0, 0, 0,  0,  200, 0, 0, 0, COMMON, I_BOOTS_JUMPING, BOOTS, "boots", "jumping boots", "jumping boots"},
     {162, 0, 30, 0,  6, 0, 0, 0,  0,    7, 0, 0, 0, COMMON, I_NO_OP, BOOTS, "boots", "boots of leather", "boots of leather"},
     {163, 7, 30, 0,  6, 0, 0, 0,  0, 2700, 0, 0, 0, COMMON, I_BOOTS_7LEAGUE, BOOTS, "boots", "seven league boots", "umpteen league boots"},
-    {164, 3,  1, 0, 10, 0, 0, 0,  0,  400, 0, 0, 0, COMMON, I_PERM_TRUESIGHT, RING, "ring", "ring of truesight", "ring of blindness"},
+    {164, 3,  1, 0, 10, 0, 0, 0,  0,  400, 0, 0, 0, COMMON, I_PERM_TRUESIGHT, RING, "ring", "ring of true sight", "ring of blindness"},
     {165, 0,  1, 0, 10, 0, 0, 0,  0,    1, 0,-1, 0, COMMON, I_PERM_BURDEN, RING, "ring", "ring of burden", "ring of burden"},
     {166, 1,  1, 0, 10, 0, 0, 0,  0,  100, 0, 0, 0, COMMON, I_PERM_STRENGTH, RING, "ring", "ring of strength", "ring of strength"},
     {167, 2,  1, 0, 10, 0, 0, 0,  0,  100, 0, 0, 0, COMMON, I_PERM_GAZE_IMMUNE, RING, "ring", "ring of gaze immunity", "ring of gaze immunity"},
@@ -953,7 +953,7 @@ const char Help_CityCommands[] =
 "x    : examine a location                                         :     1\n"
 "z    : bash something (adjacent location)                         :     10\n"
 "A    : activate an item or artifact                               :     10\n"
-"C    : call an item something                                     :     0\n"
+// "C    : call an item something                                     :     0\n"
 "D    : disarm an adjacent trap                                    :     30\n"
 "E    : dismount (exit?) from your horse                           :     10*\n"
 "F    : set combat action sequence                                 :     0\n"
@@ -969,7 +969,7 @@ const char Help_CityCommands[] =
 "V    : version information                                        :     0\n"
 "Z    : bash something (item carried)                              :     10*\n"
 ".    : rest a turn                                                :     10\n"
-",    : sleep some number of minutes                               :  60..6000\n"
+":    : sleep some number of minutes                               :  60..6000\n"
 "@    : stay in current location, activating any local effect here :     5\n"
 ">    : go down a level                                            :     0~\n"
 "<    : go up a level                                              :     0~\n"
@@ -1452,69 +1452,69 @@ const char Level_City[] =
 //{{{2 Countryside
 const char Level_Country[] =
 "\100\100\033\023"
-"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-"+^^^^^%^^^^^^^^^^^^^---^^^^^^^^^^^^^^^^((((((------^^^^^^^^^~~^^\n"
-"++^^~^^v^^^---------------((((((((((((((((((--------^^^^^^~~~~~^\n"
-"+++^^~^^v^^------------(((((((((((((((((((((((((------^^^~~~~|~^\n"
-"++++^^~^^v^------((((((((((((((^^^((((((((((------------^^^~v~~^\n"
-"++++^~^^v^^----------((((((((((^5^((((((((-------.......a~~^~~~^\n"
-"++++^^~d^^--------------(((((((^(^(((((---------.------~~^^^^^^^\n"
-"+++----~.......-----------((((((((((-----------.------~~--^^^^^^\n"
-"++++--~--------.......------((((((((((((------.-------~^^^^^^^^^\n"
-"+++++++---------------.......(((((((((-------.--------~~--^^^^^^\n"
-"+++++++----------------------......-.........--------~~-----^^^^\n"
-"+++++++++--------------((((((((((((b(((((((------^^3~~------^^^^\n"
-"++++++++++++---------------(((((((.(((((((------^^^~~-------^^^^\n"
-"++++++++++-------((((((((((((((((.(((((((((((((^^^-~~-------^^^^\n"
-"+++++++----------------(((((((((.(((((((((---^^^----~~------^^^^\n"
-"++++++++++++---------------((((.(((((((((--^^^-----~~---^^^^^^^^\n"
-"++++++++++++++++--------------.--------^^^^^------~~---^^^^^^^^^\n"
-"+++++++++++++++++++----------.------^^^^---------~~---^^^^^^^^^^\n"
-"++++++++++++++++++++++++----.---v^^^^^^^^-((((--~~----------^^^^\n"
-"+++++++++++++++++++++++++++O--^^^v^^^((((((((((((~~---^^^^^^^^^^\n"
-"+++++++++++++-------------.----^^^v^(((((((((((((~~(----^^^^^^^^\n"
-"++++++++++---------------.-^^^^^^(((((((((((((((~~((--------^^^^\n"
-"++++++++++++++++++++++...-^*^^^^(((((((((((((((~~((((((-----^^^^\n"
-"++++++++++++++++++-...-----^^^-(((((((((((((((~~(((((((((---^^^^\n"
-"+++++++++++++-----.------^^^^((((((((((((((((~~(((((((((----^^^^\n"
-"++++++++++-------.-----^^^^--((((((((((((((~~~(((((((((-----^^^^\n"
-"++++++++++++++++.------^^^-------(((((((((~~(((((((((((((---^^^^\n"
-"+++++++++++++++.------^^^---((((((((((((((~~(((((((--------^^^^^\n"
-"+++++++++++++++.-----^^^(((((((((((((((~~~~(((((((-------^^^^^^^\n"
-"+++++++++++++--.------vvv(((((((((((~~~~(((((((((-------^^^(^^^^\n"
-"+++++++++++++++.-----^1^-------((~~~~(((((((((((((((-^^^^^((^^^^\n"
-"+++++++++++++++.------^^^-----((~~~((((((((((((((((-^^^(((((^^^^\n"
-"++++++++++-----.----^^^------(((((~~(((((((((---^^^^((((((((^^^^\n"
-"++++++++-------.----^^^-(((((((((((~((((((((((((--^(((((((^^^^^^\n"
-"++++++---------.-----^^^(((((((((((~~((((((((((--^^^(((((((($^^^\n"
-"+++++++++++++++.----^^-(((((((((((~~((((((((((--^^^(((((((((^^^^\n"
-"+++++++++++++++.-----^^^^((((((((~~(((((((((-------((((((((^^^^^\n"
-"++++++++++++---.----^^^(((((((~~~~(((((((-----^^((((((((((((^^^^\n"
-"+++++++++++++++.---^^^-(((~~~~~(((((((------^^^(((((((((((((^^^^\n"
-"+++++++++++++++.---^^^^~~~~(((((----------^^^(((((((((((((((^^^^\n"
-"++++++++++c....-...~~~~~-((((((((((-----^^^^((((((((((((((((^^^^\n"
-"++++++++++++++~~~~~.f==-------------^^^^((((((((((((((((^^^^^^^^\n"
-"++++++++++++=====~==~======----^^^^^^^^^(((((((((((((((((((^^^^^\n"
-"+++++++++++=====~====~====---------------e((((((((((((((^^^^^^^^\n"
-"+++++++++++++++~====~====-^^-------^^^^^^(((((((((((((((((((^^^^\n"
-"+++++++++++++++====~====-^^------^^^(((((((((2(((((((((((---^^^^\n"
-"+++++++++++++=====~4~===---^-----^^(((((((((((---^^^^-------^^^^\n"
-"++++++++++=======~==~====---------^^(((((((((--^^-----------^^^^\n"
-"+++++++++++++===~====~====--^--------((((((---^^-)))-^^-----^^^^\n"
-"++++++++++++===~======~===---^^^^------------^^~)))))--^^---^^^^\n"
-"+++++++++++++++======~======-----^^^------^----)~)))))--^^^-^^^^\n"
-"+++++++++++++++=====~===^=======--~~~^^^-^---))))~))))))----^^^^\n"
-"++++++++++++++=====~=============~~=~~~~^^))))))))~))))))))-^^^^\n"
-"+++++++++++++++===~=~~~~~~=====~~~~====^^^^)))))))~)))))))^^^^^^\n"
-"++++&++++++++++==~========~~~~~~==~~~~===^^^)))))))~))))))))^^^^\n"
-"+++++=+++++++===~=~=========~===~~===~~~~~~^^)))))))~)))))^^^^^^\n"
-"++++++=++++++++~===~===^===~===~=====~====^^^^)))))))~))))))^^^^\n"
-"+++++++=+++++++====~~=====~===^=======~====^^)))))))))~)))))^^^+\n"
-"++++++++=+========~==~===~===^!^=======~===^^^))+++)))~)))^^^^++\n"
-"+++++++++=++=====~====~=~~====^=======~=~=^^^)))+6+))~)))^^^^+++\n"
-"++++++++++++====~======~==~++++======~===~==^^))+++))~^^^^^+++++\n"
-"++++++++++++++++========~++++++++===~====~^^^^^^^+^^^^~^^+++++++\n"
-"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+"^^^^^^~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+"^^v%^~~~~^^^^___^^^^___^^^^^^~~~^^^^^^^^^((((__^___^^^^^^vvvvv^^\n"
+"^v^^^^~~^^^^^^____________^^^^~---((^^((((((________^^^^|^~~~^v^\n"
+"^^v^^~^^^-^^^^^^_______(((((^^^^y-^^((((((((((((______^^^~~~~~v^\n"
+"^^^v^^~^^^---^^__((((((((((((^^^^^^(((((((((__________.a~~~~~~v^\n"
+"^^v^^~^^^^^--^^^____-((((((((((^5^((((((((_______.....___~~~~^v^\n"
+"^v^^^~~d^^----^^^-------((((((^^v^^((((_________.______~~^^^^v^^\n"
+"^^----~~.......^----------(((((^(((^___________.______~___^^v^^^\n"
+"^+++---~~-----^.......------((((((((((((------._______~^^^vv^^^^\n"
+"+++++-^-~~------------.......(((((((((-------.-----___~--^^^^^^^\n"
+"+++++++---~------------------......b.........-------~~~~~----^^^\n"
+"++++++++--~(((---------(((((---((((.(((((((-----^-~~~~~~-~--^^^^\n"
+"++++++++++++(((((-------((-((((((((.((((((----^^--~~~~~3~~-^^^^^\n"
+"++++++++++----(((((((((((((((((((..((((((((((^^^^^-~~~~~~--^^^^^\n"
+"+++++++^-------(((((---(((((((((.(((((((((-^^^^^----~~~~-----^^^\n"
+"++++++++++++-----((((------((((.(((--^^((-^^^^--------~-^^---^^^\n"
+"++++++++++++++++--((((((((((...((-----^^^^^^------~~~~-^^^^^--^^\n"
+"+++++++++++++++++++-----((-.----((((^^^^--^------~~--^^^--^^^^^^\n"
+"++++++++++++++++++++++++---.----^^^^^^^^^-((((--~~----------^^^^\n"
+"+++++++++++++++---++++++++-O--^^^^^^^((((((((((((~~-------^^^^^^\n"
+"+++++++++++++------++--.....---^^^(^(((((((((((((~~(----^^^^^^^^\n"
+"++++++++++--------++--.----^^^^v^(((((((((((((((~~((-----;^^!^^^\n"
+"++++++++++++----++++++.---^*^^^^-((((((((((((((~~((((((-;;;;^^^^\n"
+"++++++++++++++++---+..---^^^^^--((((((((((((((~~(((((((((-;;;;^^\n"
+"+++++++++++++-----..-----^^^^--((((((((((((((~~(((((((((---^^^^^\n"
+"++++++++++-------.-----^^^^---(((((((((((((~~~(((((((((------^^^\n"
+"+++++++++++---++.------^^^------((((((((((~~(((((((((((((-----^^\n"
+"+++++++++++++++.------^^^---(((--(((((((((~~(((((((--------^^^^^\n"
+"++++++++++++++-.-----^^^(((((((((((((((~~~~(((((((-----^-^^^^^^^\n"
+"+++++++++++++--.------^^^(((((((((((~~~~(((((((((-------^^^==^^^\n"
+"+++++++++++++++.-----^^^-------((~~~~(((((((((((((((-^^^^===^^^^\n"
+"++++++++++++++^.------^^^--1--((~~~((((((((((((^^((^^^^=====^$^^\n"
+"+++++++++++--^^.----^^^------(((((~~(((((((((---^^^^=========^^^\n"
+"++++++++==-----.----^^^-(((((((((((~((((((((((((-^^=========^^^^\n"
+"+++++++======--.-----^^^(((((((((((~~((((((((((--^^^=========^^^\n"
+"+++++++++===---.----^^-(((((((((((~~((((((((((--^^===========^^^\n"
+"+++++++++++==--.-----^^^^((((((((~~(((((((((----===========^^^^^\n"
+"++++++++++++==-.----^^^(((((((~~~~(((((((-----^^=============^^^\n"
+"++++++++++++++=.---^^^-(((~~~~~(((((((------^^^===============^^\n"
+"+++++++++++++-.-.--^^^^~~~~(((((----------^^^^================^^\n"
+"++++++++++c...---..~~~~~-((((((((((----^^^^^==^==============^^^\n"
+"++++++++++++++~~~~~..''----(((--^^--^^^^^===================^^^^\n"
+"++++++++++++'''''~'~~..''''----^^^^^^^=========================^\n"
+"+++++++++++'''++~''''~'.''------^^^......e=====================^\n"
+"++++++++++++'++''~''~'''.-^^--.....^^^^^^=====================^^\n"
+"++++++++++++++'''''~'''~.^^------^^^==^^=========^^=========^^^^\n"
+"+++++++++++++'++''~'~'~'-.-------^^===========-^^^^^^========^^^\n"
+"+++++++++++''''+'~~'~''''-f-------^^=========--^^))-v^========^^\n"
+"++++++++++'++'''~''~'~'''~--^4-------===~~~---^^))))^^^^=====^^^\n"
+"++++++++++++''''''~'''~'''---^--------~~---~~^^~~))))^^^^===^^^^\n"
+"+++++++++++''+++'~'~'~'~''''~------^-~--^^^--~~))~))))-^^^^=^^^^\n"
+"+++++++++++++++''~''~''~^''~''''--~~~^^^^^---)))))~))))))^^^2^^^\n"
+"++^+++++++++++'''+'~''''''~''~''''~'~~'~^^)))))))))~~))))))^^^^^\n"
+"++^^((++++++++++++~~~~'~~~'''''~~~''''~^^^^))))z)))))~))))^^^^^^\n"
+"+^^~~((++++++++++''~''~'''~~~~~~''~~~''''^^^))))))))^~))))))^^^^\n"
+"++-~~((++++++'''''~'''''~'''~'''~~'''~~'~'~^^)))))~~~)))))^^^^^^\n"
+"++--x(+++++++++''''~'''^'''~'''~'~'''~'''~^^^^)))~))))))))))^^^^\n"
+"++++--+++++'''++'~'~~'''''~'~'~'''~'~'~'~''^^)))))~~~~))))))^^^^\n"
+"++++++++++'''''+''~''~'''~'''~~^'''~'''~'''))))--)))))~)))^^v^^^\n"
+"++++++++++++'~'''~'~''~'++''~'^++'~'''~'+'^)))))--)))~)))^^^^.-^\n"
+"+++++++++++'''''~''~'++++++''++'''''+~''++++)^)))))))~^^^^^--.-+\n"
+"++++++++++++''++'''~'''++++++++++''++''++++++)))++))))~^^++++.++\n"
+"+++++++++++++++++'+''++&+++++++++++++++++++++++++++))++++++++6++\n"
 "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
 //}}}2------------------------------------------------------------------
 //{{{2 Court of the Archmage

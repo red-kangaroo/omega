@@ -594,7 +594,8 @@ void wish (int blessing)
     else if (strcmp (wishstr, "Acquisition") == 0)
 	acquire (gamestatusp (CHEATED));
     else if (strcmp (wishstr, "Summoning") == 0)
-	summon (gamestatusp (CHEATED), -1);
+    //summon (gamestatusp (CHEATED), -1);
+    summon (1, -1); // Wish should be powerful, after all.
     else if (strcmp (wishstr, "Stats") == 0 && gamestatusp (CHEATED)) {
 	Player.str = Player.maxstr = Player.con = Player.maxcon = Player.agi = Player.maxagi = Player.dex = Player.maxdex = Player.iq = Player.maxiq = Player.pow = Player.maxpow = 200;
 	calc_melee();
@@ -803,13 +804,13 @@ void knowledge (int blessing)
 	if (Player.status[DISPLACED])
 	    menuprint ("Displaced\n");
 	if (Player.status[SLEPT])
-	    menuprint ("Slept\n");
+	    menuprint ("Asleep\n");
 	if (Player.status[DISEASED])
 	    menuprint ("Diseased\n");
 	if (Player.status[POISONED])
 	    menuprint ("Poisoned\n");
 	if (Player.status[BREATHING])
-	    menuprint ("Breathing\n");
+	    menuprint ("Magic Breathing\n");
 	if (Player.status[INVISIBLE])
 	    menuprint ("Invisible\n");
 	if (Player.status[REGENERATING])
@@ -831,9 +832,9 @@ void knowledge (int blessing)
 	if (Player.status[LEVITATING])
 	    menuprint ("Levitating\n");
 	if (Player.status[TRUESIGHT])
-	    menuprint ("Sharp\n");
+	    menuprint ("Sharp Eyesight\n");
 	if (Player.status[SHADOWFORM])
-	    menuprint ("Shadowy\n");
+	    menuprint ("Melded in Shadows\n");
 	if (Player.status[ILLUMINATION])
 	    menuprint ("Glowing\n");
 	if (Player.status[DEFLECTION])
@@ -845,9 +846,9 @@ void knowledge (int blessing)
 	menuclear();
 	menuprint ("Immunities:\n");
 	if (Player.immune_to (NORMAL_DAMAGE))
-	    menuprint ("Normal Damage\n");
+	    menuprint ("Physical Damage\n");
 	if (Player.immune_to (FLAME))
-	    menuprint ("Flame\n");
+	    menuprint ("Flames and Heat\n");
 	if (Player.immune_to (ELECTRICITY))
 	    menuprint ("Electricity\n");
 	if (Player.immune_to (COLD))
@@ -861,13 +862,13 @@ void knowledge (int blessing)
 	if (Player.immune_to (SLEEP))
 	    menuprint ("Sleep\n");
 	if (Player.immune_to (NEGENERGY))
-	    menuprint ("Negative Energies\n");
+	    menuprint ("Negative Energy\n");
 	if (Player.immune_to (THEFT))
-	    menuprint ("Theft\n");
+	    menuprint ("Thieving Hands\n");
 	if (Player.immune_to (GAZE))
 	    menuprint ("Gaze\n");
 	if (Player.immune_to (INFECTION))
-	    menuprint ("Infection\n");
+	    menuprint ("Disease and Infection\n");
 	showmenu();
 	morewait();
 	menuclear();
@@ -2201,7 +2202,7 @@ void polymorph (int blessing)
 		    newmonster = random_range (NUMMONSTERS);
 		while ((newmonster == NPC) || (newmonster == MAST_THIEF) || (Monsters[newmonster].uniqueness != COMMON));
 	    }
-	    // WDT HACK: most of this could (and should) be implemented by 
+	    // WDT HACK: most of this could (and should) be implemented by
 	    // the following line: "*m = Monsters[newmonster];".  The exception,
 	    // of course, are the parts where the new monster inherits the old
 	    // one's abilities.  This would be better because it would be robust
@@ -2353,7 +2354,7 @@ void sanctuary (void)
 void shadowform (void)
 {
     // WDT HACK: this fix might work, but it seems like the immunity
-    // will be FAR too short.  It's obviously better than the old 
+    // will be FAR too short.  It's obviously better than the old
     // situation, though...
     if (!Player.status[SHADOWFORM]) {
 	mprint ("You feel like a shadow.");

@@ -76,7 +76,7 @@ void p_process (void)
 	    case KEY_CTRL|'i':	display_pack(); morewait(); xredraw(); break;
 	    case KEY_CTRL|'k':	if (gamestatusp (CHEATED)) frobgamestatus();	// fallthrough
 	    case KEY_CTRL|'l':	xredraw(); // fallthrough
-	    case ' ':
+        case '\n':
 	    case KEY_ENTER:	setgamestatus (SKIP_MONSTERS); break;
 	    case KEY_CTRL|'p':	msglist_up(); display_messages(); setgamestatus (SKIP_MONSTERS); break;
 	    case KEY_CTRL|'n':	msglist_down(); display_messages(); setgamestatus (SKIP_MONSTERS); break;
@@ -92,6 +92,7 @@ void p_process (void)
 	    case 'd':	drop();		Command_Duration = Player.speed*5/5; break;
 	    case 'e':	eat();		Command_Duration = 30; break;
 	    case 'f':	fire();		Command_Duration = Player.speed*5/5; break;
+        case ',':   //TODO: pickup to pack?
 	    case 'g':	pickup();	Command_Duration = Player.speed*10/5; break;
 	    case 'i':	do_inventory_control(); break;
 	    case 'm':	magic();	Command_Duration = 12; break;
@@ -100,6 +101,7 @@ void p_process (void)
 	    case 'q':	quaff();	Command_Duration = 10; break;
 	    case 'r':	peruse();	Command_Duration = 20; break;
 	    case 's':	search (&searchval); Command_Duration = 20; break;
+        case 'C':   // chat
 	    case 't':	talk();		Command_Duration = 10; break;
 	    case 'v':	vault();	Command_Duration = Player.speed*10/5; break;
 	    case 'x':	examine();	Command_Duration = 1; break;
@@ -118,8 +120,9 @@ void p_process (void)
 	    case 'T':	tunnel();	Command_Duration = Player.speed*30/5; break;
 	    case 'V':	version(); break;
 	    case 'Z':	bash_item();	Command_Duration = Player.speed*10/5; break;
+        case ' ':
 	    case '.':	rest();		Command_Duration = 10; break;
-	    case ',':	nap();		Command_Duration = 10; break;
+	    case ':':	nap();		Command_Duration = 10; break;
 	    case '>':	downstairs(); break;
 	    case '<':	upstairs(); break;
 	    case '@':
@@ -221,6 +224,7 @@ void p_country_process (void)
 	Cmd = mgetc();
 	switch (Cmd) {
 	    case ' ':
+        case '\n':
 	    case KEY_ENTER:	no_op = true; break;
 	    case KEY_CTRL|'g':	wizard(); break;
 	    case KEY_CTRL|'l':	xredraw(); no_op = true; break;
@@ -740,6 +744,7 @@ void setoptions (void)
 		    break;
 		} // fallthrough
 	    case 'l':
+        case '\n':
 	    case KEY_ENTER:
 	    case KEY_RIGHT:
 		if (slot < NUMTFOPTIONS)
@@ -1635,6 +1640,7 @@ static void tacoptions (void)
 		showmenu();
 		Player.meleestr[place * 2] = '\0';
 		break;
+        case '\n':
 	    case KEY_ENTER:
 	    case KEY_ESCAPE:
 		done = true;
@@ -1980,5 +1986,5 @@ static void enter_site (chtype site)
     for (unsigned i = 0; i < ArraySize(c_Sitechar); ++i)
 	if (c_Sitechar[i] == site)
 	    return change_environment ((EEnvironment) c_DestEnv[i]);
-    mprint ("There's nothing to enter here!");
+    mprint ("There's nothing to enter here. Maybe try to hunt around instead?");
 }

@@ -1,0 +1,15 @@
+Version 0.1
+===========
+* Allow wishing for summoned creatures. Wishes should be rare and powerful.
+* Omegan countryside has undergone some changes.
+* Add unique titles for 100+ character levels.
+//* Show player's name and title on the screen.
+* Do some minor renaming, and name things that didn't have a proper name before.
+* Add a few command keys to better conform to classic roguelike control scheme.
+* Don't hide some overworld locations that are already hard to locate.
+* Don't always loose your horse when entering a dungeon. I see nothing wrong
+  with riding your horse inside of a dungeon.
+* Don't require confirmation even with CONFIRM option on when moving between
+  two squares of dangerous terrain.
+* Properly redraw screen when taking items out of pack.
+//* Add option for the normal and sensible clock time.

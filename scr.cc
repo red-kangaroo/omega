@@ -21,7 +21,7 @@ static WINDOW *Comwin, *Msgw;
 void phaseprint (void)
 {
     werase (Phasew);
-    wprintw (Phasew, "Moon's Phase:\n");
+    wprintw (Phasew, "Moon: ");
     switch (Phase / 2) {
 	case 0:		wprintw (Phasew, "NEW"); break;
 	case 1:
@@ -521,7 +521,7 @@ void morewait (void)
 	display = !display;
 	wrefresh (Morew);
 	c = wgetch (Morew);
-    } while (c != ' ' && c != KEY_ENTER && c != EOF);
+    } while (c != ' ' && c != KEY_ENTER && c != '\n' && c != EOF);
     werase (Morew);
     wrefresh (Morew);
 }
@@ -615,7 +615,7 @@ const char* msgscanstring (char crf, char crl)
 	if (c == KEY_ESCAPE || c == EOF) {
 	    instring[0] = 0;
 	    break;
-	} else if (c == KEY_ENTER)
+	} else if (c == KEY_ENTER || c == '\n')
 	    break;
 	else if (c == KEY_BACKSPACE && i > 0)
 	    --i;

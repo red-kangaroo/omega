@@ -42,8 +42,8 @@ chtype location::showchar (void) const noexcept
 	    case CAVES:
 	    case PASS:
 	    case STARPEAK:
-	    case VOLCANO:	return MOUNTAINS;
-	    case DRAGONLAIR:	return DESERT;
+	    case VOLCANO:
+	    case DRAGONLAIR:	return MOUNTAINS;
 	    case MAGIC_ISLE:	return CHAOS_SEA;
 	    default:		return WALL;
 	}
@@ -848,11 +848,11 @@ void load_country (void)
 		break;
 	    case char(CASTLE):
 		s.locchar = CASTLE;
-		s.lstatus |= SECRET;
+		// s.lstatus |= SECRET;
 		break;
 	    case char(STARPEAK):
 		s.locchar = STARPEAK;
-		s.lstatus |= SECRET;
+		// s.lstatus |= SECRET;
 		break;
 	    case char(CAVES):
 		s.locchar = CAVES;
@@ -864,7 +864,7 @@ void load_country (void)
 		break;
 	    case char(DRAGONLAIR):
 		s.locchar = DRAGONLAIR;
-		s.lstatus |= SECRET;
+		// s.lstatus |= SECRET;
 		break;
 	    case char(MAGIC_ISLE):
 		s.locchar = MAGIC_ISLE;
@@ -888,6 +888,9 @@ void load_country (void)
 		s.locchar = TEMPLE;
 		s.aux = sc - '1';
 		break;
+        // Several TODO terrains/locations, replace with plains for now:
+        case 'x': case 'y': case 'z': // villages
+        case ';': // demon desolation
 	    case char(PLAINS):
 		s.locchar = PLAINS;
 		break;
@@ -912,6 +915,7 @@ void load_country (void)
 	    case char(JUNGLE):
 		s.locchar = JUNGLE;
 		break;
+        case '\'':
 	    case char(SWAMP):
 		s.locchar = SWAMP;
 		break;
