@@ -1416,23 +1416,23 @@ void change_environment (EEnvironment new_environment)
 	case E_CAVES:
 	    mprint ("You enter a dark cleft in a hillside;");
 	    mprint ("You note signs of recent passage in the dirt nearby.");
-	    if (gamestatusp (MOUNTED)) {
-		morewait();
-		mprint ("Seeing as you might not be coming back, you feel compelled");
-		mprint ("to let your horse go, rather than keep him hobbled outside.");
-		resetgamestatus (MOUNTED);
-		calc_melee();
-	    }
+	  //   if (gamestatusp (MOUNTED)) {
+		// morewait();
+		// mprint ("Seeing as you might not be coming back, you feel compelled");
+		// mprint ("to let your horse go, rather than keep him hobbled outside.");
+		// resetgamestatus (MOUNTED);
+		// calc_melee();
+	  //   }
 	    break;
 	case E_VOLCANO:
 	    mprint ("You pass down through the glowing crater.");
-	    if (gamestatusp (MOUNTED)) {
-		morewait();
-		mprint ("Seeing as you might not be coming back, you feel compelled");
-		mprint ("to let your horse go, rather than keep him hobbled outside.");
-		resetgamestatus (MOUNTED);
-		calc_melee();
-	    }
+	  //   if (gamestatusp (MOUNTED)) {
+		// morewait();
+		// mprint ("Seeing as you might not be coming back, you feel compelled");
+		// mprint ("to let your horse go, rather than keep him hobbled outside.");
+		// resetgamestatus (MOUNTED);
+		// calc_melee();
+	  //   }
 	    break;
 	case E_ASTRAL:
 	    mprint ("You are in a weird flickery maze.");
@@ -1444,19 +1444,19 @@ void change_environment (EEnvironment new_environment)
 	    break;
 	case E_CASTLE:
 	    mprint ("You cross the drawbridge. Strange forms move beneath the water.");
-	    if (gamestatusp (MOUNTED)) {
-		morewait();
-		mprint ("Seeing as you might not be coming back, you feel compelled");
-		mprint ("to let your horse go, rather than keep him hobbled outside.");
-		resetgamestatus (MOUNTED);
-	    }
+	  //   if (gamestatusp (MOUNTED)) {
+		// morewait();
+		// mprint ("Seeing as you might not be coming back, you feel compelled");
+		// mprint ("to let your horse go, rather than keep him hobbled outside.");
+		// resetgamestatus (MOUNTED);
+	  //   }
 	    break;
 	case E_SEWERS:
 	    mprint ("You pry open a manhole and descend into the sewers below.");
-	    if (gamestatusp (MOUNTED)) {
-		mprint ("You horse waits patiently outside the sewer entrance....");
-		dismount_steed();
-	    }
+	  //   if (gamestatusp (MOUNTED)) {
+		// mprint ("You horse waits patiently outside the sewer entrance....");
+		// dismount_steed();
+	  //   }
 	    break;
 	case E_COUNTRYSIDE:
 	    mprint ("You return to the fresh air of the open countryside.");
