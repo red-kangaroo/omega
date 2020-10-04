@@ -459,9 +459,9 @@ const char* ordinal (int number)
 const char* month (void)
 {
     static const char _months[] =
-	"Freeze\0" "Ice\0" "Mud\0" "Storm\0" "Breeze\0"
-	"Light\0" "Flame\0" "Broil\0" "Cool\0" "Haunt\0"
-	"Chill\0" "Dark\0" "Twixt\0";
+    "Frostmoot\0" "Deepsnow\0"  "Winterwane\0" "Rainmoot\0" "Palesun\0"
+    "Highsun\0"   "Firemoot\0"  "Firewane\0"   "Lowsun\0"   "Redfall\0"
+    "Snowmoot\0"  "Harrowing\0" "Fellnight\0"; //"Twixt\0"
     return zstrn (_months, (Date % 360) / 30, 13);
 }
 

@@ -137,7 +137,7 @@ long get_money (long limit)
 // pick up from some location x,y
 // Lift entire itemlist off ground, pass it to inventory control, which
 // may drop things back onto the now null ground
-void pickup_at (int x, int y)
+void pickup_at (int x, int y, bool to_backpack)
 {
     resetgamestatus (FAST_MOVE);
     vector<object> pickedup;
@@ -154,7 +154,7 @@ void pickup_at (int x, int y)
 	if (response == 'q')
 	    break;
 	else if (response == 'y') {
-	    gain_item (*o);
+	    gain_item (*o, to_backpack);
 	    --(o = pickedup.erase(o));
 	}
     }
@@ -442,7 +442,7 @@ int getitem (chtype itype)
 	return key_to_index (key);
 }
 
-void gain_item (const object& o)
+void gain_item (const object& o, bool to_backpack)
 {
     if (object_uniqueness(o) == UNIQUE_MADE)
 	set_object_uniqueness (o, UNIQUE_TAKEN);
@@ -450,7 +450,7 @@ void gain_item (const object& o)
 	mprint ("You gained some cash.");
 	Player.cash += o.basevalue;
 	dataprint();
-    } else if (optionp (PACKADD)) {
+    } else if (to_backpack) {
 	if (!get_to_pack (o)) {
 	    Player.possessions[O_UP_IN_AIR] = o;
 	    do_inventory_control();

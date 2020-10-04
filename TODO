@@ -1,0 +1,207 @@
+OMEGA++
+* map:
+   aux 1892 -> location names
+   dots: remove from names, add to many messages
+* speed as percentage
+* starting with Esc shouldn't give you 0 in all stats
+* rename doesn't allow backspace
+* inventory reshuffle
+   off-hand
+   shield strap
+   by letters!
+* fix location teleport after we changed their locations
+* add status effect shorthand instead of Vigorous/Poisoned on screen
+
+Ctrl+g - wizmode
+  knowledge command, also show CHEATED?
+  better wishing
+  death protection
+
+* status:
+   Missing (limb)
+   Heroism
+
+xyz - prepare for extra villages
+y - Xanadu
+z - Yuri, amazon freehold
+* many ruins on the semi-island near Rampart
+* god pillars
+
+* hawk as weapon
+* the travel (balance) stone to Rampart
+* MORE WAIT any key?
+* more grot
+* recheck hints, replace lore for moved locations
+
+UNDEAD_GUARDS
+* rework as too absolute order, DESTROYED_CHAOS
+* thief guild will be burned down
+* brothel, XX will send you to jail, as law became much stricter
+
+
+https://ascii.co.uk/art/omega
+* maybe more art for some screens?
+
+
+Commands:
+change E to equip inventory, i to pack
+(h)op off a horse?
+aim -> zap
+Activate -> a
+(z)bash -> (b)ash
+pick up: g,0
+exchange go/5 wait
+BOTH dungeon and country and manual entries!!
+
+* new Rampart:
+https://github.com/msharov/omega/blob/7459fea3f111c61c25386f169781c4a11b998335/data.cc#L1385
+https://github.com/msharov/omega/blob/7459fea3f111c61c25386f169781c4a11b998335/env.cc#L478
+
+
+Robe of the magi -> no AC, MP regen, reward for mage/sorc?
+
+Powered -> mechanical
+* Combat – breath + skill/acc
+* Scout – breath + speed
+
+Headgear:
+* Crown of gold; no special, but high price
+* Circlet of celerity, crown of heroism
+Cloak of ashes, warmth, reflection (rGaze), alchemy (rA)
+Cloak of flying
+Cloak of true sight?? -> robe of eyes
+holocaust cloak
+
+Black hole metal-studded club
+Black hole metal geat-axe
+
+Lance of Death?? -> Glass sword; 999 damage and shatters, very expensive
+Artifact Moon Axe based on phases of the Moon
+
+Fix special weapons:
+  I_EMPIRE
+
+Bell of opening – garage opener, but reusable
+Traps immunity
+* Ring of trap mastery
+* Cursed: trapping, never disarm, always trigger
+Ring of theft immunity, crystal skin (rA)
+New staffs/rods based on scrolls/potions:
+* I_TELEPORT, I_KNOWLEDGE, mapping
+
+Cosmic ray drain MP but increases POW
+
+Cyanide pill – instakill, high price
+Coffee, tea, bewerages?
+Vegetables/fruits with special effects
+
+Better pick up
+Ring of Isma's tear
+
+Alchemist
+Always buy corpses for at least level go
+Sell potions based on hour
+
+Jaffa
+Goa'uld
+
+Hythloth
+Demon desolation
+Swamp poisons/infects
+
+Wild elf archer
+Magic axe
+
+junkyard
+* all for 1gp
+
+* somehow allow player to shatter the mirror at oracle?
+* lore for KFC
+   colonel once of Legion, half secret is lizard with rings of regen, the other some unknown herbs he got when he found an island in the chaos sea
+
+Sewers
+* Water/mud corridors
+
+* lost limbs
+  * only player, if damage would kill
+
+acid cloud change
+ dmg = 20
+ dmg /=2 for both cloak and armor, not nearly negated
+
+see hunt(
+* also other areas? different msgs?
+
+city_move – also to go to stairs in dungeon
+
+calendar?
+* Phaseprint
+* lunestones, moon axe
+* rename months
+
+
+The Orb of Fire blasts you! - > immolates
+The Orb of Water blasts you! -> drains all moisture from your body!
+The Orb of Earth blasts you! -> crushes your bones, multiple bones fractures
+The Orb of Air blasts you! - > crackles with lightning
+* Also for all morewait
+
+* 24 hour clock option
+* displayfile -> art
+
+* Tunnel only with pickaxe, sell at explorer's
+* replace all bad '
+
+enter_site
+ mprint ("There's nothing to enter here. Maybe you could try to hunt around?");
+
+https://github.com/msharov/omega/blob/df3aa2dbe4e4f17f6c5ba7837a0281837451a79e/scr.cc#L746
+* print more status effects
+
+* colored status line
+* more transformations for corpses
+
+void bolt (
+* other damage types, new staves?
+m_sp_spell
+* 15 fball?
+
+worldmap
+* worlmap spells
+   change weather
+   change moon pahse
+* specific place on worldmap where you can cast ritual magic
+  * looks as normal plain, but different name
+  * if on full moon, permakills Death and it can never again show up, plus you're no longer killed by the Scythe
+  * if on new moon, ends the game with text that you killed yourself and depopulated the world
+
+* different maps for each temple?
+* spawn nymphs/satyrs in some place
+
+Lowercase unIDd names of artifacts:
+ runed spear-shaped talisman
+ jet scarab brooch
+ marble owl statuette
+ obsidian crescent pendant
+ gold mistletoe wreath
+ blue crystal chime
+* Same unIDd name for Planes and Yendor
+
+
+* show minutes, not just 10 minutes?
+
+m_talk:
+* mendicant priests should ask for money, if you give them enough alignment++; if you have none, they give you 1 gp for ale
+
+m
+* molds have no attacks, but multiply, grow on corpses and have annoying passives
+transparent mold - cannot be seen, and as it spreads...
+flux mold - tele attacker
+
+mi-go
+* these do have attacks
+
+----------
+mook (red)
+minion (yellow)
+hench(wo)man

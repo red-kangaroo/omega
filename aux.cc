@@ -10,7 +10,6 @@ static void drop_weapon(void);
 static void break_weapon(void);
 static void movecursor(int *x, int *y, int dx, int dy);
 static void gain_level(void);
-static const char* levelname (unsigned level) PURE;
 static unsigned expval (unsigned plevel);
 static void tacplayer(struct monster *m);
 static int player_hit(int hitmod, int hitloc, struct monster *m);
@@ -788,7 +787,7 @@ static const char* roomname (unsigned room)
 }
 
 // name of the player's experience level
-static const char* levelname (unsigned level)
+const char* levelname (unsigned level)
 {
     if (level < 101) {
 	static const char c_Levels[] =
@@ -1729,7 +1728,7 @@ static void outdoors_random_event (void)
 		    morewait();
 		    resetgamestatus (MOUNTED);
 		} else {
-		    mprint ("You notice you are riding a horse. Odd. Very odd....");
+		    mprint ("You notice you are riding a horse. Odd. Very odd...");
 		    morewait();
 		    mprint ("Now that's a horse of a different color!");
 		    morewait();
@@ -2144,7 +2143,7 @@ const char* countryid (int terrain)
 	"A frosty stretch of tundra\0"
 	"A paved highway\0"
 	"A secret mountain pass\0"
-	"A rolling river\0"
+	"A roiling river\0"
 	"The city of Rampart\0"
 	"A rural village\0"
 	"A verdant forest\0"
@@ -2152,14 +2151,14 @@ const char* countryid (int terrain)
 	"A swampy fen\0"
 	"A huge active volcano\0"
 	"An imposing castle\0"
-	"A mysterious mountain.\0"
-	"A cavern filled with treasure.\0"
-	"An island emanating magic.\0"
+	"A mysterious mountain peak\0"
+	"A cavern filled with treasure\0"
+	"An island emanating magic\0"
 	"A hidden cave entrance\0"
 	"A neoclassical temple\0"
 	"A sere desert\0"
 	"The Sea of Chaos\0"
-	"I have no idea.\0";
+	"You have no idea.\0";
 
     unsigned i; const uint8_t tval = terrain & 0xff;
     for (i = 0; i < ArraySize(_terrains); ++i)

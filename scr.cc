@@ -189,7 +189,7 @@ void initgraf (void)
     Dataw = newwin (2, 80, ScreenLength + 4, 0);
     Timew = newwin (2, 15, 4, 65);
     Phasew = newwin (2, 15, 6, 65);
-    Flagw = newwin (4, 15, 9, 65);
+    Flagw = newwin (4, 15, 8, 65);
     Comwin = newwin (8, 15, 14, 65);
 
     noecho();
@@ -446,13 +446,20 @@ chtype getspot (int x, int y, int showmonster)
 void timeprint (void)
 {
     werase (Timew);
-    wprintw (Timew, "%d:%d", showhour(), showminute());
-    if (showminute() == 0)
-	waddch (Timew, '0');
-    wprintw (Timew, hour() > 11 ? " PM \n" : " AM \n");
+    if(optionp (HOUR)){
+      if(hour() == 0)
+        waddch (Timew, '0');
+      wprintw (Timew, "%d:%d", hour(), showminute());
+    } else
+      wprintw (Timew, "%d:%d", showhour(), showminute());
+    if(showminute() == 0)
+      waddch (Timew, '0');
+    if(!optionp (HOUR))
+      wprintw (Timew, hour() > 11 ? " PM \n" : " AM \n");
+    else
+      waddch (Timew, '\n');
+    wprintw (Timew, "%d%s ", day(), ordinal(day()));
     wprintw (Timew, month());
-    wprintw (Timew, " the %d", day());
-    wprintw (Timew, ordinal (day()));
     wrefresh (Timew);
 }
 
@@ -463,7 +470,7 @@ void comwinprint (void)
     wprintw (Comwin, "Dmg: %d  \n", Player.dmg);
     wprintw (Comwin, "Def: %d  \n", Player.defense);
     wprintw (Comwin, "Arm: %d  \n", Player.absorption);
-    wprintw (Comwin, "Spd: %d.%d  \n", 5 / Player.speed, 500 / Player.speed % 100);
+    wprintw (Comwin, "Spd: %d.%d  \n", 5 / Player.speed, 500 / Player.speed % 100); //TODO as percentage
     wrefresh (Comwin);
 }
 
@@ -472,8 +479,8 @@ void dataprint (void)
     werase (Dataw);
     // WDT HACK: I should make these fields spaced and appropriately justified.
     // Maybe I don't feel like it right now.
-    wprintw (Dataw, "Hp:%d/%d Mana:%d/%d Au:%d Level:%d/%d Carry:%d/%d \n", Player.hp, Player.maxhp, Player.mana, Player.maxmana, Player.cash, Player.level, Player.xp, Player.itemweight, Player.maxweight);
-    wprintw (Dataw, "Str:%d/%d Con:%d/%d Dex:%d/%d Agi:%d/%d Int:%d/%d Pow:%d/%d   ", Player.str, Player.maxstr, Player.con, Player.maxcon, Player.dex, Player.maxdex, Player.agi, Player.maxagi, Player.iq, Player.maxiq, Player.pow, Player.maxpow);
+    wprintw (Dataw, "%s the %s  Str:%d Dex:%d Agi:%d Con:%d IQ:%d MP:%d \n", Player.name.c_str(), levelname(Player.level), Player.str, Player.dex, Player.agi, Player.con, Player.iq, Player.pow);
+    wprintw (Dataw, "HP:%d/%d Mana:%d/%d Au:%d XP:%d/%d Carry:%d/%d ", Player.hp, Player.maxhp, Player.mana, Player.maxmana, Player.cash, Player.level, Player.xp, Player.itemweight, Player.maxweight);
     wrefresh (Dataw);
 }
 
@@ -727,7 +734,7 @@ void showflags (void)
     phaseprint();
     werase (Flagw);
     if (Player.food < 0)
-	wprintw (Flagw, "Starving\n");
+	wprintw (Flagw, "Starving!\n");
     else if (Player.food <= 3)
 	wprintw (Flagw, "Weak\n");
     else if (Player.food <= 10)
@@ -760,6 +767,7 @@ void showflags (void)
     else
 	wprintw (Flagw, "Afoot\n");
 
+    //TODO: status effects
     wrefresh (Flagw);
 }
 
@@ -925,7 +933,7 @@ void display_possessions (unsigned selection)
 void display_options (unsigned selection)
 {
     static const char optionText[NUMTFOPTIONS][10] =
-	{ "BELLICOSE", "JUMPMOVE ", "RUNSTOP  ", "PICKUP   ", "CONFIRM  ", "PACKADD  ", "COMPRESS " };
+	{ "BELLICOSE", "JUMPMOVE ", "RUNSTOP  ", "PICKUP   ", "CONFIRM  ", "COMPRESS ", "HOUR     " };
     werase (Menuw);
     for (unsigned i = 0; i < NUMTFOPTIONS; ++i) {
 	if (selection == i)	wstandout(Menuw);

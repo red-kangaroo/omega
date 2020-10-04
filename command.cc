@@ -92,7 +92,7 @@ void p_process (void)
 	    case 'd':	drop();		Command_Duration = Player.speed*5/5; break;
 	    case 'e':	eat();		Command_Duration = 30; break;
 	    case 'f':	fire();		Command_Duration = Player.speed*5/5; break;
-        case ',':   //TODO: pickup to pack?
+        case ',':   pickup(true);	Command_Duration = Player.speed*10/5; break;
 	    case 'g':	pickup();	Command_Duration = Player.speed*10/5; break;
 	    case 'i':	do_inventory_control(); break;
 	    case 'm':	magic();	Command_Duration = 12; break;
@@ -411,14 +411,14 @@ static void search (int *searchval)
 }
 
 // pick up a thing where the player is
-void pickup (void)
+void pickup (bool to_backpack)
 {
     if (!Level->thing(Player.x, Player.y))
 	mprint ("There's nothing there!");
     else if (Player.status[SHADOWFORM])
 	mprint ("You can't really interact with the real world in your shadowy state.");
     else
-	pickup_at (Player.x, Player.y);
+	pickup_at (Player.x, Player.y, to_backpack);
 }
 
 void drop (void)
@@ -1026,7 +1026,7 @@ static void moveplayer (int dx, int dy)
 
 	if (Player.status[IMMOBILE] > 0) {
 	    resetgamestatus (FAST_MOVE);
-	    mprint ("You are unable to move");
+	    mprint ("You are unable to move.");
 	} else if (Player.maxweight < Player.itemweight && random_range (2) && !Player.status[LEVITATING]) {
 	    if (gamestatusp (MOUNTED)) {
 		mprint ("Your horse refuses to carry you and your pack another step!");
@@ -1075,13 +1075,19 @@ static void moveplayer (int dx, int dy)
 // check a move attempt in the countryside
 static bool p_country_moveable (int x, int y)
 {
-    if (!inbounds (x, y))
-	return false;
-    else if (optionp(CONFIRM) &&
-		(Level->site(x,y).showchar() == CHAOS_SEA ||
-		 Level->site(x,y).showchar() == MOUNTAINS))
-	return confirmation();
-    return true;
+    if(!inbounds(x, y))
+	  return false;
+    else if(Level->site(x,y).showchar() == CHAOS_SEA ||
+            Level->site(x,y).showchar() == MOUNTAINS ||
+            Level->site(x,y).showchar() == RIVER) {
+      if(Level->site(x,y).showchar() == RIVER && Player.status[MOUNTED])
+        return true;
+      else if(Player.status[LEVITATING])
+        return confirmation();
+      else
+        return false;
+    } else
+      return true;
 }
 
 // handle a h,j,k,l, etc.
@@ -1117,7 +1123,7 @@ static void movepincountry (int dx, int dy)
 	}
 	if (p_country_moveable (Player.x + dx, Player.y + dy)) {
 	    if (Player.status[IMMOBILE] > 0)
-		mprint ("You are unable to move");
+		mprint ("You are unable to move.");
 	    else {
 		Player.x += dx;
 		Player.y += dy;
@@ -1447,7 +1453,7 @@ static void vault (void)
 	jumper = 2;
     if (Player.status[IMMOBILE] > 0) {
 	resetgamestatus (FAST_MOVE);
-	mprint ("You are unable to move");
+	mprint ("You are unable to move.");
     } else {
 	setgamestatus (SKIP_MONSTERS);
 	mprint ("Jump where?");

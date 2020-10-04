@@ -48,12 +48,13 @@ bool hostilemonstersnear (void);
 int stonecheck (int alignment);
 void alert_guards (void);
 unsigned maneuvers (void);
+const char* levelname (unsigned level) PURE;
 // char.c
 void initplayer (void);
 // command.c
 void p_process (void);
 void p_country_process (void);
-void pickup (void);
+void pickup (bool to_backpack=false);
 void drop (void);
 void setoptions (void);
 void bash_item (void);
@@ -199,7 +200,7 @@ void drop_at (int x, int y, const object& o);
 void p_drop_at (int x, int y, const object& o, unsigned n);
 int find_and_remove_item (int id, int chargeval);
 object* find_item (int id);
-void gain_item (const object& o);
+void gain_item (const object& o, bool to_backpack=false);
 long get_money (long limit);
 int getitem (chtype itype);
 void givemonster (monster& m, const object& o);
@@ -207,7 +208,7 @@ char index_to_key (unsigned i);
 const char* itemid (pob obj);
 inline const char* itemid (object& obj) { return itemid (&obj); }
 void lose_all_items (void);
-void pickup_at (int x, int y);
+void pickup_at (int x, int y, bool to_backpack=false);
 object split_item (const object& item, unsigned n);
 // item.c
 void item_use (struct object *o);

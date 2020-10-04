@@ -4739,7 +4739,7 @@ void l_oracle (void)
 	    mprint ("The oracle replaces her hood and seems to fade away....");
 	}
     } else if (response == 'm') {
-	mprint ("You seem to see yourself. Odd....");
+	mprint ("You seem to see yourself. Odd...");
 	knowledge (1);
     } else
 	mprint ("You leave this immanent place.");

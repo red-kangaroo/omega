@@ -769,9 +769,9 @@ void knowledge (int blessing)
     else {
 	mprint ("You feel knowledgeable!");
 	menuclear();
-	menuprint ("Current Point Total: ");
+	menuprint ("Current Score: ");
 	menulongprint (calc_points());
-	menuprint ("\nAlignment:");
+	menuprint ("\nAlignment: ");
 	if (Player.alignment == 0)
 	    menuprint ("Neutral, embodying the Cosmic Balance");
 	else if (absv (Player.alignment) < 10)
@@ -794,7 +794,47 @@ void knowledge (int blessing)
 	showmenu();
 	morewait();
 	menuclear();
-	menuprint ("Current stati:\n");
+    menuprint ("Attributes:");
+    menuprint ("\n Strength:     ");
+    menunumprint (Player.str);
+    menuprint ("/");
+    menunumprint (Player.maxstr);
+    menuprint ("\n Dexterity:    ");
+    menunumprint (Player.dex);
+    menuprint ("/");
+    menunumprint (Player.maxdex);
+    menuprint ("\n Agility:      ");
+    menunumprint (Player.agi);
+    menuprint ("/");
+    menunumprint (Player.maxagi);
+    menuprint ("\n Constitution: ");
+    menunumprint (Player.con);
+    menuprint ("/");
+    menunumprint (Player.maxcon);
+    menuprint ("\n Intelligence: ");
+    menunumprint (Player.iq);
+    menuprint ("/");
+    menunumprint (Player.maxiq);
+    menuprint ("\n Magic Power:  ");
+    menunumprint (Player.pow);
+    menuprint ("/");
+    menunumprint (Player.maxpow);
+    // menuprint ("\n\n Health: ");
+    // menunumprint (Player.hp);
+    // menuprint ("/");
+    // menunumprint (Player.maxhp);
+    // menuprint ("\n Mana:   ");
+    // menunumprint (Player.mana);
+    // menuprint ("/");
+    // menunumprint (Player.maxmana);
+    // menuprint ("\n\n Carried Weight: ");
+    // menunumprint (Player.itemweight);
+    // menuprint ("/");
+    // menunumprint (Player.maxweight);
+    showmenu();
+	morewait();
+	menuclear();
+	menuprint ("Status Effects:\n");
 	if (Player.status[BLINDED])
 	    menuprint ("Blinded\n");
 	if (Player.status[SLOWED])
@@ -1109,7 +1149,7 @@ void flux (int blessing UNUSED)
 	mprint ("The fabric of spacetime reknits....");
 	change_level (Level->depth - 1, Level->depth, true);
     } else
-	mprint ("Odd.... No effect!");
+	mprint ("Odd... No effect!");
 }
 
 //Turns on displacement status for the player
