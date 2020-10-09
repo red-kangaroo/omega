@@ -1887,18 +1887,20 @@ void terrain_check (bool takestime)
 	}
     }
     switch (Level->site(Player.x,Player.y).showchar()) {
+
 	case RIVER:
-	    if (Player.y < 6 && Player.x > 20)
-		locprint ("Star Lake.");
-	    else if (Player.y < 41) {
-		if (Player.x < 10)
-		    locprint ("Aerie River.");
-		else
-		    locprint ("The Great Flood.");
-	    } else if (Player.x < 42)
-		locprint ("The Swamp Runs.");
-	    else
-		locprint ("River Greenshriek.");
+        if(Player.x < 11 && Player.y < 10)
+          locprint ("The Aerie River");
+        else if(Player.y < 43) {
+        if(Player.y < 9)
+          locprint ("The Icedale River");
+        else
+          locprint ("The Great Flood");
+        } else if(Player.x < 43)
+          locprint ("The Swamp Runs");
+        else
+          locprint ("River Greenshriek");
+
 	    if (takestime) {
 		for (unsigned i = 0; i < 3; ++i) {
 		    Time += 60;
@@ -1906,15 +1908,44 @@ void terrain_check (bool takestime)
 		}
 	    }
 	    break;
+    case LAKE:
+        if(Player.x < 11){
+        if(Player.y < 3)
+          locprint ("The Bottomless Lake");
+        else if(Player.y > 50)
+          locprint ("The Mirror Lake");
+        } else if(Player.y < 6){
+        if(Player.x > 25 && Player.x < 35)
+          locprint ("The Lost Lake");
+        else if(Player.x > 35)
+          locprint ("The Starstruck Lake");
+        } else
+          locprint ("The Marble Lake");
+
+	    if (takestime) {
+		for (unsigned i = 0; i < 4; ++i) {
+		    Time += 60;
+		    hourly_check();
+		}
+	    }
+	    break;
 	case ROAD:
-	    locprint ("A well-maintained road.");
+        if(Player.y > 40)
+          locprint ("A poorly maintained road");
+        else
+          locprint ("A well-maintained road");
+
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
 	    }
 	    break;
 	case PLAINS:
-	    locprint ("A rippling sea of grass.");
+        if(Player.y < 55)
+          locprint ("A rippling sea of grass");
+        else
+          locprint ("A flower field");
+
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
@@ -1925,7 +1956,8 @@ void terrain_check (bool takestime)
 	    }
 	    break;
 	case TUNDRA:
-	    locprint ("The Great Northern Wastes.");
+	    locprint ("An endless expanse of tundra");
+
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
@@ -1936,12 +1968,15 @@ void terrain_check (bool takestime)
 	    }
 	    break;
 	case FOREST:
-	    if (Player.y < 10)
-		locprint ("The Deepwood.");
-	    else if (Player.y < 18)
-		locprint ("The Forest of Erelon.");
-	    else if (Player.y < 46)
-		locprint ("The Great Forest.");
+        if(Player.y < 10)
+          locprint ("The Deepwood");
+        else if(Player.y < 18)
+          locprint ("The Forest of Erelon");
+        else if(Player.y < 46)
+          locprint ("The Great Forest");
+        else if(Player.y > 52)
+          locprint ("The Emerald Woods");
+
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
@@ -1956,7 +1991,8 @@ void terrain_check (bool takestime)
 	    }
 	    break;
 	case JUNGLE:
-	    locprint ("Greenshriek Jungle.");
+	    locprint ("The Greenshriek Jungle");
+
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
@@ -1971,7 +2007,11 @@ void terrain_check (bool takestime)
 	    }
 	    break;
 	case DESERT:
-	    locprint ("The Waste of Time.");
+        if(Player.x < 15)
+          locprint ("Coastal dunes");
+        else
+          locprint ("The Waste of Time");
+
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
@@ -1985,15 +2025,61 @@ void terrain_check (bool takestime)
 		}
 	    }
 	    break;
+    case PASS:
+	    // locprint ("A hidden mountain pass");
+	    if (takestime) {
+		Time += 60;
+		hourly_check();
+	    }
+        // Fallthrough to mountain names, but take less time than when travelling
+        // through mountains.
+        takestime = false;
+	    //fallthrough
 	case MOUNTAINS:
-	    if ((Player.y < 9) && (Player.x < 12))
-		locprint ("The Magic Mountains");
-	    else if ((Player.y < 9) && (Player.y > 2) && (Player.x < 40))
-		locprint ("The Peaks of the Fist.");
-	    else if (Player.x < 52)
-		locprint ("The Rift Mountains.");
-	    else
-		locprint ("Borderland Mountains.");
+        // Lone mountains:
+        if((Player.x == 6) && (Player.y == 9))
+          locprint ("Mount Blackrock");
+        else if((Player.x == 7) && (Player.y == 14))
+          locprint ("The Lone Watchman");
+        else if((Player.x == 52) && (Player.y == 54))
+          locprint ("The Godpillar");
+        else if((Player.x == 35) && (Player.y == 50))
+          locprint ("The Sand Giant");
+        else if((Player.x == 42) && (Player.y == 59))
+          locprint ("The Kingspire");
+        else if((Player.x == 45) && (Player.y == 60))
+          locprint ("The Queenspire");
+        // Mountain ranges:
+        else if((Player.y > 50) && (Player.x < 4))
+          locprint ("The Crystal Mountains");
+        else if((Player.y > 30) && (Player.x < 15))
+          locprint ("The Cliffs of Insanity");
+        else if((Player.y > 56) && (Player.x > 53))
+          locprint ("The Slopes of Serendipity");
+        else if((Player.y < 9) && (Player.x < 21))
+          locprint ("The Enchanted Mountains");
+        else if((Player.y < 9) && (Player.x < 47))
+          locprint ("The Icewind Slopes");
+        else if((Player.y < 10) && (Player.x > 46))
+          locprint ("The Peaks of the Night");
+        else if((Player.y < 27) && (Player.x > 50))
+          locprint ("The Great Barrier Mountains");
+        else if((Player.y > 26) && (Player.y < 50) && (Player.x > 30))
+          locprint ("The Dragonspine Mountains");
+        else if((Player.y > 49) && (Player.y < 58) &&
+                (Player.x > 36) && (Player.x < 47))
+          locprint ("The Verdant Mountains");
+        else if((Player.y > 49) && (Player.x > 53))
+          locprint ("The Dragonspine Mountains");
+        else if((Player.y > 50))
+          locprint ("The Marsh Highlands");
+        else if((Player.y > 47))
+          locprint ("The Hills of the Hidden Moon");
+        else if((Player.y > 42))
+          locprint ("The The Barren Rise");
+        else
+          locprint ("The Borderland Mountains");
+
 	    if (takestime) {
 		for (unsigned i = 0; i < 5u+3*!faster; ++i) {
 		    Time += 60;
@@ -2001,25 +2087,20 @@ void terrain_check (bool takestime)
 		}
 	    }
 	    break;
-	case PASS:
-	    locprint ("A hidden pass.");
-	    if (takestime) {
-		Time += 60;
-		hourly_check();
-	    }
-	    break;
 	case CHAOS_SEA:
-	    locprint ("The Sea of Chaos.");
+	    locprint ("The Sea of Chaos");
+
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
 	    }
-	    mprint ("You have entered the sea of chaos...");
+	    mprint ("You have entered the Sea of Chaos...");
 	    morewait();
 	    l_chaos();
 	    break;
 	case SWAMP:
-	    locprint ("The Loathly Swamp.");
+	    locprint ("The Brine Swamp");
+
 	    if (takestime) {
 		for (unsigned i = 0; i < 6u+2*!faster; ++i) {
 		    Time += 60;
@@ -2032,17 +2113,18 @@ void terrain_check (bool takestime)
 		resetgamestatus (LOST);
 		mprint ("Well, I guess you know where you are now...");
 	    }
-	    locprint ("Outside Rampart, the city.");
+	    locprint ("Outside Rampart, the ducal city of Erelon");
 	    break;
 	case VILLAGE:
 	    if (gamestatusp (LOST)) {
 		resetgamestatus (LOST);
-		mprint ("The village guards let you know where you are....");
+		mprint ("The village guards let you know where you are.");
 	    }
-	    locprint ("Outside a small village.");
+	    locprint ("Outside a small village");
 	    break;
 	case CAVES:
-	    locprint ("A deserted hillside.");
+	    locprint ("A deserted hillside");
+
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
@@ -2050,15 +2132,15 @@ void terrain_check (bool takestime)
 	    mprint ("You notice a concealed entrance into the hill.");
 	    break;
 	case CASTLE:
-	    locprint ("Near a fortified castle.");
+	    locprint ("Near a fortified castle");
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
 	    }
-	    mprint ("The castle is hewn from solid granite. The drawbridge is down.");
+	    mprint ("The castle is hewn from solid obsidian. The drawbridge is down.");
 	    break;
 	case VOLCANO:
-	    locprint ("HellWell Volcano.");
+	    locprint ("The Hellwell Volcano");
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
@@ -2067,7 +2149,7 @@ void terrain_check (bool takestime)
 	    break;
 	case TEMPLE:
 	    static const char c_TempleDesc[] =
-		"\0A rough-hewn granite temple.\0"
+		"A rough-hewn granite temple.\0"
 		"A black pyramidal temple made of sandstone.\0"
 		"A classical marble-columned temple.\0"
 		"A temple of ebony adorned with ivory.\0"
@@ -2089,7 +2171,7 @@ void terrain_check (bool takestime)
 	    mprint ("There is a narrow causeway to the island from here.");
 	    break;
 	case STARPEAK:
-	    locprint ("Star Peak.");
+	    locprint ("The Star Peak");
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
@@ -2097,7 +2179,7 @@ void terrain_check (bool takestime)
 	    mprint ("The top of the mountain seems to glow with a allochroous aura.");
 	    break;
 	case DRAGONLAIR:
-	    locprint ("A rocky chasm.");
+	    locprint ("A rocky chasm");
 	    if (takestime) {
 		Time += 60;
 		hourly_check();
@@ -2135,7 +2217,8 @@ const char* countryid (int terrain)
 	MOUNTAINS & 0xff, PLAINS & 0xff, TUNDRA & 0xff, ROAD & 0xff, PASS & 0xff,
 	RIVER & 0xff, CITY & 0xff, VILLAGE & 0xff, FOREST & 0xff, JUNGLE & 0xff,
 	SWAMP & 0xff, VOLCANO & 0xff, CASTLE & 0xff, STARPEAK & 0xff, DRAGONLAIR & 0xff,
-	MAGIC_ISLE & 0xff, CAVES & 0xff, TEMPLE & 0xff, DESERT & 0xff, CHAOS_SEA & 0xff
+	MAGIC_ISLE & 0xff, CAVES & 0xff, TEMPLE & 0xff, DESERT & 0xff, CHAOS_SEA & 0xff,
+    LAKE & 0xff
     };
     static const char _terrain_names[] =
 	"Almost impassable mountains\0"
@@ -2158,6 +2241,7 @@ const char* countryid (int terrain)
 	"A neoclassical temple\0"
 	"A sere desert\0"
 	"The Sea of Chaos\0"
+    "A deep lake\0"
 	"You have no idea.\0";
 
     unsigned i; const uint8_t tval = terrain & 0xff;

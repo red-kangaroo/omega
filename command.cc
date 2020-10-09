@@ -1079,7 +1079,8 @@ static bool p_country_moveable (int x, int y)
 	  return false;
     else if(Level->site(x,y).showchar() == CHAOS_SEA ||
             Level->site(x,y).showchar() == MOUNTAINS ||
-            Level->site(x,y).showchar() == RIVER) {
+            Level->site(x,y).showchar() == RIVER ||
+            Level->site(x,y).showchar() == LAKE) {
       if(Level->site(x,y).showchar() == RIVER && Player.status[MOUNTED])
         return true;
       else if(Player.status[LEVITATING])
@@ -1859,6 +1860,12 @@ static void hunt (int terrain)
 	    break;
 	case RIVER:
 	    mprint ("The halcyon river is your hopeful food source...");
+	    Time += 100;
+	    hourly_check();
+	    fertility = 80;
+	    break;
+    case LAKE:
+	    mprint ("The deep lake is your hopeful food source...");
 	    Time += 100;
 	    hourly_check();
 	    fertility = 80;

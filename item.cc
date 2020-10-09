@@ -1743,7 +1743,7 @@ static void i_stargem (pob o)
 	Player.y = 3;
 	screencheck (3);
 	drawvision (Player.x, Player.y);
-	locprint ("Star Peak");
+	locprint ("The Star Peak");
 	lreset (Player.x, Player.y, SECRET);
 	lset (Player.x, Player.y, CHANGED);
 	mprint ("The Star Gem's brilliance seems to fade.");

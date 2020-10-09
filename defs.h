@@ -312,6 +312,7 @@ enum EObjchar : chtype {
     MOUNTAINS	= ('^' | CLR_GREY_BLACK),
     PASS		= ('v' | CLR_BROWN_BLACK),
     RIVER		= ('~' | CLR_BLUE_BLACK),
+    LAKE        = ('`' | CLR_BLUE_BLACK),
     CITY		= ('O' | CLR_WHITE_BLACK),
     VILLAGE		= ('o' | CLR_WHITE_BLACK),
     FOREST		= ('(' | CLR_LIGHT_GREEN_BLACK),

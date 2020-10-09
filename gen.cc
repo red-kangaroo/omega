@@ -379,7 +379,7 @@ static void install_specials (void)
     }
 }
 
-// For each level, there should be one stairway going up and one down. 
+// For each level, there should be one stairway going up and one down.
 static void make_stairs (void)
 {
     int i, j;
@@ -427,6 +427,7 @@ static void make_country_screen (char terrain)
 	case char(FOREST):	make_forest(); break;
 	case char(JUNGLE):	make_jungle(); break;
 	case char(SWAMP):	make_swamp(); break;
+    case char(LAKE):
 	case char(RIVER):	make_river(); break;
 	case char(MOUNTAINS):
 	case char(PASS):	make_mountains(); break;
@@ -456,6 +457,7 @@ static void make_country_monsters (char terrain)
     switch (terrain) {
 	case char(FOREST):	monsters = forest; break;
 	case char(JUNGLE):	monsters = jungle; break;
+    case char(LAKE):
 	case char(RIVER):	monsters = river;  break;
 	case char(SWAMP):	monsters = swamp;  break;
 	case char(DESERT):	monsters = desert; break;

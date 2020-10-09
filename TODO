@@ -1,31 +1,39 @@
 OMEGA++
 * map:
    aux 1892 -> location names
-   dots: remove from names, add to many messages
+
+The Right/Left Fang
+The Barrow Heights
+The Lost Hills
+
+* prepare for extra villages
+   x - Xanadu
+   y - Yuri, amazon freehold
+   z - Noyel
+* many ruins on the semi-island near Rampart
+* add random NPCs (low/high level) to Rampart and villages
+* on crit, horse can be killed under you
+
+* dots: remove from names, add to many messages, 4->3
 * speed as percentage
+* color name+rank with background based on remaining HP
 * starting with Esc shouldn't give you 0 in all stats
 * rename doesn't allow backspace
 * inventory reshuffle
    off-hand
    shield strap
    by letters!
-* fix location teleport after we changed their locations
 * add status effect shorthand instead of Vigorous/Poisoned on screen
 
 Ctrl+g - wizmode
   knowledge command, also show CHEATED?
-  better wishing
+  better wishing; new wishes, Death summons Death
   death protection
 
 * status:
    Missing (limb)
    Heroism
-
-xyz - prepare for extra villages
-y - Xanadu
-z - Yuri, amazon freehold
-* many ruins on the semi-island near Rampart
-* god pillars
+* explorer's guild gives points for climbing mountains?
 
 * hawk as weapon
 * the travel (balance) stone to Rampart
@@ -38,10 +46,8 @@ UNDEAD_GUARDS
 * thief guild will be burned down
 * brothel, XX will send you to jail, as law became much stricter
 
-
 https://ascii.co.uk/art/omega
 * maybe more art for some screens?
-
 
 Commands:
 change E to equip inventory, i to pack
@@ -64,6 +70,8 @@ Powered -> mechanical
 * Combat – breath + skill/acc
 * Scout – breath + speed
 
+* add head, gloves slots
+* belts for belt slots
 Headgear:
 * Crown of gold; no special, but high price
 * Circlet of celerity, crown of heroism
@@ -76,6 +84,7 @@ Black hole metal-studded club
 Black hole metal geat-axe
 
 Lance of Death?? -> Glass sword; 999 damage and shatters, very expensive
+Eye of Larn - detect monsters
 Artifact Moon Axe based on phases of the Moon
 
 Fix special weapons:
@@ -151,9 +160,6 @@ The Orb of Air blasts you! - > crackles with lightning
 
 * Tunnel only with pickaxe, sell at explorer's
 * replace all bad '
-
-enter_site
- mprint ("There's nothing to enter here. Maybe you could try to hunt around?");
 
 https://github.com/msharov/omega/blob/df3aa2dbe4e4f17f6c5ba7837a0281837451a79e/scr.cc#L746
 * print more status effects

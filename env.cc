@@ -906,6 +906,9 @@ void load_country (void)
 	    case char(RIVER):
 		s.locchar = RIVER;
 		break;
+        case char(LAKE):
+		s.locchar = LAKE;
+		break;
 	    case char(CITY):
 		s.locchar = CITY;
 		break;

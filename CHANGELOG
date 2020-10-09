@@ -17,5 +17,4 @@ Version 0.1
 * Properly redraw screen when taking items out of pack.
 * Switch a few symbols around.
 * Do some minor renaming, and name things that didn't have a proper name before.
-* Allow wishing for summoned creatures. Wishes should be rare and powerful.
 * Add attributes to self-knowledge screen.

@@ -575,7 +575,7 @@ void wish (int blessing)
 	else
 	    learn_spell(i);
     } else if (strcmp (wishstr, "Health") == 0) {
-	mprint ("You feel vigorous");
+	mprint ("You feel vigorous.");
 	Player.food = 40;
 	toggle_item_use (true);
 	Player.str = max (Player.str, Player.maxstr);
@@ -594,8 +594,8 @@ void wish (int blessing)
     else if (strcmp (wishstr, "Acquisition") == 0)
 	acquire (gamestatusp (CHEATED));
     else if (strcmp (wishstr, "Summoning") == 0)
-    //summon (gamestatusp (CHEATED), -1);
-    summon (1, -1); // Wish should be powerful, after all.
+    summon (gamestatusp (CHEATED), -1);
+    //summon (1, -1); // Wish should be powerful, after all.
     else if (strcmp (wishstr, "Stats") == 0 && gamestatusp (CHEATED)) {
 	Player.str = Player.maxstr = Player.con = Player.maxcon = Player.agi = Player.maxagi = Player.dex = Player.maxdex = Player.iq = Player.maxiq = Player.pow = Player.maxpow = 200;
 	calc_melee();
@@ -1921,9 +1921,9 @@ void strategic_teleport (int blessing)
 	    Player.y = random_range (Level->height);
 	} while (Level->site(Player.x,Player.y).locchar == CHAOS_SEA);
     } else {
-	mprint ("Below each portal is a caption. Enter which one:");
+	mprint ("Each portal is marked with an eldritch rune. Enter which portal:");
 	menuclear();
-	menuprint ("a: Rampart\n");
+	menuprint ("a: City of Rampart\n");
 	menuprint ("b: Village of Star View\n");
 	menuprint ("c: Village of Woodmere\n");
 	menuprint ("d: Village of Stormwatch\n");
@@ -1934,12 +1934,13 @@ void strategic_teleport (int blessing)
 	menuprint ("i: The Parthenon\n");
 	menuprint ("j: Temple of the Black Hand\n");
 	menuprint ("k: Temple of the Hidden Moon\n");
-	menuprint ("l: WoodHenge\n");
+	menuprint ("l: The Woodhenge\n");
 	menuprint ("m: Temple of Destiny\n");
-	menuprint ("n: HellWell Volcano\n");
-	if (gamestatusp (CHEATED))
-	    menuprint ("z: Anywhere\n");
-	menuprint ("ANYTHING ELSE: Avoid entering a portal.");
+	menuprint ("n: The Hellwell Volcano\n");
+    // menuprint ("x: Xanadu\n");
+    // menuprint ("y: Yuri\n");
+    // menuprint ("z: Noyel\n");
+	menuprint ("Anything else will avoid entering a portal.");
 	showmenu();
 	switch ((char) mcigetc()) {
 	    case 'a':
@@ -1949,13 +1950,13 @@ void strategic_teleport (int blessing)
 		break;
 	    case 'b':
 		change_environment (E_COUNTRYSIDE);
-		Player.x = 56;
-		Player.y = 5;
+		Player.x = 55;
+		Player.y = 4;
 		break;
 	    case 'c':
 		change_environment (E_COUNTRYSIDE);
 		Player.x = 35;
-		Player.y = 11;
+		Player.y = 10;
 		break;
 	    case 'd':
 		change_environment (E_COUNTRYSIDE);
@@ -1974,28 +1975,28 @@ void strategic_teleport (int blessing)
 		break;
 	    case 'g':
 		change_environment (E_COUNTRYSIDE);
-		Player.x = 20;
-		Player.y = 41;
+		Player.x = 26;
+		Player.y = 47;
 		break;
 	    case 'h':
 		change_environment (E_COUNTRYSIDE);
-		Player.x = 22;
-		Player.y = 30;
+		Player.x = 27;
+		Player.y = 31;
 		break;
 	    case 'i':
 		change_environment (E_COUNTRYSIDE);
-		Player.x = 51;
-		Player.y = 11;
+		Player.x = 55;
+		Player.y = 12;
 		break;
 	    case 'j':
 		change_environment (E_COUNTRYSIDE);
-		Player.x = 45;
-		Player.y = 45;
+		Player.x = 60;
+		Player.y = 51;
 		break;
 	    case 'k':
 		change_environment (E_COUNTRYSIDE);
-		Player.x = 19;
-		Player.y = 46;
+		Player.x = 29;
+		Player.y = 48;
 		break;
 	    case 'l':
 		change_environment (E_COUNTRYSIDE);
@@ -2004,19 +2005,35 @@ void strategic_teleport (int blessing)
 		break;
 	    case 'm':
 		change_environment (E_COUNTRYSIDE);
-		Player.x = 49;
-		Player.y = 59;
+		Player.x = 61;
+		Player.y = 62;
 		break;
 	    case 'n':
 		change_environment (E_COUNTRYSIDE);
-		Player.x = 30;
-		Player.y = 58;
+		Player.x = 60;
+		Player.y = 21;
+		break;
+        case 'x':
+		change_environment (E_COUNTRYSIDE);
+		Player.x = 4;
+		Player.y = 56;
+		break;
+        case 'y':
+		change_environment (E_COUNTRYSIDE);
+		Player.x = 47;
+		Player.y = 53;
+		break;
+        case 'z':
+		change_environment (E_COUNTRYSIDE);
+		Player.x = 32;
+		Player.y = 3;
 		break;
 	    default:
 		if (gamestatusp (CHEATED)) {
 		    mprint ("Enter environment number: ");
 		    change_environment ((EEnvironment) parsenum());
 		}
+        break;
 	}
 	xredraw();
 	if (gamestatusp (LOST)) {
@@ -2076,7 +2093,7 @@ void level_return (void)
 	Player.y = 19;
 	screencheck (Player.y);
 	drawvision (Player.x, Player.y);
-	locprint ("Back Outside Rampart.");
+	locprint ("Back outside Rampart");
     } else
 	mprint ("A feeble vortex of magic swirls by and has no further effect.");
 }
