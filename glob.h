@@ -140,6 +140,7 @@ extern const char Level_Village3[];
 extern const char Level_Village4[];
 extern const char Level_Village5[];
 extern const char Level_Village6[];
+extern const char BrothelPeople[];
 
 namespace {
 

@@ -1,18 +1,4 @@
 OMEGA++
-* map:
-   aux 1892 -> location names
-
-The Right/Left Fang
-The Barrow Heights
-The Lost Hills
-
-* prepare for extra villages
-   x - Xanadu
-   y - Yuri, amazon freehold
-   z - Noyel
-* many ruins on the semi-island near Rampart
-* add random NPCs (low/high level) to Rampart and villages
-* on crit, horse can be killed under you
 
 * dots: remove from names, add to many messages, 4->3
 * speed as percentage
@@ -24,11 +10,27 @@ The Lost Hills
    shield strap
    by letters!
 * add status effect shorthand instead of Vigorous/Poisoned on screen
+* on crit, horse can be killed under you
 
-Ctrl+g - wizmode
-  knowledge command, also show CHEATED?
-  better wishing; new wishes, Death summons Death
-  death protection
+World
+* look on worldmap should also show actual location name,
+  not just terrain description
+* extra villages:
+   x - Xanadu
+   y - Yuri, amazon freehold
+   z - Noyel
+* mountain names:
+   The Right/Left Fang
+   The Barrow Heights
+   The Lost Hills
+* many ruins on the semi-island near Rampart
+* add random NPCs (low/high level) to Rampart and villages
+
+Wizmode (Ctrl+g)
+* knowledge command, also show CHEATED?
+* better wishing; new wishes, Death summons Death
+* death protection
+
 
 * status:
    Missing (limb)

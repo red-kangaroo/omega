@@ -4436,7 +4436,11 @@ void l_brothel (void)
 		    } else {
 			Player.cash -= 500;
 			mprint ("You are ushered into an opulently appointed hall.");
-			mprint ("After an expensive dinner (takeout from Les Crapuleux)");
+      displayfile (BrothelPeople);
+      clear();
+      touchwin (stdscr);
+      refresh();
+			mprint ("After an expensive dinner (a takeout from Les Crapuleux)");
 			morewait();
 			if (Player.preference == 'n') {
 			    static const char _nopref[] =
